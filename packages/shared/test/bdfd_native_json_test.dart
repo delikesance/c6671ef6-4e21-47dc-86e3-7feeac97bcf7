@@ -1,20 +1,10 @@
-import 'package:bot_creator_shared/actions/handler.dart';
 import 'package:bot_creator_shared/engine/bdfd/json_functions.dart';
 import 'package:bot_creator_shared/engine/bdfd/runtime.dart';
 import 'package:bot_creator_shared/engine/bdfd/variable_functions.dart';
 import 'package:bot_creator_shared/services/variable_service.dart';
-import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
-import 'package:bot_creator_shared/utils/template_resolver.dart';
-import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
 
 import 'helpers/variables_test_helpers.dart';
-
-class _NoDiscord implements NyxxGateway {
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw StateError('$invocation');
-}
 
 void main() {
   BdfdRuntime native([MemoryBotDataStore? store]) => BdfdRuntime(
@@ -157,47 +147,32 @@ void main() {
     },
   );
 
-  test('storage and final values match the actual existing handler', () async {
-    const source =
-        r'$jsonParse[$getServerVar[items_db]]'
-        r'$jsonArray[items]$for[3]$jsonArrayAppend[items;$i]$endfor'
-        r'$var[count;$jsonArrayCount[items]]'
-        r'$var[index;$jsonArrayIndex[items;1]]'
-        r'$var[value;$json[items;$var[index]]]'
-        r'$var[pretty;$jsonPretty[1]]'
-        r'$setServerVar[items_db;$jsonStringify]'
-        r'$var[join;$jsonJoinArray[items;-]]';
-    final legacyStore = MemoryBotDataStore();
-    final nativeStore = MemoryBotDataStore();
-    final legacyVariables = <String, String>{
-      'guild.id': '10',
-      'author.id': '20',
-    };
-    final compiled = BdfdCompiler().compile(source);
-    expect(compiled.hasErrors, isFalse);
-    final result = await handleActions(
-      _NoDiscord(),
-      null,
-      actions: compiled.actions,
-      store: legacyStore,
-      botId: 'bot',
-      variables: legacyVariables,
-      fallbackGuildId: Snowflake(10),
-      resolveTemplate: (text) =>
-          resolveTemplatePlaceholders(text, legacyVariables),
-    );
-    expect(result['error'], isNull, reason: '$result');
-    final context = BdfdContext(
-      variables: {'guild.id': '10', 'author.id': '20'},
-    );
-    await native(nativeStore).execute(source, context: context);
-    expect(nativeStore.scopedVariables, legacyStore.scopedVariables);
-    for (final key in ['count', 'index', 'value', 'pretty', 'join']) {
-      expect(
-        context.temporaryVariables[key],
-        legacyVariables['temp.$key'],
-        reason: key,
+  test(
+    'storage and final values follow the documented JSON functions',
+    () async {
+      const source =
+          r'$jsonParse[$getServerVar[items_db]]'
+          r'$jsonArray[items]$for[3]$jsonArrayAppend[items;$i]$endfor'
+          r'$var[count;$jsonArrayCount[items]]'
+          r'$var[index;$jsonArrayIndex[items;1]]'
+          r'$var[value;$json[items;$var[index]]]'
+          r'$var[pretty;$jsonPretty[1]]'
+          r'$setServerVar[items_db;$jsonStringify]'
+          r'$var[join;$jsonJoinArray[items;-]]';
+      final store = MemoryBotDataStore();
+      final context = BdfdContext(
+        variables: {'guild.id': '10', 'author.id': '20'},
       );
-    }
-  });
+      await native(store).execute(source, context: context);
+      expect(context.temporaryVariables['count'], '3');
+      expect(context.temporaryVariables['index'], '1');
+      expect(context.temporaryVariables['value'], '1');
+      expect(
+        context.temporaryVariables['pretty'],
+        '{\n "items": [\n  0,\n  1,\n  2\n ]\n}',
+      );
+      expect(context.temporaryVariables['join'], '0-1-2');
+      expect(store.scopedVariables.toString(), contains('{"items":[0,1,2]}'));
+    },
+  );
 }

@@ -323,13 +323,7 @@ void main() {
           throwOnError: true,
         ),
       );
-      await execution.execute(
-        r'$callWorkflow[visual]',
-        backend: 'native-v1',
-        executeLegacy: (_) async {
-          fail('Unexpected legacy backend');
-        },
-      );
+      await execution.execute(r'$callWorkflow[visual]', backend: 'native-v1');
       expect(interaction.updates.single.content, 'visible');
       expect(interaction.deleted, 0);
       expect(execution.context.response.originalResponseCompleted, true);

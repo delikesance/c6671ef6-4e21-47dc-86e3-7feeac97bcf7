@@ -1,7 +1,6 @@
 import 'package:bot_creator_shared/engine/bdfd/engine.dart';
 import 'package:bot_creator_shared/engine/bdfd/program.dart';
 import 'package:bot_creator_shared/engine/bdfd/runtime.dart';
-import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator_shared/utils/message_runtime.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:test/test.dart';
@@ -321,33 +320,21 @@ void main() {
     );
     expect(context.textSplit.length, 0);
   });
-  test(
-    'native and actual visual execution share replacement and split operations',
-    () async {
-      for (final source in [
-        r'$replaceText[aa;a;ab;2]',
-        r'$replaceText[$message;a;X;2]',
-        r'$textSplit[$message;,]$editSplitText[2;new]$removeSplitTextElement[1]$getTextSplitLength:$joinSplitText[/]',
-        r'$textSplit[a,b;,]$splitText[<]:$splitText[>]',
-      ]) {
-        final compiled = BdfdCompiler().compile(source);
-        expect(compiled.hasErrors, false);
-        final replies = <String>[];
-        final variables = <String, String>{'message.content': 'a,b,a'};
-        await executeCompiledActions(
-          actions: compiled.actions,
-          store: MemoryBotDataStore(),
-          variables: variables,
-          replies: replies,
-        );
-        final native = await _engine().execute(
-          source,
-          context: BdfdContext(variables: {'message.content': 'a,b,a'}),
-        );
-        expect(native, replies.join(), reason: source);
-      }
-    },
-  );
+  test('replacement and split operations work on message content', () async {
+    for (final entry in {
+      r'$replaceText[aa;a;ab;2]': 'abab',
+      r'$replaceText[$message;a;X;2]': 'X,b,X',
+      r'$textSplit[$message;,]$editSplitText[2;new]$removeSplitTextElement[1]$getTextSplitLength:$joinSplitText[/]':
+          '2:new/a',
+      r'$textSplit[a,b;,]$splitText[<]:$splitText[>]': 'a:b',
+    }.entries) {
+      final native = await _engine().execute(
+        entry.key,
+        context: BdfdContext(variables: {'message.content': 'a,b,a'}),
+      );
+      expect(native, entry.value, reason: entry.key);
+    }
+  });
   test(
     'shared replacement treats inserted samples as data in runtime placeholders',
     () {

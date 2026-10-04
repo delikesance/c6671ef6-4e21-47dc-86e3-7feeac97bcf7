@@ -47,7 +47,6 @@ void main() {
       await execution.execute(
         r'$sendMessage[once]$if[true]ok$endif',
         backend: 'native-v1',
-        executeLegacy: (_) async => fail('Unexpected legacy execution'),
       );
       expect(messages.sent, ['once', 'ok']);
       expect(context.onTrace, same(observer));
@@ -69,11 +68,7 @@ void main() {
       onReplayCaptured: (frames, _) => captured = frames,
     );
     expect(
-      await execution.execute(
-        'plain text',
-        backend: 'native-v1',
-        executeLegacy: (_) async {},
-      ),
+      await execution.execute('plain text', backend: 'native-v1'),
       'plain text',
     );
     expect(captured!.single['nativeStatus'], 'completed');
@@ -94,7 +89,6 @@ void main() {
       execution.execute(
         r'$sendMessage[forbidden]$kick[20]',
         backend: 'native-v1',
-        executeLegacy: (_) async {},
       ),
       throwsA(isA<Exception>()),
     );
@@ -114,11 +108,7 @@ void main() {
         messages: messages,
         onReplayCaptured: (_, _) => throw StateError('capture failed'),
       );
-      await execution.execute(
-        r'$sendMessage[once]',
-        backend: 'native-v1',
-        executeLegacy: (_) async {},
-      );
+      await execution.execute(r'$sendMessage[once]', backend: 'native-v1');
       expect(messages.sent, ['once']);
     },
   );
