@@ -86,6 +86,20 @@ class _CopilotPageState extends State<CopilotPage> {
       (_chat?['messages'] as List? ?? [])
           .map((a) => Map<String, dynamic>.from(a as Map))
           .toList();
+
+  /// Tokens billed for the response ending at [index]: cache misses + output
+  /// (cache hits excluded), summed over the tool loop since the last user turn.
+  int _responseTokens(int index) {
+    final perMessage = (_chat?['message_tokens'] as List? ?? const []);
+    final messages = _messages;
+    var total = 0;
+    for (var i = index; i >= 0 && i < messages.length; i--) {
+      if (messages[i]['role'] == 'user') break;
+      if (i < perMessage.length) total += (perMessage[i] as num? ?? 0).toInt();
+    }
+    return total;
+  }
+
   bool get _hasPendingReads => _actions.any(
     (a) =>
         ['pending', 'executing', 'uncertain'].contains(a['state']) &&
@@ -172,7 +186,10 @@ class _CopilotPageState extends State<CopilotPage> {
           items.add(
             KeyedSubtree(
               key: ValueKey('message-$messageIndex'),
-              child: _messageBubble(message),
+              child: _messageBubble(
+                message,
+                tokens: role == 'assistant' ? _responseTokens(messageIndex) : 0,
+              ),
             ),
           );
         }
@@ -1625,57 +1642,74 @@ class _CopilotPageState extends State<CopilotPage> {
 
   Widget _walletStrip() {
     final colors = Theme.of(context).colorScheme;
-    // Bandeau fin : une ligne de métriques, sans fond, bordure fine.
+    final reserved = (_wallet!['reserved'] as num? ?? 0);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Container(
-        constraints: const BoxConstraints(minHeight: 44),
-        padding: const EdgeInsets.only(left: 14),
+        padding: const EdgeInsets.fromLTRB(14, 10, 4, 10),
         decoration: BoxDecoration(
+          color: AppTheme.homeCard,
           border: Border.all(color: AppTheme.homeCardBorder),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
           children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: AppTheme.actionViolet.withValues(alpha: .16),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: AppIcon(
+                  Reicon.outline.coin,
+                  size: 20,
+                  color: AppTheme.actionVioletSoft,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
             Expanded(
-              child: Wrap(
-                spacing: 20,
-                runSpacing: 6,
-                crossAxisAlignment: WrapCrossAlignment.center,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  for (final metric in [
-                    (context.tr.copilot_available, _wallet!['available'], true),
-                    (
-                      context.tr.copilot_reserved,
-                      _wallet!['reserved'] ?? 0,
-                      false,
-                    ),
-                    (context.tr.copilot_total, _wallet!['balance'], false),
-                  ])
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          metric.$1,
-                          style: Theme.of(context).textTheme.labelSmall
+                  Wrap(
+                    spacing: 6,
+                    crossAxisAlignment: WrapCrossAlignment.end,
+                    children: [
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 140),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            _credits(_wallet!['available']),
+                            softWrap: false,
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 3),
+                        child: Text(
+                          _copy('crédits IA', 'AI credits'),
+                          style: Theme.of(context).textTheme.labelMedium
                               ?.copyWith(color: colors.onSurfaceVariant),
                         ),
-                        Text(
-                          _credits(metric.$2),
-                          softWrap: false,
-                          maxLines: 1,
-                          style: Theme.of(context).textTheme.labelLarge
-                              ?.copyWith(
-                                fontWeight: metric.$3
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
-                                color: metric.$3
-                                    ? null
-                                    : colors.onSurfaceVariant,
-                              ),
-                        ),
-                      ],
+                      ),
+                    ],
+                  ),
+                  if (reserved > 0)
+                    Text(
+                      _copy(
+                        '${_credits(reserved)} en cours d’utilisation',
+                        '${_credits(reserved)} being used right now',
+                      ),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
                     ),
                 ],
               ),
@@ -1796,24 +1830,30 @@ class _CopilotPageState extends State<CopilotPage> {
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    for (final metric in [
-                      (context.tr.copilot_available, _wallet!['available']),
-                      (context.tr.copilot_reserved, _wallet!['reserved'] ?? 0),
-                      (context.tr.copilot_total, _wallet!['balance']),
-                    ])
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: Row(
-                          children: [
-                            Expanded(child: Text(metric.$1, style: muted)),
-                            Text(
-                              _credits(metric.$2),
-                              style: Theme.of(context).textTheme.labelLarge
-                                  ?.copyWith(fontWeight: FontWeight.w600),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Row(
+                        children: [
+                          AppIcon(
+                            Reicon.outline.coin,
+                            size: 16,
+                            color: AppTheme.actionVioletSoft,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              context.tr.copilot_available,
+                              style: muted,
                             ),
-                          ],
-                        ),
+                          ),
+                          Text(
+                            _credits(_wallet!['available']),
+                            style: Theme.of(context).textTheme.labelLarge
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                        ],
                       ),
+                    ),
                     if (_chat != null)
                       Text(
                         context.tr.copilot_credits_in_discussion(
@@ -1977,6 +2017,7 @@ class _CopilotPageState extends State<CopilotPage> {
   Widget _messageBubble(
     Map<String, dynamic> message, {
     bool streaming = false,
+    int tokens = 0,
   }) {
     final colors = Theme.of(context).colorScheme,
         user = message['role'] == 'user',
@@ -2055,6 +2096,30 @@ class _CopilotPageState extends State<CopilotPage> {
             ),
             const SizedBox(height: 4),
             CopilotMarkdown(content: content),
+            if (!user && !streaming && tokens > 0)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppIcon(
+                      Reicon.outline.coin,
+                      size: 12,
+                      color: colors.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      _copy(
+                        '${_credits(tokens)} crédits IA',
+                        '${_credits(tokens)} AI credits',
+                      ),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),

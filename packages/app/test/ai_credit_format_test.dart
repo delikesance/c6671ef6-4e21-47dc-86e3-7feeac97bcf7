@@ -2,11 +2,13 @@ import 'package:bot_creator/features/subscriptions/logic/ai_credit_format.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('formats wallet amounts and small ledger movements as AI credits', () {
-    expect(formatAiCredits(3000000, locale: 'fr'), '30');
-    expect(formatAiCredits(1000, locale: 'fr'), '0,01');
-    expect(formatAiCredits(-50000, locale: 'fr'), '-0,5');
-    expect(formatAiCredits(1, locale: 'fr'), '0,00001');
-    expect(formatAiCredits(125000, locale: 'en'), '1.25');
+  test('formats AI credits without any decimal', () {
+    expect(formatAiCredits(3000000, locale: 'fr'), '3 000');
+    expect(formatAiCredits(97993500, locale: 'en'), '97,994');
+    expect(formatAiCredits(1000, locale: 'en'), '1');
+    expect(formatAiCredits(12000, locale: 'en'), '12');
+    expect(formatAiCredits(100, locale: 'fr'), '<1');
+    expect(formatAiCredits(-50000, locale: 'fr'), '-50');
+    expect(formatAiCredits(0, locale: 'fr'), '0');
   });
 }
