@@ -1,22 +1,10 @@
 import 'dart:async';
 
-import 'package:bot_creator_shared/actions/handler.dart';
 import 'package:bot_creator_shared/engine/bdfd/program.dart';
 import 'package:bot_creator_shared/engine/bdfd/context_functions.dart';
 import 'package:bot_creator_shared/engine/bdfd/runtime.dart';
 import 'package:bot_creator_shared/engine/execution_budget.dart';
-import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
-import 'package:bot_creator_shared/utils/template_resolver.dart';
-import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
-
-import 'helpers/variables_test_helpers.dart';
-
-class _NoDiscord implements NyxxGateway {
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw StateError('Unexpected Discord access: $invocation');
-}
 
 void main() {
   late BdfdRuntime runtime;
@@ -397,31 +385,14 @@ void main() {
     },
   );
 
-  test(
-    'parity with actual block runtime on nested variables and branches',
-    () async {
-      const source =
-          r'$var[x;0]$for[4]'
-          r'$if[$i<2]$var[x;$sum[$var[x];2]]'
-          r'$else$var[x;$sum[$var[x];3]]$endif$endfor'
-          r'$var[label;$toUpperCase[value]]';
-      final compiled = BdfdCompiler().compile(source);
-      expect(compiled.hasErrors, isFalse);
-      final legacy = <String, String>{};
-      final result = await handleActions(
-        _NoDiscord(),
-        null,
-        actions: compiled.actions,
-        store: MemoryBotDataStore(),
-        botId: 'native-parity',
-        variables: legacy,
-        resolveTemplate: (text) => resolveTemplatePlaceholders(text, legacy),
-      );
-      expect(result['error'], isNull, reason: '$result');
-      await runtime.execute(source, context: context);
-      expect(context.temporaryVariables['x'], legacy['temp.x']);
-      expect(context.temporaryVariables['label'], legacy['temp.label']);
-      expect(context.temporaryVariables['x'], '10');
-    },
-  );
+  test('nested variables and branches', () async {
+    const source =
+        r'$var[x;0]$for[4]'
+        r'$if[$i<2]$var[x;$sum[$var[x];2]]'
+        r'$else$var[x;$sum[$var[x];3]]$endif$endfor'
+        r'$var[label;$toUpperCase[value]]';
+    await runtime.execute(source, context: context);
+    expect(context.temporaryVariables['label'], 'VALUE');
+    expect(context.temporaryVariables['x'], '10');
+  });
 }
