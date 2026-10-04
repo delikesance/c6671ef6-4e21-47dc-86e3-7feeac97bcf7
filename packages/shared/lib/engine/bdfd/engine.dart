@@ -57,6 +57,7 @@ import 'role_functions.dart';
 import 'role_query_functions.dart';
 import 'program.dart';
 import 'runtime.dart';
+import '../../services/bot_music_service.dart';
 import 'text_functions.dart';
 import 'text_utility_functions.dart';
 import 'variable_functions.dart';
@@ -91,6 +92,7 @@ class BdfdEngine {
     BotReactionService? reactions,
     BotMemberQueryService? memberQueries,
     BotEmojiService? emojis,
+    BotMusicService? music,
     BdfdVisualWorkflowRunner? runVisualWorkflow,
     Map<String, BdfdNativeFunction> functions = const {},
   }) : _components = components,
@@ -245,12 +247,32 @@ class BdfdEngine {
                  (moderation is BotChannelMutationService
                      ? moderation as BotChannelMutationService
                      : null),
+             queries:
+                 channelQueries ??
+                 (moderation is BotChannelQueryService
+                     ? moderation as BotChannelQueryService
+                     : null),
            ),
-           ...bdfdBotQueryFunctions(),
+           ...bdfdBotQueryFunctions(moderation: moderation),
            ...bdfdCanvasFunctions(),
            ...bdfdAdvancedLanguageFunctions(),
-           ...bdfdLeaderboardFunctions(),
-           ...bdfdMusicFunctions(),
+           ...bdfdAwaitFunctions(store, botId),
+           ...bdfdLeaderboardFunctions(
+             store: store,
+             botId: botId,
+             legacyUserVariables: legacyUserVariables,
+             users:
+                 userQueries ??
+                 (moderation is BotUserQueryService
+                     ? moderation as BotUserQueryService
+                     : null),
+             guilds:
+                 guildQueries ??
+                 (moderation is BotGuildQueryService
+                     ? moderation as BotGuildQueryService
+                     : null),
+           ),
+           ...bdfdMusicFunctions(music),
            ...functions,
          },
        );

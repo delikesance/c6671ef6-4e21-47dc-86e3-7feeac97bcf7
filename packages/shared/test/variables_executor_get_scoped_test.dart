@@ -74,10 +74,7 @@ void main() {
 
         expect(handled, isTrue);
         expect(results['getProfile'], 'legacy');
-        expect(
-          store.scopedVariables['user']?['user-99']?['profile'],
-          'legacy',
-        );
+        expect(store.scopedVariables['user']?['user-99']?['profile'], 'legacy');
         expect(
           store.scopedVariables['user']?['Unknown User']?['profile'],
           'legacy',
@@ -116,10 +113,7 @@ void main() {
 
         expect(handled, isTrue);
         expect(results['getStreak'], '5');
-        expect(
-          store.scopedVariables['user']?['user-100']?['streak'],
-          '5',
-        );
+        expect(store.scopedVariables['user']?['user-100']?['streak'], '5');
         expect(variables['user.bc_streak'], '5');
         expect(variables['user.streak'], '5');
       },
@@ -173,13 +167,7 @@ void main() {
         );
 
         // Scenario A: User has empty value in database
-        await store.setScopedVariable(
-          'bot-1',
-          'user',
-          'user-1',
-          'points',
-          '',
-        );
+        await store.setScopedVariable('bot-1', 'user', 'user-1', 'points', '');
 
         // Scenario B: User has non-empty value in database
         await store.setScopedVariable(
@@ -210,10 +198,7 @@ void main() {
         expect(handledA, isTrue);
         // Should upgrade empty string to definition's defaultValue of '100'
         expect(resultsA['getPoints'], '100');
-        expect(
-          store.scopedVariables['user']?['user-1']?['points'],
-          '100',
-        );
+        expect(store.scopedVariables['user']?['user-1']?['points'], '100');
 
         final resultsB = <String, String>{};
         final variablesB = <String, String>{'userId': 'user-2'};
@@ -235,10 +220,7 @@ void main() {
         expect(handledB, isTrue);
         // Should preserve existing value '50'
         expect(resultsB['getPoints'], '50');
-        expect(
-          store.scopedVariables['user']?['user-2']?['points'],
-          '50',
-        );
+        expect(store.scopedVariables['user']?['user-2']?['points'], '50');
       },
     );
   });

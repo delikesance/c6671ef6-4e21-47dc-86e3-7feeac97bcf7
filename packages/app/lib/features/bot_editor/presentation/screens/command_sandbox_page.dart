@@ -12,7 +12,7 @@ class CommandSandboxPage extends StatefulWidget {
   const CommandSandboxPage({
     super.key,
     this.script,
-    this.bdfdBackend = 'legacy-v1',
+    this.bdfdBackend = 'native-v1',
     this.runner,
     this.editableScript = false,
     this.initialScenario = const {},
@@ -198,6 +198,8 @@ class _CommandSandboxPageState extends State<CommandSandboxPage> {
           'member.isAdmin': admin,
           'member.permissions': admin ? 'administrator' : '',
           'message.content': message.text,
+          // Native BDFD resolves $message[name] from slash options only.
+          if (widget.options.isNotEmpty) 'interaction.isSlash': 'true',
         },
         'definitions': widget.definitions,
         ...Map<String, dynamic>.from(seed),

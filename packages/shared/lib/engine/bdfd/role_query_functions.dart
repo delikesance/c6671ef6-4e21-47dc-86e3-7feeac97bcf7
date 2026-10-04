@@ -1,6 +1,10 @@
+import 'package:nyxx/nyxx.dart' show HttpResponseError;
+
+import '../discord_entity_fetcher.dart' show DiscordEntityNotFound;
 import '../../services/bot_role_query_service.dart';
 import '../../services/role_permissions.dart';
 import '../../utils/global.dart' show bdfdPermissionFlags;
+import 'message_functions.dart' show BdfdMessageOutput;
 import 'program.dart';
 import 'runtime.dart';
 
@@ -173,7 +177,16 @@ Map<String, BdfdNativeFunction> bdfdRoleQueryFunctions(
         if (id == null || id <= 0) {
           throw BdfdNativeError('Invalid role ID.', call.location);
         }
-        final ids = await member(call, user);
+        // A user who is not a member of the server holds no roles.
+        List<String> ids;
+        try {
+          ids = await member(call, user);
+        } on DiscordEntityNotFound {
+          ids = const [];
+        } on HttpResponseError catch (error) {
+          if (error.statusCode != 404) rethrow;
+          ids = const [];
+        }
         if (ids.contains(id.toString())) return 'true';
         return (await roles(
           call,
@@ -270,29 +283,73 @@ Map<String, BdfdNativeFunction> bdfdRoleQueryFunctions(
         final ids = await call.context.budget.run(
           () => service.memberRoleIds(parsedUser, budget: call.context.budget),
         );
-        if (index <= 0 || index > ids.length) return '';
-        return ids[index - 1];
+        // Index 1 is the member's highest role by server hierarchy, not the
+        // order in which Discord stores the member's role IDs.
+        final held = ids.toSet();
+        final ordered = orderedBotRoles(
+          await roles(call),
+        ).where((r) => held.contains(r.id)).map((r) => r.id).toList();
+        if (index <= 0 || index > ordered.length) return '';
+        return ordered[index - 1];
       },
     ),
+    // Wiki: $roleInfo[Message] formats the mentioned role into the embed
+    // description using {name}, {ID}, {mentionable}, {hoist}, {color} and
+    // {position}; it returns no text.
     'roleinfo': BdfdNativeFunction(
       minArguments: 1,
-      maxArguments: 2,
+      maxArguments: 1,
       handler: (call) async {
-        final targetRole = await role(call);
-        final prop = call.argumentCount > 1
-            ? (await call.argument(1)).trim().toLowerCase()
-            : '';
-        return switch (prop) {
-          'name' => targetRole.name,
-          'id' => targetRole.id,
-          'color' =>
-            targetRole.color.toRadixString(16).padLeft(6, '0').toUpperCase(),
-          'position' => '${targetRole.position}',
-          'hoist' || 'hoisted' => '${targetRole.hoisted}',
-          'mentionable' => '${targetRole.mentionable}',
-          'perms' || 'permissions' => '${targetRole.permissions}',
-          _ => targetRole.name,
+        final format = await call.argument(0);
+        final variables = call.context.variables;
+        final encoded = variables['message.roleMentions'];
+        final raw =
+            (encoded == null
+                    ? variables['message.roleMentions[0]']
+                    : encoded
+                          .split(',')
+                          .where((id) => id.isNotEmpty)
+                          .firstOrNull)
+                ?.trim() ??
+            '';
+        final parsed = int.tryParse(raw);
+        if (parsed == null || parsed <= 0) {
+          throw BdfdNativeError('A role mention is required.', call.location);
+        }
+        final all = orderedBotRoles(await roles(call));
+        final index = all.indexWhere((r) => r.id == '$parsed');
+        if (index < 0) throw BdfdNativeError('Role not found.', call.location);
+        final target = all[index];
+        final values = {
+          'name': target.name,
+          'id': target.id,
+          'mentionable': '${target.mentionable}',
+          'hoist': '${target.hoisted}',
+          'color': target.color.toRadixString(16).padLeft(6, '0').toUpperCase(),
+          'position': '${index + 1}',
         };
+        final description = format.replaceAllMapped(
+          RegExp(
+            r'\{(name|id|mentionable|hoist|color|position)\}',
+            caseSensitive: false,
+          ),
+          (m) => values[m.group(1)!.toLowerCase()]!,
+        );
+        if (description.length > 4096) {
+          throw BdfdNativeError(
+            'Description cannot exceed 4096 characters.',
+            call.location,
+          );
+        }
+        final sink = call.context.output;
+        if (sink is! BdfdMessageOutput) {
+          throw BdfdNativeError(
+            'No message service configured.',
+            call.location,
+          );
+        }
+        sink.embed(0)['description'] = description;
+        return '';
       },
     ),
   };

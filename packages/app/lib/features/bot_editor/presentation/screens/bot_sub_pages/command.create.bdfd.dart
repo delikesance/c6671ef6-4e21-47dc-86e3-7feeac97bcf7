@@ -124,7 +124,6 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
           : 'BDFD engine',
     ),
     items: [
-      const DropdownMenuItem(value: 'legacy-v1', child: Text('BDFD legacy')),
       DropdownMenuItem(
         value: 'native-v1',
         child: Text(
@@ -133,7 +132,7 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
               : 'Native BDFD (migration in progress)',
         ),
       ),
-      if (!['legacy-v1', 'native-v1'].contains(_bdfdBackend))
+      if (_bdfdBackend != 'native-v1')
         DropdownMenuItem(value: _bdfdBackend, child: Text(_bdfdBackend)),
     ],
     onChanged: (value) {

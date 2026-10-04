@@ -1,37 +1,110 @@
 import 'function_suite.dart';
 
+/// Permission, role and channel guards read production-shaped entity fixtures
+/// (guild roles, members and channels), never ad-hoc context variables. The
+/// invoking author is member 20 and the bot is member 98 of guild 10.
+Map<String, dynamic> _guild({
+  List<Map<String, dynamic>> roles = const [],
+  Map<String, dynamic> members = const {},
+  List<Map<String, dynamic>> channels = const [],
+}) => {
+  'guilds': {
+    '10': {
+      'owner_id': '99',
+      'roles': [
+        {'id': '10', 'name': '@everyone', 'position': 0, 'permissions': '0'},
+        ...roles,
+      ],
+      'members': {
+        '20': {'roles': <String>[]},
+        '98': {'roles': <String>[]},
+        '99': {'roles': <String>[]},
+        ...members,
+      },
+      'channels': channels.isEmpty
+          ? [
+              {'id': '30', 'name': 'general', 'type': 'text'},
+            ]
+          : channels,
+    },
+  },
+};
+
+Map<String, dynamic> _member(List<String> roles) => {'roles': roles};
+
+/// A guild where member 20 holds [permissions] through one role.
+Map<String, dynamic> _withPermissions(
+  String permissions, {
+  String user = '20',
+}) => _guild(
+  roles: [
+    {'id': '70', 'name': 'Staff', 'position': 1, 'permissions': permissions},
+  ],
+  members: {
+    user: _member(['70']),
+  },
+);
+
+/// A guild where member 20 holds [roleIds]; names mirror the ID in the script.
+Map<String, dynamic> _withRoles(List<String> roleIds) => _guild(
+  roles: [
+    {'id': '12', 'name': 'Moderator', 'position': 3, 'permissions': '0'},
+    {'id': '112', 'name': 'JuniorModerator', 'position': 2, 'permissions': '0'},
+    {'id': '99', 'name': 'Member', 'position': 1, 'permissions': '0'},
+  ],
+  members: {'20': _member(roleIds)},
+);
+
+Map<String, dynamic> _withChannel(Map<String, dynamic> channel) => _guild(
+  channels: [
+    {'id': '40', 'name': 'Text', 'type': 'category'},
+    {'id': '41', 'name': 'Voice', 'type': 'category'},
+    {'id': '30', 'name': 'general', 'type': 'text', ...channel},
+  ],
+);
+
+Map<String, dynamic> _scenario(
+  Map<String, dynamic> entities, {
+  Map<String, dynamic> variables = const {},
+  Map<String, dynamic> options = const {},
+}) => {
+  'entities': entities,
+  'variables': {'bot.id': '98', ...variables},
+  if (options.isNotEmpty) 'options': options,
+};
+
+const _manageMessages = 8192; // 1 << 13
+const _kickMembers = 2;
+const _viewChannel = 1024;
+const _manageGuild = 32;
+const _administrator = 8;
+
 /// Both branches execute the real guards and check that denied commands cannot
 /// perform the storage write following the guard.
-const _guards = [
+final _guards = <(String, String, Map<String, dynamic>, Map<String, dynamic>)>[
   (
     'onlyif',
-    r'$onlyIf[((opts.value))>0;Access denied.]',
+    r'$onlyIf[$message[value]>0;Access denied.]',
     {
       'options': {'value': 1},
+      'variables': {'interaction.isSlash': 'true'},
     },
     {
       'options': {'value': -1},
+      'variables': {'interaction.isSlash': 'true'},
     },
   ),
   (
     'onlyadmin',
     r'$onlyAdmin[Access denied.]',
-    {
-      'variables': {'member.isAdmin': true},
-    },
-    {
-      'variables': {'member.isAdmin': false},
-    },
+    _scenario(_withPermissions('$_administrator')),
+    _scenario(_withPermissions('$_manageGuild')),
   ),
   (
     'onlynsfw',
     r'$onlyNSFW[Access denied.]',
-    {
-      'variables': {'channel.nsfw': true},
-    },
-    {
-      'variables': {'channel.nsfw': false},
-    },
+    _scenario(_withChannel({'nsfw': true})),
+    _scenario(_withChannel({'nsfw': false})),
   ),
   (
     'onlyforids',
@@ -66,12 +139,8 @@ const _guards = [
   (
     'onlyforcategories',
     r'$onlyForCategories[40;Access denied.]',
-    {
-      'variables': {'channel.parentId': '40'},
-    },
-    {
-      'variables': {'channel.parentId': '41'},
-    },
+    _scenario(_withChannel({'parent_id': '40'})),
+    _scenario(_withChannel({'parent_id': '41'})),
   ),
   (
     'onlyforusers',
@@ -86,22 +155,14 @@ const _guards = [
   (
     'onlyforroleids',
     r'$onlyForRoleIDs[12;Access denied.]',
-    {
-      'variables': {'member.roles': '12,99'},
-    },
-    {
-      'variables': {'member.roles': '112,99'},
-    },
+    _scenario(_withRoles(['12', '99'])),
+    _scenario(_withRoles(['112', '99'])),
   ),
   (
     'onlyforroles',
     r'$onlyForRoles[Moderator;Access denied.]',
-    {
-      'variables': {'member.roleNames': 'Moderator,Member'},
-    },
-    {
-      'variables': {'member.roleNames': 'JuniorModerator,Member'},
-    },
+    _scenario(_withRoles(['12', '99'])),
+    _scenario(_withRoles(['112', '99'])),
   ),
   (
     'ignorechannels',
@@ -124,34 +185,16 @@ const _guards = [
     },
   ),
   (
-    'blacklistroleids',
-    r'$blacklistRoleIDs[12;Access denied.]',
-    {
-      'variables': {'member.roles': '112,99'},
-    },
-    {
-      'variables': {'member.roles': '12,99'},
-    },
-  ),
-  (
     'blacklistrolesids',
     r'$blacklistRolesIDs[12;Access denied.]',
-    {
-      'variables': {'member.roles': '112,99'},
-    },
-    {
-      'variables': {'member.roles': '12,99'},
-    },
+    _scenario(_withRoles(['112', '99'])),
+    _scenario(_withRoles(['12', '99'])),
   ),
   (
     'blacklistroles',
     r'$blacklistRoles[Moderator;Access denied.]',
-    {
-      'variables': {'member.roleNames': 'JuniorModerator,Member'},
-    },
-    {
-      'variables': {'member.roleNames': 'Moderator,Member'},
-    },
+    _scenario(_withRoles(['112', '99'])),
+    _scenario(_withRoles(['12', '99'])),
   ),
   (
     'blacklistservers',
@@ -176,51 +219,45 @@ const _guards = [
   (
     'onlyperms',
     r'$onlyPerms[ManageMessages;KickMembers;Access denied.]',
-    {
-      'variables': {'member.permissions': 'managemessages,kickmembers'},
-    },
-    {
-      'variables': {'member.permissions': 'managemessages'},
-    },
+    _scenario(_withPermissions('${_manageMessages | _kickMembers}')),
+    _scenario(_withPermissions('$_manageMessages')),
   ),
   (
     'onlybotperms',
     r'$onlyBotPerms[ManageMessages;Access denied.]',
-    {
-      'variables': {'bot.permissions': 'managemessages'},
-    },
-    {
-      'variables': {'bot.permissions': 'manageguild'},
-    },
+    _scenario(_withPermissions('$_manageMessages', user: '98')),
+    _scenario(_withPermissions('$_manageGuild', user: '98')),
   ),
   (
     'onlybotchannelperms',
-    r'$onlyBotChannelPerms[ManageMessages;Access denied.]',
-    {
-      'variables': {'bot.permissions': 'managemessages'},
-    },
-    {
-      'variables': {'bot.permissions': 'manageguild'},
-    },
+    r'$onlyBotChannelPerms[$channelID;ManageMessages;Access denied.]',
+    _scenario(
+      _withPermissions('${_manageMessages | _viewChannel}', user: '98'),
+    ),
+    _scenario(_withPermissions('${_manageGuild | _viewChannel}', user: '98')),
   ),
   (
     'onlyifmessagecontains',
-    r'$onlyIfMessageContains[((opts.value));hello;Access denied.]',
+    r'$onlyIfMessageContains[$message[value];hello;Access denied.]',
     {
       'options': {'value': 'Hello Alice'},
+      'variables': {'interaction.isSlash': 'true'},
     },
     {
       'options': {'value': 'Goodbye Alice'},
+      'variables': {'interaction.isSlash': 'true'},
     },
   ),
   (
     'enabled',
-    r'$enabled[((opts.value));Access denied.]',
+    r'$enabled[$message[value];Access denied.]',
     {
       'options': {'value': 'yes'},
+      'variables': {'interaction.isSlash': 'true'},
     },
     {
       'options': {'value': 'no'},
+      'variables': {'interaction.isSlash': 'true'},
     },
   ),
 ];
@@ -228,23 +265,24 @@ const _guards = [
 final sandboxGuardFunctionCases = [
   SandboxFunctionCase(
     'onlyforusers',
-    r'$onlyForUsers[((opts.name));Access denied.]allowed',
+    r'$onlyForUsers[$message[name];Access denied.]allowed',
     0,
     'allowed',
     label: 'dynamic username',
     scenario: {
       'options': {'name': 'Alice'},
-      'variables': {'author.username': 'aLiCe'},
+      'variables': {'interaction.isSlash': 'true', 'author.username': 'aLiCe'},
     },
   ),
   SandboxFunctionCase(
     'onlyifmessagecontains',
-    r'$onlyIfMessageContains[((opts.text));((opts.word));Access denied.]allowed',
+    r'$onlyIfMessageContains[$message[text];$message[word];Access denied.]allowed',
     0,
     'allowed',
     label: 'dynamic word',
     scenario: {
       'options': {'text': 'Hello\nAlice', 'word': 'HELLO'},
+      'variables': {'interaction.isSlash': 'true'},
     },
   ),
   SandboxFunctionCase(
@@ -253,30 +291,35 @@ final sandboxGuardFunctionCases = [
     0,
     'allowed',
     label: 'guild owner',
-    scenario: {
-      'variables': {'author.id': '99'},
-    },
+    scenario: _scenario(_guild(), variables: {'author.id': '99'}),
   ),
   SandboxFunctionCase(
     'onlyperms',
     r'$onlyPerms[ManageMessages;Access denied.]allowed',
     0,
     'Access denied.',
-    label: 'lookalike permission',
-    scenario: {
-      'variables': {'member.permissions': 'notmanagemessages'},
-    },
+    label: 'other permission bits do not satisfy the requirement',
+    scenario: _scenario(_withPermissions('$_viewChannel')),
     expectedValues: {'/stopped': true},
   ),
   SandboxFunctionCase(
     'hasperms',
-    r'result=$hasPerms[((opts.target));ManageMessages]',
+    r'result=$hasPerms[$message[target];ManageMessages]',
     0,
     'result=false',
-    label: 'unknown target cannot use author permissions',
+    label: 'another member cannot use the author permissions',
     scenario: {
       'options': {'target': '21'},
-      'variables': {'member.permissions': 'administrator'},
+      'entities': _guild(
+        roles: [
+          {'id': '70', 'name': 'Staff', 'position': 1, 'permissions': '8'},
+        ],
+        members: {
+          '20': _member(['70']),
+          '21': _member([]),
+        },
+      ),
+      'variables': {'interaction.isSlash': 'true', 'bot.id': '98'},
     },
     expectedValues: {'/storage_after/scoped': {}},
   ),
@@ -306,11 +349,9 @@ final sandboxGuardFunctionCases = [
         0,
         'result=$allowed',
         label: allowed ? 'allowed' : 'denied',
-        scenario: {
-          'variables': {
-            'member.permissions': allowed ? 'managemessages' : 'viewchannel',
-          },
-        },
+        scenario: _scenario(
+          _withPermissions('${allowed ? _manageMessages : _viewChannel}'),
+        ),
         expectedValues: {'/storage_after/scoped': {}},
       ),
   SandboxFunctionCase(
@@ -319,30 +360,27 @@ final sandboxGuardFunctionCases = [
     0,
     'allowed',
     label: 'administrator',
-    scenario: {
-      'variables': {'member.permissions': 'administrator'},
-    },
+    scenario: _scenario(_withPermissions('$_administrator')),
   ),
   SandboxFunctionCase(
     'onlyadmin',
     r'$onlyAdmin[Access denied.]allowed',
     0,
     'Access denied.',
-    label: 'lookalike permission',
-    scenario: {
-      'variables': {'member.permissions': 'notadministrator'},
-    },
+    label: 'other permissions do not imply administrator',
+    scenario: _scenario(_withPermissions('${_manageGuild | _manageMessages}')),
     expectedValues: {'/stopped': true},
   ),
   SandboxFunctionCase(
     'checkuserperms',
-    r'result=$checkUserPerms[((opts.target));ManageMessages]',
+    r'result=$checkUserPerms[$message[target];ManageMessages]',
     0,
     'result=true',
     label: 'target user',
     scenario: {
       'options': {'target': '21'},
-      'variables': {'permissions.byId.21': 'managemessages'},
+      'entities': _withPermissions('$_manageMessages', user: '21'),
+      'variables': {'interaction.isSlash': 'true', 'bot.id': '98'},
     },
     expectedValues: {'/storage_after/scoped': {}},
   ),

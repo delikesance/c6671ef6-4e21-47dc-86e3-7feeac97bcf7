@@ -69,12 +69,9 @@ void main() {
 
     test('tokenizes standalone closing brackets outside functions as text', () {
       final result = BdfdLexer().tokenize('Hello ]');
-      
+
       expect(result.diagnostics, isEmpty);
-      expect(summarizeTokens(result), [
-        'text:Hello ]',
-        'eof:',
-      ]);
+      expect(summarizeTokens(result), ['text:Hello ]', 'eof:']);
     });
 
     test('reports unclosed bracket diagnostics at the opening location', () {
@@ -168,20 +165,14 @@ void main() {
       final result = BdfdLexer().tokenize('text ] more');
 
       expect(result.diagnostics, isEmpty);
-      expect(summarizeTokens(result), [
-        'text:text ] more',
-        'eof:',
-      ]);
+      expect(summarizeTokens(result), ['text:text ] more', 'eof:']);
     });
-    
+
     test('supports bracketed context IDs in variable names', () {
       final result = BdfdLexer().tokenize('user[123].test');
 
       expect(result.diagnostics, isEmpty);
-      expect(summarizeTokens(result), [
-        'text:user[123].test',
-        'eof:',
-      ]);
+      expect(summarizeTokens(result), ['text:user[123].test', 'eof:']);
     });
 
     // ── Escape sequences ─────────────────────────────────────────────────
@@ -252,10 +243,7 @@ void main() {
       final result = BdfdLexer().tokenize(r'$replysfdsfsdf');
 
       expect(result.diagnostics, isEmpty);
-      expect(summarizeTokens(result), [
-        r'function:$replysfdsfsdf',
-        'eof:',
-      ]);
+      expect(summarizeTokens(result), [r'function:$replysfdsfsdf', 'eof:']);
     });
 
     test('identifier with function prefix is not split (multi-word)', () {
@@ -264,20 +252,20 @@ void main() {
       final result = BdfdLexer().tokenize(r'$getBotInvitetext');
 
       expect(result.diagnostics, isEmpty);
-      expect(summarizeTokens(result), [
-        r'function:$getBotInvitetext',
-        'eof:',
-      ]);
+      expect(summarizeTokens(result), [r'function:$getBotInvitetext', 'eof:']);
     });
 
-    test('treats unknown identifiers as functions (for loop variables etc)', () {
-      final result = BdfdLexer().tokenize(r'$totallyFakeFunction');
+    test(
+      'treats unknown identifiers as functions (for loop variables etc)',
+      () {
+        final result = BdfdLexer().tokenize(r'$totallyFakeFunction');
 
-      expect(result.diagnostics, isEmpty);
-      expect(summarizeTokens(result), [
-        r'function:$totallyFakeFunction',
-        'eof:',
-      ]);
-    });
+        expect(result.diagnostics, isEmpty);
+        expect(summarizeTokens(result), [
+          r'function:$totallyFakeFunction',
+          'eof:',
+        ]);
+      },
+    );
   });
 }

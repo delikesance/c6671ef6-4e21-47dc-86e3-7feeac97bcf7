@@ -21,12 +21,7 @@ void main() {
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
-            {
-              'op': 'create',
-              'width': '100',
-              'height': '50',
-              'color': 'red',
-            },
+            {'op': 'create', 'width': '100', 'height': '50', 'color': 'red'},
           ],
         },
         resultKey: 'img0',
@@ -43,10 +38,10 @@ void main() {
       expect(bytes[1], 0x50);
       expect(bytes[2], 0x4E);
       expect(bytes[3], 0x47);
-      
+
       // Verify that the variables map itself does NOT contain the dataUrl (saving memory)
       expect(variables['img0.dataUrl'], isNull);
-      
+
       // Verify that resolving it dynamically via template resolver works perfectly
       final resolvedDataUrl = resolveTemplatePlaceholders('((img0.dataUrl))', {
         'img0': results['img0']!,
@@ -154,12 +149,7 @@ void main() {
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
-            {
-              'op': 'create',
-              'width': '50',
-              'height': '50',
-              'color': 'black',
-            },
+            {'op': 'create', 'width': '50', 'height': '50', 'color': 'black'},
             {
               'op': 'compositeImage',
               'url': 'data:image/png;base64,$overlayBase64',
@@ -223,72 +213,75 @@ void main() {
       expect(bytes.length, greaterThan(50));
     });
 
-    test('compositeImage with shape rounded/triangle crops overlay correctly', () async {
-      final sourceResults = <String, String>{};
-      final sourceVars = <String, String>{};
+    test(
+      'compositeImage with shape rounded/triangle crops overlay correctly',
+      () async {
+        final sourceResults = <String, String>{};
+        final sourceVars = <String, String>{};
 
-      await executeRuntimeImageBlock(
-        payload: {
-          'operations': [
-            {'op': 'create', 'width': '10', 'height': '10', 'color': 'red'},
-          ],
-        },
-        resultKey: 'src',
-        results: sourceResults,
-        variables: sourceVars,
-        resolveValue: resolve,
-      );
+        await executeRuntimeImageBlock(
+          payload: {
+            'operations': [
+              {'op': 'create', 'width': '10', 'height': '10', 'color': 'red'},
+            ],
+          },
+          resultKey: 'src',
+          results: sourceResults,
+          variables: sourceVars,
+          resolveValue: resolve,
+        );
 
-      final srcBase64 = sourceResults['src']!;
+        final srcBase64 = sourceResults['src']!;
 
-      // Rounded test
-      await executeRuntimeImageBlock(
-        payload: {
-          'operations': [
-            {'op': 'create', 'width': '20', 'height': '20', 'color': 'black'},
-            {
-              'op': 'compositeImage',
-              'url': 'data:image/png;base64,$srcBase64',
-              'x': '5',
-              'y': '5',
-              'width': '10',
-              'height': '10',
-              'shape': 'rounded:4',
-            },
-          ],
-        },
-        resultKey: 'img_rounded',
-        results: results,
-        variables: variables,
-        resolveValue: resolve,
-      );
+        // Rounded test
+        await executeRuntimeImageBlock(
+          payload: {
+            'operations': [
+              {'op': 'create', 'width': '20', 'height': '20', 'color': 'black'},
+              {
+                'op': 'compositeImage',
+                'url': 'data:image/png;base64,$srcBase64',
+                'x': '5',
+                'y': '5',
+                'width': '10',
+                'height': '10',
+                'shape': 'rounded:4',
+              },
+            ],
+          },
+          resultKey: 'img_rounded',
+          results: results,
+          variables: variables,
+          resolveValue: resolve,
+        );
 
-      expect(results['img_rounded'], isNotEmpty);
+        expect(results['img_rounded'], isNotEmpty);
 
-      // Triangle test
-      await executeRuntimeImageBlock(
-        payload: {
-          'operations': [
-            {'op': 'create', 'width': '20', 'height': '20', 'color': 'black'},
-            {
-              'op': 'compositeImage',
-              'url': 'data:image/png;base64,$srcBase64',
-              'x': '5',
-              'y': '5',
-              'width': '10',
-              'height': '10',
-              'shape': 'triangle',
-            },
-          ],
-        },
-        resultKey: 'img_triangle',
-        results: results,
-        variables: variables,
-        resolveValue: resolve,
-      );
+        // Triangle test
+        await executeRuntimeImageBlock(
+          payload: {
+            'operations': [
+              {'op': 'create', 'width': '20', 'height': '20', 'color': 'black'},
+              {
+                'op': 'compositeImage',
+                'url': 'data:image/png;base64,$srcBase64',
+                'x': '5',
+                'y': '5',
+                'width': '10',
+                'height': '10',
+                'shape': 'triangle',
+              },
+            ],
+          },
+          resultKey: 'img_triangle',
+          results: results,
+          variables: variables,
+          resolveValue: resolve,
+        );
 
-      expect(results['img_triangle'], isNotEmpty);
-    });
+        expect(results['img_triangle'], isNotEmpty);
+      },
+    );
 
     test('loadImage from data URL using url key', () async {
       final sourceResults = <String, String>{};
@@ -311,10 +304,7 @@ void main() {
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
-            {
-              'op': 'loadImage',
-              'url': 'data:image/png;base64,$srcBase64',
-            },
+            {'op': 'loadImage', 'url': 'data:image/png;base64,$srcBase64'},
           ],
         },
         resultKey: 'img5',
@@ -383,10 +373,7 @@ void main() {
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
-            {
-              'op': 'loadImage',
-              'dataUrl': 'data:image/png;base64,$base64',
-            },
+            {'op': 'loadImage', 'dataUrl': 'data:image/png;base64,$base64'},
           ],
         },
         resultKey: 'img5c',
@@ -398,29 +385,28 @@ void main() {
       expect(results['img5c'], isNotEmpty);
     });
 
-    test('loadImage with invalid URL returns current canvas unchanged',
-        () async {
-      await executeRuntimeImageBlock(
-        payload: {
-          'operations': [
-            {'op': 'create', 'width': '50', 'height': '50', 'color': 'black'},
-            {
-              'op': 'loadImage',
-              'url': 'not-a-valid-url-or-base64!!!',
-            },
-          ],
-        },
-        resultKey: 'img5d',
-        results: results,
-        variables: variables,
-        resolveValue: resolve,
-      );
+    test(
+      'loadImage with invalid URL returns current canvas unchanged',
+      () async {
+        await executeRuntimeImageBlock(
+          payload: {
+            'operations': [
+              {'op': 'create', 'width': '50', 'height': '50', 'color': 'black'},
+              {'op': 'loadImage', 'url': 'not-a-valid-url-or-base64!!!'},
+            ],
+          },
+          resultKey: 'img5d',
+          results: results,
+          variables: variables,
+          resolveValue: resolve,
+        );
 
-      // Should still produce an image (the black canvas, unchanged)
-      expect(results['img5d'], isNotEmpty);
-      final bytes = base64Decode(results['img5d']!);
-      expect(bytes.length, greaterThan(50));
-    });
+        // Should still produce an image (the black canvas, unchanged)
+        expect(results['img5d'], isNotEmpty);
+        final bytes = base64Decode(results['img5d']!);
+        expect(bytes.length, greaterThan(50));
+      },
+    );
 
     test('empty operations returns empty', () async {
       await executeRuntimeImageBlock(
@@ -455,12 +441,7 @@ void main() {
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
-            {
-              'op': 'create',
-              'width': '100',
-              'height': '40',
-              'color': 'black',
-            },
+            {'op': 'create', 'width': '100', 'height': '40', 'color': 'black'},
             {
               'op': 'drawText',
               'text': '((myText))',

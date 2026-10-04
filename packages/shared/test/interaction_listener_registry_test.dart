@@ -178,9 +178,27 @@ void main() {
 
       registry.removeAllForBot('bot-to-remove');
 
-      expect(registry.getMatching('id-1', const ListenerMatchRequest(botId: 'bot-to-remove', type: 'button')), isNull);
-      expect(registry.getMatching('id-2', const ListenerMatchRequest(botId: 'bot-to-remove', type: 'button')), isNull);
-      expect(registry.getMatching('id-3', const ListenerMatchRequest(botId: 'bot-to-keep', type: 'button')), same(entry3));
+      expect(
+        registry.getMatching(
+          'id-1',
+          const ListenerMatchRequest(botId: 'bot-to-remove', type: 'button'),
+        ),
+        isNull,
+      );
+      expect(
+        registry.getMatching(
+          'id-2',
+          const ListenerMatchRequest(botId: 'bot-to-remove', type: 'button'),
+        ),
+        isNull,
+      );
+      expect(
+        registry.getMatching(
+          'id-3',
+          const ListenerMatchRequest(botId: 'bot-to-keep', type: 'button'),
+        ),
+        same(entry3),
+      );
 
       registry.removeEntry('id-3', entry3);
     });

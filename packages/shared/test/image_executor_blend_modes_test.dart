@@ -21,12 +21,7 @@ void main() {
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
-            {
-              'op': 'create',
-              'width': '20',
-              'height': '20',
-              'color': 'red',
-            },
+            {'op': 'create', 'width': '20', 'height': '20', 'color': 'red'},
           ],
         },
         resultKey: 'red',
@@ -38,12 +33,7 @@ void main() {
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
-            {
-              'op': 'create',
-              'width': '40',
-              'height': '40',
-              'color': '#808080',
-            },
+            {'op': 'create', 'width': '40', 'height': '40', 'color': '#808080'},
             {
               'op': 'compositeImage',
               'url': 'data:image/png;base64,${redResults['red']}',
@@ -68,12 +58,7 @@ void main() {
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
-            {
-              'op': 'create',
-              'width': '10',
-              'height': '10',
-              'color': 'blue',
-            },
+            {'op': 'create', 'width': '10', 'height': '10', 'color': 'blue'},
           ],
         },
         resultKey: 'blue',
@@ -85,12 +70,7 @@ void main() {
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
-            {
-              'op': 'create',
-              'width': '30',
-              'height': '30',
-              'color': '#404040',
-            },
+            {'op': 'create', 'width': '30', 'height': '30', 'color': '#404040'},
             {
               'op': 'compositeImage',
               'url': 'data:image/png;base64,${whiteResults['blue']}',
@@ -115,12 +95,7 @@ void main() {
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
-            {
-              'op': 'create',
-              'width': '20',
-              'height': '20',
-              'color': '#808080',
-            },
+            {'op': 'create', 'width': '20', 'height': '20', 'color': '#808080'},
           ],
         },
         resultKey: 'src',
@@ -132,12 +107,7 @@ void main() {
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
-            {
-              'op': 'create',
-              'width': '40',
-              'height': '40',
-              'color': '#606060',
-            },
+            {'op': 'create', 'width': '40', 'height': '40', 'color': '#606060'},
             {
               'op': 'compositeImage',
               'url': 'data:image/png;base64,${srcResults['src']}',
@@ -162,12 +132,7 @@ void main() {
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
-            {
-              'op': 'create',
-              'width': '10',
-              'height': '10',
-              'color': 'red',
-            },
+            {'op': 'create', 'width': '10', 'height': '10', 'color': 'red'},
           ],
         },
         resultKey: 'red',
@@ -179,12 +144,7 @@ void main() {
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
-            {
-              'op': 'create',
-              'width': '30',
-              'height': '30',
-              'color': 'black',
-            },
+            {'op': 'create', 'width': '30', 'height': '30', 'color': 'black'},
             {
               'op': 'compositeImage',
               'url': 'data:image/png;base64,${srcResults['red']}',

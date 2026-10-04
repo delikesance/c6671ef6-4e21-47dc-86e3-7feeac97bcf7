@@ -290,6 +290,7 @@ class CopilotMcp {
         final result = await testCommandInSandbox({
           ...Map<String, dynamic>.from(args['scenario'] as Map? ?? {}),
           if (args['script'] != null) 'script': args['script'],
+          if (args['script'] != null) 'bdfdBackend': 'native-v1',
           if (args['actions'] != null) 'actions': args['actions'],
           'bdfdUserVariableSemantics': semantics,
         });

@@ -40,9 +40,7 @@ void main() {
     });
 
     test(r'parses $addTextDisplay with arguments', () {
-      final lexerResult = BdfdLexer().tokenize(
-        r'$addTextDisplay[Hello world]',
-      );
+      final lexerResult = BdfdLexer().tokenize(r'$addTextDisplay[Hello world]');
       final result = BdfdParser().parseTokens(lexerResult.tokens);
 
       expect(result.diagnostics, isEmpty);
@@ -122,10 +120,7 @@ void main() {
     });
 
     test(r'parses $removeAllComponents and $removeAllComponents[]', () {
-      for (final code in [
-        r'$removeAllComponents',
-        r'$removeAllComponents[]',
-      ]) {
+      for (final code in [r'$removeAllComponents', r'$removeAllComponents[]']) {
         final lexerResult = BdfdLexer().tokenize(code);
         final result = BdfdParser().parseTokens(lexerResult.tokens);
 

@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 
 import 'package:bot_creator/core/models/types/app_emoji.dart';
 import 'package:bot_creator/features/bot_editor/logic/command_editor_state.dart';
-import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:nyxx/nyxx.dart';
 
 /// Notifier for [CommandEditorState] — replaces the mutable fields and
@@ -17,10 +16,7 @@ import 'package:nyxx/nyxx.dart';
 /// final name = context.select((CommandEditorNotifier n) => n.state.commandName);
 /// ```
 class CommandEditorNotifier extends ChangeNotifier {
-  CommandEditorNotifier({BdfdCompiler? bdfdCompiler})
-    : _bdfdCompiler = bdfdCompiler ?? BdfdCompiler();
-
-  final BdfdCompiler _bdfdCompiler;
+  CommandEditorNotifier();
 
   CommandEditorState _state = const CommandEditorState();
   CommandEditorState get state => _state;
@@ -175,16 +171,10 @@ class CommandEditorNotifier extends ChangeNotifier {
   }
 
   void refreshBdfdCompileResult(String source) {
-    final result = _state.bdfdBackend == 'legacy-v1'
-        ? _bdfdCompiler.compile(source)
-        : null;
-    final diagnostics = result == null
-        ? bdfdDiagnosticsFor(source, backend: _state.bdfdBackend)
-        : const <BdfdCompileDiagnostic>[];
+    final diagnostics = bdfdDiagnosticsFor(source, backend: _state.bdfdBackend);
     _state = _state.copyWith(
       bdfdScriptContent: source,
-      bdfdCompileResult: result,
-      clearBdfdCompileResult: result == null,
+      clearBdfdCompileResult: true,
       bdfdNativeDiagnostics: diagnostics,
     );
     notifyListeners();

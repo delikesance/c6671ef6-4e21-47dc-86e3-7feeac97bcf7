@@ -16,6 +16,7 @@ import '../services/bot_channel_mutation_service.dart';
 import '../services/bot_channel_query_service.dart';
 import 'dart:async';
 import '../services/bot_moderation_service.dart';
+import '../services/bot_music_service.dart';
 import '../services/bot_role_query_service.dart';
 import '../services/permission_checks.dart';
 import 'dart:convert';
@@ -43,7 +44,6 @@ import '../actions/execution_policy.dart';
 import '../actions/role_definition_actions.dart';
 import '../actions/handler.dart';
 import '../types/action.dart';
-import '../utils/bdfd_compiler.dart';
 import '../utils/bdfd_duration_parser.dart';
 import '../utils/runtime_variables.dart';
 import '../utils/message_runtime.dart';
@@ -115,7 +115,7 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
   final script = (input['script'] ?? '').toString();
   if (script.length > 100000) throw StateError('Script size limit exceeded');
   final backend = BdfdBackend.parse(input['bdfdBackend']);
-  final nativeScript = input['script'] != null && backend == BdfdBackend.native;
+  final nativeScript = input['script'] != null;
   final diagnostics = <Map<String, dynamic>>[];
   final semantics = input['bdfdUserVariableSemantics'] ?? 2;
   if (semantics != 1 && semantics != 2) {
@@ -124,32 +124,10 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
   final List<Action> actions;
   if (nativeScript) {
     actions = const [];
-  } else if (input['actions'] is List) {
+  } else {
     actions = (input['actions'] as List)
         .map((a) => Action.fromJson(Map<String, dynamic>.from(a as Map)))
         .toList();
-  } else {
-    final compiled = BdfdCompiler(
-      legacyUserVariables: semantics == 1,
-    ).compile(script);
-    diagnostics.addAll(
-      compiled.diagnostics.map(
-        (d) => {
-          'message': d.message,
-          'severity': d.severity.name,
-          'line': d.line,
-          'column': d.column,
-        },
-      ),
-    );
-    if (compiled.hasErrors) {
-      return {
-        'success': false,
-        'diagnostics': diagnostics,
-        'error': 'Compilation failed',
-      };
-    }
-    actions = compiled.actions;
   }
   final scopedDefinitions = <Map<String, dynamic>>[];
   final rawDefinitions = input['definitions'];
@@ -423,6 +401,31 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
       maxSteps: 10000,
       onTrace: policy.recordNative,
     );
+    context.onLog = logs.add;
+    context.imageSourceResolver = (source) async {
+      final uri = Uri.tryParse(source);
+      if (uri != null && (uri.scheme == 'http' || uri.scheme == 'https')) {
+        final fixture = policy.imageSources[source]?.toString();
+        if (fixture == null || fixture.length > 128000) {
+          throw StateError(
+            'Sandbox image source must have an explicit local fixture',
+          );
+        }
+        final fixtureUri = Uri.tryParse(fixture);
+        if (fixtureUri != null &&
+            fixtureUri.hasScheme &&
+            fixtureUri.scheme != 'data') {
+          throw StateError(
+            'Sandbox image fixture must be a data URL or base64',
+          );
+        }
+        return fixture;
+      }
+      if (uri != null && uri.hasScheme && uri.scheme != 'data') {
+        throw StateError('Sandbox image source must be a data URL or base64');
+      }
+      return source;
+    };
     final messages = _SandboxMessages(policy);
     final moderation = _SandboxModeration(policy, variables);
     final commandQueries = _SandboxCommandQueries(policy, variables);
@@ -469,6 +472,7 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
         timing: timing,
         delays: delays,
         http: httpService,
+        music: _SandboxMusic(policy, variables),
         runVisualWorkflow: (workflow, _) => runActions(
           ((workflow['actions'] as List?) ?? [])
               .whereType<Map>()
@@ -479,12 +483,7 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
       final started = Stopwatch()..start();
       final variablesBefore = Map<String, String>.from(variables);
       try {
-        final output = await execution.execute(
-          script,
-          backend: backend.id,
-          executeLegacy: (_) async =>
-              throw StateError('Unexpected legacy execution'),
-        );
+        final output = await execution.execute(script, backend: backend.id);
         results = {
           ...context.results,
           'output': output ?? '',
@@ -505,6 +504,13 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
       results = await runActions(actions);
     }
     await timing.drain();
+    if (context.response.deferred) {
+      policy.effects.add({
+        'type': 'deferInteraction',
+        'ephemeral': context.response.ephemeral,
+        'simulated': true,
+      });
+    }
     error = variables['error.message'];
     if (error == null &&
         entityGateway != null &&
@@ -623,6 +629,19 @@ Map? _sandboxMessageChannelRow(EntityFixtureGateway gateway, String id) {
   return null;
 }
 
+/// Serialises staged components exactly as the production send path does.
+List<Map<String, Object?>> _apiComponents(Object? json) {
+  if (json is! Map) return const [];
+  final definition = ComponentV2Definition.fromJson(
+    Map<String, dynamic>.from(json),
+  );
+  if (definition.components.isEmpty) return const [];
+  return buildComponentNodes(
+    definition: definition,
+    resolve: (value) => value,
+  ).map((builder) => builder.build()).toList();
+}
+
 class _SandboxMessages implements BotMessageService {
   _SandboxMessages(this.policy);
   final _SandboxPolicy policy;
@@ -636,6 +655,16 @@ class _SandboxMessages implements BotMessageService {
     budget.check();
     policy.actions++;
     policy.checkBudget();
+    if (request.payload['targetType'] == 'typing') {
+      policy.effects.add({
+        'type': 'typing',
+        'backend': 'native-v1',
+        'channel_id':
+            request.payload['channelId']?.toString() ?? variables['channel.id'],
+        'simulated': true,
+      });
+      return const BotMessageResult();
+    }
     final id = '${100000 + policy.responses.length}';
     final channelId =
         request.payload['channelId']?.toString() ??
@@ -658,26 +687,32 @@ class _SandboxMessages implements BotMessageService {
         'channel_id': channelId,
         'content': request.payload['content'] ?? '',
         'embeds': request.payload['embeds'] ?? [],
-        'components':
-            ((request.payload['components'] as Map?)?['components'] as List? ??
-                    const [])
-                .map(
-                  (row) => nativeComponentBuilder(
-                    Map<String, dynamic>.from(row as Map),
-                  ).build(),
-                )
-                .toList(),
+        'components': _apiComponents(request.payload['components']),
         'reactions': <dynamic>[],
       };
       _sandboxMessageChannelRow(gateway, channelId)?['last_message_id'] = id;
     }
+    final componentJson = request.payload['components'];
+    final componentDefinition = componentJson is Map
+        ? ComponentV2Definition.fromJson(
+            Map<String, dynamic>.from(componentJson),
+          )
+        : null;
+    final richComponents = componentDefinition?.isRichV2 ?? false;
     policy.responses.add({
-      'type': request.destination == BotMessageDestination.response
+      'type': richComponents
+          ? (request.destination == BotMessageDestination.response
+                ? 'respondWithComponentV2'
+                : 'sendComponentV2')
+          : request.destination == BotMessageDestination.response
           ? 'respondWithMessage'
           : 'sendMessage',
       'destination': request.destination.name,
       'backend': 'native-v1',
       'payload': request.payload,
+      if (componentDefinition != null &&
+          componentDefinition.components.isNotEmpty)
+        'api_components': _apiComponents(componentJson),
       'simulated': true,
       'id': id,
     });
@@ -743,8 +778,13 @@ class _SandboxModeration
     String avatarUrl, {
     required CommandExecutionBudget budget,
   }) async {
+    final gateway = policy.entityGateway;
+    final bot = _snowflake(variables['bot.id']);
+    if (gateway == null || bot == null) {
+      throw StateError('Webhook creation requires entity fixtures and bot ID.');
+    }
     await prepareBotWebhookCreate(
-      _queries.client,
+      _SandboxPermissionGateway(gateway, bot),
       channelId,
       name,
       budget: budget,
@@ -1637,8 +1677,10 @@ class _SandboxModeration
       if (payload.containsKey('nsfw')) 'nsfw': payload['nsfw'],
       if (payload.containsKey('rate_limit_per_user'))
         'slowmode': payload['rate_limit_per_user'],
+      if (payload.containsKey('permission_overwrites'))
+        'permission_overwrites': payload['permission_overwrites'],
     };
-    if (change.categoryId != null) {
+    if (change.categoryId != null && row['permission_overwrites'] == null) {
       final category = channels.whereType<Map>().firstWhere(
         (r) =>
             r['id'].toString() ==
@@ -1914,6 +1956,62 @@ class _SandboxModeration
     final botId = _snowflake(variables['bot.id']);
     final userId = _snowflake(request.userId);
     final guild = (gateway?.fixtures['guilds'] as Map?)?[guildId?.toString()];
+    switch (request.operation) {
+      case BotModerationOperation.clearMessages:
+        return _simulateClear(request, guildId, guild);
+      case BotModerationOperation.setNickname:
+        return _simulateNickname(request, guildId, guild);
+      case BotModerationOperation.registerGuildCommands:
+      case BotModerationOperation.unregisterGuildCommands:
+        final raw = request.targetGuildId.trim().isEmpty
+            ? guildId?.toString() ?? ''
+            : request.targetGuildId.trim();
+        if (int.tryParse(raw) == null) {
+          throw StateError('Guild command simulation requires a guild ID');
+        }
+        policy.effects.add({
+          'type': request.operation.name,
+          'backend': 'native-v1',
+          'guild_id': raw,
+          'simulated': true,
+        });
+        return '';
+      case BotModerationOperation.isBanned:
+      case BotModerationOperation.banReason:
+        if (gateway == null) {
+          throw StateError('Ban lookups require entity fixtures');
+        }
+        final scope =
+            _snowflake(
+              request.targetGuildId.trim().isEmpty
+                  ? null
+                  : request.targetGuildId,
+            ) ??
+            guildId;
+        if (scope == null || userId == null) {
+          throw StateError('Ban lookups require guild and user IDs');
+        }
+        String? reason;
+        var banned = true;
+        try {
+          reason = (await gateway.guilds.fetchBan(scope, userId)).reason;
+        } on DiscordEntityNotFound {
+          banned = false;
+        }
+        budget.check();
+        variables['member[$userId].isBanned'] = '$banned';
+        final value = banned ? reason ?? '' : '';
+        variables['ban.reason[$userId]'] = value;
+        if (request.targetGuildId.trim().isNotEmpty) {
+          variables['ban.reason[$userId;${request.targetGuildId.trim()}]'] =
+              value;
+        }
+        return request.operation == BotModerationOperation.isBanned
+            ? '$banned'
+            : value;
+      default:
+        break;
+    }
     if (request.operation == BotModerationOperation.setUserRoles) {
       return _simulateRoleReplacement(
         request,
@@ -2312,6 +2410,93 @@ class _SandboxModeration
       'simulated': true,
     });
     return target;
+  }
+
+  String _simulateClear(
+    BotModerationRequest request,
+    Snowflake? guildId,
+    dynamic guild,
+  ) {
+    final channelId = request.channelId;
+    final channels = guild is Map ? guild['messages'] : null;
+    final rows = channels is Map ? channels[channelId] : null;
+    if (rows is! List) {
+      throw StateError(
+        'Message deletion simulation requires channel messages fixtures',
+      );
+    }
+    if (request.count < 1 || request.count > 100) {
+      throw StateError(r'$clear amount must be between 1 and 100');
+    }
+    final selected = rows
+        .where((raw) {
+          if (raw is! Map) return false;
+          if (request.onlyUserId.isNotEmpty &&
+              raw['author_id']?.toString() != request.onlyUserId) {
+            return false;
+          }
+          return request.removePinned || raw['pinned'] != true;
+        })
+        .take(request.count)
+        .map((raw) => (raw as Map)['id'].toString())
+        .toList();
+    final selectedIds = selected.toSet();
+    rows.removeWhere(
+      (raw) => raw is Map && selectedIds.contains(raw['id'].toString()),
+    );
+    policy.effects.add({
+      'type': 'deleteMessages',
+      'backend': 'native-v1',
+      'guild_id': guildId?.toString() ?? '',
+      'channel_id': channelId,
+      'only_user_id': request.onlyUserId,
+      'remove_pinned': request.removePinned,
+      'deleted_ids': selected,
+      'deleted_count': selected.length,
+      'remaining_ids': [
+        for (final raw in rows)
+          if (raw is Map) raw['id'].toString(),
+      ],
+      'simulated': true,
+    });
+    return '';
+  }
+
+  String _simulateNickname(
+    BotModerationRequest request,
+    Snowflake? guildId,
+    dynamic guild,
+  ) {
+    final members = guild is Map ? guild['members'] : null;
+    if (members is! Map) {
+      throw StateError('Nickname simulation requires guild members fixtures');
+    }
+    final userId = request.userId.trim();
+    final member = members[userId];
+    if (int.tryParse(userId) == null || member is! Map) {
+      throw StateError('Nickname simulation requires an existing member ID');
+    }
+    if (request.nickname.length > 32) {
+      throw StateError('Nickname exceeds Discord length limit');
+    }
+    final before = member['nick']?.toString();
+    member['nick'] = request.nickname;
+    variables['member[$userId].nick'] = request.nickname;
+    variables['member[$userId].displayName'] = request.nickname;
+    if (variables['author.id'] == userId) {
+      variables['member.nick'] = request.nickname;
+      variables['member.displayName'] = request.nickname;
+    }
+    policy.effects.add({
+      'type': 'setNickname',
+      'backend': 'native-v1',
+      'guild_id': guildId?.toString() ?? '',
+      'user_id': userId,
+      'before': before,
+      'after': request.nickname,
+      'simulated': true,
+    });
+    return userId;
   }
 
   Future<String> _simulateUnban(
@@ -4238,6 +4423,53 @@ class _SandboxCommandQueries implements BotCommandQueryService {
   }
 }
 
+class _SandboxMusic implements BotMusicService {
+  _SandboxMusic(this.policy, this.variables);
+  final _SandboxPolicy policy;
+  final Map<String, String> variables;
+  @override
+  Future<void> perform(
+    BotMusicRequest request, {
+    required CommandExecutionBudget budget,
+  }) async {
+    budget.check();
+    final fixture = policy.musicFixture;
+    if (fixture == null) {
+      throw StateError('Music simulation requires a music fixture');
+    }
+    final type = switch (request.operation) {
+      BotMusicOperation.join => BotCreatorActionType.joinVoice,
+      BotMusicOperation.leave => BotCreatorActionType.leaveVoice,
+      BotMusicOperation.play => BotCreatorActionType.playMusic,
+      BotMusicOperation.pause => BotCreatorActionType.pauseMusic,
+      BotMusicOperation.resume => BotCreatorActionType.resumeMusic,
+      BotMusicOperation.skip => BotCreatorActionType.skipMusic,
+      BotMusicOperation.stop => BotCreatorActionType.stopMusic,
+      BotMusicOperation.volume => BotCreatorActionType.setMusicVolume,
+      BotMusicOperation.loop => BotCreatorActionType.setMusicLoop,
+      BotMusicOperation.seek => BotCreatorActionType.seekMusic,
+    };
+    policy.actions++;
+    policy.checkBudget();
+    fixture.apply(
+      type,
+      {
+        if (request.query.isNotEmpty) 'query': request.query,
+        if (request.channelId.isNotEmpty) 'channelId': request.channelId,
+        if (request.userId.isNotEmpty) 'userId': request.userId,
+        if (request.volume != null) 'volume': request.volume,
+        if (request.loop.isNotEmpty) 'loop': request.loop,
+        if (request.positionSeconds != null) ...{
+          'position': request.positionSeconds,
+          'positionUnit': 'seconds',
+        },
+      },
+      variables,
+      policy.effects,
+    );
+  }
+}
+
 class _SandboxDelays implements BotDelayService {
   _SandboxDelays(this.policy);
   final _SandboxPolicy policy;
@@ -4282,8 +4514,12 @@ class _SandboxComponents implements BotComponentService {
     final gateway = policy.entityGateway;
     if (gateway == null)
       throw StateError('Component edits require entity fixtures.');
+    final bot = _snowflake(variables['bot.id']);
+    if (bot == null) {
+      throw StateError('Component edits require a numeric bot ID.');
+    }
     return DiscordBotComponentService(
-      client: gateway,
+      client: _SandboxPermissionGateway(gateway, bot),
       channelId: _snowflake(variables['channel.id']),
     ).readComponents(messageId, budget: budget);
   }
@@ -4321,6 +4557,7 @@ class _SandboxComponents implements BotComponentService {
     policy.responses.add({
       'type': 'respondWithModal',
       'payload': raw,
+      'api_modal': raw,
       'simulated': true,
     });
   }

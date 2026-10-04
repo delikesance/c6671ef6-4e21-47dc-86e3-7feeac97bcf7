@@ -112,7 +112,9 @@ void main() {
         },
       });
       expect(result['success'], true, reason: '$result');
-      expect(result['responses'][0]['payload']['content'], '');
+      // Ambiguous names resolve to empty output; native BDFD sends no message
+      // for an empty response.
+      expect(result['responses'], isEmpty);
       expect(result['entity_requests'][0]['operation'], 'roles.list');
     },
   );

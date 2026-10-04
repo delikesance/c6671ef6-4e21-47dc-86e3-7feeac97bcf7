@@ -163,9 +163,7 @@ void main() {
     });
 
     test(r'parses $addSection with arguments', () {
-      final lexerResult = BdfdLexer().tokenize(
-        r'$addSection[Section content]',
-      );
+      final lexerResult = BdfdLexer().tokenize(r'$addSection[Section content]');
       final result = BdfdParser().parseTokens(lexerResult.tokens);
 
       expect(result.diagnostics, isEmpty);

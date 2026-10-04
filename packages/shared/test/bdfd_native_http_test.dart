@@ -1,14 +1,12 @@
 import 'dart:async';
-
 import 'package:bot_creator_shared/actions/executors/http_executor.dart';
+import 'package:bot_creator_shared/types/action.dart';
+
 import 'package:bot_creator_shared/engine/bdfd/http_functions.dart';
 import 'package:bot_creator_shared/engine/bdfd/program.dart';
 import 'package:bot_creator_shared/engine/bdfd/runtime.dart';
 import 'package:bot_creator_shared/engine/execution_budget.dart';
 import 'package:bot_creator_shared/services/http_service.dart';
-import 'package:bot_creator_shared/types/action.dart';
-import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
-import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:test/test.dart';
@@ -292,44 +290,19 @@ void main() {
   );
 
   test(
-    'requests and readable responses match the actual visual HTTP executor',
+    'headers, method, body and readable response reach one native request',
     () async {
-      const source =
-          r'$httpAddHeader[X-Trace;parity]'
-          r'$httpPost[https://unit.test/items;{"name":"shield"}]'
-          r'$httpStatus:$httpResult[items;0;name]';
-      final compiled = BdfdCompiler().compile(source);
-      expect(compiled.hasErrors, isFalse);
-      final variables = <String, String>{};
-      final results = <String, String>{};
-      for (final action in compiled.actions.where(
-        (action) => action.type == BotCreatorActionType.httpRequest,
-      )) {
-        await executeHttpAction(
-          type: action.type,
-          payload: action.payload,
-          resultKey: action.key!,
-          results: results,
-          variables: variables,
-          resolveValue: (value) =>
-              resolveTemplatePlaceholders(value, variables),
-          onLog: null,
-          setGlobalVariable: (_, _) async {},
-          httpClient: client,
-        );
-      }
-      final response = compiled.actions.last;
-      final legacyText = resolveTemplatePlaceholders(
-        response.payload['content'].toString(),
-        variables,
+      final text = await runtime.execute(
+        r'$httpAddHeader[X-Trace;parity]'
+        r'$httpPost[https://unit.test/items;{"name":"shield"}]'
+        r'$httpStatus:$httpResult[items;0;name]',
       );
-      final nativeText = await runtime.execute(source);
-      expect(nativeText, legacyText);
-      expect(requests, hasLength(2));
-      expect(requests[1].method, requests[0].method);
-      expect(requests[1].url, requests[0].url);
-      expect(requests[1].headers, requests[0].headers);
-      expect(requests[1].body, requests[0].body);
+      expect(text, '201:sword');
+      expect(requests, hasLength(1));
+      expect(requests.single.method, 'POST');
+      expect(requests.single.url.toString(), 'https://unit.test/items');
+      expect(requests.single.headers['X-Trace'], 'parity');
+      expect(requests.single.body, '{"name":"shield"}');
     },
   );
 }

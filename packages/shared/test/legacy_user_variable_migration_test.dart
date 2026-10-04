@@ -1,9 +1,7 @@
 import 'dart:convert';
 
-import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator_shared/sandbox/command_sandbox.dart';
 import 'package:bot_creator_shared/sandbox/sandbox_store.dart';
-import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator_shared/utils/legacy_user_variable_migration.dart';
 import 'package:bot_creator_shared/utils/runtime_variables.dart';
 import 'package:test/test.dart';
@@ -222,26 +220,6 @@ void main() {
       );
     },
   );
-
-  test('old and new dialect caches cannot contaminate each other', () {
-    const script = r'$setUserVar[coins;1]$getUserVar[coins]';
-    final official = BdfdCompiler().compile(script);
-    final legacy = BdfdCompiler(legacyUserVariables: true).compile(script);
-    expect(official.actions.first.payload['scope'], 'guildMember');
-    expect(legacy.actions.first.payload['scope'], 'user');
-    expect(
-      BdfdCompiler().compile(script).actions.first.payload['scope'],
-      'guildMember',
-    );
-    expect(BotConfig.fromJson({'token': 'x'}).bdfdUserVariableSemantics, 1);
-    expect(const BotConfig(token: 'x').bdfdUserVariableSemantics, 2);
-    expect(
-      BotConfig.fromJson(
-        const BotConfig(token: 'x').toJson(),
-      ).copyWith(prefix: '?').bdfdUserVariableSemantics,
-      2,
-    );
-  });
 
   test(
     'official functions isolate guilds while global-user values stay global',

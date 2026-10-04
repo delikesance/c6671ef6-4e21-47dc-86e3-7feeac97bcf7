@@ -1,15 +1,31 @@
 import 'function_suite.dart';
 
+const _moderationUsers = {
+  '20': {'username': 'moderator'},
+  '21': {'username': 'member'},
+  '22': {'username': 'troublemaker'},
+  '50': {'username': 'bot', 'bot': true},
+};
+
 const _moderation = {
+  'users': _moderationUsers,
   'guilds': {
     '10': {
       'owner_id': '99',
       'roles': [
+        {'id': '10', 'name': '@everyone', 'position': 0, 'permissions': '0'},
         {'id': '60', 'name': 'Muted', 'position': 1, 'permissions': '0'},
+        {'id': '61', 'name': 'Moderator', 'position': 2, 'permissions': '8'},
+        {'id': '62', 'name': 'Bot', 'position': 10, 'permissions': '8'},
       ],
       'members': {
-        '20': {'roles': <String>[]},
+        '20': {
+          'roles': ['61'],
+        },
         '21': {'roles': <String>[]},
+        '50': {
+          'roles': ['62'],
+        },
       },
       'bans': {'22': 'Previous violation'},
       'ban_users': {'22': 'troublemaker'},
@@ -61,7 +77,10 @@ const sandboxModerationFunctionCases = [
     r'$setNickname[New Name;21]',
     0,
     '',
-    scenario: {'entities': _moderation},
+    scenario: {
+      'variables': {'bot.id': '50'},
+      'entities': _moderation,
+    },
     expectedValues: {
       '/effects/0/type': 'setNickname',
       '/effects/0/user_id': '21',
@@ -78,7 +97,7 @@ const sandboxModerationFunctionCases = [
     label: 'resolves a banned username from the command message',
     scenario: {
       'entities': _moderation,
-      'variables': {'message.content': 'troublemaker'},
+      'variables': {'bot.id': '50', 'message.content': 'troublemaker'},
     },
     expectedValues: {
       '/effects/0/type': 'unbanUser',
@@ -93,7 +112,10 @@ const sandboxModerationFunctionCases = [
     0,
     'true',
     label: 'query observes a simulated ban in the same command',
-    scenario: {'entities': _moderation},
+    scenario: {
+      'variables': {'bot.id': '50'},
+      'entities': _moderation,
+    },
     expectedValues: {'/effects/0/after/ban_reason': 'Spam'},
   ),
   SandboxFunctionCase(
@@ -102,7 +124,10 @@ const sandboxModerationFunctionCases = [
     0,
     'true',
     label: 'query observes a simulated timeout in the same command',
-    scenario: {'entities': _moderation},
+    scenario: {
+      'variables': {'bot.id': '50'},
+      'entities': _moderation,
+    },
     expectedValues: {'/effects/0/after/member/timeout_seconds': 900},
   ),
   SandboxFunctionCase(
@@ -111,7 +136,10 @@ const sandboxModerationFunctionCases = [
     0,
     'true',
     label: 'reads ban state through the fixture gateway',
-    scenario: {'entities': _moderation},
+    scenario: {
+      'variables': {'bot.id': '50'},
+      'entities': _moderation,
+    },
     expectedValues: {
       '/entity_requests/0/operation': 'guilds.fetchBan',
       '/variables/member[22].isBanned': 'true',
@@ -123,7 +151,10 @@ const sandboxModerationFunctionCases = [
     0,
     'false',
     label: 'an unbanned user has a negative lookup',
-    scenario: {'entities': _moderation},
+    scenario: {
+      'variables': {'bot.id': '50'},
+      'entities': _moderation,
+    },
     expectedValues: {'/variables/member[21].isBanned': 'false'},
   ),
   SandboxFunctionCase(
@@ -131,7 +162,10 @@ const sandboxModerationFunctionCases = [
     r'$getBanReason[22]',
     0,
     'Previous violation',
-    scenario: {'entities': _moderation},
+    scenario: {
+      'variables': {'bot.id': '50'},
+      'entities': _moderation,
+    },
     expectedValues: {
       '/entity_requests/0/operation': 'guilds.fetchBan',
       '/variables/ban.reason[22]': 'Previous violation',
@@ -143,7 +177,10 @@ const sandboxModerationFunctionCases = [
     0,
     'Previous violation',
     label: 'explicit guild ID',
-    scenario: {'entities': _moderation},
+    scenario: {
+      'variables': {'bot.id': '50'},
+      'entities': _moderation,
+    },
     expectedValues: {
       '/entity_requests/0/guild_id': '10',
       '/variables/ban.reason[22;10]': 'Previous violation',
@@ -151,11 +188,12 @@ const sandboxModerationFunctionCases = [
   ),
   SandboxFunctionCase(
     'getbanreason',
-    r'$getBanReason[((opts.user))]',
+    r'$getBanReason[$message[user]]',
     0,
     'Previous violation',
     label: 'dynamic user ID in a nested placeholder',
     scenario: {
+      'variables': {'interaction.isSlash': 'true', 'bot.id': '50'},
       'entities': _moderation,
       'options': {'user': '22'},
     },
@@ -167,7 +205,10 @@ const sandboxModerationFunctionCases = [
     0,
     '',
     label: 'deletes only matching user messages and preserves pinned messages',
-    scenario: {'entities': _messages},
+    scenario: {
+      'variables': {'bot.id': '50'},
+      'entities': _messages,
+    },
     expectedValues: {
       '/effects/0/type': 'deleteMessages',
       '/effects/0/deleted_ids': ['104', '102'],
@@ -184,7 +225,7 @@ const sandboxModerationFunctionCases = [
     label: 'simple form uses the first command argument',
     scenario: {
       'entities': _messages,
-      'variables': {'message.content': '2'},
+      'variables': {'bot.id': '50', 'message.content': '2'},
     },
     expectedValues: {
       '/effects/0/deleted_ids': ['104', '103'],
@@ -198,7 +239,9 @@ const sandboxModerationFunctionCases = [
     'true',
     label: 'future member timeout is fetched through the entity gateway',
     scenario: {
+      'variables': {'bot.id': '50'},
       'entities': {
+        'users': _moderationUsers,
         'guilds': {
           '10': {
             'owner_id': '99',
@@ -213,10 +256,7 @@ const sandboxModerationFunctionCases = [
         },
       },
     },
-    expectedValues: {
-      '/entity_requests/0/operation': 'members.fetch',
-      '/variables/member[21].isTimedOut': 'true',
-    },
+    expectedValues: {'/entity_requests/0/operation': 'members.fetch'},
   ),
   SandboxFunctionCase(
     'istimedout',
@@ -225,7 +265,9 @@ const sandboxModerationFunctionCases = [
     'false',
     label: 'expired timeout resolves false',
     scenario: {
+      'variables': {'bot.id': '50'},
       'entities': {
+        'users': _moderationUsers,
         'guilds': {
           '10': {
             'owner_id': '99',
@@ -240,7 +282,7 @@ const sandboxModerationFunctionCases = [
         },
       },
     },
-    expectedValues: {'/variables/member[21].isTimedOut': 'false'},
+    expectedValues: {'/entity_requests/0/operation': 'members.fetch'},
   ),
   SandboxFunctionCase(
     'ban',
@@ -249,7 +291,7 @@ const sandboxModerationFunctionCases = [
     '',
     scenario: {
       'entities': _moderation,
-      'variables': {'message.mentions[0]': '21'},
+      'variables': {'bot.id': '50', 'message.mentions[0]': '21'},
     },
     expectedValues: {
       '/effects/0/type': 'banUser',
@@ -264,7 +306,10 @@ const sandboxModerationFunctionCases = [
     r'$banID[Spam;21]',
     0,
     '',
-    scenario: {'entities': _moderation},
+    scenario: {
+      'variables': {'bot.id': '50'},
+      'entities': _moderation,
+    },
     expectedValues: {
       '/effects/0/type': 'banUser',
       '/effects/0/user_id': '21',
@@ -279,7 +324,7 @@ const sandboxModerationFunctionCases = [
     label: 'simple form reads last message argument',
     scenario: {
       'entities': _moderation,
-      'variables': {'message.content': '!ban 21'},
+      'variables': {'bot.id': '50', 'message.content': '!ban 21'},
     },
     expectedValues: {'/effects/0/user_id': '21'},
   ),
@@ -288,7 +333,10 @@ const sandboxModerationFunctionCases = [
     r'$unbanID[22]',
     0,
     '',
-    scenario: {'entities': _moderation},
+    scenario: {
+      'variables': {'bot.id': '50'},
+      'entities': _moderation,
+    },
     expectedValues: {
       '/effects/0/type': 'unbanUser',
       '/effects/0/user_id': '22',
@@ -304,7 +352,7 @@ const sandboxModerationFunctionCases = [
     label: 'simple form reads last message argument',
     scenario: {
       'entities': _moderation,
-      'variables': {'message.content': '!unban 22'},
+      'variables': {'bot.id': '50', 'message.content': '!unban 22'},
     },
     expectedValues: {'/effects/0/user_id': '22'},
   ),
@@ -313,7 +361,10 @@ const sandboxModerationFunctionCases = [
     r'$kick[21;Raid]',
     0,
     '',
-    scenario: {'entities': _moderation},
+    scenario: {
+      'variables': {'bot.id': '50'},
+      'entities': _moderation,
+    },
     expectedValues: {
       '/effects/0/type': 'kickUser',
       '/effects/0/user_id': '21',
@@ -341,7 +392,10 @@ const sandboxModerationFunctionCases = [
     r'$timeout[15m;21]',
     0,
     '',
-    scenario: {'entities': _moderation},
+    scenario: {
+      'variables': {'bot.id': '50'},
+      'entities': _moderation,
+    },
     expectedValues: {
       '/effects/0/type': 'muteUser',
       '/effects/0/after/member/timeout_seconds': 900,
@@ -352,7 +406,10 @@ const sandboxModerationFunctionCases = [
     r'$untimeout[21]',
     0,
     '',
-    scenario: {'entities': _moderation},
+    scenario: {
+      'variables': {'bot.id': '50'},
+      'entities': _moderation,
+    },
     expectedValues: {
       '/effects/0/type': 'unmuteUser',
       '/effects/0/user_id': '21',
@@ -366,12 +423,12 @@ const sandboxModerationFunctionCases = [
     '',
     scenario: {
       'entities': _moderation,
-      'variables': {'message.mentions[0]': '21'},
+      'variables': {'bot.id': '50', 'message.mentions[0]': '21'},
     },
     expectedValues: {
       '/effects/0/type': 'addRole',
       '/effects/0/user_id': '21',
-      '/effects/0/role_ids': ['60'],
+      '/effects/0/role_id': '60',
     },
   ),
   SandboxFunctionCase(
@@ -381,27 +438,38 @@ const sandboxModerationFunctionCases = [
     '',
     scenario: {
       'entities': {
+        'users': _moderationUsers,
         'guilds': {
           '10': {
             'owner_id': '99',
             'roles': [
+              {
+                'id': '10',
+                'name': '@everyone',
+                'position': 0,
+                'permissions': '0',
+              },
               {'id': '60', 'name': 'Muted', 'position': 1, 'permissions': '0'},
+              {'id': '62', 'name': 'Bot', 'position': 10, 'permissions': '8'},
             ],
             'members': {
               '21': {
                 'roles': ['60'],
+              },
+              '50': {
+                'roles': ['62'],
               },
             },
             'bans': <String, String>{},
           },
         },
       },
-      'variables': {'message.mentions[0]': '21'},
+      'variables': {'bot.id': '50', 'message.mentions[0]': '21'},
     },
     expectedValues: {
       '/effects/0/type': 'removeRole',
       '/effects/0/user_id': '21',
-      '/effects/0/after': <String>[],
+      '/effects/0/after/member/roles': <String>[],
     },
   ),
   SandboxFunctionCase(

@@ -209,7 +209,9 @@ Map<String, BdfdNativeFunction> bdfdWebhookFunctions(
         final embed =
             draft.putIfAbsent('embed', () => <String, dynamic>{}) as Map;
         String at(int i) => i < supplied.length ? supplied[i] : '';
-        if (supplied.isNotEmpty) draft['content'] = text(at(0), 2000, call);
+        // Content is vacantable: an empty value keeps content staged by
+        // $webhookContent instead of erasing it.
+        if (at(0).isNotEmpty) draft['content'] = text(at(0), 2000, call);
         if (at(1).isNotEmpty) embed['title'] = text(at(1), 256, call);
         if (at(2).isNotEmpty) embed['url'] = url(at(2), call);
         if (at(3).isNotEmpty) embed['description'] = text(at(3), 4096, call);

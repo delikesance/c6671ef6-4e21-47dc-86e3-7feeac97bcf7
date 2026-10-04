@@ -24,7 +24,7 @@ typedef _Trigger = ({int start, _AutocompleteMode mode});
 class BdfdScriptLanguage implements ScriptEditorLanguage {
   BdfdScriptLanguage({
     this.appEmojis = const <AppEmoji>[],
-    this.backend = 'legacy-v1',
+    this.backend = 'native-v1',
   });
 
   /// Emojis du serveur courant, proposés sur le déclencheur `<:` / `<a:`.
@@ -32,7 +32,6 @@ class BdfdScriptLanguage implements ScriptEditorLanguage {
   final String backend;
 
   final BdfdLexer _lexer = BdfdLexer();
-  final BdfdCompiler _compiler = BdfdCompiler();
 
   /// Caractères d'un nom de fonction BDFD (`addbutton`, `setvar2`…).
   static final RegExp _identifierChar = RegExp(r'[A-Za-z0-9_]');
@@ -88,11 +87,7 @@ class BdfdScriptLanguage implements ScriptEditorLanguage {
 
   @override
   List<ScriptDiagnostic> diagnosticsFor(String text) => <ScriptDiagnostic>[
-    for (final diagnostic in bdfdDiagnosticsFor(
-      text,
-      backend: backend,
-      legacyCompiler: _compiler,
-    ))
+    for (final diagnostic in bdfdDiagnosticsFor(text, backend: backend))
       ScriptDiagnostic(
         // Le compilateur BDFD rédige lui-même le texte affiché : le code n'est
         // lu par l'UI que faute de [ScriptDiagnostic.message].

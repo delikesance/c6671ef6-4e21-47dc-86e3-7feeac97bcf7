@@ -36,8 +36,8 @@ void main() {
           resultKey: 'rtJson',
           results: results,
           variables: variables,
-          resolveValue:
-              (input) => input == '((guild.bc_items_db))' ? '' : input,
+          resolveValue: (input) =>
+              input == '((guild.bc_items_db))' ? '' : input,
           guildId: null,
           fallbackChannelId: null,
           interaction: null,
@@ -89,8 +89,8 @@ void main() {
           resultKey: 'rtJson',
           results: results,
           variables: variables,
-          resolveValue:
-              (input) => input == '((guild.bc_items_db))' ? '' : input,
+          resolveValue: (input) =>
+              input == '((guild.bc_items_db))' ? '' : input,
           guildId: null,
           fallbackChannelId: null,
           interaction: null,
@@ -128,21 +128,16 @@ void main() {
           resultKey: 'rtJson_0',
           results: parentResults,
           variables: variables,
-          resolveValue:
-              (input) =>
-                  input == '((guild.bc_items_db))'
-                      ? '{"items":["axe","bow","wand"]}'
-                      : input,
+          resolveValue: (input) => input == '((guild.bc_items_db))'
+              ? '{"items":["axe","bow","wand"]}'
+              : input,
           guildId: null,
           fallbackChannelId: null,
           interaction: null,
         );
 
         expect(parentHandled, isTrue);
-        expect(
-          parentResults['rtJson_0'],
-          '{"items":["axe","bow","wand"]}',
-        );
+        expect(parentResults['rtJson_0'], '{"items":["axe","bow","wand"]}');
         expect(variables['rtJson_0'], '{"items":["axe","bow","wand"]}');
         expect(variables['rtJson_0.json_0'], '1');
 
@@ -210,11 +205,9 @@ void main() {
           resultKey: 'rtJson',
           results: results,
           variables: variables,
-          resolveValue:
-              (input) =>
-                  input == '((guild.bc_items_db))'
-                      ? '{"items":[{"name":"axe","weight":2},{"name":"sword","weight":5}]}'
-                      : input,
+          resolveValue: (input) => input == '((guild.bc_items_db))'
+              ? '{"items":[{"name":"axe","weight":2},{"name":"sword","weight":5}]}'
+              : input,
           guildId: null,
           fallbackChannelId: null,
           interaction: null,
@@ -272,11 +265,9 @@ void main() {
           resultKey: 'rtJson',
           results: results,
           variables: variables,
-          resolveValue:
-              (input) =>
-                  input == '((guild.bc_items_db))'
-                      ? '{"items":[{"enabled":true,"rarity":"legendary","name":"phoenix_blade","weight":8}]}'
-                      : input,
+          resolveValue: (input) => input == '((guild.bc_items_db))'
+              ? '{"items":[{"enabled":true,"rarity":"legendary","name":"phoenix_blade","weight":8}]}'
+              : input,
           guildId: null,
           fallbackChannelId: null,
           interaction: null,
@@ -314,11 +305,8 @@ void main() {
           resultKey: 'rtJson',
           results: results,
           variables: variables,
-          resolveValue:
-              (input) =>
-                  input == '((guild.bc_items_db))'
-                      ? '1453848265786396794'
-                      : input,
+          resolveValue: (input) =>
+              input == '((guild.bc_items_db))' ? '1453848265786396794' : input,
           guildId: null,
           fallbackChannelId: null,
           interaction: null,

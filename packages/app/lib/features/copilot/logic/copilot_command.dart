@@ -25,9 +25,11 @@ Map<String, dynamic> copilotCommandSettings(Map<String, dynamic> command) {
   };
 }
 
-/// The editor compiler constructs all action types and payloads. Unknown
-/// functions supplied by AI never enter a saved command.
-List<Map<String, dynamic>> compileCopilotCommand(
+/// Checks an AI-supplied BDFD script with the lexer, the function registry and
+/// the compiler diagnostics. Unknown functions never enter a saved command.
+/// BDFD scripts execute natively (`native-v1`), so nothing is compiled to
+/// actions; the checked diagnostics are returned.
+BdfdCompileResult checkCopilotBdfd(
   String script, {
   bool legacyUserVariables = false,
 }) {
@@ -43,13 +45,23 @@ List<Map<String, dynamic>> compileCopilotCommand(
       );
     }
   }
+  // The lexer keeps unknown names as literal text (the runtime preserves them),
+  // so Copilot, which must never save a hallucinated function, checks every
+  // bracketed call itself.
+  for (final match in RegExp(r'(?<!\\)\$([A-Za-z_]\w*)\[').allMatches(script)) {
+    if (!allBdfdFunctions.contains(match.group(1)!.toLowerCase())) {
+      throw FormatException(
+        'Unknown function \$${match.group(1)}; use the local block registry',
+      );
+    }
+  }
   final result = BdfdCompiler(
     legacyUserVariables: legacyUserVariables,
   ).compile(script);
-  if (result.hasErrors || result.actions.isEmpty) {
+  if (result.hasErrors) {
     throw FormatException(result.diagnostics.map((d) => d.message).join('\n'));
   }
-  return result.actions.map((a) => a.toJson()).toList();
+  return result;
 }
 
 Map<String, dynamic> copilotExecutionData(String script) =>
@@ -62,21 +74,17 @@ Map<String, dynamic> validateCopilotBdfd(
   bool legacyUserVariables = false,
 }) {
   try {
-    final actions = compileCopilotCommand(
+    final result = checkCopilotBdfd(
       script,
       legacyUserVariables: legacyUserVariables,
     );
-    final result = BdfdCompiler(
-      legacyUserVariables: legacyUserVariables,
-    ).compile(script);
     return {
       'valid': true,
       'bdfdUserVariableSemantics': legacyUserVariables ? 1 : 2,
       'validation_kind': 'compilation',
       'runtime_tested': false,
       'script_revision': HashUtil.calculateHash(script),
-      'action_count': actions.length,
-      'action_types': actions.map((a) => a['type']).toSet().toList(),
+      'bdfdBackend': 'native-v1',
       'diagnostics': [
         for (final diagnostic in result.diagnostics)
           {
@@ -120,7 +128,7 @@ Map<String, dynamic> copilotExecutionDataForMode(
   final source = script ?? '';
   var actions = <Map<String, dynamic>>[];
   if (executionMode == 'bdfd_script') {
-    compileCopilotCommand(source, legacyUserVariables: legacyUserVariables);
+    checkCopilotBdfd(source, legacyUserVariables: legacyUserVariables);
   } else if (executionMode == 'javascript') {
     if (source.trim().isEmpty || source.length > 12000) {
       throw const FormatException('Invalid JavaScript length');
@@ -144,6 +152,7 @@ Map<String, dynamic> copilotExecutionDataForMode(
     'executionMode': executionMode,
     'editorMode': 'advanced',
     'bdfdScriptContent': executionMode == 'bdfd_script' ? source : '',
+    if (executionMode == 'bdfd_script') 'bdfdBackend': 'native-v1',
     'jsScriptContent': executionMode == 'javascript' ? source : '',
     'actions': actions,
     'response': {
