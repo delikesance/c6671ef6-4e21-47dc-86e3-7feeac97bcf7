@@ -8,6 +8,7 @@ import '../program.dart' show BdfdNativeError;
 import '../runtime.dart';
 import 'action_environment.dart';
 import 'role_actions.dart';
+import 'variable_actions.dart';
 
 export 'action_environment.dart';
 
@@ -25,6 +26,7 @@ final Map<BotCreatorActionType, ActionHandler> bdfdVisualActionHandlers =
     Map.unmodifiable({
       BotCreatorActionType.addRole: addRoleAction,
       BotCreatorActionType.removeRole: removeRoleAction,
+      ...variableActionHandlers,
     });
 
 const String bdfdVisualTemplateFunction = 'bc_tpl';

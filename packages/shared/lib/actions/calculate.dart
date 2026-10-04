@@ -2,6 +2,12 @@ import 'dart:math' as math;
 
 import '../utils/math_parser.dart';
 
+// `MathExpressionParser.format` returns a num (or a string for NaN/infinity);
+// the result map is typed `Map<String, String>`, so storing it unconverted
+// raised a TypeError that surfaced as "Calculate error: type 'int' is not a
+// subtype of type 'String'" for every numeric result.
+String _format(num value) => MathExpressionParser.format(value).toString();
+
 /// Performs a mathematical calculation based on [operation] and operands.
 ///
 /// Returns `{'result': '<value>'}` on success, or `{'error': '...', 'result': ''}` on failure.
@@ -10,8 +16,7 @@ Future<Map<String, String>> calculateAction({
   required String Function(String) resolve,
 }) async {
   try {
-    final expression =
-        resolve((payload['expression'] ?? '').toString()).trim();
+    final expression = resolve((payload['expression'] ?? '').toString()).trim();
     if (expression.isNotEmpty) {
       final cleaned = expression.replaceAll(' ', '');
       if (cleaned.isEmpty) return {'result': '0'};
@@ -19,13 +24,17 @@ Future<Map<String, String>> calculateAction({
       final parser = MathExpressionParser(cleaned);
       final result = parser.parse();
       if (result == null) {
-        return {'error': 'Invalid math expression: "$expression"', 'result': ''};
+        return {
+          'error': 'Invalid math expression: "$expression"',
+          'result': '',
+        };
       }
-      return {'result': MathExpressionParser.format(result)};
+      return {'result': _format(result)};
     }
 
-    final operation =
-        resolve((payload['operation'] ?? '').toString()).trim().toLowerCase();
+    final operation = resolve(
+      (payload['operation'] ?? '').toString(),
+    ).trim().toLowerCase();
     final rawA = resolve((payload['operandA'] ?? '').toString()).trim();
     final rawB = resolve((payload['operandB'] ?? '').toString()).trim();
 
@@ -53,7 +62,7 @@ Future<Map<String, String>> calculateAction({
         };
       }
       final value = min + math.Random().nextDouble() * (max - min);
-      return {'result': MathExpressionParser.format(value)};
+      return {'result': _format(value)};
     }
 
     final a = double.tryParse(rawA);
@@ -67,9 +76,9 @@ Future<Map<String, String>> calculateAction({
         if (a < 0) {
           return {'error': 'sqrt: operandA must be >= 0', 'result': ''};
         }
-        return {'result': MathExpressionParser.format(math.sqrt(a))};
+        return {'result': _format(math.sqrt(a))};
       case 'abs':
-        return {'result': MathExpressionParser.format(a.abs())};
+        return {'result': _format(a.abs())};
       case 'floor':
         return {'result': a.floor().toString()};
       case 'ceil':
@@ -77,7 +86,7 @@ Future<Map<String, String>> calculateAction({
       case 'round':
         return {'result': a.round().toString()};
       case 'negate':
-        return {'result': MathExpressionParser.format(-a)};
+        return {'result': _format(-a)};
     }
 
     // Binary operations — need operandB
@@ -93,43 +102,43 @@ Future<Map<String, String>> calculateAction({
     switch (operation) {
       case 'add':
       case '+':
-        return {'result': MathExpressionParser.format(a + b)};
+        return {'result': _format(a + b)};
       case 'subtract':
       case 'sub':
       case '-':
-        return {'result': MathExpressionParser.format(a - b)};
+        return {'result': _format(a - b)};
       case 'multiply':
       case 'mul':
       case '*':
-        return {'result': MathExpressionParser.format(a * b)};
+        return {'result': _format(a * b)};
       case 'divide':
       case 'div':
       case '/':
         if (b == 0) {
           return {'error': 'Division by zero', 'result': ''};
         }
-        return {'result': MathExpressionParser.format(a / b)};
+        return {'result': _format(a / b)};
       case 'modulo':
       case 'mod':
       case '%':
         if (b == 0) {
           return {'error': 'Modulo by zero', 'result': ''};
         }
-        return {'result': MathExpressionParser.format(a % b)};
+        return {'result': _format(a % b)};
       case 'power':
       case 'pow':
       case '^':
-        return {'result': MathExpressionParser.format(math.pow(a, b).toDouble())};
+        return {'result': _format(math.pow(a, b).toDouble())};
       case 'min':
-        return {'result': MathExpressionParser.format(math.min(a, b))};
+        return {'result': _format(math.min(a, b))};
       case 'max':
-        return {'result': MathExpressionParser.format(math.max(a, b))};
+        return {'result': _format(math.max(a, b))};
       case 'log':
         if (a <= 0) {
           return {'error': 'log: operandA must be > 0', 'result': ''};
         }
         final base = b > 0 ? b : math.e;
-        return {'result': MathExpressionParser.format(math.log(a) / math.log(base))};
+        return {'result': _format(math.log(a) / math.log(base))};
       default:
         return {
           'error':
