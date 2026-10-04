@@ -24,7 +24,7 @@ class BdfdEditorPage extends StatefulWidget {
     super.key,
     required this.initialCode,
     this.title,
-    this.bdfdBackend = 'legacy-v1',
+    this.bdfdBackend = 'native-v1',
     this.appEmojis = const [],
   });
 

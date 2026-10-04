@@ -450,7 +450,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       _executionMode = _normalizeExecutionMode(
         normalizedPayload['executionMode'],
       );
-      _bdfdBackend = (normalizedPayload['bdfdBackend'] ?? 'legacy-v1')
+      _bdfdBackend = (normalizedPayload['bdfdBackend'] ?? 'native-v1')
           .toString();
       _bdfdScriptContent = (normalizedPayload['bdfdScriptContent'] ?? '')
           .toString();

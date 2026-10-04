@@ -126,7 +126,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
 
   String _executionMode = workflowExecutionModeWorkflow;
   late final TextEditingController _bdfdScriptController;
-  String _bdfdBackend = 'legacy-v1';
+  String _bdfdBackend = 'native-v1';
   bool get _isBdfdMode => _executionMode == workflowExecutionModeBdfd;
   late final TextEditingController _jsScriptController;
   String _jsScriptContent = '';
@@ -255,7 +255,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                   '')
               .toString(),
     );
-    _bdfdBackend = (normalized?['bdfdBackend'] ?? 'legacy-v1').toString();
+    _bdfdBackend = (normalized?['bdfdBackend'] ?? 'native-v1').toString();
     _executionMode = normalizeWorkflowExecutionMode(
       normalized?['executionMode'],
       supportsJavascript: true,
@@ -2159,19 +2159,11 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
               labelText: french ? 'Moteur BDFD' : 'BDFD engine',
             ),
             items: [
-              const DropdownMenuItem(
-                value: 'legacy-v1',
-                child: Text('BDFD legacy'),
-              ),
               DropdownMenuItem(
                 value: 'native-v1',
-                child: Text(
-                  french
-                      ? 'BDFD natif (en migration)'
-                      : 'Native BDFD (migration in progress)',
-                ),
+                child: Text(french ? 'BDFD natif' : 'Native BDFD'),
               ),
-              if (!['legacy-v1', 'native-v1'].contains(_bdfdBackend))
+              if (_bdfdBackend != 'native-v1')
                 DropdownMenuItem(
                   value: _bdfdBackend,
                   child: Text(_bdfdBackend),
