@@ -1493,6 +1493,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               botIdForConfig: _botIdForConfig,
               variableSuggestions: _actionVariableSuggestions,
               isPrefixCommand: _legacyModeEnabled,
+              commandName: _commandName,
               onChange: (options) {
                 _hasUnsavedChanges = true;
                 _syncNotifier();

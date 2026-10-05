@@ -10950,5 +10950,13 @@
   "modules_desc_scheduler": "Her X dakikada bir workflow çalıştırır",
   "modules_desc_webhooks": "Bir workflow'a yönlendirilen HTTP çağrıları",
   "modules_desc_team": "Ortaklar ve ekip sohbeti",
-  "modules_desc_guilds": "Botun bulunduğu sunucular"
+  "modules_desc_guilds": "Botun bulunduğu sunucular",
+  "option_section_identity": "Kimlik",
+  "option_section_type": "Değer türü",
+  "option_section_behavior": "Davranış",
+  "option_translations": "Çeviriler",
+  "option_delete_action": "Seçeneği sil",
+  "option_preview_title": "Discord'da önizleme",
+  "option_preview_legend": "Mor alt çizgi: zorunlu · gri: isteğe bağlı",
+  "option_choices_count": "{count} seçenek"
 }

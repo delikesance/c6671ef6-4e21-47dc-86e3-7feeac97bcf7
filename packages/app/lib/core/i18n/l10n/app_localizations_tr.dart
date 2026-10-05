@@ -11191,4 +11191,31 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get modules_desc_guilds => 'Botun bulunduğu sunucular';
+
+  @override
+  String get option_section_identity => 'Kimlik';
+
+  @override
+  String get option_section_type => 'Değer türü';
+
+  @override
+  String get option_section_behavior => 'Davranış';
+
+  @override
+  String get option_translations => 'Çeviriler';
+
+  @override
+  String get option_delete_action => 'Seçeneği sil';
+
+  @override
+  String get option_preview_title => 'Discord\'da önizleme';
+
+  @override
+  String get option_preview_legend =>
+      'Mor alt çizgi: zorunlu · gri: isteğe bağlı';
+
+  @override
+  String option_choices_count(int count) {
+    return '$count seçenek';
+  }
 }

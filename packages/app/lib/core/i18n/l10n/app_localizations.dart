@@ -19224,6 +19224,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Servers where the bot is present'**
   String get modules_desc_guilds;
+
+  /// No description provided for @option_section_identity.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity'**
+  String get option_section_identity;
+
+  /// No description provided for @option_section_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Value type'**
+  String get option_section_type;
+
+  /// No description provided for @option_section_behavior.
+  ///
+  /// In en, this message translates to:
+  /// **'Behavior'**
+  String get option_section_behavior;
+
+  /// No description provided for @option_translations.
+  ///
+  /// In en, this message translates to:
+  /// **'Translations'**
+  String get option_translations;
+
+  /// No description provided for @option_delete_action.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete option'**
+  String get option_delete_action;
+
+  /// No description provided for @option_preview_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview in Discord'**
+  String get option_preview_title;
+
+  /// No description provided for @option_preview_legend.
+  ///
+  /// In en, this message translates to:
+  /// **'Purple underline: required · grey: optional'**
+  String get option_preview_legend;
+
+  /// No description provided for @option_choices_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 choice} other{{count} choices}}'**
+  String option_choices_count(int count);
 }
 
 class _AppLocalizationsDelegate

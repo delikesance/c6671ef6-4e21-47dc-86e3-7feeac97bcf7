@@ -11037,5 +11037,13 @@
   "modules_desc_scheduler": "X 分ごとにワークフローを実行",
   "modules_desc_webhooks": "ワークフローにルーティングされる HTTP 呼び出し",
   "modules_desc_team": "コラボレーターとチームチャット",
-  "modules_desc_guilds": "ボットが参加しているサーバー"
+  "modules_desc_guilds": "ボットが参加しているサーバー",
+  "option_section_identity": "基本情報",
+  "option_section_type": "値の型",
+  "option_section_behavior": "動作",
+  "option_translations": "翻訳",
+  "option_delete_action": "オプションを削除",
+  "option_preview_title": "Discordでのプレビュー",
+  "option_preview_legend": "紫の下線：必須 · グレー：任意",
+  "option_choices_count": "{count}件の選択肢"
 }

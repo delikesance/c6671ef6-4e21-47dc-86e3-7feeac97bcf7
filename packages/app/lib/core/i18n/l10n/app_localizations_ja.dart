@@ -10652,4 +10652,30 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get modules_desc_guilds => 'ボットが参加しているサーバー';
+
+  @override
+  String get option_section_identity => '基本情報';
+
+  @override
+  String get option_section_type => '値の型';
+
+  @override
+  String get option_section_behavior => '動作';
+
+  @override
+  String get option_translations => '翻訳';
+
+  @override
+  String get option_delete_action => 'オプションを削除';
+
+  @override
+  String get option_preview_title => 'Discordでのプレビュー';
+
+  @override
+  String get option_preview_legend => '紫の下線：必須 · グレー：任意';
+
+  @override
+  String option_choices_count(int count) {
+    return '$count件の選択肢';
+  }
 }

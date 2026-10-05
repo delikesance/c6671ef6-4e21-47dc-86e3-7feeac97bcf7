@@ -11132,4 +11132,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get modules_desc_guilds => 'Servers where the bot is present';
+
+  @override
+  String get option_section_identity => 'Identity';
+
+  @override
+  String get option_section_type => 'Value type';
+
+  @override
+  String get option_section_behavior => 'Behavior';
+
+  @override
+  String get option_translations => 'Translations';
+
+  @override
+  String get option_delete_action => 'Delete option';
+
+  @override
+  String get option_preview_title => 'Preview in Discord';
+
+  @override
+  String get option_preview_legend =>
+      'Purple underline: required · grey: optional';
+
+  @override
+  String option_choices_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count choices',
+      one: '1 choice',
+    );
+    return '$_temp0';
+  }
 }

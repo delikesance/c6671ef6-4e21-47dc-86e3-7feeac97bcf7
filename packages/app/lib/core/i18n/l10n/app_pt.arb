@@ -10983,5 +10983,13 @@
   "modules_desc_scheduler": "Executa um workflow a cada X min",
   "modules_desc_webhooks": "Chamadas HTTP roteadas para um workflow",
   "modules_desc_team": "Colaboradores e chat da equipe",
-  "modules_desc_guilds": "Servidores onde o bot está presente"
+  "modules_desc_guilds": "Servidores onde o bot está presente",
+  "option_section_identity": "Identidade",
+  "option_section_type": "Tipo de valor",
+  "option_section_behavior": "Comportamento",
+  "option_translations": "Traduções",
+  "option_delete_action": "Excluir opção",
+  "option_preview_title": "Prévia no Discord",
+  "option_preview_legend": "Sublinhado roxo: obrigatório · cinza: opcional",
+  "option_choices_count": "{count, plural, =1{1 escolha} other{{count} escolhas}}"
 }
