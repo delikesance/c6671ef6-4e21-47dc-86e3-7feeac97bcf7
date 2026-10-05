@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../auth/studio_session.dart';
+import '../dashboard/command_stats.dart';
 
 class StudioApiException implements Exception {
   const StudioApiException(this.message, {this.statusCode, this.code});
@@ -470,6 +471,15 @@ class StudioApi {
         else
           '$item',
     ];
+  }
+
+  /// Usage des commandes sur les [hours] dernières heures.
+  Future<CommandStats> commandStats(String botId, int hours) async {
+    final json = await _send(
+      'GET',
+      '/gateway/bots/${Uri.encodeComponent(botId)}/command-stats?hours=$hours',
+    );
+    return CommandStats.fromJson(json);
   }
 
   /// URL du canal temps réel (`ws(s)://…/gateway/bots/events`).

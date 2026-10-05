@@ -14,6 +14,12 @@ enum StudioFeature {
     description:
         "Exécute des workflows automatiquement toutes les X minutes (jusqu'à 10 actifs).",
   ),
+  analytics(
+    minPlan: StudioPlan.premium,
+    title: 'Analytics Premium',
+    description:
+        "Débloquez le taux d'erreur, les percentiles de latence et les insights de localisation.",
+  ),
   inboundWebhooks(
     minPlan: StudioPlan.premium,
     title: 'Webhooks entrants',

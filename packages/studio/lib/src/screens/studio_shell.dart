@@ -10,6 +10,7 @@ import '../widgets/common.dart';
 import '../widgets/studio_rail.dart';
 import 'bots_page.dart';
 import 'commands_page.dart';
+import 'dashboard_page.dart';
 import 'overview_page.dart';
 import 'team_page.dart';
 import 'variables_page.dart';
@@ -126,6 +127,13 @@ class _StudioShellState extends State<StudioShell> {
         return CommandsPage(key: ValueKey(bot.id), api: api, bot: bot);
       case 'overview':
         return OverviewPage(key: ValueKey(bot.id), api: api, bot: bot);
+      case 'dash':
+        return DashboardPage(
+          key: ValueKey(bot.id),
+          api: api,
+          bot: bot,
+          plan: plan,
+        );
       case 'vars':
         return VariablesPage(key: ValueKey(bot.id), api: api, bot: bot);
       case 'team':
