@@ -40,7 +40,7 @@ env:
 jobs:
   check:
     name: Analyze, test & build web
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     steps:
       - uses: actions/checkout@v4
 
@@ -83,7 +83,7 @@ jobs:
     name: Build, smoke-test & publish image
     needs: [check]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     permissions:
       contents: read
       packages: write
