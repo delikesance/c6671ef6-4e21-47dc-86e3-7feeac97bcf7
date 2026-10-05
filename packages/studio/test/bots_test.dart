@@ -93,7 +93,7 @@ void main() {
     expect(path, '/gateway/bots/7/stop');
   });
 
-  final l = AppLocalizationsFr();
+  final l = StudioLocalizationsFr();
 
   test('case hébergement : illimité, restant, préservé', () {
     const running = StudioBot(id: '1', name: 'A', running: true);

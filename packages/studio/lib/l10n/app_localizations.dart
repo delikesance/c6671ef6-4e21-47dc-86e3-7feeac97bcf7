@@ -14,10 +14,10 @@ import 'app_localizations_tr.dart';
 
 // ignore_for_file: type=lint
 
-/// Callers can lookup localized strings with an instance of AppLocalizations
-/// returned by `AppLocalizations.of(context)`.
+/// Callers can lookup localized strings with an instance of StudioLocalizations
+/// returned by `StudioLocalizations.of(context)`.
 ///
-/// Applications need to include `AppLocalizations.delegate()` in their app's
+/// Applications need to include `StudioLocalizations.delegate()` in their app's
 /// `localizationDelegates` list, and the locales they support in the app's
 /// `supportedLocales` list. For example:
 ///
@@ -25,8 +25,8 @@ import 'app_localizations_tr.dart';
 /// import 'l10n/app_localizations.dart';
 ///
 /// return MaterialApp(
-///   localizationsDelegates: AppLocalizations.localizationsDelegates,
-///   supportedLocales: AppLocalizations.supportedLocales,
+///   localizationsDelegates: StudioLocalizations.localizationsDelegates,
+///   supportedLocales: StudioLocalizations.supportedLocales,
 ///   home: MyApplicationHome(),
 /// );
 /// ```
@@ -63,20 +63,20 @@ import 'app_localizations_tr.dart';
 /// Select and expand the newly-created Localizations item then, for each
 /// locale your application supports, add a new item and select the locale
 /// you wish to add from the pop-up menu in the Value field. This list should
-/// be consistent with the languages listed in the AppLocalizations.supportedLocales
+/// be consistent with the languages listed in the StudioLocalizations.supportedLocales
 /// property.
-abstract class AppLocalizations {
-  AppLocalizations(String locale)
+abstract class StudioLocalizations {
+  StudioLocalizations(String locale)
     : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
-  static AppLocalizations of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+  static StudioLocalizations of(BuildContext context) {
+    return Localizations.of<StudioLocalizations>(context, StudioLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<StudioLocalizations> delegate =
+      _StudioLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -797,13 +797,15 @@ abstract class AppLocalizations {
   String get featureHooksDesc;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
-  const _AppLocalizationsDelegate();
+class _StudioLocalizationsDelegate
+    extends LocalizationsDelegate<StudioLocalizations> {
+  const _StudioLocalizationsDelegate();
 
   @override
-  Future<AppLocalizations> load(Locale locale) {
-    return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
+  Future<StudioLocalizations> load(Locale locale) {
+    return SynchronousFuture<StudioLocalizations>(
+      lookupStudioLocalizations(locale),
+    );
   }
 
   @override
@@ -817,28 +819,28 @@ class _AppLocalizationsDelegate
   ].contains(locale.languageCode);
 
   @override
-  bool shouldReload(_AppLocalizationsDelegate old) => false;
+  bool shouldReload(_StudioLocalizationsDelegate old) => false;
 }
 
-AppLocalizations lookupAppLocalizations(Locale locale) {
+StudioLocalizations lookupStudioLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
     case 'de':
-      return AppLocalizationsDe();
+      return StudioLocalizationsDe();
     case 'en':
-      return AppLocalizationsEn();
+      return StudioLocalizationsEn();
     case 'fr':
-      return AppLocalizationsFr();
+      return StudioLocalizationsFr();
     case 'ja':
-      return AppLocalizationsJa();
+      return StudioLocalizationsJa();
     case 'pt':
-      return AppLocalizationsPt();
+      return StudioLocalizationsPt();
     case 'tr':
-      return AppLocalizationsTr();
+      return StudioLocalizationsTr();
   }
 
   throw FlutterError(
-    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'StudioLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
     'that was used.',

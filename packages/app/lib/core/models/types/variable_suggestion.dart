@@ -1,2 +1,2 @@
-export 'package:bot_creator_shared/bot_creator_shared.dart'
-    show VariableSuggestion, VariableSuggestionKind, VariableCategory;
+// Moved to package:bot_creator_ui (shared with Studio); kept as a re-export.
+export 'package:bot_creator_ui/src/editor/models/variable_suggestion.dart';

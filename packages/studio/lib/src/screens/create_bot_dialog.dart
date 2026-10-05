@@ -1,3 +1,4 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../api/start_refusal.dart';
@@ -126,7 +127,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  const Icon(
+                  const AppIcon.fromMaterial(
                     Icons.check_circle_rounded,
                     color: StudioColors.online,
                     size: 18,

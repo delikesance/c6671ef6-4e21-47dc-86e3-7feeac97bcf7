@@ -1,3 +1,4 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
@@ -341,7 +342,7 @@ class _CompactHeader extends StatelessWidget {
         IconButton(
           tooltip: context.l10n.navBack,
           onPressed: onBack,
-          icon: const Icon(Icons.arrow_back_rounded, size: 20),
+          icon: const AppIcon.fromMaterial(Icons.arrow_back_rounded, size: 20),
         ),
         Expanded(
           child: Text(
@@ -368,7 +369,7 @@ class _ModuleBack extends StatelessWidget {
     child: TextButton.icon(
       onPressed: onBack,
       style: TextButton.styleFrom(foregroundColor: StudioColors.actionSoft),
-      icon: const Icon(Icons.chevron_left_rounded, size: 24),
+      icon: const AppIcon.fromMaterial(Icons.chevron_left, size: 24),
       label: Text(
         context.l10n.navModules,
         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
@@ -418,7 +419,7 @@ class _SettingsPage extends StatelessWidget {
                 const SizedBox(height: 16),
                 OutlinedButton.icon(
                   onPressed: auth.signOut,
-                  icon: const Icon(Icons.logout_rounded, size: 16),
+                  icon: const AppIcon.fromMaterial(Icons.logout, size: 16),
                   label: Text(l.accountSignOut),
                 ),
               ],

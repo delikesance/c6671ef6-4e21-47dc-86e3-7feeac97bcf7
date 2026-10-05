@@ -1,3 +1,4 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -204,7 +205,10 @@ class _TeamPageState extends State<TeamPage> {
                   IconButton.filled(
                     tooltip: context.l10n.commonSend,
                     onPressed: _sending ? null : _send,
-                    icon: const Icon(Icons.send_rounded, size: 18),
+                    icon: const AppIcon.fromMaterial(
+                      Icons.send_rounded,
+                      size: 18,
+                    ),
                   ),
                 ],
               ),
@@ -239,7 +243,10 @@ class _CollaboratorRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.person_outline, color: StudioColors.muted),
+          const AppIcon.fromMaterial(
+            Icons.person_outline,
+            color: StudioColors.muted,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -268,7 +275,10 @@ class _CollaboratorRow extends StatelessWidget {
             IconButton(
               tooltip: context.l10n.teamRemove,
               onPressed: onRemove,
-              icon: const Icon(Icons.person_remove_outlined, size: 18),
+              icon: const AppIcon.fromMaterial(
+                Icons.person_remove_outlined,
+                size: 18,
+              ),
             ),
         ],
       ),

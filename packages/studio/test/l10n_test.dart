@@ -70,7 +70,7 @@ void main() {
       expect(shared, isNotEmpty);
       for (final l in _locales) {
         final studio = _arb('lib/l10n/app_$l.arb');
-        final app = _arb('../app/lib/core/i18n/l10n/app_$l.arb');
+        final app = _arb('../ui/lib/src/l10n/app_$l.arb');
         shared.forEach((studioKey, appKey) {
           expect(
             studio[studioKey],
@@ -109,7 +109,7 @@ void main() {
       await locale.set(const Locale('en'));
       await tester.pumpAndSettle();
       // Ce texte vient de l'app : on compare à SON anglais, pas à une phrase écrite ici.
-      final appEn = _arb('../app/lib/core/i18n/l10n/app_en.arb');
+      final appEn = _arb('../ui/lib/src/l10n/app_en.arb');
       expect(
         find.text(appEn['marketplace_connect_discord'] as String),
         findsOneWidget,
@@ -122,7 +122,7 @@ void main() {
     ) async {
       // « Se connecter avec Discord » vient de l'app (marketplace_connect_discord).
       final appJa = _arb(
-        '../app/lib/core/i18n/l10n/app_ja.arb',
+        '../ui/lib/src/l10n/app_ja.arb',
       )['marketplace_connect_discord'];
       final locale = LocaleController();
       await locale.set(const Locale('ja'));
@@ -186,6 +186,6 @@ void main() {
       );
     }
     expect(const [Locale('fr')], isNotEmpty);
-    expect(AppLocalizations.supportedLocales.length, 6);
+    expect(StudioLocalizations.supportedLocales.length, 6);
   });
 }

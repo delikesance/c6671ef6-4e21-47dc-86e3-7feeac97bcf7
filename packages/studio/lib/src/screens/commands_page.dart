@@ -1,3 +1,4 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
@@ -112,12 +113,18 @@ class _CommandsPageState extends State<CommandsPage> {
                     IconButton.filled(
                       tooltip: 'Nouvelle commande',
                       onPressed: _create,
-                      icon: const Icon(Icons.add_rounded, size: 18),
+                      icon: const AppIcon.fromMaterial(
+                        Icons.add_rounded,
+                        size: 18,
+                      ),
                     )
                   else
                     FilledButton.icon(
                       onPressed: _create,
-                      icon: const Icon(Icons.add_rounded, size: 18),
+                      icon: const AppIcon.fromMaterial(
+                        Icons.add_rounded,
+                        size: 18,
+                      ),
                       label: const Text('Nouvelle commande'),
                     ),
                 ],
@@ -156,7 +163,10 @@ class _CommandsPageState extends State<CommandsPage> {
                 onChanged: (v) => setState(() => _query = v),
                 decoration: InputDecoration(
                   hintText: context.l10n.commandsSearch,
-                  prefixIcon: const Icon(Icons.search, size: 18),
+                  prefixIcon: const AppIcon.fromMaterial(
+                    Icons.search,
+                    size: 18,
+                  ),
                   isDense: true,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -223,7 +233,7 @@ class _CommandCard extends StatelessWidget {
                   border: Border.all(color: family.withValues(alpha: 0.32)),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
+                child: const AppIcon.fromMaterial(
                   Icons.terminal_rounded,
                   size: 20,
                   color: family,
@@ -327,7 +337,7 @@ class _NewCommandDialogState extends State<_NewCommandDialog> {
               decoration: const InputDecoration(
                 labelText: 'Nom',
                 hintText: 'ping',
-                prefixIcon: Icon(Icons.tag, size: 18),
+                prefixIcon: AppIcon.fromMaterial(Icons.tag, size: 18),
               ),
             ),
             const SizedBox(height: 12),
@@ -336,7 +346,7 @@ class _NewCommandDialogState extends State<_NewCommandDialog> {
               maxLength: 100,
               decoration: const InputDecoration(
                 labelText: 'Description',
-                prefixIcon: Icon(Icons.short_text, size: 18),
+                prefixIcon: AppIcon.fromMaterial(Icons.short_text, size: 18),
               ),
             ),
             const SizedBox(height: 4),

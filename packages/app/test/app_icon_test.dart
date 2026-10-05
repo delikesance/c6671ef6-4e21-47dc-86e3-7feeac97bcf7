@@ -8,11 +8,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 void main() {
   test('all app icons use the Reicon renderer and have a mapping', () {
-    final library = Directory(
-      Directory('packages/app/lib').existsSync() ? 'packages/app/lib' : 'lib',
-    );
+    final fromRoot = Directory('packages/app/lib').existsSync();
+    final libraries = [
+      Directory(fromRoot ? 'packages/app/lib' : 'lib'),
+      Directory(fromRoot ? 'packages/ui/lib' : '../ui/lib'),
+      Directory(fromRoot ? 'packages/studio/lib' : '../studio/lib'),
+    ];
     final mapping = File(
-      '${library.path}/core/widgets/reicon_material_map.dart',
+      '${libraries[1].path}/src/widgets/reicon_material_map.dart',
     ).readAsStringSync();
     final mapped = RegExp(
       r'Icons\.([A-Za-z0-9_]+):',
@@ -20,9 +23,15 @@ void main() {
     // Flutter aliases this icon to content_copy_outlined (the same IconData).
     mapped.add('copy_outlined');
 
-    for (final file in library.listSync(recursive: true).whereType<File>()) {
+    final files = [
+      for (final library in libraries)
+        if (library.existsSync())
+          ...library.listSync(recursive: true).whereType<File>(),
+    ];
+    for (final file in files) {
       if (!file.path.endsWith('.dart') ||
-          file.path.endsWith('reicon_material_map.dart')) {
+          file.path.endsWith('reicon_material_map.dart') ||
+          file.path.contains('/l10n/app_localizations')) {
         continue;
       }
       final source = file.readAsStringSync();

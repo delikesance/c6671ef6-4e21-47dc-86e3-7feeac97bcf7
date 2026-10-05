@@ -1,3 +1,4 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../theme.dart';
@@ -180,7 +181,7 @@ class _OptionsDialogState extends State<_OptionsDialog> {
                                   tooltip: 'Retirer l\'option',
                                   onPressed: () =>
                                       setState(() => _rows.remove(row)),
-                                  icon: const Icon(
+                                  icon: const AppIcon.fromMaterial(
                                     Icons.close_rounded,
                                     size: 18,
                                   ),
@@ -220,7 +221,10 @@ class _OptionsDialogState extends State<_OptionsDialog> {
                               tooltip: 'Retirer l\'option',
                               onPressed: () =>
                                   setState(() => _rows.remove(row)),
-                              icon: const Icon(Icons.close_rounded, size: 18),
+                              icon: const AppIcon.fromMaterial(
+                                Icons.close_rounded,
+                                size: 18,
+                              ),
                             ),
                           ],
                         ),
@@ -238,7 +242,7 @@ class _OptionsDialogState extends State<_OptionsDialog> {
                       }),
                     ),
                   ),
-                  icon: const Icon(Icons.add_rounded, size: 16),
+                  icon: const AppIcon.fromMaterial(Icons.add_rounded, size: 16),
                   label: const Text('Ajouter une option'),
                 ),
               ),

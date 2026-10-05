@@ -1,3 +1,4 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -120,7 +121,10 @@ class _OverviewPageState extends State<OverviewPage> {
                       )
                     : FilledButton.icon(
                         onPressed: _busy ? null : _toggle,
-                        icon: const Icon(Icons.play_arrow_rounded, size: 16),
+                        icon: const AppIcon.fromMaterial(
+                          Icons.play_arrow_rounded,
+                          size: 16,
+                        ),
                         label: Text(context.l10n.botStart),
                       ),
               ],

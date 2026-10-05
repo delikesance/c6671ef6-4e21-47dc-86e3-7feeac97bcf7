@@ -23,14 +23,14 @@ enum StudioFeature {
 
   /// Titre et description des fonctionnalités Premium, dans la langue de
   /// l'utilisateur (mêmes textes que dans l'app).
-  String title(AppLocalizations l) => switch (this) {
+  String title(StudioLocalizations l) => switch (this) {
     scheduler => l.featureSchedulerTitle,
     analytics => l.featureAnalyticsTitle,
     inboundWebhooks => l.featureHooksTitle,
     commands => '',
   };
 
-  String description(AppLocalizations l) => switch (this) {
+  String description(StudioLocalizations l) => switch (this) {
     scheduler => l.featureSchedulerDesc,
     analytics => l.featureAnalyticsDesc,
     inboundWebhooks => l.featureHooksDesc,

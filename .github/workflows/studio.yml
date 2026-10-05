@@ -15,13 +15,13 @@ on:
     branches: [main, master, dev]
     paths:
       - "packages/studio/**"
-      - "packages/app/lib/core/i18n/l10n/*.arb"
+      - "packages/ui/**"
       - "pubspec.yaml"
       - ".github/workflows/studio.yml"
   pull_request:
     paths:
       - "packages/studio/**"
-      - "packages/app/lib/core/i18n/l10n/*.arb"
+      - "packages/ui/**"
       - "pubspec.yaml"
       - ".github/workflows/studio.yml"
   workflow_dispatch:

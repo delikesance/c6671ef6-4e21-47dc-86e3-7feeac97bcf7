@@ -1,3 +1,4 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
 import 'auth/auth_controller.dart';
@@ -42,8 +43,11 @@ class _StudioAppState extends State<StudioApp> {
           themeMode: ThemeMode.dark,
           darkTheme: StudioTheme.dark(),
           locale: _locale.locale,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            ...StudioLocalizations.localizationsDelegates,
+            AppLocalizations.delegate,
+          ],
+          supportedLocales: StudioLocalizations.supportedLocales,
           home: ListenableBuilder(
             listenable: _auth,
             builder: (context, _) {

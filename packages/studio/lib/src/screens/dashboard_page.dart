@@ -1,3 +1,4 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
@@ -244,7 +245,7 @@ class _AnalyticsLocked extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(
+            AppIcon.fromMaterial(
               Icons.workspace_premium_rounded,
               color: StudioColors.premiumGold,
               size: 20,
@@ -271,7 +272,7 @@ class _AnalyticsLocked extends StatelessWidget {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 1),
-              child: Icon(
+              child: AppIcon.fromMaterial(
                 Icons.lock_outline_rounded,
                 size: 16,
                 color: StudioColors.muted,

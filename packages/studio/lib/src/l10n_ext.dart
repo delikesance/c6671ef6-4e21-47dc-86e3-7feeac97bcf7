@@ -6,5 +6,5 @@ export '../l10n/app_localizations.dart';
 
 /// `context.l10n.navHome` : les textes du Studio dans la langue courante.
 extension StudioL10n on BuildContext {
-  AppLocalizations get l10n => AppLocalizations.of(this);
+  StudioLocalizations get l10n => StudioLocalizations.of(this);
 }

@@ -24,7 +24,7 @@ final AppLocalizationsFr tr = AppLocalizationsFr();
 /// Texte d'une clé du fichier ARB français, lu à la source du fichier.
 String arbFrText(String key) {
   final decoded =
-      jsonDecode(File('lib/core/i18n/l10n/app_fr.arb').readAsStringSync())
+      jsonDecode(File('../ui/lib/src/l10n/app_fr.arb').readAsStringSync())
           as Map<String, dynamic>;
   return decoded[key]?.toString() ?? '';
 }

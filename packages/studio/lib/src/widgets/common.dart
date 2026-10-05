@@ -1,3 +1,4 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../l10n_ext.dart';
@@ -146,7 +147,7 @@ class ErrorNotice extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
+          const AppIcon.fromMaterial(
             Icons.error_outline_rounded,
             color: StudioColors.errorText,
           ),

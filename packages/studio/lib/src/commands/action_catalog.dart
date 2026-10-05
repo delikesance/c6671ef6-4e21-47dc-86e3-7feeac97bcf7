@@ -1,18 +1,5 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
-
-/// Famille de couleur d'un bloc (`BlockFamily` de l'app).
-enum BlockFamily {
-  messages(Color(0xFFA78BFA)),
-  moderation(Color(0xFF4ADE80)),
-  http(Color(0xFF38BDF8)),
-  logic(Color(0xFFFB7185)),
-  data(Color(0xFFFBBF24)),
-  events(Color(0xFFFB923C));
-
-  const BlockFamily(this.color);
-
-  final Color color;
-}
 
 /// Catégories de la palette d'actions, avec leur libellé français.
 enum ActionCategory {
@@ -23,11 +10,11 @@ enum ActionCategory {
   components('Composants', BlockFamily.messages, Icons.widgets_outlined),
   webhooks('Webhooks', BlockFamily.http, Icons.webhook_rounded),
   guild('Serveur & Membres', BlockFamily.moderation, Icons.groups_outlined),
-  http('HTTP & Variables', BlockFamily.http, Icons.http_rounded),
+  http('HTTP & Variables', BlockFamily.http, Icons.http),
   workflows('Workflows', BlockFamily.logic, Icons.account_tree_outlined),
-  logic('Logique & Flux', BlockFamily.logic, Icons.fork_right_rounded),
+  logic('Logique & Flux', BlockFamily.logic, Icons.fork_right),
   interactions('Interactions', BlockFamily.messages, Icons.touch_app_outlined),
-  music('Musique', BlockFamily.data, Icons.music_note_outlined);
+  music('Musique', BlockFamily.data, Icons.music_note);
 
   const ActionCategory(this.label, this.family, this.icon);
 

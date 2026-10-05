@@ -1,3 +1,4 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../theme.dart';
@@ -14,7 +15,7 @@ class _Module {
   final IconData icon;
 }
 
-List<(String, List<_Module>)> _groups(AppLocalizations l) => [
+List<(String, List<_Module>)> _groups(StudioLocalizations l) => [
   (
     l.modulesGroupCreate,
     [
@@ -140,7 +141,7 @@ class _ModulesPageState extends State<ModulesPage> {
                 onChanged: (v) => setState(() => _query = v),
                 decoration: InputDecoration(
                   hintText: context.l10n.modulesSearch,
-                  prefixIcon: Icon(Icons.search, size: 18),
+                  prefixIcon: AppIcon.fromMaterial(Icons.search, size: 18),
                   isDense: true,
                 ),
               ),
@@ -190,7 +191,11 @@ class _ModulesPageState extends State<ModulesPage> {
                         border: Border.all(color: StudioColors.clusterBorder),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(m.icon, size: 20, color: StudioColors.muted),
+                      child: AppIcon.fromMaterial(
+                        m.icon,
+                        size: 20,
+                        color: StudioColors.muted,
+                      ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -215,7 +220,7 @@ class _ModulesPageState extends State<ModulesPage> {
                         ],
                       ),
                     ),
-                    const Icon(
+                    const AppIcon.fromMaterial(
                       Icons.chevron_right_rounded,
                       size: 20,
                       color: StudioColors.muted,
