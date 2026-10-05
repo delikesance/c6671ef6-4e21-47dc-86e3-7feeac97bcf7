@@ -288,7 +288,12 @@ class _StudioShellState extends State<StudioShell> {
     final plan = widget.auth.plan;
     switch (section) {
       case 'commands':
-        return CommandsPage(key: ValueKey(bot.id), api: api, bot: bot);
+        return CommandsPage(
+          key: ValueKey(bot.id),
+          api: api,
+          bot: bot,
+          userId: widget.auth.session?.userId,
+        );
       case 'overview':
         return OverviewPage(key: ValueKey(bot.id), api: api, bot: bot);
       case 'dash':

@@ -2,6 +2,7 @@ import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
+import '../editor/studio_editor_host.dart';
 import '../l10n_ext.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
@@ -11,7 +12,15 @@ import 'command_editor_page.dart';
 
 /// Onglet « Commandes » de l'éditeur de bot.
 class CommandsPage extends StatefulWidget {
-  const CommandsPage({super.key, required this.api, required this.bot});
+  const CommandsPage({
+    super.key,
+    required this.api,
+    required this.bot,
+    this.userId,
+  });
+
+  /// Compte connecté (filtre « mes modèles » du marketplace).
+  final String? userId;
 
   final StudioApi api;
   final StudioBot bot;
@@ -109,6 +118,13 @@ class _CommandsPageState extends State<CommandsPage> {
                       ),
                     ),
                   const Spacer(),
+                  IconButton(
+                    tooltip: context.tr.marketplace_title,
+                    onPressed: _openMarketplace,
+                    icon: const AppIcon.fromMaterial(
+                      Icons.auto_awesome_outlined,
+                    ),
+                  ),
                   if (MediaQuery.sizeOf(context).width < 480)
                     IconButton.filled(
                       tooltip: 'Nouvelle commande',
@@ -135,6 +151,25 @@ class _CommandsPageState extends State<CommandsPage> {
         );
       },
     );
+  }
+
+  Future<void> _openMarketplace() async {
+    final applied = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => EditorHostScope(
+          host: StudioEditorHost(api: widget.api, bot: widget.bot),
+          child: MarketplaceView(
+            botId: widget.bot.id,
+            controller: StudioMarketplaceController(
+              api: widget.api,
+              bot: widget.bot,
+              userId: widget.userId,
+            ),
+          ),
+        ),
+      ),
+    );
+    if (applied == true && mounted) _refresh();
   }
 
   Widget _body(

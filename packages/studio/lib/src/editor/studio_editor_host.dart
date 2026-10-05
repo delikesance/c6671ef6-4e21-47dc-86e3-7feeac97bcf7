@@ -1,3 +1,4 @@
+import 'package:bot_creator_shared/bot/marketplace_template.dart';
 import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -238,4 +239,136 @@ class StudioEmojisController extends EmojisController {
 
   @override
   Future<void> delete(String emojiId) => api.deleteAppEmoji(botId, emojiId);
+}
+
+/// Marketplace du Studio : le catalogue vient du Manager ; un modèle s'applique
+/// par les routes de commandes, de workflows et de variables.
+class StudioMarketplaceController extends MarketplaceController {
+  const StudioMarketplaceController({
+    required this.api,
+    required this.bot,
+    this.userId,
+  });
+
+  final StudioApi api;
+  final StudioBot bot;
+  final String? userId;
+
+  @override
+  Future<List<MarketplaceTemplate>> list() async => [
+    for (final t in await api.listMarketplace())
+      MarketplaceTemplate.fromJson(t),
+  ];
+
+  @override
+  Future<MarketplaceTemplate?> get(String id) async =>
+      MarketplaceTemplate.fromJson(await api.getMarketplaceTemplate(id));
+
+  @override
+  Future<void> rate(String id, double rating) =>
+      api.rateMarketplaceTemplate(id, rating);
+
+  @override
+  Future<void> delete(String id) => api.deleteMarketplaceTemplate(id);
+
+  @override
+  Future<String?> currentUserId() async => userId;
+
+  @override
+  Future<String?> apply(
+    BuildContext context,
+    MarketplaceTemplate template,
+    String botId,
+    Map<String, String> variables,
+  ) async {
+    final doneMessage = context.tr.marketplace_apply_success;
+    await api.countMarketplaceDownload(template.id, botId, variables);
+    for (final entry in variables.entries) {
+      await api.setGlobalVariable(botId, entry.key, entry.value);
+    }
+
+    final existing = {
+      for (final c in await api.listCommands(botId)) c.name.toLowerCase(): c,
+    };
+    final conflicts = <Map<String, dynamic>>[];
+    final fresh = <MapEntry<String, dynamic>>[];
+    for (final cmd in template.commands) {
+      final name = (resolveTemplateVariables(cmd.name, variables) as String)
+          .toLowerCase();
+      final local = existing[name];
+      if (local == null) {
+        fresh.add(MapEntry(name, cmd));
+      } else {
+        final data = local.card['data'];
+        conflicts.add({
+          'templateName': cmd.name,
+          'resolvedName': name,
+          'cmd': cmd,
+          'localActions': data is Map && data['actions'] is List
+              ? (data['actions'] as List).length
+              : 0,
+          'templateActions': countTemplateActions(
+            Map<String, dynamic>.from(cmd.data),
+          ),
+        });
+      }
+    }
+    Map<String, bool>? choices;
+    if (conflicts.isNotEmpty) {
+      if (!context.mounted) return null;
+      choices = await showTemplateConflictDialog(context, conflicts, variables);
+      if (choices == null || choices.isEmpty) return null;
+    }
+
+    var added = 0, replaced = 0, kept = 0;
+    Future<void> write(String name, dynamic cmd) async {
+      final description =
+          resolveTemplateVariables(cmd.description, variables) as String;
+      final data =
+          resolveTemplateVariables(cmd.data, variables) as Map<String, dynamic>;
+      if (data['response'] is Map &&
+          (data['response'] as Map).containsKey('_migrated')) {
+        data.remove('response');
+      }
+      data.remove('simpleConfig');
+      final id = newStorageId();
+      await api.saveCommand(botId, id, {
+        'id': id,
+        'name': name,
+        'description': description,
+        'type': data['commandType'] ?? data['type'] ?? 'chatInput',
+        'data': data,
+      });
+    }
+
+    for (final entry in fresh) {
+      await write(entry.key, entry.value);
+      added++;
+    }
+    for (final conflict in conflicts) {
+      final name = conflict['resolvedName'] as String;
+      if (choices?[name] != true) {
+        kept++;
+        continue;
+      }
+      await api.deleteCommand(botId, existing[name]!.id, botName: bot.name);
+      await write(name, conflict['cmd']);
+      replaced++;
+    }
+
+    for (final workflow in template.workflows) {
+      final resolved =
+          resolveTemplateVariables(workflow, variables) as Map<String, dynamic>;
+      await api.saveWorkflow(botId, bot.name, resolved);
+    }
+
+    final parts = [
+      if (added > 0) '$added added',
+      if (replaced > 0) '$replaced replaced',
+      if (kept > 0) '$kept kept',
+    ];
+    return parts.isEmpty
+        ? doneMessage
+        : 'Template applied: ${parts.join(', ')}';
+  }
 }

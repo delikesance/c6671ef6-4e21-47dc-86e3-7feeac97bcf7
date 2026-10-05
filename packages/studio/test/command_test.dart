@@ -205,6 +205,19 @@ void main() {
       },
     );
 
+    test('marketplace : catalogue sous data, téléchargement compté', () async {
+      final calls = <String>[];
+      final a = api(
+        MockClient((r) async {
+          calls.add('${r.method} ${r.url.path}');
+          return http.Response('{"data":[{"id":"t1","name":"Modele"}]}', 200);
+        }),
+      );
+      expect((await a.listMarketplace()).single['id'], 't1');
+      await a.countMarketplaceDownload('t1', 'b', {'k': 'v'});
+      expect(calls, ['GET /marketplace', 'POST /marketplace/t1/apply']);
+    });
+
     test('get lit la commande et la révision', () async {
       final a = api(
         MockClient((r) async {
