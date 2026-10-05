@@ -8,7 +8,6 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/image_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflows.page.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
-import 'package:bot_creator/features/bot_editor/presentation/screens/js_editor_page.dart';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;

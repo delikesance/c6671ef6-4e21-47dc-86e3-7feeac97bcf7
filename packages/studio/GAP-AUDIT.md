@@ -36,7 +36,10 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
 - **Métadonnées et options de commande** : le bloc Métadonnées de l'app (nom, description, dossier, paramètres avancés,
   éditeur d'options complet).
 
-Reste à faire : éditeurs BDFD / JavaScript et bac à sable (le Studio affiche les scripts tels quels), éditeur d'image,
+- **Éditeur JavaScript** : l'éditeur de script de l'app (coloration, autocomplétion discord.js, signatures, diagnostics,
+  réglages de la palette) pour les commandes en JavaScript et l'autocomplétion des options.
+
+Reste à faire : éditeur BDFD (le compilateur BDFD n'est pas compilable pour le web ; le Studio affiche le script tel quel), éditeur d'image,
 versions de configuration du bot, planificateur, webhooks entrants, émojis, serveurs, marketplace, conteneurs,
 documentation intégrée. Le détail ci-dessous est l'audit initial.
 

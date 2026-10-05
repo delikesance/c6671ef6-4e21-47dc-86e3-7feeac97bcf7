@@ -11,6 +11,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:bot_creator/core/ui_hooks.dart';
 import 'package:bot_creator/core/network/image_disk_cache.dart';
 import 'package:bot_creator/features/documentation/web_documentation_view.dart';
 import 'package:bot_creator/core/utils/external_link.dart';
@@ -206,6 +207,7 @@ Future<void> main(List<String> args) async {
       AvatarImageSource.defaultSource = ImageDiskCache.instance;
       ExternalLinkOpener.current = openExternalUrl;
       CopilotMarkdown.linkOpener = openAppLink;
+      bindUiPackageHooks();
       DocumentationWebViewHost.builder = (url) =>
           WebDocumentationView(initialUrl: url);
       UiDiagnostics.onInfo = (message) =>
