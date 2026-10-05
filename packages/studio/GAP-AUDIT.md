@@ -1,5 +1,23 @@
 # Studio : ce qui manque face à l'app (audit du 2026-10-05)
 
+## Mise à jour — ce qui est maintenant fait
+
+- **Commandes** : création (dialogue nom / description / déclencheur), enregistrement par la route granulaire v2.
+- **Éditeur de blocs** (commandes et workflows) : palette d'ajout avec recherche, paramètres modifiables
+  (champs ou JSON, structures imbriquées conservées), ordre, activation, suppression.
+- **Workflows** : liste, création (général / événement), édition des blocs visuels, suppression. Le Manager expose
+  désormais `GET /api/v2/bots/{id}/workflows[/{name}]` (lecture qui manquait).
+- **Copilote IA** : discussions par bot, historique, solde de crédits, outils lus automatiquement, écritures soumises
+  à approbation. Outils exécutés par le Studio : commandes et workflows visuels, variables, démarrage / arrêt du
+  bot hébergé, documentation officielle (si le navigateur l'autorise). La réponse s'affiche une fois générée
+  (pas de défilement mot à mot dans le navigateur).
+- **Variables à portée** : création, modification et suppression des définitions.
+
+Reste à faire : canvas Blueprint (vue graphe), éditeurs BDFD / JavaScript et bac à sable, Components V2 et modales,
+options (arguments) de commande, versions de configuration et retour arrière, planificateur, webhooks entrants,
+émojis, serveurs, marketplace, conteneurs, documentation intégrée. Le détail ci-dessous est l'audit initial.
+
+
 Périmètre : `packages/studio/lib/src` (≈46 fichiers) comparé à `packages/app/lib/features/*` et aux routes du Manager.
 Limites : lecture de la coque, du modèle de brouillon et des fichiers de routes ; les écrans du Studio et le canvas
 Blueprint / la page Copilot de l'app n'ont pas été lus en entier.

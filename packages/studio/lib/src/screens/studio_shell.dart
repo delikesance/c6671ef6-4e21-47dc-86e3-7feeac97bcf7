@@ -21,6 +21,7 @@ import 'overview_page.dart';
 import 'team_page.dart';
 import 'variables_page.dart';
 import 'workflows_page.dart';
+import 'copilot_page.dart';
 
 /// Coque connectée : accueil ou éditeur d'un bot. Jamais montrée sans session
 /// valide.
@@ -266,6 +267,8 @@ class _StudioShellState extends State<StudioShell> {
           bot: bot,
           plan: plan,
         );
+      case 'copilot':
+        return CopilotPage(key: ValueKey(bot.id), api: api, bot: bot);
       case 'flows':
         return WorkflowsPage(key: ValueKey(bot.id), api: api, bot: bot);
       case 'vars':

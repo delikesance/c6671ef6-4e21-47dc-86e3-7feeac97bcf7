@@ -28,8 +28,8 @@ Object? parseVariableValue(String raw) {
 String formatVariableValue(Object? value) =>
     value is String ? value : jsonEncode(value);
 
-/// Onglet « Vars » : variables globales du bot (modifiables) et définitions
-/// de variables par serveur/membre (lecture).
+/// Onglet « Vars » : variables globales du bot et définitions de variables par
+/// serveur, salon, utilisateur ou membre (création, modification, suppression).
 class VariablesPage extends StatefulWidget {
   const VariablesPage({super.key, required this.api, required this.bot});
 
@@ -130,6 +130,134 @@ class _VariablesPageState extends State<VariablesPage> {
     });
   }
 
+  /// Crée ou modifie la VALEUR PAR DÉFAUT d'une variable à portée. Les valeurs
+  /// propres à un serveur ou à un membre ne se touchent pas d'ici.
+  Future<void> _editScoped({StudioScopedDefinition? existing}) async {
+    final keyCtl = TextEditingController(text: existing?.key ?? '');
+    final valueCtl = TextEditingController(
+      text: existing?.defaultValue == null
+          ? ''
+          : formatVariableValue(existing!.defaultValue),
+    );
+    var scope = existing?.scope.isNotEmpty == true ? existing!.scope : 'user';
+    const scopes = {
+      'user': 'Utilisateur',
+      'guild': 'Serveur',
+      'channel': 'Salon',
+      'guildMember': 'Membre (par serveur)',
+    };
+    if (!scopes.containsKey(scope)) scope = 'user';
+    final result = await showDialog<(String, String, String)>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setLocal) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            existing == null
+                ? 'Nouvelle variable à portée'
+                : 'Modifier la variable à portée',
+          ),
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: keyCtl,
+                  enabled: existing == null,
+                  decoration: const InputDecoration(labelText: 'Nom'),
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  initialValue: scope,
+                  decoration: const InputDecoration(labelText: 'Portée'),
+                  items: [
+                    for (final e in scopes.entries)
+                      DropdownMenuItem(value: e.key, child: Text(e.value)),
+                  ],
+                  onChanged: existing == null
+                      ? (v) => setLocal(() => scope = v ?? scope)
+                      : null,
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: valueCtl,
+                  minLines: 1,
+                  maxLines: 4,
+                  decoration: const InputDecoration(
+                    labelText: 'Valeur par défaut',
+                    helperText: 'Nombre, true/false et JSON gardent leur type.',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Annuler'),
+            ),
+            FilledButton(
+              onPressed: () {
+                if (keyCtl.text.trim().isEmpty) return;
+                Navigator.of(
+                  context,
+                ).pop((keyCtl.text.trim(), scope, valueCtl.text));
+              },
+              child: const Text('Enregistrer'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (result == null) return;
+    final (key, chosenScope, value) = result;
+    await _run(
+      () => widget.api.setScopedDefinition(
+        widget.bot.id,
+        key: key,
+        scope: chosenScope,
+        defaultValue: parseVariableValue(value),
+      ),
+    );
+  }
+
+  Future<void> _removeScoped(StudioScopedDefinition d) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Supprimer « ${d.key} » ?'),
+        content: const Text(
+          'La définition est retirée ; les valeurs déjà mémorisées ne sont pas effacées.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text(
+              'Supprimer',
+              style: TextStyle(color: StudioColors.errorText),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    await _run(
+      () => widget.api.removeScopedDefinition(
+        widget.bot.id,
+        d.key,
+        scope: d.scope,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -193,23 +321,42 @@ class _VariablesPageState extends State<VariablesPage> {
                       () => widget.api.removeGlobalVariable(widget.bot.id, k),
                     ),
                   ),
-                if (defs.isNotEmpty) ...[
-                  const SizedBox(height: 28),
-                  const Overline('Par serveur, membre…'),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Définitions en lecture seule : modifiez-les depuis l\'app.',
-                    style: TextStyle(fontSize: 12, color: StudioColors.muted),
-                  ),
-                  const SizedBox(height: 12),
-                  for (final d in defs)
-                    _VarRow(
-                      name: d.key,
-                      value:
-                          '${d.scope} · ${d.valueType}'
-                          '${d.defaultValue == null ? '' : ' · défaut : ${formatVariableValue(d.defaultValue)}'}',
+                const SizedBox(height: 28),
+                Row(
+                  children: [
+                    const Expanded(child: Overline('Par serveur, membre…')),
+                    TextButton.icon(
+                      onPressed: () => _editScoped(),
+                      icon: const Icon(Icons.add_rounded, size: 18),
+                      label: const Text('Ajouter'),
                     ),
-                ],
+                  ],
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Une définition donne la valeur par défaut ; chaque serveur, salon ou membre garde ensuite sa propre valeur.',
+                  style: TextStyle(fontSize: 12, color: StudioColors.muted),
+                ),
+                const SizedBox(height: 12),
+                if (defs.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(
+                      child: Text(
+                        'Aucune définition.',
+                        style: TextStyle(color: StudioColors.muted),
+                      ),
+                    ),
+                  ),
+                for (final d in defs)
+                  _VarRow(
+                    name: d.key,
+                    value:
+                        '${d.scope} · ${d.valueType}'
+                        '${d.defaultValue == null ? '' : ' · défaut : ${formatVariableValue(d.defaultValue)}'}',
+                    onEdit: () => _editScoped(existing: d),
+                    onDelete: () => _removeScoped(d),
+                  ),
               ],
             ),
           ),
