@@ -156,6 +156,45 @@ class StudioCommand {
   final String trigger;
 }
 
+class StudioWorkflowSummary {
+  const StudioWorkflowSummary({
+    required this.name,
+    this.type = 'general',
+    this.executionMode = 'workflow',
+    this.actionCount = 0,
+  });
+
+  final String name;
+
+  /// `general` | `event`.
+  final String type;
+
+  /// `workflow` | `bdfd_script` | `javascript`.
+  final String executionMode;
+  final int actionCount;
+}
+
+/// Un workflow ENTIER tel que le serveur le stocke, plus la révision du document.
+class StudioWorkflowDetail {
+  const StudioWorkflowDetail({required this.raw, this.revision});
+
+  final Map<String, dynamic> raw;
+  final String? revision;
+}
+
+/// Un message d'une conversation du Copilot (`role` : user, assistant, tool).
+class StudioAiEvent {
+  const StudioAiEvent({
+    required this.id,
+    required this.kind,
+    required this.payload,
+  });
+
+  final int id;
+  final String kind;
+  final Map<String, dynamic> payload;
+}
+
 /// Client de l'API principale, compatible navigateur (aucun `dart:io`).
 ///
 /// Mêmes routes que `MainApiClient` de l'app mobile/desktop. Le Studio est en
@@ -588,6 +627,249 @@ class StudioApi {
           defaultValue: item['defaultValue'] ?? item['default_value'],
         ),
     ];
+  }
+
+  /// Définit (ou met à jour) la valeur par défaut d'une variable à portée.
+  Future<void> setScopedDefinition(
+    String botId, {
+    required String key,
+    required String scope,
+    Object? defaultValue,
+  }) => _send(
+    'POST',
+    '/gateway/bots/${Uri.encodeComponent(botId)}/variables/scoped-definitions/set',
+    body: {'key': key.trim(), 'scope': scope, 'defaultValue': defaultValue},
+  );
+
+  Future<void> removeScopedDefinition(
+    String botId,
+    String key, {
+    String? scope,
+    bool purgeStoredValues = false,
+  }) => _send(
+    'POST',
+    '/gateway/bots/${Uri.encodeComponent(botId)}/variables/scoped-definitions/remove',
+    body: {
+      'key': key.trim(),
+      if (scope != null && scope.isNotEmpty) 'scope': scope,
+      if (purgeStoredValues) 'purgeStoredValues': true,
+    },
+  );
+
+  // ── Workflows ─────────────────────────────────────────────────────────────
+
+  Future<List<StudioWorkflowSummary>> listWorkflows(String botId) async {
+    final json = await _send(
+      'GET',
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/workflows',
+    );
+    final raw = json['workflows'];
+    if (raw is! List) return const [];
+    return [
+      for (final item in raw.whereType<Map>())
+        if ('${item['name'] ?? ''}'.isNotEmpty)
+          StudioWorkflowSummary(
+            name: '${item['name']}',
+            type: '${item['workflow_type'] ?? 'general'}',
+            executionMode: '${item['execution_mode'] ?? 'workflow'}',
+            actionCount: (item['action_count'] as num?)?.toInt() ?? 0,
+          ),
+    ];
+  }
+
+  Future<StudioWorkflowDetail> getWorkflow(String botId, String name) async {
+    final json = await _send(
+      'GET',
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/workflows/${Uri.encodeComponent(name)}',
+    );
+    final workflow = json['workflow'];
+    if (workflow is! Map) {
+      throw const StudioApiException('Unexpected workflow response.');
+    }
+    return StudioWorkflowDetail(
+      raw: Map<String, dynamic>.from(workflow),
+      revision: _string(json, const ['revision']),
+    );
+  }
+
+  /// Crée ou remplace un workflow (la clé de fusion est son nom).
+  Future<void> saveWorkflow(
+    String botId,
+    String botName,
+    Map<String, dynamic> workflow,
+  ) async {
+    final name = '${workflow['name'] ?? ''}'.trim();
+    await _send(
+      'POST',
+      '/gateway/bots/${Uri.encodeComponent(botId)}/workflows/sync',
+      body: {
+        'botId': botId,
+        'botName': botName,
+        'workflowName': name,
+        'workflow': workflow,
+      },
+      timeout: const Duration(seconds: 60),
+    );
+  }
+
+  Future<void> deleteWorkflow(String botId, String botName, String name) =>
+      _send(
+        'POST',
+        '/gateway/bots/${Uri.encodeComponent(botId)}/workflows/delete',
+        body: {'botId': botId, 'botName': botName, 'workflowName': name},
+        timeout: const Duration(seconds: 60),
+      );
+
+  // ── IA (Copilot) ──────────────────────────────────────────────────────────
+
+  Future<Map<String, dynamic>> aiWallet() => _send('GET', '/gateway/ai/wallet');
+
+  Future<List<Map<String, dynamic>>> aiConversations({
+    String? botId,
+    int offset = 0,
+  }) async {
+    final query = Uri(
+      queryParameters: {
+        if (botId != null && botId.isNotEmpty) 'bot_id': botId,
+        'archived': 'false',
+        'offset': '$offset',
+      },
+    ).query;
+    final json = await _send('GET', '/gateway/ai/conversations?$query');
+    final raw = json['conversations'] ?? json['items'];
+    if (raw is! List) return const [];
+    return [
+      for (final item in raw.whereType<Map>()) Map<String, dynamic>.from(item),
+    ];
+  }
+
+  Future<Map<String, dynamic>> createAiConversation({
+    String? botId,
+    String? title,
+  }) => _send(
+    'POST',
+    '/gateway/ai/conversations',
+    body: {
+      'bot_id': botId ?? '',
+      'location': botId == null || botId.isEmpty ? 'global' : 'bot',
+      'title': title ?? 'Nouvelle discussion',
+    },
+  );
+
+  Future<Map<String, dynamic>> aiConversation(String id) =>
+      _send('GET', '/gateway/ai/conversations/${Uri.encodeComponent(id)}');
+
+  Future<void> deleteAiConversation(String id) =>
+      _send('DELETE', '/gateway/ai/conversations/${Uri.encodeComponent(id)}');
+
+  /// Démarre un tour : `{idempotency_key, revision, prompt, tools}`. Un rejeu
+  /// avec la même clé est sans effet, comme dans l'app.
+  Future<Map<String, dynamic>> startAiTurn(
+    String id,
+    Map<String, dynamic> request,
+  ) => _send(
+    'POST',
+    '/gateway/ai/conversations/${Uri.encodeComponent(id)}/turns',
+    body: request,
+    timeout: const Duration(seconds: 60),
+  );
+
+  Future<Map<String, dynamic>> aiAction(
+    String id,
+    String callId,
+    Map<String, dynamic> request,
+  ) => _send(
+    'POST',
+    '/gateway/ai/conversations/${Uri.encodeComponent(id)}/actions/${Uri.encodeComponent(callId)}',
+    body: request,
+    timeout: const Duration(seconds: 60),
+  );
+
+  Future<Map<String, dynamic>> continueAiConversation(String id, String key) =>
+      _send(
+        'POST',
+        '/gateway/ai/conversations/${Uri.encodeComponent(id)}/continue',
+        body: {'idempotency_key': key},
+      );
+
+  /// Événements d'une génération (`delta`, `completed`, `error`…). Le
+  /// navigateur ne rend pas la réponse au fil de l'eau avec ce client : on
+  /// reçoit tout le flux une fois la génération terminée (ou au bout de 100 s).
+  Future<List<StudioAiEvent>> aiEvents(
+    String id,
+    String key, {
+    int after = 0,
+  }) async {
+    final token = await accessToken?.call();
+    if (token == null || token.isEmpty) {
+      throw const StudioApiException('Not signed in.', statusCode: 401);
+    }
+    final uri = Uri.parse(
+      '$baseUrl/gateway/ai/conversations/${Uri.encodeComponent(id)}/requests/${Uri.encodeComponent(key)}/events?after=$after',
+    );
+    final http.Response response;
+    try {
+      response = await _http
+          .get(
+            uri,
+            headers: {
+              'authorization': 'Bearer $token',
+              'accept': 'text/event-stream',
+            },
+          )
+          .timeout(const Duration(seconds: 100));
+    } on TimeoutException {
+      throw const StudioApiException('Stream interrupted');
+    } catch (e) {
+      throw StudioApiException('Cannot reach Bot Creator Server: $e');
+    }
+    if (response.statusCode != 200) {
+      throw StudioApiException(
+        'Stream unavailable',
+        statusCode: response.statusCode,
+      );
+    }
+    return parseSse(utf8.decode(response.bodyBytes));
+  }
+
+  /// Découpe un flux `text/event-stream` en événements (public pour les tests).
+  static List<StudioAiEvent> parseSse(String body) {
+    final events = <StudioAiEvent>[];
+    var kind = '';
+    var data = '';
+    var id = 0;
+    void flush() {
+      if (data.isNotEmpty) {
+        try {
+          final decoded = jsonDecode(data);
+          events.add(
+            StudioAiEvent(
+              id: id,
+              kind: kind,
+              payload: decoded is Map
+                  ? Map<String, dynamic>.from(decoded)
+                  : <String, dynamic>{},
+            ),
+          );
+        } catch (_) {}
+      }
+      kind = '';
+      data = '';
+    }
+
+    for (final line in const LineSplitter().convert(body)) {
+      if (line.isEmpty) {
+        flush();
+      } else if (line.startsWith('event:')) {
+        kind = line.substring(6).trim();
+      } else if (line.startsWith('id:')) {
+        id = int.tryParse(line.substring(3).trim()) ?? 0;
+      } else if (line.startsWith('data:')) {
+        data += line.substring(5).trim();
+      }
+    }
+    flush();
+    return events;
   }
 
   // ── Équipe ────────────────────────────────────────────────────────────────

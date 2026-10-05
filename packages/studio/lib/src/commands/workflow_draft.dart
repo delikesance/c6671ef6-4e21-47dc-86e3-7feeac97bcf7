@@ -1,0 +1,117 @@
+import 'dart:convert';
+
+import 'action_list.dart';
+
+/// Copie de travail d'un workflow. Comme [CommandDraft], le JSON d'origine est
+/// conservé entier : les champs que le Studio ne comprend pas (arguments,
+/// alias d'événement, scripts) repartent tels quels.
+class WorkflowDraft implements ActionListHost {
+  WorkflowDraft(Map<String, dynamic> raw, {this.revision})
+    : _raw = jsonDecode(jsonEncode(raw)) as Map<String, dynamic>,
+      _original = jsonEncode(raw);
+
+  /// Un workflow vide. [isNew] le marque modifié : le serveur ne le connaît pas encore.
+  factory WorkflowDraft.blank({
+    required String name,
+    String type = 'general',
+    String category = 'messages',
+    String event = 'messageCreate',
+  }) {
+    final draft = WorkflowDraft({
+      'name': name,
+      'workflowType': type,
+      'executionMode': 'workflow',
+      'entryPoint': 'main',
+      'arguments': <dynamic>[],
+      'actions': <dynamic>[],
+      if (type == 'event')
+        'eventTrigger': {
+          'category': category,
+          'event': event,
+          'customIdFilter': '',
+        },
+    });
+    draft._original = '';
+    return draft;
+  }
+
+  final Map<String, dynamic> _raw;
+  String _original;
+  String? revision;
+
+  String get name => '${_raw['name'] ?? ''}';
+  set name(String v) => _raw['name'] = v;
+
+  /// `general` | `event`.
+  String get type => '${_raw['workflowType'] ?? 'general'}';
+
+  /// `workflow` | `bdfd_script` | `javascript`.
+  String get executionMode => '${_raw['executionMode'] ?? 'workflow'}';
+
+  bool get visual => executionMode == 'workflow';
+
+  Map<String, dynamic> get eventTrigger {
+    final t = _raw['eventTrigger'];
+    return t is Map ? Map<String, dynamic>.from(t) : <String, dynamic>{};
+  }
+
+  set eventTrigger(Map<String, dynamic> value) => _raw['eventTrigger'] = value;
+
+  List get _list {
+    final raw = _raw['actions'];
+    if (raw is List) return raw;
+    final created = <dynamic>[];
+    _raw['actions'] = created;
+    return created;
+  }
+
+  @override
+  List<Map<String, dynamic>> get actions => [
+    for (final e in _list.whereType<Map>()) Map<String, dynamic>.from(e),
+  ];
+
+  bool get dirty => jsonEncode(_raw) != _original;
+
+  @override
+  void addAction(Map<String, dynamic> action) => _list.add(action);
+
+  @override
+  void replaceAction(int index, Map<String, dynamic> action) {
+    if (index >= 0 && index < _list.length) _list[index] = action;
+  }
+
+  @override
+  void moveAction(int index, int delta) {
+    final target = index + delta;
+    if (index < 0 || index >= _list.length) return;
+    if (target < 0 || target >= _list.length) return;
+    _list.insert(target, _list.removeAt(index));
+  }
+
+  @override
+  void removeAction(int index) {
+    if (index >= 0 && index < _list.length) _list.removeAt(index);
+  }
+
+  @override
+  void toggleAction(int index) {
+    if (index < 0 || index >= _list.length || _list[index] is! Map) return;
+    final map = _list[index] as Map;
+    map['enabled'] = !(map['enabled'] != false);
+  }
+
+  String? validate() {
+    final n = name.trim();
+    if (n.isEmpty) return 'Le nom du workflow est requis.';
+    if (n.length > 200) return 'Le nom fait 200 caractères au maximum.';
+    if (_list.length > 80) return '80 blocs au maximum par workflow.';
+    return null;
+  }
+
+  Map<String, dynamic> toRaw() {
+    final out = jsonDecode(jsonEncode(_raw)) as Map<String, dynamic>;
+    out['name'] = name.trim();
+    out['updatedAt'] = DateTime.now().toUtc().toIso8601String();
+    return out;
+  }
+}

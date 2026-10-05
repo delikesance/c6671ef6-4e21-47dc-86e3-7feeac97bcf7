@@ -4,6 +4,7 @@ import '../api/studio_api.dart';
 import '../commands/action_catalog.dart';
 import '../commands/command_draft.dart';
 import '../theme.dart';
+import '../widgets/actions_editor.dart';
 import '../widgets/common.dart';
 
 /// Éditeur d'une commande : métadonnées, point de départ, blocs d'actions.
@@ -18,7 +19,11 @@ class CommandEditorPage extends StatefulWidget {
     required this.bot,
     required this.command,
     required this.onClose,
+    this.newDraft,
   });
+
+  /// Commande créée dans le Studio, pas encore connue du serveur.
+  final CommandDraft? newDraft;
 
   final StudioApi api;
   final StudioBot bot;
@@ -35,16 +40,24 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
   CommandDraft? _draft;
   Object? _loadError;
   bool _saving = false;
+  bool _isNew = false;
   bool _changed = false;
   String? _formError;
-  final Set<int> _expanded = {};
   final _name = TextEditingController();
   final _description = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _load();
+    final fresh = widget.newDraft;
+    if (fresh != null) {
+      _draft = fresh;
+      _name.text = fresh.name;
+      _description.text = fresh.description;
+      _isNew = true;
+    } else {
+      _load();
+    }
   }
 
   @override
@@ -96,7 +109,10 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
       _changed = true;
       // Repart de l'état enregistré : plus de modification en attente.
       final fresh = CommandDraft(draft.toRaw(), revision: revision);
-      setState(() => _draft = fresh);
+      setState(() {
+        _draft = fresh;
+        _isNew = false;
+      });
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Commande enregistrée.')));
@@ -115,6 +131,10 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
   }
 
   Future<void> _delete() async {
+    if (_isNew) {
+      widget.onClose(_changed);
+      return;
+    }
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -215,7 +235,6 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
       return ErrorNotice(message: '$_loadError', onRetry: _load);
     }
     if (draft == null) return const Center(child: CircularProgressIndicator());
-    final actions = draft.actions;
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
       child: PageContent(
@@ -245,20 +264,12 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
                 ),
               ),
             _metadataBlock(draft),
-            const _Connector(),
+            const BlockConnector(),
             _entryBlock(draft),
-            if (actions.isEmpty)
-              const Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: _EmptyActions(),
-              ),
-            for (var i = 0; i < actions.length; i++) ...[
-              const _Connector(),
-              _actionBlock(draft, i, actions[i]),
-            ],
+            ActionsEditor(host: draft, onChanged: () => setState(() {})),
             const SizedBox(height: 20),
             const Text(
-              "Le contenu des paramètres d'un bloc et l'ajout de blocs se font dans l'app Bot Creator ; le Studio conserve tout le reste de la commande à l'identique.",
+              "Les options (arguments), les permissions et les champs que le Studio ne gère pas sont conservés tels quels.",
               style: TextStyle(
                 fontSize: 12,
                 color: StudioColors.muted,
@@ -273,7 +284,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
 
   Widget _metadataBlock(CommandDraft draft) {
     const color = Color(0xFF1976D2);
-    return _BlockShell(
+    return BlockShell(
       icon: Icons.info_outline,
       color: color,
       title: 'Métadonnées',
@@ -330,7 +341,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
       'javascript' => 'JavaScript',
       _ => 'Visuel (Blocs)',
     };
-    return _BlockShell(
+    return BlockShell(
       icon: Icons.play_circle_outline,
       color: BlockFamily.events.color,
       overline: 'ÉVÉNEMENTS',
@@ -343,9 +354,9 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
           spacing: 8,
           runSpacing: 8,
           children: [
-            _Chip('Construite en : $mode'),
+            BlockChip('Construite en : $mode'),
             if (draft.optionCount > 0)
-              _Chip(
+              BlockChip(
                 draft.optionCount == 1
                     ? '1 option'
                     : '${draft.optionCount} options',
@@ -355,329 +366,4 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
       ),
     );
   }
-
-  Widget _actionBlock(
-    CommandDraft draft,
-    int index,
-    Map<String, dynamic> action,
-  ) {
-    final type = '${action['type'] ?? ''}';
-    final info = infoFor(type);
-    final enabled = action['enabled'] != false;
-    final open = _expanded.contains(index);
-    final payload = action['payload'] is Map
-        ? Map<String, dynamic>.from(action['payload'] as Map)
-        : <String, dynamic>{};
-    final scalars = payload.entries
-        .where(
-          (e) => !e.key.startsWith('_') && e.value is! Map && e.value is! List,
-        )
-        .where((e) => '${e.value}'.trim().isNotEmpty)
-        .toList();
-    final nested = payload.entries
-        .where((e) => e.value is List && (e.value as List).isNotEmpty)
-        .map((e) => '${e.key} (${(e.value as List).length})')
-        .toList();
-    final count = draft.actions.length;
-    return Opacity(
-      opacity: enabled ? 1 : 0.5,
-      child: _BlockShell(
-        icon: info.category.icon,
-        color: info.category.family.color,
-        overline: info.category.label.toUpperCase(),
-        title: info.label,
-        summary: summarizeAction(action),
-        trailing: [
-          _IconAction(
-            icon: Icons.arrow_upward,
-            tooltip: 'Monter',
-            onTap: index > 0
-                ? () => setState(() => draft.moveAction(index, -1))
-                : null,
-          ),
-          _IconAction(
-            icon: Icons.arrow_downward,
-            tooltip: 'Descendre',
-            onTap: index < count - 1
-                ? () => setState(() => draft.moveAction(index, 1))
-                : null,
-          ),
-          _IconAction(
-            icon: enabled
-                ? Icons.visibility_outlined
-                : Icons.visibility_off_outlined,
-            tooltip: enabled ? 'Désactiver le bloc' : 'Activer le bloc',
-            onTap: () => setState(() => draft.toggleAction(index)),
-          ),
-          _IconAction(
-            icon: Icons.delete_outline,
-            tooltip: 'Supprimer le bloc',
-            onTap: () => setState(() {
-              draft.removeAction(index);
-              _expanded.clear();
-            }),
-          ),
-          _IconAction(
-            icon: open ? Icons.expand_less : Icons.expand_more,
-            tooltip: open ? 'Replier' : 'Déplier',
-            onTap: () => setState(() {
-              open ? _expanded.remove(index) : _expanded.add(index);
-            }),
-          ),
-        ],
-        body: open
-            ? Padding(
-                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (scalars.isEmpty && nested.isEmpty)
-                      const Text(
-                        'Aucun paramètre.',
-                        style: TextStyle(
-                          color: StudioColors.muted,
-                          fontSize: 13,
-                        ),
-                      ),
-                    for (final e in scalars)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: SelectableText.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: '${e.key}: ',
-                                style: const TextStyle(
-                                  color: StudioColors.muted,
-                                ),
-                              ),
-                              TextSpan(text: '${e.value}'),
-                            ],
-                            style: const TextStyle(
-                              fontFamily: StudioTheme.monoFamily,
-                              fontSize: 12.5,
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (nested.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(
-                          'Contient : ${nested.join(', ')}',
-                          style: const TextStyle(
-                            color: StudioColors.muted,
-                            fontSize: 12.5,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              )
-            : null,
-      ),
-    );
-  }
-}
-
-class _BlockShell extends StatelessWidget {
-  const _BlockShell({
-    required this.icon,
-    required this.color,
-    required this.title,
-    this.overline,
-    this.summary,
-    this.badge,
-    this.trailing = const [],
-    this.body,
-  });
-
-  final IconData icon;
-  final Color color;
-  final String title;
-  final String? overline;
-  final String? summary;
-  final String? badge;
-  final List<Widget> trailing;
-  final Widget? body;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: StudioColors.card,
-        border: Border.all(color: StudioColors.clusterBorder),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 4, 10),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.14),
-                    border: Border.all(color: color.withValues(alpha: 0.32)),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(icon, size: 20, color: color),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (overline != null)
-                        Text(
-                          overline!,
-                          style: TextStyle(
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.8,
-                            color: color,
-                          ),
-                        ),
-                      Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: 6,
-                        children: [
-                          Text(
-                            title,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              height: 1.33,
-                            ),
-                          ),
-                          if (badge != null)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: color.withValues(alpha: 0.12),
-                                border: Border.all(
-                                  color: color.withValues(alpha: 0.31),
-                                ),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                badge!,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color: color,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      if (summary != null)
-                        Text(
-                          summary!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontFamily: StudioTheme.monoFamily,
-                            fontSize: 12.5,
-                            color: StudioColors.muted,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                ...trailing,
-              ],
-            ),
-          ),
-          ?body,
-        ],
-      ),
-    );
-  }
-}
-
-class _IconAction extends StatelessWidget {
-  const _IconAction({required this.icon, required this.tooltip, this.onTap});
-
-  final IconData icon;
-  final String tooltip;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) => IconButton(
-    tooltip: tooltip,
-    onPressed: onTap,
-    iconSize: 18,
-    visualDensity: VisualDensity.compact,
-    color: StudioColors.muted,
-    icon: Icon(icon),
-  );
-}
-
-class _Connector extends StatelessWidget {
-  const _Connector();
-
-  @override
-  Widget build(BuildContext context) => Center(
-    child: Container(width: 2, height: 20, color: StudioColors.cardBorder),
-  );
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-    decoration: BoxDecoration(
-      color: StudioColors.selected,
-      borderRadius: BorderRadius.circular(11),
-    ),
-    child: Text(
-      text,
-      style: const TextStyle(
-        fontSize: 11.5,
-        fontWeight: FontWeight.w600,
-        color: StudioColors.muted,
-      ),
-    ),
-  );
-}
-
-class _EmptyActions extends StatelessWidget {
-  const _EmptyActions();
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: StudioColors.card,
-      border: Border.all(color: StudioColors.cardBorder),
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: const Column(
-      children: [
-        Icon(Icons.touch_app_outlined, size: 32, color: StudioColors.muted),
-        SizedBox(height: 8),
-        Text(
-          "Aucune action pour l'instant",
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
-        SizedBox(height: 4),
-        Text(
-          "Ajoutez un bloc d'action depuis l'app pour définir ce que fait votre commande.",
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 13, color: StudioColors.muted),
-        ),
-      ],
-    ),
-  );
 }
