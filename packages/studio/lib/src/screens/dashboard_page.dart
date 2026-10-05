@@ -6,6 +6,7 @@ import '../dashboard/command_stats.dart';
 import '../premium/studio_feature.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
+import '../layout.dart';
 
 /// Onglet « Tableau de bord » : usage des commandes sur 24 h, 7 j ou 30 j.
 ///
@@ -42,22 +43,22 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     final premium = StudioFeature.analytics.isAvailableFor(widget.plan);
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
+      padding: pageInsets(context),
       child: PageContent(
         maxWidth: 960,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                const Expanded(
-                  child: Text(
-                    'Tableau de bord',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-                  ),
+                const Text(
+                  'Tableau de bord',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                 ),
-                for (final e in _windows.entries) ...[
-                  const SizedBox(width: 8),
+                for (final e in _windows.entries)
                   ChoiceChip(
                     label: Text(e.value),
                     selected: _hours == e.key,
@@ -66,7 +67,6 @@ class _DashboardPageState extends State<DashboardPage> {
                       _reload();
                     },
                   ),
-                ],
               ],
             ),
             const SizedBox(height: 16),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../api/studio_api.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
+import '../layout.dart';
 import 'bot_actions.dart';
 
 /// Onglet « Accueil » d'un bot : état, lancement/arrêt et journaux récents.
@@ -75,15 +76,23 @@ class _OverviewPageState extends State<OverviewPage> {
   Widget build(BuildContext context) {
     final logs = _logs;
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
+      padding: pageInsets(context),
       child: PageContent(
         maxWidth: 860,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
+            // Sur téléphone, le nom, l'état et le bouton ne tiennent pas sur une
+            // ligne : ils passent à la ligne au lieu de déborder.
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Expanded(
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: isCompact(context) ? double.infinity : 420,
+                  ),
                   child: Text(
                     _bot.name,
                     style: const TextStyle(
@@ -93,7 +102,6 @@ class _OverviewPageState extends State<OverviewPage> {
                   ),
                 ),
                 StatusPill(running: _bot.running),
-                const SizedBox(width: 12),
                 _bot.running
                     ? OutlinedButton(
                         onPressed: _busy ? null : _toggle,

@@ -3,20 +3,27 @@ import 'package:flutter/material.dart';
 import '../api/studio_api.dart';
 import '../auth/auth_controller.dart';
 import '../auth/studio_session.dart';
+import '../layout.dart';
 import '../premium/premium_gate.dart';
 import '../premium/studio_feature.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
+import '../widgets/studio_bottom_bar.dart';
 import '../widgets/studio_rail.dart';
+import 'beginner_mode.dart';
 import 'bots_page.dart';
 import 'commands_page.dart';
 import 'dashboard_page.dart';
+import 'modules_page.dart';
 import 'overview_page.dart';
 import 'team_page.dart';
 import 'variables_page.dart';
 
-/// Coque connectée : accueil (rail Accueil / Documentation / Paramètres) ou
-/// éditeur d'un bot (rail de l'éditeur). Jamais montrée sans session valide.
+/// Coque connectée : accueil ou éditeur d'un bot. Jamais montrée sans session
+/// valide.
+///
+/// Grand écran : rail latéral de 84 px. Téléphone (< 720 px) : barre du bas et
+/// page « Modules » qui regroupe les onglets secondaires, comme l'app.
 class StudioShell extends StatefulWidget {
   const StudioShell({super.key, required this.auth});
 
@@ -27,35 +34,100 @@ class StudioShell extends StatefulWidget {
 }
 
 class _StudioShellState extends State<StudioShell> {
+  final _beginner = BeginnerMode();
   StudioBot? _bot;
   String _homeSection = 'home';
-  String _editorSection = 'commands';
+  String _editorSection = 'overview';
+
+  /// Téléphone : module ouvert depuis la page « Modules » (`null` = la liste).
+  String? _module;
+
+  @override
+  void initState() {
+    super.initState();
+    _beginner.addListener(_onBeginnerChanged);
+    _beginner.load();
+  }
+
+  @override
+  void dispose() {
+    _beginner.removeListener(_onBeginnerChanged);
+    _beginner.dispose();
+    super.dispose();
+  }
+
+  void _onBeginnerChanged() {
+    if (!mounted) return;
+    setState(() {
+      // Un onglet masqué par le mode débutant ne doit pas rester affiché.
+      if (!_beginner.isVisible(_editorSection) && _editorSection != 'modules') {
+        _editorSection = 'overview';
+      }
+      if (_module != null && !_beginner.isVisible(_module!)) _module = null;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final bot = _bot;
+    final compact = isCompact(context);
+    final body = bot == null ? _homeBody() : _editorBody(bot, compact);
+    if (compact) {
+      return Scaffold(
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              if (bot != null) _CompactHeader(bot: bot, onBack: _leaveBot),
+              Expanded(child: body),
+            ],
+          ),
+        ),
+        bottomNavigationBar: bot == null
+            ? StudioBottomBar(
+                items: _homeItems,
+                selectedId: _homeSection,
+                onSelect: (id) => setState(() => _homeSection = id),
+              )
+            : StudioBottomBar(
+                items: _compactEditorItems,
+                selectedId: _editorSection,
+                onSelect: (id) => setState(() {
+                  _editorSection = id;
+                  _module = null;
+                }),
+              ),
+      );
+    }
     return Scaffold(
       body: Row(
         children: [
           if (bot == null) _homeRail() else _editorRail(bot),
-          Expanded(child: bot == null ? _homeBody() : _editorBody(bot)),
+          Expanded(child: body),
         ],
       ),
     );
   }
 
+  void _leaveBot() => setState(() {
+    _bot = null;
+    _module = null;
+  });
+
   // ── Accueil ───────────────────────────────────────────────────────────────
+
+  static const _homeItems = [
+    RailEntry('home', 'Accueil', Icons.home_outlined),
+    RailEntry('docs', 'Documentation', Icons.menu_book_outlined),
+    RailEntry('settings', 'Paramètres', Icons.settings_outlined),
+  ];
 
   Widget _homeRail() => StudioRail(
     badge: const RailBadge(text: 'BC', color: StudioColors.action),
     itemHeight: 64,
     selectedId: _homeSection,
     onSelect: (id) => setState(() => _homeSection = id),
-    items: const [
-      RailEntry('home', 'Accueil', Icons.home_outlined),
-      RailEntry('docs', 'Documentation', Icons.menu_book_outlined),
-      RailEntry('settings', 'Paramètres', Icons.settings_outlined),
-    ],
+    items: _homeItems,
   );
 
   Widget _homeBody() {
@@ -70,6 +142,7 @@ class _StudioShellState extends State<StudioShell> {
           onOpenBot: (bot) => setState(() {
             _bot = bot;
             _editorSection = 'overview';
+            _module = null;
           }),
         );
     }
@@ -95,34 +168,83 @@ class _StudioShellState extends State<StudioShell> {
     RailEntry('dash', 'Tableau de bord', Icons.bar_chart_rounded),
   ];
 
+  static const _compactEditorItems = [
+    RailEntry('overview', 'Accueil', Icons.dashboard_outlined),
+    RailEntry('commands', 'Cmd', Icons.terminal_rounded),
+    RailEntry('modules', 'Modules', Icons.widgets_outlined),
+    RailEntry('settings', 'Paramètres', Icons.settings_outlined),
+  ];
+
+  /// Les entrées du rail, sans celles que le mode débutant masque, et sans
+  /// séparateur orphelin (en tête, en queue ou doublé).
+  List<RailEntry?> _visibleRailItems() {
+    final out = <RailEntry?>[];
+    for (final e in _editorItems) {
+      if (e == null) {
+        if (out.isNotEmpty && out.last != null) out.add(null);
+      } else if (e.id == 'back' || _beginner.isVisible(e.id)) {
+        out.add(e);
+      }
+    }
+    while (out.isNotEmpty && out.last == null) {
+      out.removeLast();
+    }
+    return out;
+  }
+
   Widget _editorRail(StudioBot bot) {
-    final initials = bot.name.trim().isEmpty
+    final trimmed = bot.name.trim();
+    final initials = trimmed.isEmpty
         ? '?'
-        : bot.name.trim().substring(0, bot.name.trim().length >= 2 ? 2 : 1);
+        : trimmed.substring(0, trimmed.length >= 2 ? 2 : 1);
     return StudioRail(
       badge: RailBadge(
         text: initials.toUpperCase(),
         color: const Color(0xFF38BDF8),
       ),
       selectedId: _editorSection,
-      items: _editorItems,
+      extraSelected: {if (_beginner.enabled) 'beginner'},
+      items: _visibleRailItems(),
       bottomItems: const [
+        RailEntry('beginner', 'Mode débutant', Icons.school_rounded),
         RailEntry('settings', 'Paramètres', Icons.settings_outlined),
       ],
-      onSelect: (id) => setState(() {
-        if (id == 'back') {
-          _bot = null;
+      onSelect: (id) {
+        if (id == 'beginner') {
+          _beginner.set(!_beginner.enabled);
+        } else if (id == 'back') {
+          _leaveBot();
         } else {
-          _editorSection = id;
+          setState(() => _editorSection = id);
         }
-      }),
+      },
     );
   }
 
-  Widget _editorBody(StudioBot bot) {
+  Widget _editorBody(StudioBot bot, bool compact) {
+    if (compact && _editorSection == 'modules') {
+      final open = _module;
+      if (open == null) {
+        return ModulesPage(
+          botName: bot.name,
+          beginner: _beginner,
+          onOpen: (id) => setState(() => _module = id),
+        );
+      }
+      return Column(
+        children: [
+          _ModuleBack(onBack: () => setState(() => _module = null)),
+          Expanded(child: _sectionBody(bot, open)),
+        ],
+      );
+    }
+    return _sectionBody(bot, _editorSection);
+  }
+
+  Widget _sectionBody(StudioBot bot, String section) {
     final api = widget.auth.api;
     final plan = widget.auth.plan;
-    switch (_editorSection) {
+    switch (section) {
       case 'commands':
         return CommandsPage(key: ValueKey(bot.id), api: api, bot: bot);
       case 'overview':
@@ -147,7 +269,7 @@ class _StudioShellState extends State<StudioShell> {
           plan,
         );
       default:
-        return ComingSoon(title: _titleOf(_editorSection));
+        return ComingSoon(title: _titleOf(section));
     }
   }
 
@@ -160,7 +282,7 @@ class _StudioShellState extends State<StudioShell> {
 
   Widget _premiumSection(String title, StudioFeature feature, StudioPlan plan) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
+      padding: pageInsets(context),
       child: PageContent(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,6 +307,57 @@ class _StudioShellState extends State<StudioShell> {
   }
 }
 
+/// En-tête du téléphone dans un bot : retour à la liste + nom du bot.
+class _CompactHeader extends StatelessWidget {
+  const _CompactHeader({required this.bot, required this.onBack});
+
+  final StudioBot bot;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    height: 48,
+    child: Row(
+      children: [
+        IconButton(
+          tooltip: 'Retour',
+          onPressed: onBack,
+          icon: const Icon(Icons.arrow_back_rounded, size: 20),
+        ),
+        Expanded(
+          child: Text(
+            bot.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+          ),
+        ),
+        const SizedBox(width: 16),
+      ],
+    ),
+  );
+}
+
+class _ModuleBack extends StatelessWidget {
+  const _ModuleBack({required this.onBack});
+
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) => Align(
+    alignment: Alignment.centerLeft,
+    child: TextButton.icon(
+      onPressed: onBack,
+      style: TextButton.styleFrom(foregroundColor: StudioColors.actionSoft),
+      icon: const Icon(Icons.chevron_left_rounded, size: 24),
+      label: const Text(
+        'Modules',
+        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+      ),
+    ),
+  );
+}
+
 class _SettingsPage extends StatelessWidget {
   const _SettingsPage({required this.auth});
 
@@ -194,15 +367,18 @@ class _SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final name = auth.session?.username;
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
+      padding: pageInsets(context, top: 24),
       child: PageContent(
         maxWidth: 640,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Paramètres',
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
+              style: TextStyle(
+                fontSize: isCompact(context) ? 24 : 28,
+                fontWeight: FontWeight.w700,
+              ),
             ),
             const SizedBox(height: 24),
             Container(

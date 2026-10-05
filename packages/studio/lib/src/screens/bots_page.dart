@@ -6,6 +6,7 @@ import '../api/studio_api.dart';
 import '../platform/event_socket.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
+import '../layout.dart';
 import 'bot_actions.dart';
 import 'create_bot_dialog.dart';
 
@@ -152,7 +153,7 @@ class _BotsPageState extends State<BotsPage> {
   Widget build(BuildContext context) {
     final bots = _bots;
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
+      padding: pageInsets(context, top: 24),
       child: PageContent(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

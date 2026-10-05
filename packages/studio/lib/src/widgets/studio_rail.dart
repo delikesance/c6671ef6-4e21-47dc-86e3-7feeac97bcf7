@@ -20,6 +20,7 @@ class StudioRail extends StatelessWidget {
     required this.selectedId,
     required this.onSelect,
     this.bottomItems = const [],
+    this.extraSelected = const {},
     this.itemHeight = 56,
   });
 
@@ -27,6 +28,9 @@ class StudioRail extends StatelessWidget {
   final List<RailEntry?> items;
   final List<RailEntry> bottomItems;
   final String selectedId;
+
+  /// Entrées mises en évidence sans être la page affichée (interrupteurs).
+  final Set<String> extraSelected;
   final ValueChanged<String> onSelect;
   final double itemHeight;
 
@@ -52,7 +56,9 @@ class StudioRail extends StatelessWidget {
                   else
                     _RailItem(
                       entry: entry,
-                      selected: entry.id == selectedId,
+                      selected:
+                          entry.id == selectedId ||
+                          extraSelected.contains(entry.id),
                       height: itemHeight,
                       onTap: () => onSelect(entry.id),
                     ),
@@ -62,7 +68,8 @@ class StudioRail extends StatelessWidget {
           for (final entry in bottomItems)
             _RailItem(
               entry: entry,
-              selected: entry.id == selectedId,
+              selected:
+                  entry.id == selectedId || extraSelected.contains(entry.id),
               height: itemHeight,
               onTap: () => onSelect(entry.id),
             ),
