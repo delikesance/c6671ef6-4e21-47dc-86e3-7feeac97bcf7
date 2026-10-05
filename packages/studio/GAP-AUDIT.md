@@ -43,6 +43,9 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
   viennent de l'hôte (`BdfdEditorHooks`) : le moteur ne se compile pas pour le web, donc le Studio n'en affiche pas
   pour l'instant.
 
+- **Planificateur** : l'écran de l'app (déclencheurs, activation, limite du forfait), via les routes
+  `scheduled-triggers` du Manager.
+
 Reste à faire : éditeur d'image,
 versions de configuration du bot, planificateur, webhooks entrants, émojis, serveurs, marketplace, conteneurs,
 documentation intégrée. Le détail ci-dessous est l'audit initial.

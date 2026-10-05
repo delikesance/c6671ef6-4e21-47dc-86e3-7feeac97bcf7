@@ -113,3 +113,4 @@ export 'src/code/js_editor_page.dart';
 export 'src/code/code_editor_settings_page.dart';
 export 'src/code/bdfd_script_language.dart';
 export 'src/code/bdfd_editor_page.dart';
+export 'src/editor/lists/scheduler_view.dart';
