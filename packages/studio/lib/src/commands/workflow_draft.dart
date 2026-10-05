@@ -50,6 +50,18 @@ class WorkflowDraft implements ActionListHost {
 
   bool get visual => executionMode == 'workflow';
 
+  String get entryPoint => '${_raw['entryPoint'] ?? 'main'}';
+  set entryPoint(String value) => _raw['entryPoint'] = value;
+
+  List<String> get argumentNames {
+    final raw = _raw['arguments'];
+    if (raw is! List) return const [];
+    return [
+      for (final a in raw)
+        if (a is Map && '${a['name'] ?? ''}'.isNotEmpty) '${a['name']}',
+    ];
+  }
+
   Map<String, dynamic> get eventTrigger {
     final t = _raw['eventTrigger'];
     return t is Map ? Map<String, dynamic>.from(t) : <String, dynamic>{};
@@ -91,6 +103,11 @@ class WorkflowDraft implements ActionListHost {
   @override
   void removeAction(int index) {
     if (index >= 0 && index < _list.length) _list.removeAt(index);
+  }
+
+  @override
+  void setActions(List<Map<String, dynamic>> actions) {
+    _raw['actions'] = [for (final a in actions) Map<String, dynamic>.from(a)];
   }
 
   @override

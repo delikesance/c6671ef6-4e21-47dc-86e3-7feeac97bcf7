@@ -2,10 +2,12 @@ import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
+import 'package:bot_creator_shared/utils/event_catalog.dart';
+
 import '../commands/workflow_draft.dart';
+import '../editor/studio_editor_host.dart';
 import '../layout.dart';
 import '../theme.dart';
-import '../widgets/actions_editor.dart';
 import '../widgets/common.dart';
 
 /// Onglet « Workflows » : listes d'actions nommées et réutilisables, générales
@@ -347,10 +349,27 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
   bool _changed = false;
   bool _isNew = false;
   String? _formError;
+  Iterable<String> _globalKeys = const [];
+  Iterable<({String scope, String key})> _scoped = const [];
+
+  Future<void> _loadVariables() async {
+    try {
+      final globals = await widget.api.globalVariables(widget.bot.id);
+      final scoped = await widget.api.scopedDefinitions(widget.bot.id);
+      if (!mounted) return;
+      setState(() {
+        _globalKeys = globals.keys;
+        _scoped = [for (final d in scoped) (scope: d.scope, key: d.key)];
+      });
+    } catch (_) {
+      // Le catalogue du moteur suffit.
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    _loadVariables();
     final fresh = widget.newDraft;
     if (fresh != null) {
       _draft = fresh;
@@ -517,46 +536,99 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
       return ErrorNotice(message: '$_loadError', onRetry: _load);
     }
     if (draft == null) return const Center(child: CircularProgressIndicator());
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
-      child: PageContent(
-        maxWidth: 860,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (_formError != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Text(
-                  _formError!,
-                  style: const TextStyle(color: StudioColors.errorText),
-                ),
+    final events = EventCatalog.getEvents();
+    final categories = <String>{for (final e in events) e.category}.toList();
+    final trigger = draft.eventTrigger;
+    final category = '${trigger['category'] ?? categories.first}';
+    final eventName = '${trigger['event'] ?? ''}';
+    final inCategory = [
+      for (final e in events)
+        if (e.category == category)
+          WorkflowEventItem(
+            event: e.event,
+            label: e.label,
+            description: e.description,
+          ),
+    ];
+
+    void setTrigger(Map<String, dynamic> next) =>
+        setState(() => draft.eventTrigger = {...trigger, ...next});
+
+    final header = WorkflowEntryPointBlock(
+      workflowType: draft.type,
+      entryPoint: draft.entryPoint,
+      onEntryPointChanged: (value) => setState(() => draft.entryPoint = value),
+      eventCategories: categories,
+      selectedCategory: category,
+      onCategoryChanged: (value) {
+        final first = [
+          for (final e in events)
+            if (e.category == value) e.event,
+        ];
+        setTrigger({
+          'category': value,
+          'event': first.isEmpty ? '' : first.first,
+        });
+      },
+      eventDefinitions: inCategory,
+      selectedEvent: eventName,
+      onEventChanged: (value) => setTrigger({'event': value}),
+      eventCategoryLabel: workflowEventCategoryLabel,
+      customIdFilter: '${trigger['customIdFilter'] ?? ''}',
+      onCustomIdFilterChanged: (value) =>
+          setTrigger({'customIdFilter': value.trim()}),
+      executionMode: draft.executionMode,
+    );
+
+    return EditorHostScope(
+      host: StudioEditorHost(api: widget.api, bot: widget.bot),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (_formError != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Text(
+                _formError!,
+                style: const TextStyle(color: StudioColors.errorText),
               ),
-            BlockShell(
-              icon: Icons.play_circle_outline,
-              color: BlockFamily.events.color,
-              overline: 'DÉCLENCHEUR',
-              title: draft.type == 'event'
-                  ? 'Événement Discord'
-                  : 'Appelé par une commande ou un workflow',
-              badge: _modeLabel(draft.executionMode),
-              summary: draft.type == 'event'
-                  ? '${draft.eventTrigger['category'] ?? ''} · ${draft.eventTrigger['event'] ?? ''}'
-                  : null,
             ),
-            if (draft.visual)
-              ActionsEditor(host: draft, onChanged: () => setState(() {}))
-            else
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Text(
-                  'Ce workflow est écrit en ${_modeLabel(draft.executionMode)} : le Studio ne modifie que les workflows visuels. Il reste enregistré tel quel.',
-                  style: const TextStyle(color: StudioColors.muted),
-                ),
-              ),
-          ],
-        ),
+          Expanded(
+            child: draft.visual
+                ? ActionSequenceEditor(
+                    key: ValueKey('sequence-${draft.name}'),
+                    actions: draft.actions,
+                    title: draft.name,
+                    isWorkflow: true,
+                    botId: widget.bot.id,
+                    variableSuggestions: _suggestions(draft),
+                    onChanged: (list) => setState(() => draft.setActions(list)),
+                    leading: [header],
+                  )
+                : ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      header,
+                      const SizedBox(height: 12),
+                      Text(
+                        'Ce workflow est écrit en ${_modeLabel(draft.executionMode)} : le Studio ne modifie que les workflows visuels. Il reste enregistré tel quel.',
+                        style: const TextStyle(color: StudioColors.muted),
+                      ),
+                    ],
+                  ),
+          ),
+        ],
       ),
     );
   }
+
+  List<VariableSuggestion> _suggestions(WorkflowDraft draft) =>
+      buildVariableSuggestions(
+        argumentNames: draft.argumentNames,
+        eventName: draft.type == 'event'
+            ? '${draft.eventTrigger['event'] ?? ''}'
+            : null,
+        globalKeys: _globalKeys,
+        scoped: _scoped,
+      );
 }

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
 import '../commands/command_draft.dart';
+import '../editor/studio_editor_host.dart';
 import '../theme.dart';
-import '../widgets/actions_editor.dart';
 import '../widgets/common.dart';
 import '../widgets/options_editor.dart';
 
@@ -44,12 +44,14 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
   bool _isNew = false;
   bool _changed = false;
   String? _formError;
+  List<VariableSuggestion> _suggestions = buildVariableSuggestions();
   final _name = TextEditingController();
   final _description = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    _loadSuggestions();
     final fresh = widget.newDraft;
     if (fresh != null) {
       _draft = fresh;
@@ -66,6 +68,22 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
     _name.dispose();
     _description.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadSuggestions() async {
+    try {
+      final globals = await widget.api.globalVariables(widget.bot.id);
+      final scoped = await widget.api.scopedDefinitions(widget.bot.id);
+      if (!mounted) return;
+      setState(
+        () => _suggestions = buildVariableSuggestions(
+          globalKeys: globals.keys,
+          scoped: [for (final d in scoped) (scope: d.scope, key: d.key)],
+        ),
+      );
+    } catch (_) {
+      // Le catalogue intégré suffit : les variables du bot sont un plus.
+    }
   }
 
   Future<void> _load() async {
@@ -337,65 +355,79 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
       return ErrorNotice(message: '$_loadError', onRetry: _load);
     }
     if (draft == null) return const Center(child: CircularProgressIndicator());
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
-      child: PageContent(
-        maxWidth: 860,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (_formError != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Semantics(
-                  liveRegion: true,
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: StudioColors.error.withValues(alpha: 0.08),
-                      border: Border.all(
-                        color: StudioColors.error.withValues(alpha: 0.4),
-                      ),
-                      borderRadius: BorderRadius.circular(12),
+    final visual = draft.executionMode == 'workflow';
+    return EditorHostScope(
+      host: StudioEditorHost(api: widget.api, bot: widget.bot),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (_formError != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Semantics(
+                liveRegion: true,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: StudioColors.error.withValues(alpha: 0.08),
+                    border: Border.all(
+                      color: StudioColors.error.withValues(alpha: 0.4),
                     ),
-                    child: Text(
-                      _formError!,
-                      style: const TextStyle(color: StudioColors.errorText),
-                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    _formError!,
+                    style: const TextStyle(color: StudioColors.errorText),
                   ),
                 ),
               ),
-            _metadataBlock(draft),
-            const BlockConnector(),
-            _entryBlock(draft),
-            ActionsEditor(host: draft, onChanged: () => setState(() {})),
-            const SizedBox(height: 20),
-            const Text(
-              "Les options (arguments), les permissions et les champs que le Studio ne gère pas sont conservés tels quels.",
-              style: TextStyle(
-                fontSize: 12,
-                color: StudioColors.muted,
-                height: 1.5,
-              ),
             ),
-          ],
-        ),
+          Expanded(
+            child: visual
+                ? ActionSequenceEditor(
+                    key: ValueKey('sequence-${draft.id}'),
+                    actions: draft.actions,
+                    title: draft.name,
+                    isInteraction: !draft.legacyMode,
+                    botId: widget.bot.id,
+                    variableSuggestions: _suggestions,
+                    onChanged: (list) => setState(() => draft.setActions(list)),
+                    leading: [_metadataBlock(draft), _entryBlock(draft)],
+                  )
+                : ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      _metadataBlock(draft),
+                      _entryBlock(draft),
+                      const SizedBox(height: 12),
+                      const Text(
+                        "Cette commande est écrite en code (BDFD ou JavaScript) : l'éditeur de code se trouve dans l'app. Le Studio la conserve telle quelle.",
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          color: StudioColors.muted,
+                          height: 1.5,
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _metadataBlock(CommandDraft draft) {
-    const color = Color(0xFF1976D2);
-    return BlockShell(
+    return ScratchBlock(
+      color: AppTheme.info,
       icon: Icons.info_outline,
-      color: color,
       title: 'Métadonnées',
-      badge: 'Requis',
-      body: Padding(
+      required: true,
+      child: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: Wrap(
           spacing: 12,
           runSpacing: 12,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             SizedBox(
               width: 220,
@@ -420,6 +452,15 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
                 ),
               ),
             ),
+            ActionChip(
+              avatar: const AppIcon.fromMaterial(Icons.tune_rounded, size: 14),
+              label: Text(
+                draft.optionCount == 0
+                    ? 'Options'
+                    : 'Options (${draft.optionCount})',
+              ),
+              onPressed: () => _editOptions(draft),
+            ),
           ],
         ),
       ),
@@ -427,51 +468,36 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
   }
 
   Widget _entryBlock(CommandDraft draft) {
-    const types = {
-      'chatInput': 'Commande slash',
-      'user': 'Commande utilisateur',
-      'message': 'Commande message',
-    };
-    final trigger = switch (draft.triggerType) {
-      'prefix' => 'Message texte',
-      'hybrid' => 'Slash + message texte',
-      'none' => 'Aucun',
-      _ => types[draft.commandType] ?? 'Commande slash',
-    };
-    final mode = switch (draft.executionMode) {
-      'bdfd_script' => 'Code BDFD',
-      'javascript' => 'JavaScript',
-      _ => 'Visuel (Blocs)',
-    };
-    return BlockShell(
-      icon: Icons.play_circle_outline,
-      color: BlockFamily.events.color,
-      overline: 'ÉVÉNEMENTS',
-      title: 'Point de départ (Déclencheur)',
-      badge: trigger,
-      summary: '/${draft.name}',
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-        child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            BlockChip('Construite en : $mode'),
-            BlockChip(
-              draft.optionCount == 0
-                  ? 'Aucune option'
-                  : draft.optionCount == 1
-                  ? '1 option'
-                  : '${draft.optionCount} options',
-            ),
-            ActionChip(
-              avatar: const AppIcon.fromMaterial(Icons.tune_rounded, size: 14),
-              label: const Text('Options'),
-              onPressed: () => _editOptions(draft),
-            ),
-          ],
-        ),
+    return EntryPointBlock(
+      commandName: draft.name,
+      entryPointType: draft.legacyMode
+          ? CommandEntryPointType.message
+          : CommandEntryPointType.interaction,
+      onEntryPointTypeChanged: (value) => setState(
+        () => draft.legacyMode = value == CommandEntryPointType.message,
       ),
+      commandType: switch (draft.commandType) {
+        'user' => EntryCommandType.user,
+        'message' => EntryCommandType.message,
+        _ => EntryCommandType.chatInput,
+      },
+      onCommandTypeChanged: (value) =>
+          setState(() => draft.commandType = value.name),
+      canEditCommandType: _isNew,
+      legacyModeEnabled: draft.legacyMode,
+      onLegacyModeChanged: (value) => setState(() => draft.legacyMode = value),
+      legacyPrefixOverride: draft.legacyPrefixOverride,
+      onLegacyPrefixOverrideChanged: (value) =>
+          setState(() => draft.legacyPrefixOverride = value),
+      legacyAliases: draft.legacyAliases,
+      onLegacyAliasesChanged: (value) =>
+          setState(() => draft.legacyAliases = value),
+      legacyResponseTarget: draft.legacyResponseTarget,
+      onLegacyResponseTargetChanged: (value) =>
+          setState(() => draft.legacyResponseTarget = value),
+      executionMode: draft.executionMode,
+      showBdfdMode: false,
+      showJavascriptMode: false,
     );
   }
 }

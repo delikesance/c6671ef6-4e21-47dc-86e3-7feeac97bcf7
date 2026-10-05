@@ -15,9 +15,23 @@
 
 - **Options (arguments)** de commande (texte, nombre, utilisateur, salon, rôle…) et **historique avec retour arrière**.
 
-Reste à faire : canvas Blueprint (vue graphe), éditeurs BDFD / JavaScript et bac à sable, Components V2 et modales,
-versions de configuration du bot, planificateur, webhooks entrants,
-émojis, serveurs, marketplace, conteneurs, documentation intégrée. Le détail ci-dessous est l'audit initial.
+## Mise à jour 2 — le Studio réutilise le design et les composants de l'app (`packages/ui`)
+
+Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_creator_ui`, le paquet que l'app utilise aussi.
+
+- **Design** : `AppTheme` (thème, apparences), `AppIcon` / Reicon, `BlockFamily`, `PageContent`, polices Inter et
+  JetBrains Mono, et le jeu de traductions de l'app (une seule série d'ARB).
+- **Éditeur de blocs** : `ActionSequenceEditor`, assemblé comme l'éditeur de commandes de l'app : palette d'actions par
+  catégorie (recherche, glisser-déposer), blocs `ActionBlock` avec les formulaires d'action de l'app (`ActionCard`,
+  ≈60 types), point d'entrée `EntryPointBlock` / `WorkflowEntryPointBlock`, suggestions de variables du moteur.
+- **Blueprint** : le canvas de l'app (zoom, mini-carte, câblage des broches, menu contextuel), avec la bascule
+  Blocs / Blueprint.
+- **Components V2 et modales** : les éditeurs de l'app (via `ActionCard`).
+
+Reste à faire : éditeurs BDFD / JavaScript et bac à sable (le Studio affiche les scripts tels quels), éditeur d'image,
+bloc Métadonnées et options de commande de l'app (le Studio a encore son propre bloc et son dialogue d'options),
+versions de configuration du bot, planificateur, webhooks entrants, émojis, serveurs, marketplace, conteneurs,
+documentation intégrée. Le détail ci-dessous est l'audit initial.
 
 
 Périmètre : `packages/studio/lib/src` (≈46 fichiers) comparé à `packages/app/lib/features/*` et aux routes du Manager.

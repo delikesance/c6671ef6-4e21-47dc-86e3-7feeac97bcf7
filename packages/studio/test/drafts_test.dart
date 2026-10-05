@@ -2,7 +2,6 @@ import 'package:bot_creator_studio/src/api/studio_api.dart';
 import 'package:bot_creator_studio/src/commands/action_list.dart';
 import 'package:bot_creator_studio/src/commands/command_draft.dart';
 import 'package:bot_creator_studio/src/commands/workflow_draft.dart';
-import 'package:bot_creator_studio/src/widgets/actions_editor.dart';
 import 'package:bot_creator_studio/src/widgets/options_editor.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -97,14 +96,6 @@ void main() {
         expect(w.toRaw()['arguments'], hasLength(1));
       },
     );
-  });
-
-  test('parseParamValue garde les types', () {
-    expect(parseParamValue('true'), true);
-    expect(parseParamValue('12', asNumber: true), 12);
-    expect(parseParamValue('abc', asNumber: true), 'abc');
-    expect(parseParamValue('x', asBool: false), false);
-    expect(parseParamValue('hello'), 'hello');
   });
 
   test('flux SSE : événements, identifiants et charges utiles', () {

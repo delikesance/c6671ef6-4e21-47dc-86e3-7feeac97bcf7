@@ -155,3 +155,26 @@ class ErrorNotice extends StatelessWidget {
     ),
   );
 }
+
+class BlockChip extends StatelessWidget {
+  const BlockChip(this.text, {super.key});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+    decoration: BoxDecoration(
+      color: StudioColors.selected,
+      borderRadius: BorderRadius.circular(11),
+    ),
+    child: Text(
+      text,
+      style: const TextStyle(
+        fontSize: 11.5,
+        fontWeight: FontWeight.w600,
+        color: StudioColors.muted,
+      ),
+    ),
+  );
+}

@@ -67,8 +67,40 @@ class CommandDraft implements ActionListHost {
   /// `slash` | `prefix` | `hybrid` | `none`.
   String get triggerType => '${_data['triggerType'] ?? 'slash'}';
 
+  set commandType(String value) {
+    _raw['type'] = value;
+    _data['commandType'] = value;
+  }
+
   /// `workflow` | `bdfd_script` | `javascript`.
   String get executionMode => '${_data['executionMode'] ?? 'workflow'}';
+  set executionMode(String value) => _data['executionMode'] = value;
+
+  /// Commande « Message Texte » (préfixe) plutôt que slash.
+  bool get legacyMode =>
+      _data['legacyModeEnabled'] == true || triggerType == 'prefix';
+  set legacyMode(bool value) {
+    _data['legacyModeEnabled'] = value;
+    _data['legacyLocalOnly'] = value;
+    _data['triggerType'] = value ? 'prefix' : 'slash';
+    if (value) commandType = 'chatInput';
+  }
+
+  String get legacyPrefixOverride => '${_data['legacyPrefixOverride'] ?? ''}';
+  set legacyPrefixOverride(String value) =>
+      _data['legacyPrefixOverride'] = value.trim();
+
+  String get legacyResponseTarget =>
+      '${_data['legacyResponseTarget'] ?? 'reply'}';
+  set legacyResponseTarget(String value) =>
+      _data['legacyResponseTarget'] = value;
+
+  List<String> get legacyAliases {
+    final raw = _data['legacyAliases'];
+    return raw is List ? [for (final a in raw) '$a'] : const [];
+  }
+
+  set legacyAliases(List<String> value) => _data['legacyAliases'] = value;
 
   @override
   List<Map<String, dynamic>> get actions {
@@ -129,6 +161,11 @@ class CommandDraft implements ActionListHost {
   void removeAction(int index) {
     final list = _actionList;
     if (index >= 0 && index < list.length) list.removeAt(index);
+  }
+
+  @override
+  void setActions(List<Map<String, dynamic>> actions) {
+    _data['actions'] = [for (final a in actions) Map<String, dynamic>.from(a)];
   }
 
   /// Active/désactive un bloc (`enabled`, vrai par défaut).

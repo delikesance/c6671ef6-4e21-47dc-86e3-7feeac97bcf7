@@ -101,6 +101,10 @@ const Map<String, String> _descriptions = {
   'execution.time': 'Time elapsed since execution started',
 };
 
+/// Names of the built-in variables that carry a description (the catalog the
+/// autocomplete offers before any bot-specific variable).
+Iterable<String> get catalogVariableNames => _descriptions.keys;
+
 /// Returns a human-readable description for a variable name, if available.
 String? variableDescription(String name) {
   return _descriptions[name.toLowerCase()];

@@ -28,8 +28,8 @@ abstract final class StudioColors {
 }
 
 abstract final class StudioTheme {
-  static const fontFamily = UiFonts.sans;
-  static const monoFamily = UiFonts.mono;
+  static const fontFamily = 'Inter';
+  static const monoFamily = 'JetBrainsMono';
 
   /// Thème sombre de l'app, tel quel (Inter par-dessus pour le web).
   static ThemeData dark() {

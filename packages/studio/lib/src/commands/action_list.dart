@@ -9,6 +9,9 @@ abstract class ActionListHost {
   void moveAction(int index, int delta);
   void removeAction(int index);
   void toggleAction(int index);
+
+  /// Remplace toute la séquence (l'éditeur partagé renvoie la liste entière).
+  void setActions(List<Map<String, dynamic>> actions);
 }
 
 /// Charges utiles de départ des blocs les plus courants : les clés que l'app
