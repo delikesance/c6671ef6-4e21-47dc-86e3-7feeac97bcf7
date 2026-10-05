@@ -42,6 +42,7 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/runner/embedded_js_runner_service.dart';
 import 'package:bot_creator/features/subscriptions/logic/hosted_app_subscription_service.dart';
+import 'package:bot_creator/features/subscriptions/logic/consumable_purchase_service.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
 import 'package:bot_creator/core/code_editor/code_editor_settings_provider.dart';
@@ -425,6 +426,13 @@ Future<void> _warmUpServicesAfterLaunch() async {
     action: () async {
       await HostedAppSubscriptionService.initialize();
     },
+  );
+
+  await _runStartupTask(
+    label: 'AI credit pack purchases',
+    operation: 'startup_consumable_purchases',
+    timeout: const Duration(seconds: 10),
+    action: ConsumablePurchaseService.start,
   );
 
   await _runStartupTask(

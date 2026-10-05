@@ -1686,6 +1686,26 @@ class MainApiClient implements RemoteRuntimeClient {
     });
   }
 
+  /// Verifie un achat consommable (pack de credits IA) aupres du store, cote
+  /// serveur, puis credite le compte UNE seule fois. Le montant vient du
+  /// catalogue publie, jamais de cette requete ; rejouer le meme achat ne
+  /// credite rien de plus.
+  Future<Map<String, dynamic>> verifyConsumableBilling({
+    required String platform,
+    required String serverVerificationData,
+    required String productId,
+    String? localTransactionId,
+    String? appAccountToken,
+  }) async {
+    return _post('/billing/consumable/verify', <String, dynamic>{
+      'platform': platform,
+      'serverVerificationData': serverVerificationData,
+      'productId': productId,
+      'localTransactionId': ?_normalize(localTransactionId),
+      'appAccountToken': ?_normalize(appAccountToken),
+    });
+  }
+
   @override
   Future<void> startBot(String botId, {String? botName}) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());

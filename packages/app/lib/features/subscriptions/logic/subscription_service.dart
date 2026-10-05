@@ -7,6 +7,7 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/platform/run_platform.dart';
 import 'package:bot_creator/features/subscriptions/logic/app_account_token.dart';
+import 'package:bot_creator/features/subscriptions/logic/consumable_purchase_service.dart';
 import 'package:bot_creator/features/subscriptions/logic/shared_purchase_stream.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -876,6 +877,13 @@ class SubscriptionService {
     List<PurchaseDetails> purchaseDetailsList,
   ) async {
     for (final purchase in purchaseDetailsList) {
+      // Un pack de credits n'est pas un abonnement : le terminer ici le
+      // consommerait avant que le serveur l'ait credite.
+      if (await ConsumablePurchaseService.isConsumableProduct(
+        purchase.productID,
+      )) {
+        continue;
+      }
       switch (purchase.status) {
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:

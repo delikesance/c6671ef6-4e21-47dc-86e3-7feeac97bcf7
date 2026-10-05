@@ -19314,6 +19314,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 choice} other{{count} choices}}'**
   String option_choices_count(int count);
+
+  /// No description provided for @ai_credits_packs_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy credits'**
+  String get ai_credits_packs_title;
+
+  /// No description provided for @ai_credits_pack_credited.
+  ///
+  /// In en, this message translates to:
+  /// **'Credits added to your account.'**
+  String get ai_credits_pack_credited;
+
+  /// No description provided for @ai_credits_pack_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The purchase could not be completed. If you were charged, the credits will be added automatically.'**
+  String get ai_credits_pack_failed;
+
+  /// No description provided for @ai_credits_pack_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase pending confirmation…'**
+  String get ai_credits_pack_pending;
 }
 
 class _AppLocalizationsDelegate

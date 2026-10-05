@@ -9,6 +9,7 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/copilot/presentation/copilot_page.dart';
 import 'package:bot_creator/features/subscriptions/logic/ai_credit_format.dart';
 import 'package:bot_creator/features/subscriptions/logic/ai_reward_ad.dart';
+import 'package:bot_creator/features/subscriptions/logic/consumable_purchase_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:reicon_flutter/reicon_flutter.dart';
@@ -35,11 +36,129 @@ class _AICreditsPageState extends State<AICreditsPage> {
   List<Map<String, dynamic>> _ledger = [];
   int _offset = 0;
   bool _more = false;
+  List<ConsumablePack> _packs = const [];
+  String? _packNotice;
+  StreamSubscription<ConsumableEvent>? _packEvents;
 
   @override
   void initState() {
     super.initState();
     unawaited(_load());
+    unawaited(_loadPacks());
+    _packEvents = ConsumablePurchaseService.events.listen((event) {
+      if (!mounted) return;
+      switch (event.kind) {
+        case ConsumableEventKind.credited:
+          setState(() => _packNotice = context.tr.ai_credits_pack_credited);
+          unawaited(_load());
+        case ConsumableEventKind.failed:
+          setState(() => _packNotice = context.tr.ai_credits_pack_failed);
+        case ConsumableEventKind.pending:
+          setState(() => _packNotice = context.tr.ai_credits_pack_pending);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    unawaited(_packEvents?.cancel());
+    super.dispose();
+  }
+
+  Future<void> _loadPacks() async {
+    try {
+      final packs = await ConsumablePurchaseService.loadPacks();
+      if (mounted) setState(() => _packs = packs);
+    } catch (_) {
+      // Pas de pack affiche plutot qu'un ecran en erreur : le reste de la page
+      // (solde, roulette) reste utilisable.
+    }
+  }
+
+  Future<void> _buyPack(ConsumablePack pack) async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _packNotice = null;
+    });
+    try {
+      final started = await ConsumablePurchaseService.buy(pack);
+      if (!started && mounted) {
+        setState(() => _packNotice = context.tr.ai_credits_pack_failed);
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _packNotice = context.tr.ai_credits_pack_failed);
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Widget _packsSection() {
+    final locale = Localizations.localeOf(context).toString();
+    final colors = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          context.tr.ai_credits_packs_title,
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 10),
+        for (final pack in _packs)
+          Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppTheme.homeCard,
+              border: Border.all(color: AppTheme.homeCardBorder),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        pack.offer.text(locale, 'en')?.title ??
+                            pack.product.title,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      if (pack.credits > 0)
+                        Text(
+                          _credits(pack.credits),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: colors.onSurfaceVariant),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                FilledButton(
+                  onPressed: _busy ? null : () => _buyPack(pack),
+                  child: Text(pack.product.price),
+                ),
+              ],
+            ),
+          ),
+        if (_packNotice != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              _packNotice!,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+            ),
+          ),
+      ],
+    );
   }
 
   Future<void> _load() async {
@@ -485,6 +604,10 @@ class _AICreditsPageState extends State<AICreditsPage> {
                   ],
                 ),
               ),
+              if (_packs.isNotEmpty) ...[
+                const SizedBox(height: 28),
+                _packsSection(),
+              ],
               const SizedBox(height: 28),
               if (prizes.isNotEmpty)
                 Center(

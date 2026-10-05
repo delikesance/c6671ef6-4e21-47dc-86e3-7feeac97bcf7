@@ -10700,4 +10700,17 @@ class AppLocalizationsJa extends AppLocalizations {
   String option_choices_count(int count) {
     return '$count件の選択肢';
   }
+
+  @override
+  String get ai_credits_packs_title => 'クレジットを購入';
+
+  @override
+  String get ai_credits_pack_credited => 'クレジットをアカウントに追加しました。';
+
+  @override
+  String get ai_credits_pack_failed =>
+      '購入を完了できませんでした。請求された場合は、クレジットが自動的に追加されます。';
+
+  @override
+  String get ai_credits_pack_pending => '購入の確認待ちです…';
 }

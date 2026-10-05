@@ -10965,5 +10965,9 @@
   "option_delete_action": "Option löschen",
   "option_preview_title": "Vorschau in Discord",
   "option_preview_legend": "Lila unterstrichen: erforderlich · grau: optional",
-  "option_choices_count": "{count, plural, =1{1 Auswahl} other{{count} Auswahlen}}"
+  "option_choices_count": "{count, plural, =1{1 Auswahl} other{{count} Auswahlen}}",
+  "ai_credits_packs_title": "Guthaben kaufen",
+  "ai_credits_pack_credited": "Guthaben wurde Ihrem Konto gutgeschrieben.",
+  "ai_credits_pack_failed": "Der Kauf konnte nicht abgeschlossen werden. Falls Ihnen etwas berechnet wurde, wird das Guthaben automatisch gutgeschrieben.",
+  "ai_credits_pack_pending": "Kauf wartet auf Bestätigung…"
 }

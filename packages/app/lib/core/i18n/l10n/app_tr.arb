@@ -10965,5 +10965,9 @@
   "option_delete_action": "Seçeneği sil",
   "option_preview_title": "Discord'da önizleme",
   "option_preview_legend": "Mor alt çizgi: zorunlu · gri: isteğe bağlı",
-  "option_choices_count": "{count} seçenek"
+  "option_choices_count": "{count} seçenek",
+  "ai_credits_packs_title": "Kredi satın al",
+  "ai_credits_pack_credited": "Krediler hesabınıza eklendi.",
+  "ai_credits_pack_failed": "Satın alma tamamlanamadı. Ücretlendirildiyseniz krediler otomatik olarak eklenecek.",
+  "ai_credits_pack_pending": "Satın alma onay bekliyor…"
 }
