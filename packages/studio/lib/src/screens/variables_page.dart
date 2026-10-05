@@ -1,3 +1,4 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -291,7 +292,10 @@ class _VariablesPageState extends State<VariablesPage> {
                     ),
                     FilledButton.icon(
                       onPressed: () => _edit(),
-                      icon: const Icon(Icons.add_rounded, size: 18),
+                      icon: const AppIcon.fromMaterial(
+                        Icons.add_rounded,
+                        size: 18,
+                      ),
                       label: const Text('Ajouter'),
                     ),
                   ],
@@ -327,7 +331,10 @@ class _VariablesPageState extends State<VariablesPage> {
                     const Expanded(child: Overline('Par serveur, membre…')),
                     TextButton.icon(
                       onPressed: () => _editScoped(),
-                      icon: const Icon(Icons.add_rounded, size: 18),
+                      icon: const AppIcon.fromMaterial(
+                        Icons.add_rounded,
+                        size: 18,
+                      ),
                       label: const Text('Ajouter'),
                     ),
                   ],
@@ -419,13 +426,13 @@ class _VarRow extends StatelessWidget {
             IconButton(
               tooltip: 'Modifier',
               onPressed: onEdit,
-              icon: const Icon(Icons.edit_outlined, size: 18),
+              icon: const AppIcon.fromMaterial(Icons.edit_outlined, size: 18),
             ),
           if (onDelete != null)
             IconButton(
               tooltip: 'Supprimer',
               onPressed: onDelete,
-              icon: const Icon(Icons.delete_outline, size: 18),
+              icon: const AppIcon.fromMaterial(Icons.delete_outline, size: 18),
             ),
         ],
       ),

@@ -10831,7 +10831,7 @@
   "ai_credits_label_purchased": "Compras",
   "ai_credits_label_rewarded": "Roleta",
   "ai_credits_label_granted": "Atribuições",
-  "ai_credits_spins_available": "{count, plural, =1{1 giro disponível} other{{count} giros disponíveis}}",
+  "ai_credits_spins_available": "{count, plural, =0{0 giro disponível} =1{1 giro disponível} other{{count} giros disponíveis}}",
   "ai_credits_usage_hint": "O consumo depende das mensagens e ações realizadas.",
   "ai_credits_daily_ad_limit_hint": "Até 3 anúncios por dia (UTC). Os giros de bônus e não utilizados são mantidos.",
   "ai_credits_result_spins": "+{count, plural, =1{1 giro!} other{{count} giros!}}",

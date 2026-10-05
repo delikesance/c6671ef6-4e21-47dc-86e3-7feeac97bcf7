@@ -10,3 +10,4 @@ workspace:
   - packages/runner
   - packages/shared
   - packages/studio
+  - packages/ui

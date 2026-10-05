@@ -1,7 +1,7 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
-import '../commands/action_catalog.dart';
 import '../commands/workflow_draft.dart';
 import '../layout.dart';
 import '../theme.dart';
@@ -93,12 +93,18 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                     IconButton.filled(
                       tooltip: 'Nouveau workflow',
                       onPressed: _create,
-                      icon: const Icon(Icons.add_rounded, size: 18),
+                      icon: const AppIcon.fromMaterial(
+                        Icons.add_rounded,
+                        size: 18,
+                      ),
                     )
                   else
                     FilledButton.icon(
                       onPressed: _create,
-                      icon: const Icon(Icons.add_rounded, size: 18),
+                      icon: const AppIcon.fromMaterial(
+                        Icons.add_rounded,
+                        size: 18,
+                      ),
                       label: const Text('Nouveau workflow'),
                     ),
                 ],
@@ -153,7 +159,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                     padding: const EdgeInsets.all(16),
                     child: Row(
                       children: [
-                        const Icon(
+                        const AppIcon.fromMaterial(
                           Icons.account_tree_outlined,
                           color: StudioColors.actionSoft,
                         ),
@@ -257,7 +263,10 @@ class _NewWorkflowDialogState extends State<_NewWorkflowDialog> {
               autofocus: true,
               decoration: const InputDecoration(
                 labelText: 'Nom',
-                prefixIcon: Icon(Icons.account_tree_outlined, size: 18),
+                prefixIcon: AppIcon.fromMaterial(
+                  Icons.account_tree_outlined,
+                  size: 18,
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -459,7 +468,10 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
               IconButton(
                 tooltip: 'Retour',
                 onPressed: () => widget.onClose(_changed),
-                icon: const Icon(Icons.arrow_back_rounded, size: 20),
+                icon: const AppIcon.fromMaterial(
+                  Icons.arrow_back_rounded,
+                  size: 20,
+                ),
               ),
               Expanded(
                 child: Text(
@@ -475,14 +487,17 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
                 IconButton(
                   tooltip: 'Supprimer le workflow',
                   onPressed: _saving ? null : _delete,
-                  icon: const Icon(Icons.delete_outline_rounded, size: 20),
+                  icon: const AppIcon.fromMaterial(
+                    Icons.delete_outline_rounded,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 8),
                 FilledButton.icon(
                   onPressed: _saving || !draft.dirty || !draft.visual
                       ? null
                       : _save,
-                  icon: Icon(
+                  icon: AppIcon.fromMaterial(
                     draft.dirty ? Icons.save_outlined : Icons.check_rounded,
                     size: 16,
                   ),

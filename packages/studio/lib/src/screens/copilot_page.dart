@@ -1,3 +1,4 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -426,7 +427,7 @@ class _CopilotPageState extends State<CopilotPage> {
       ),
       child: Row(
         children: [
-          const Icon(
+          const AppIcon.fromMaterial(
             Icons.auto_awesome_outlined,
             color: StudioColors.actionSoft,
           ),
@@ -450,7 +451,7 @@ class _CopilotPageState extends State<CopilotPage> {
           const Spacer(),
           PopupMenuButton<String>(
             tooltip: 'Discussions',
-            icon: const Icon(Icons.history_rounded),
+            icon: const AppIcon.fromMaterial(Icons.history_rounded),
             onSelected: (id) => id == '__new__' ? _newChat() : _open(id),
             itemBuilder: (context) => [
               const PopupMenuItem(
@@ -476,7 +477,7 @@ class _CopilotPageState extends State<CopilotPage> {
                           Navigator.of(context).pop();
                           _delete('${c['id']}');
                         },
-                        icon: const Icon(Icons.delete_outline),
+                        icon: const AppIcon.fromMaterial(Icons.delete_outline),
                       ),
                     ],
                   ),
@@ -486,7 +487,7 @@ class _CopilotPageState extends State<CopilotPage> {
           IconButton(
             tooltip: 'Nouvelle discussion',
             onPressed: _busy ? null : _newChat,
-            icon: const Icon(Icons.add_comment_outlined),
+            icon: const AppIcon.fromMaterial(Icons.chat_bubble_outline),
           ),
         ],
       ),
@@ -497,7 +498,7 @@ class _CopilotPageState extends State<CopilotPage> {
     padding: const EdgeInsets.only(top: 40),
     child: Column(
       children: [
-        const Icon(
+        const AppIcon.fromMaterial(
           Icons.auto_awesome_outlined,
           size: 40,
           color: StudioColors.actionSoft,
@@ -593,7 +594,7 @@ class _CopilotPageState extends State<CopilotPage> {
         children: [
           Row(
             children: [
-              const Icon(
+              const AppIcon.fromMaterial(
                 Icons.shield_outlined,
                 size: 18,
                 color: StudioColors.premiumGold,
@@ -687,7 +688,7 @@ class _CopilotPageState extends State<CopilotPage> {
               IconButton.filled(
                 tooltip: 'Envoyer',
                 onPressed: _busy ? null : () => _send(),
-                icon: const Icon(Icons.arrow_upward_rounded),
+                icon: const AppIcon.fromMaterial(Icons.arrow_upward),
               ),
             ],
           ),

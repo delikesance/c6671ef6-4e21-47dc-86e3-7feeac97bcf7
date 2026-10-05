@@ -6,6 +6,7 @@ import 'package:bot_creator_studio/src/premium/studio_feature.dart';
 import 'package:bot_creator_studio/src/l10n_ext.dart';
 import 'package:bot_creator_studio/src/locale_controller.dart';
 import 'package:bot_creator_studio/src/studio_app.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -177,8 +178,11 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           locale: Locale('fr'),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: [
+            ...StudioLocalizations.localizationsDelegates,
+            AppLocalizations.delegate,
+          ],
+          supportedLocales: StudioLocalizations.supportedLocales,
           home: PremiumGate(
             feature: StudioFeature.scheduler,
             plan: StudioPlan.free,

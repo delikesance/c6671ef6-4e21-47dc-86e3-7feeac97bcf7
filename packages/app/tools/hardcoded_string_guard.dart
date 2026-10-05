@@ -55,11 +55,11 @@ final RegExp _namedLiteralPattern = RegExp(
 /// `lib/routes/app/workflows.page.dart`) ne correspondaient à AUCUN chemin :
 /// elles ne masquaient rien et laissaient croire que ces dossiers étaient
 /// couverts. `lib/l10n/` désignait l'ancien emplacement des localisations
-/// GÉNÉRÉES, qui vivent maintenant sous `lib/core/i18n/l10n/` — c'est ce chemin
+/// GÉNÉRÉES, qui vivent maintenant sous `../ui/lib/src/l10n/` — c'est ce chemin
 /// qui doit être exclu, sinon un changement de forme du générateur (un
 /// `title: '...'` dans les fichiers produits) ferait remonter des milliers de
 /// faux positifs et noierait la vraie dette.
-const Set<String> _skipFiles = <String>{'lib/core/i18n/l10n/'};
+const Set<String> _skipFiles = <String>{'../ui/lib/src/l10n/'};
 
 const List<String> _skipSnippets = <String>[
   r'((${',

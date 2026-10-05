@@ -1,3 +1,4 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -71,7 +72,7 @@ class _ActionsEditorState extends State<ActionsEditor> {
         Center(
           child: OutlinedButton.icon(
             onPressed: _add,
-            icon: const Icon(Icons.add_rounded, size: 18),
+            icon: const AppIcon.fromMaterial(Icons.add_rounded, size: 18),
             label: const Text('Ajouter une action'),
           ),
         ),
@@ -248,7 +249,7 @@ class _PaletteDialogState extends State<_PaletteDialog> {
               onChanged: (v) => setState(() => _query = v),
               decoration: const InputDecoration(
                 hintText: 'Rechercher une action…',
-                prefixIcon: Icon(Icons.search, size: 18),
+                prefixIcon: AppIcon.fromMaterial(Icons.search, size: 18),
                 isDense: true,
               ),
             ),
@@ -269,7 +270,7 @@ class _PaletteDialogState extends State<_PaletteDialog> {
                               padding: const EdgeInsets.fromLTRB(4, 12, 4, 4),
                               child: Row(
                                 children: [
-                                  Icon(
+                                  AppIcon.fromMaterial(
                                     category.icon,
                                     size: 15,
                                     color: category.family.color,
@@ -478,7 +479,7 @@ class _PayloadDialogState extends State<_PayloadDialog> {
           Expanded(child: Text(widget.title)),
           TextButton.icon(
             onPressed: _toggleMode,
-            icon: Icon(
+            icon: AppIcon.fromMaterial(
               _jsonMode ? Icons.tune_rounded : Icons.data_object_rounded,
               size: 16,
             ),
@@ -547,7 +548,10 @@ class _PayloadDialogState extends State<_PayloadDialog> {
                             _rows.remove(row);
                             row.dispose();
                           }),
-                          icon: const Icon(Icons.close_rounded, size: 18),
+                          icon: const AppIcon.fromMaterial(
+                            Icons.close_rounded,
+                            size: 18,
+                          ),
                         ),
                       ],
                     ),
@@ -567,7 +571,10 @@ class _PayloadDialogState extends State<_PayloadDialog> {
                   alignment: Alignment.centerLeft,
                   child: TextButton.icon(
                     onPressed: () => setState(() => _rows.add(_Row('', ''))),
-                    icon: const Icon(Icons.add_rounded, size: 16),
+                    icon: const AppIcon.fromMaterial(
+                      Icons.add_rounded,
+                      size: 16,
+                    ),
                     label: const Text('Ajouter un paramètre'),
                   ),
                 ),
@@ -642,7 +649,7 @@ class BlockShell extends StatelessWidget {
                     border: Border.all(color: color.withValues(alpha: 0.32)),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icon, size: 20, color: color),
+                  child: AppIcon.fromMaterial(icon, size: 20, color: color),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -739,7 +746,7 @@ class BlockIconAction extends StatelessWidget {
     iconSize: 18,
     visualDensity: VisualDensity.compact,
     color: StudioColors.muted,
-    icon: Icon(icon),
+    icon: AppIcon.fromMaterial(icon),
   );
 }
 
@@ -788,7 +795,11 @@ class _EmptyActions extends StatelessWidget {
     ),
     child: const Column(
       children: [
-        Icon(Icons.touch_app_outlined, size: 32, color: StudioColors.muted),
+        AppIcon.fromMaterial(
+          Icons.touch_app_outlined,
+          size: 32,
+          color: StudioColors.muted,
+        ),
         SizedBox(height: 8),
         Text(
           "Aucune action pour l'instant",

@@ -1,3 +1,4 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../theme.dart';
@@ -135,7 +136,7 @@ class _RailItem extends StatelessWidget {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(entry.icon, size: 22, color: color),
+                    AppIcon.fromMaterial(entry.icon, size: 22, color: color),
                     const SizedBox(height: 4),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),

@@ -1,3 +1,4 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -192,12 +193,15 @@ class _BotsPageState extends State<BotsPage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  icon: const Icon(Icons.sync_rounded, size: 18),
+                  icon: const AppIcon.fromMaterial(
+                    Icons.sync_rounded,
+                    size: 18,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 FilledButton.icon(
                   onPressed: _create,
-                  icon: const Icon(Icons.add_rounded, size: 18),
+                  icon: const AppIcon.fromMaterial(Icons.add_rounded, size: 18),
                   label: Text(context.l10n.botsCreate),
                 ),
               ],
@@ -262,7 +266,7 @@ class _BotsPageState extends State<BotsPage> {
 /// Texte de la case « hébergement » (`HostingCardCopy` de l'app). `null` =
 /// pas de case.
 ({String label, String value, String detail})? hostingCopy(
-  AppLocalizations l,
+  StudioLocalizations l,
   StudioBot bot,
   StudioBotRuntime? runtime, {
   DateTime? now,
@@ -303,7 +307,7 @@ class _BotsPageState extends State<BotsPage> {
   );
 }
 
-String _duration(AppLocalizations l, Duration d) {
+String _duration(StudioLocalizations l, Duration d) {
   final h = d.inHours;
   final m = d.inMinutes.remainder(60);
   if (h > 0) return l.durationHoursMinutes(h, m.toString().padLeft(2, '0'));
@@ -348,7 +352,10 @@ class BotCard extends StatelessWidget {
                   color: StudioColors.discord,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.smart_toy_rounded, color: Colors.white),
+                child: const AppIcon.fromMaterial(
+                  Icons.smart_toy_rounded,
+                  color: Colors.white,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -426,7 +433,10 @@ class BotCard extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  icon: const Icon(Icons.tune_rounded, size: 14),
+                  icon: const AppIcon.fromMaterial(
+                    Icons.tune_rounded,
+                    size: 14,
+                  ),
                   label: Text(context.l10n.botsManage),
                 ),
               ),
@@ -484,7 +494,9 @@ class _StartStopButton extends StatelessWidget {
     }
     return FilledButton.icon(
       onPressed: busy ? null : onTap,
-      icon: busy ? spinner : const Icon(Icons.play_arrow_rounded, size: 16),
+      icon: busy
+          ? spinner
+          : const AppIcon.fromMaterial(Icons.play_arrow_rounded, size: 16),
       label: Text(context.l10n.botStart),
     );
   }
@@ -499,7 +511,11 @@ class _EmptyBots extends StatelessWidget {
     child: Center(
       child: Column(
         children: [
-          Icon(Icons.smart_toy_outlined, size: 64, color: Color(0x669AA0AF)),
+          AppIcon.fromMaterial(
+            Icons.smart_toy_outlined,
+            size: 64,
+            color: Color(0x669AA0AF),
+          ),
           SizedBox(height: 16),
           Text(
             context.l10n.botsEmptyTitle,

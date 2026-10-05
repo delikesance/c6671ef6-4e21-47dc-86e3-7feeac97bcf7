@@ -1,3 +1,4 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../auth/auth_controller.dart';
@@ -78,7 +79,10 @@ class LoginPage extends StatelessWidget {
                               minimumSize: const Size.fromHeight(48),
                             ),
                             onPressed: auth.signIn,
-                            icon: const Icon(Icons.login_rounded, size: 18),
+                            icon: const AppIcon.fromMaterial(
+                              Icons.login,
+                              size: 18,
+                            ),
                             label: Text(context.l10n.loginDiscord),
                           ),
                   ),

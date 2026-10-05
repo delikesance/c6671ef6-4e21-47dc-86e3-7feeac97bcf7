@@ -1,3 +1,4 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../theme.dart';
@@ -77,7 +78,7 @@ class _BarItem extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            Icon(entry.icon, size: 24, color: color),
+            AppIcon.fromMaterial(entry.icon, size: 24, color: color),
             const SizedBox(height: 4),
             Text(
               entry.label,

@@ -5,8 +5,8 @@ import 'app_localizations.dart';
 // ignore_for_file: type=lint
 
 /// The translations for French (`fr`).
-class AppLocalizationsFr extends AppLocalizations {
-  AppLocalizationsFr([String locale = 'fr']) : super(locale);
+class StudioLocalizationsFr extends StudioLocalizations {
+  StudioLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
   String get navHome => 'Accueil';

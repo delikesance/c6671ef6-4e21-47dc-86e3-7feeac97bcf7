@@ -10847,7 +10847,7 @@
   "ai_credits_label_purchased": "Achats",
   "ai_credits_label_rewarded": "Roulette",
   "ai_credits_label_granted": "Attributions",
-  "ai_credits_spins_available": "{count, plural, =1{1 tour disponible} other{{count} tours disponibles}}",
+  "ai_credits_spins_available": "{count, plural, =0{0 tour disponible} =1{1 tour disponible} other{{count} tours disponibles}}",
   "ai_credits_usage_hint": "La consommation dépend des échanges et des actions effectuées.",
   "ai_credits_daily_ad_limit_hint": "3 publicités maximum par jour (UTC). Les tours bonus et inutilisés sont conservés.",
   "ai_credits_result_spins": "+{count, plural, =1{1 tour !} other{{count} tours !}}",

@@ -1,7 +1,7 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
-import '../commands/action_catalog.dart';
 import '../commands/command_draft.dart';
 import '../theme.dart';
 import '../widgets/actions_editor.dart';
@@ -173,7 +173,10 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
                                       .first,
                           ),
                           subtitle: Text('${v.sizeBytes} octets'),
-                          trailing: const Icon(Icons.restore_rounded, size: 18),
+                          trailing: const AppIcon.fromMaterial(
+                            Icons.restore,
+                            size: 18,
+                          ),
                           onTap: () => Navigator.of(context).pop(v),
                         ),
                     ],
@@ -271,7 +274,10 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
               IconButton(
                 tooltip: 'Retour',
                 onPressed: () => widget.onClose(_changed),
-                icon: const Icon(Icons.arrow_back_rounded, size: 20),
+                icon: const AppIcon.fromMaterial(
+                  Icons.arrow_back_rounded,
+                  size: 20,
+                ),
               ),
               Expanded(
                 child: Text(
@@ -287,12 +293,18 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
                   IconButton(
                     tooltip: 'Historique',
                     onPressed: _saving ? null : _history,
-                    icon: const Icon(Icons.history_rounded, size: 20),
+                    icon: const AppIcon.fromMaterial(
+                      Icons.history_rounded,
+                      size: 20,
+                    ),
                   ),
                 IconButton(
                   tooltip: 'Supprimer la commande',
                   onPressed: _saving ? null : _delete,
-                  icon: const Icon(Icons.delete_outline_rounded, size: 20),
+                  icon: const AppIcon.fromMaterial(
+                    Icons.delete_outline_rounded,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 8),
                 FilledButton.icon(
@@ -303,7 +315,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
                           height: 14,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : Icon(
+                      : AppIcon.fromMaterial(
                           draft.dirty
                               ? Icons.save_outlined
                               : Icons.check_rounded,
@@ -392,7 +404,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
                 onChanged: (v) => setState(() => draft.name = v),
                 decoration: const InputDecoration(
                   labelText: 'Nom',
-                  prefixIcon: Icon(Icons.tag, size: 18),
+                  prefixIcon: AppIcon.fromMaterial(Icons.tag, size: 18),
                 ),
               ),
             ),
@@ -404,7 +416,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
                 onChanged: (v) => setState(() => draft.description = v),
                 decoration: const InputDecoration(
                   labelText: 'Description',
-                  prefixIcon: Icon(Icons.short_text, size: 18),
+                  prefixIcon: AppIcon.fromMaterial(Icons.short_text, size: 18),
                 ),
               ),
             ),
@@ -453,7 +465,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
                   : '${draft.optionCount} options',
             ),
             ActionChip(
-              avatar: const Icon(Icons.tune_rounded, size: 14),
+              avatar: const AppIcon.fromMaterial(Icons.tune_rounded, size: 14),
               label: const Text('Options'),
               onPressed: () => _editOptions(draft),
             ),

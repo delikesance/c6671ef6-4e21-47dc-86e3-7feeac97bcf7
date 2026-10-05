@@ -25,7 +25,7 @@ class LocaleController extends ChangeNotifier {
   };
 
   static bool isSupported(String code) =>
-      AppLocalizations.supportedLocales.any((l) => l.languageCode == code);
+      StudioLocalizations.supportedLocales.any((l) => l.languageCode == code);
 
   Future<void> load() async {
     try {
