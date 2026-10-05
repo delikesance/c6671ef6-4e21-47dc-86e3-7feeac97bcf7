@@ -306,6 +306,18 @@ const List<AllowListEntry> allowListedPatterns = <AllowListEntry>[
     snippetPattern: r"\$\{fn\['name'\]\}",
     reason: 'Détails bruts des arguments d’appels d’outils du copilote.',
   ),
+  AllowListEntry(
+    pathFragment: 'lib/features/copilot/presentation/copilot_page.dart',
+    snippetPattern: r"Text\('\$\{value\.key\} → \$\{value\.value\}'\)",
+    reason:
+        'Paire clé → valeur brute d’un argument d’outil, données et non prose.',
+  ),
+  AllowListEntry(
+    pathFragment: 'lib/features/copilot/presentation/copilot_page.dart',
+    snippetPattern: r"'− \$\{clip\(edit\['find'\]\)\}",
+    reason:
+        'Diff brut (− ancien / + nouveau) d’un remplacement proposé, données et non prose.',
+  ),
   // ── Texte COMPOSÉ depuis une traduction ──────────────────────────────────────
   AllowListEntry(
     // Tous les fichiers : la règle porte sur la FORME de la ligne.
