@@ -333,178 +333,32 @@ class BotCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hosting = hostingCopy(context.l10n, bot, runtime);
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: StudioColors.rail,
-        border: Border.all(color: StudioColors.cardBorder),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: const BoxDecoration(
-                  color: StudioColors.discord,
-                  shape: BoxShape.circle,
-                ),
-                child: const AppIcon.fromMaterial(
-                  Icons.smart_toy_rounded,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  bot.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              StatusPill(
-                variant: bot.running
-                    ? StatusPillVariant.online
-                    : StatusPillVariant.stopped,
-                label: bot.running
-                    ? context.l10n.statusOnline
-                    : context.l10n.statusStopped,
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const Divider(height: 1, color: StudioColors.cardBorder),
-          if (hosting != null) ...[
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              decoration: BoxDecoration(
-                color: StudioColors.card,
-                border: Border.all(color: StudioColors.clusterBorder),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Overline(hosting.label),
-                  const SizedBox(height: 4),
-                  Text(
-                    hosting.value,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  if (hosting.detail.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      hosting.detail,
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        color: StudioColors.muted,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
+    // La carte de l'app. Le Studio ne connaît pas les serveurs du bot (pas de
+    // ligne « actif sur N serveurs ») et calcule lui-même la boîte d'hébergement
+    // (session, réserve) ; ni achat ni temps à ajouter ici.
+    return HomeBotCard(
+      name: bot.name,
+      id: bot.id,
+      avatar: null,
+      guildCount: 0,
+      showServers: false,
+      isRunning: bot.running,
+      canToggle: !busy,
+      isTogglingThisBot: busy,
+      initiallyExpanded: true,
+      onManage: onManage,
+      onToggle: onToggle,
+      onAddTime: null,
+      onLogs: null,
+      showPremiumLabels: false,
+      freeMinutes: runtime?.freeMinutes ?? 0,
+      hostingOverride: hosting == null
+          ? null
+          : (
+              overline: hosting.label,
+              value: hosting.value,
+              detail: hosting.detail,
             ),
-          ],
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _StartStopButton(bot: bot, busy: busy, onTap: onToggle),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: onManage,
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(44),
-                    backgroundColor: StudioColors.card,
-                    foregroundColor: Colors.white,
-                    side: const BorderSide(color: StudioColors.clusterBorder),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    textStyle: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  icon: const AppIcon.fromMaterial(
-                    Icons.tune_rounded,
-                    size: 14,
-                  ),
-                  label: Text(context.l10n.botsManage),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StartStopButton extends StatelessWidget {
-  const _StartStopButton({
-    required this.bot,
-    required this.busy,
-    required this.onTap,
-  });
-
-  final StudioBot bot;
-  final bool busy;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final spinner = const SizedBox(
-      width: 14,
-      height: 14,
-      child: CircularProgressIndicator(strokeWidth: 2),
-    );
-    if (bot.running) {
-      return OutlinedButton.icon(
-        onPressed: busy ? null : onTap,
-        style: OutlinedButton.styleFrom(
-          minimumSize: const Size.fromHeight(44),
-          backgroundColor: StudioColors.error.withValues(alpha: 0.08),
-          foregroundColor: StudioColors.errorText,
-          side: BorderSide(color: StudioColors.error.withValues(alpha: 0.4)),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-        ),
-        icon: busy
-            ? spinner
-            : Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: StudioColors.errorText,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-        label: Text(context.l10n.botStop),
-      );
-    }
-    return FilledButton.icon(
-      onPressed: busy ? null : onTap,
-      icon: busy
-          ? spinner
-          : const AppIcon.fromMaterial(Icons.play_arrow_rounded, size: 16),
-      label: Text(context.l10n.botStart),
     );
   }
 }

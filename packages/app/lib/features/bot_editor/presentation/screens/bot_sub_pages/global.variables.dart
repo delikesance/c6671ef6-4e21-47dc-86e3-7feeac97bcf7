@@ -16,7 +16,6 @@ import 'package:flutter/services.dart';
 import 'package:nyxx/nyxx.dart' hide Builder;
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/theme/block_category.dart';
-import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/module_list_widgets.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/bot_editor/logic/scoped_variable_orphans.dart';
@@ -25,6 +24,8 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scoped_variables_list.dart';
 
 import 'package:bot_creator/core/widgets/app_icon.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart'
+    show GlobalVariableRow, VariablesSectionHeader;
 
 enum _VariableMode { global, scoped }
 
@@ -1262,23 +1263,8 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     }
   }
 
-  Widget _sectionHeader(String label, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 14, 4, 8),
-      child: Row(
-        children: [
-          AppIcon.fromMaterial(icon, size: 16, color: BlockFamily.data.color),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              label.toUpperCase(),
-              style: BlockFamily.data.overlineStyle(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _sectionHeader(String label, IconData icon) =>
+      VariablesSectionHeader(label: label, icon: icon);
 
   /// Compact (phone) layout: ONE scrollable list — "whole bot" first, then per server / member…
   Widget _buildUnifiedList() {
@@ -1338,64 +1324,12 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     );
   }
 
-  Widget _globalRow(MapEntry<String, dynamic> entry) {
-    final valueText = (entry.value?.toString() ?? 'null').replaceAll(
-      RegExp(r'\s+'),
-      ' ',
-    );
-    return ModuleRowCard(
-      key: ValueKey(entry.key),
-      family: BlockFamily.data,
-      icon: Icons.data_object_rounded,
-      title: entry.key,
-      titleMono: true,
-      summary: valueText,
-      onTap: () => _editGlobalVariable(key: entry.key),
-      trailing: [
-        moduleMoreButton<String>(
-          context: context,
-          tooltip: context.tr.more_options_title,
-          itemBuilder: (ctx) => [
-            moduleMenuItem<String>(
-              ctx,
-              value: 'edit',
-              icon: Icons.edit_outlined,
-              label: context.tr.globals_edit,
-            ),
-            moduleMenuItem<String>(
-              ctx,
-              value: 'copy',
-              icon: Icons.copy,
-              label: context.tr.globals_copy_value,
-            ),
-            const PopupMenuDivider(),
-            moduleMenuItem<String>(
-              ctx,
-              value: 'delete',
-              icon: Icons.delete_outline,
-              label: context.tr.delete,
-              danger: true,
-            ),
-          ],
-          onSelected: (action) {
-            switch (action) {
-              case 'edit':
-                _editGlobalVariable(key: entry.key);
-              case 'copy':
-                Clipboard.setData(
-                  ClipboardData(text: formatScopedVariableValue(entry.value)),
-                );
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(context.tr.globals_copy_value)),
-                );
-              case 'delete':
-                _deleteGlobalVariable(entry.key);
-            }
-          },
-        ),
-      ],
-    );
-  }
+  Widget _globalRow(MapEntry<String, dynamic> entry) => GlobalVariableRow(
+    name: entry.key,
+    value: entry.value,
+    onEdit: () => _editGlobalVariable(key: entry.key),
+    onDelete: () => _deleteGlobalVariable(entry.key),
+  );
 
   Widget _buildGlobalList({bool embedded = false}) {
     final entries = _filteredGlobalEntries;

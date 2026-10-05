@@ -50,6 +50,9 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
   seule : jamais relu ; laissé vide il est conservé, ou généré par le serveur à la création et montré une seule fois
   (donc pas de « copier le secret » ni d'URL complète dans le Studio).
 
+- **Accueil et variables globales** : la carte de bot de l'app (`HomeBotCard`, sans la ligne des serveurs que le Studio
+  ne connaît pas) et les lignes de variables globales.
+
 Reste à faire : éditeur d'image,
 versions de configuration du bot, planificateur, webhooks entrants, émojis, serveurs, marketplace, conteneurs,
 documentation intégrée. Le détail ci-dessous est l'audit initial.

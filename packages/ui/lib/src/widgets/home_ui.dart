@@ -304,11 +304,11 @@ class HomeStatusPill extends StatelessWidget {
   const HomeStatusPill({
     super.key,
     required this.isRunning,
-    required this.pulseController,
+    this.pulseController,
   });
 
   final bool isRunning;
-  final AnimationController pulseController;
+  final AnimationController? pulseController;
 
   @override
   Widget build(BuildContext context) {
