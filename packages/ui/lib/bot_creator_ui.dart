@@ -92,3 +92,6 @@ export 'src/editor/logic/discord_application_command_rules.dart';
 export 'src/editor/logic/discord_command_validation_messages.dart';
 export 'src/copilot/copilot_views.dart';
 export 'src/copilot/ai_credit_format.dart';
+export 'src/editor/lists/command_list_card.dart';
+export 'src/editor/lists/command_folder_header.dart';
+export 'src/editor/logic/command_folder_tree.dart';
