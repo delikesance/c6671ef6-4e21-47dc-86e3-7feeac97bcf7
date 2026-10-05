@@ -215,3 +215,27 @@ class StudioInboundWebhooksController extends InboundWebhooksController {
     ),
   );
 }
+
+/// Émojis d'application du Studio : Discord est joint par le Manager.
+class StudioEmojisController extends EmojisController {
+  const StudioEmojisController({required this.api, required this.botId});
+
+  final StudioApi api;
+  final String botId;
+
+  @override
+  Future<List<AppEmoji>> list() async => [
+    for (final e in await api.listAppEmojis(botId)) AppEmoji.fromJson(e),
+  ];
+
+  @override
+  Future<AppEmoji> create(String name, String imageDataUri) async =>
+      AppEmoji.fromJson(await api.createAppEmoji(botId, name, imageDataUri));
+
+  @override
+  Future<AppEmoji> rename(String emojiId, String name) async =>
+      AppEmoji.fromJson(await api.renameAppEmoji(botId, emojiId, name));
+
+  @override
+  Future<void> delete(String emojiId) => api.deleteAppEmoji(botId, emojiId);
+}

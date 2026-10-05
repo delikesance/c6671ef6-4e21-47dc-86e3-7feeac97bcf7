@@ -21,6 +21,7 @@ import 'team_page.dart';
 import 'variables_page.dart';
 import 'workflows_page.dart';
 import 'copilot_page.dart';
+import 'guilds_page.dart';
 
 /// Coque connectée : accueil ou éditeur d'un bot. Jamais montrée sans session
 /// valide.
@@ -305,6 +306,17 @@ class _StudioShellState extends State<StudioShell> {
         return VariablesPage(key: ValueKey(bot.id), api: api, bot: bot);
       case 'team':
         return TeamPage(key: ValueKey(bot.id), api: api, bot: bot);
+      case 'guilds':
+        return GuildsPage(
+          key: ValueKey('guilds-${bot.id}'),
+          api: api,
+          bot: bot,
+        );
+      case 'emojis':
+        return EmojisView(
+          key: ValueKey('emojis-${bot.id}'),
+          controller: StudioEmojisController(api: api, botId: bot.id),
+        );
       case 'sched':
         return SchedulerView(
           key: ValueKey('sched-${bot.id}'),
