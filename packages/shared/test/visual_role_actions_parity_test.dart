@@ -162,21 +162,28 @@ Future<_Outcome> _parity(
     expect(native.native, 0, reason: 'must stay historical');
   }
   // Explicit expectations of the native path alone (test/golden).
+  // A timed-out run keeps writing its error variables on its own schedule, so
+  // under a time limit they are left out of every comparison (both runs race
+  // the clock independently and may or may not have written them yet).
+  Map<String, String> settled(Map<String, String> variables) => {
+    for (final e in variables.entries)
+      if (limit == null || !e.key.startsWith('error.')) e.key: e.value,
+  };
   _golden.expectSnapshot({
     'effects': native.effects,
     'results': native.results,
-    // A timed-out run keeps writing its error variables on its own schedule.
-    'variables': {
-      for (final e in native.variables.entries)
-        if (limit == null || !e.key.startsWith('error.')) e.key: e.value,
-    },
+    'variables': settled(native.variables),
     'error': native.errorText,
   });
   if (historical == null) return native;
   expect(historical.native, 0);
   expect(native.effects, historical.effects, reason: 'effects');
   expect(native.results, historical.results, reason: 'results');
-  expect(native.variables, historical.variables, reason: 'variables');
+  expect(
+    settled(native.variables),
+    settled(historical.variables),
+    reason: 'variables',
+  );
   expect(native.errorText, historical.errorText, reason: 'error');
   return native;
 }
