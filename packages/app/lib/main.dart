@@ -11,8 +11,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:bot_creator/core/network/image_disk_cache.dart';
 import 'package:bot_creator/features/bot_editor/presentation/app_editor_host.dart';
-import 'package:bot_creator_ui/bot_creator_ui.dart' show EditorHostScope;
+import 'package:bot_creator_ui/bot_creator_ui.dart'
+    show AvatarImageSource, EditorHostScope, UiDiagnostics;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nyxx/nyxx.dart' hide Locale, Builder;
 import 'package:bot_creator/features/home/presentation/home_page.dart';
@@ -193,6 +195,9 @@ Future<void> main(List<String> args) async {
       cache.maximumSizeBytes = 50 << 20; // 50 MB
 
       await AppDiagnostics.initialize();
+      AvatarImageSource.defaultSource = ImageDiskCache.instance;
+      UiDiagnostics.onInfo = (message) =>
+          unawaited(AppDiagnostics.logInfo(message));
       AppDiagnostics.installGlobalErrorHandlers();
       try {
         FlutterForegroundTask.initCommunicationPort();

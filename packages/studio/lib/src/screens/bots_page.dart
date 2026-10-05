@@ -370,7 +370,14 @@ class BotCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              StatusPill(running: bot.running),
+              StatusPill(
+                variant: bot.running
+                    ? StatusPillVariant.online
+                    : StatusPillVariant.stopped,
+                label: bot.running
+                    ? context.l10n.statusOnline
+                    : context.l10n.statusStopped,
+              ),
             ],
           ),
           const SizedBox(height: 16),

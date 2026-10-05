@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../auth/auth_controller.dart';
 import '../l10n_ext.dart';
 import '../theme.dart';
-import '../widgets/studio_rail.dart';
+import '../widgets/common.dart';
 
 /// Seul écran accessible sans session valide.
 class LoginPage extends StatelessWidget {

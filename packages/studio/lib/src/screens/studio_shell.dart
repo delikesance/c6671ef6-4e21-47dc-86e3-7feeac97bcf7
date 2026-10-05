@@ -11,8 +11,6 @@ import '../premium/premium_gate.dart';
 import '../premium/studio_feature.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
-import '../widgets/studio_bottom_bar.dart';
-import '../widgets/studio_rail.dart';
 import 'beginner_mode.dart';
 import 'bots_page.dart';
 import 'commands_page.dart';
@@ -89,18 +87,22 @@ class _StudioShellState extends State<StudioShell> {
           ),
         ),
         bottomNavigationBar: bot == null
-            ? StudioBottomBar(
-                items: _homeItems(context),
-                selectedId: _homeSection,
-                onSelect: (id) => setState(() => _homeSection = id),
+            ? FlatNavBar(
+                items: _navItems(
+                  _homeItems(context),
+                  _homeSection,
+                  (id) => setState(() => _homeSection = id),
+                ),
               )
-            : StudioBottomBar(
-                items: _compactEditorItems(context),
-                selectedId: _editorSection,
-                onSelect: (id) => setState(() {
-                  _editorSection = id;
-                  _module = null;
-                }),
+            : FlatNavBar(
+                items: _navItems(
+                  _compactEditorItems(context),
+                  _editorSection,
+                  (id) => setState(() {
+                    _editorSection = id;
+                    _module = null;
+                  }),
+                ),
               ),
       );
     }
@@ -121,19 +123,39 @@ class _StudioShellState extends State<StudioShell> {
 
   // ── Accueil ───────────────────────────────────────────────────────────────
 
-  List<RailEntry> _homeItems(BuildContext context) => [
-    RailEntry('home', context.l10n.navHome, Icons.home_outlined),
-    RailEntry('docs', context.l10n.navDocs, Icons.menu_book_outlined),
-    RailEntry('settings', context.l10n.navSettings, Icons.settings_outlined),
+  List<_NavEntry> _homeItems(BuildContext context) => [
+    _NavEntry('home', context.l10n.navHome, Icons.home_outlined),
+    _NavEntry('docs', context.l10n.navDocs, Icons.menu_book_outlined),
+    _NavEntry('settings', context.l10n.navSettings, Icons.settings_outlined),
   ];
 
-  Widget _homeRail() => StudioRail(
-    badge: const StudioLogo(),
-    itemHeight: 64,
-    selectedId: _homeSection,
-    onSelect: (id) => setState(() => _homeSection = id),
-    items: _homeItems(context),
+  Widget _homeRail() => FlatNavRail(
+    leading: const Padding(
+      padding: EdgeInsets.only(top: 16, bottom: 8),
+      child: StudioLogo(),
+    ),
+    items: _navItems(
+      _homeItems(context),
+      _homeSection,
+      (id) => setState(() => _homeSection = id),
+    ),
   );
+
+  /// Les entrées de navigation sous la forme que `FlatNavBar` / `FlatNavRail`
+  /// (les mêmes que l'app) attendent.
+  List<FloatingGlassNavItem> _navItems(
+    List<_NavEntry> entries,
+    String selected,
+    ValueChanged<String> onSelect,
+  ) => [
+    for (final e in entries)
+      FloatingGlassNavItem(
+        icon: e.icon,
+        label: e.label,
+        selected: e.id == selected,
+        onTap: () => onSelect(e.id),
+      ),
+  ];
 
   Widget _homeBody() {
     switch (_homeSection) {
@@ -155,41 +177,41 @@ class _StudioShellState extends State<StudioShell> {
 
   // ── Éditeur de bot ────────────────────────────────────────────────────────
 
-  List<RailEntry?> _editorItems(BuildContext context) {
+  List<_NavEntry?> _editorItems(BuildContext context) {
     final l = context.l10n;
     return [
-      RailEntry('back', l.navBack, Icons.arrow_back_rounded),
+      _NavEntry('back', l.navBack, Icons.arrow_back_rounded),
       null,
-      RailEntry('overview', l.navHome, Icons.dashboard_rounded),
-      RailEntry('copilot', l.navCopilot, Icons.auto_awesome_outlined),
-      RailEntry('commands', l.navCommands, Icons.terminal_rounded),
+      _NavEntry('overview', l.navHome, Icons.dashboard_rounded),
+      _NavEntry('copilot', l.navCopilot, Icons.auto_awesome_outlined),
+      _NavEntry('commands', l.navCommands, Icons.terminal_rounded),
       null,
-      RailEntry('flows', l.navFlows, Icons.account_tree_outlined),
-      RailEntry('vars', l.navVars, Icons.data_object_rounded),
-      RailEntry('sched', l.navSched, Icons.schedule_rounded),
-      RailEntry('hooks', l.navHooks, Icons.webhook_rounded),
-      RailEntry('emojis', l.navEmojis, Icons.emoji_emotions_outlined),
-      RailEntry('team', l.navTeam, Icons.groups_outlined),
-      RailEntry('guilds', l.navGuilds, Icons.dns_outlined),
+      _NavEntry('flows', l.navFlows, Icons.account_tree_outlined),
+      _NavEntry('vars', l.navVars, Icons.data_object_rounded),
+      _NavEntry('sched', l.navSched, Icons.schedule_rounded),
+      _NavEntry('hooks', l.navHooks, Icons.webhook_rounded),
+      _NavEntry('emojis', l.navEmojis, Icons.emoji_emotions_outlined),
+      _NavEntry('team', l.navTeam, Icons.groups_outlined),
+      _NavEntry('guilds', l.navGuilds, Icons.dns_outlined),
       null,
-      RailEntry('dash', l.navDashboard, Icons.bar_chart_rounded),
+      _NavEntry('dash', l.navDashboard, Icons.bar_chart_rounded),
     ];
   }
 
-  List<RailEntry> _compactEditorItems(BuildContext context) {
+  List<_NavEntry> _compactEditorItems(BuildContext context) {
     final l = context.l10n;
     return [
-      RailEntry('overview', l.navHome, Icons.dashboard_outlined),
-      RailEntry('commands', l.navCommandsShort, Icons.terminal_rounded),
-      RailEntry('modules', l.navModules, Icons.widgets_outlined),
-      RailEntry('settings', l.navSettings, Icons.settings_outlined),
+      _NavEntry('overview', l.navHome, Icons.dashboard_outlined),
+      _NavEntry('commands', l.navCommandsShort, Icons.terminal_rounded),
+      _NavEntry('modules', l.navModules, Icons.widgets_outlined),
+      _NavEntry('settings', l.navSettings, Icons.settings_outlined),
     ];
   }
 
   /// Les entrées du rail, sans celles que le mode débutant masque, et sans
   /// séparateur orphelin (en tête, en queue ou doublé).
-  List<RailEntry?> _visibleRailItems() {
-    final out = <RailEntry?>[];
+  List<_NavEntry?> _visibleRailItems() {
+    final out = <_NavEntry?>[];
     for (final e in _editorItems(context)) {
       if (e == null) {
         if (out.isNotEmpty && out.last != null) out.add(null);
@@ -204,32 +226,39 @@ class _StudioShellState extends State<StudioShell> {
   }
 
   Widget _editorRail(StudioBot bot) {
-    final trimmed = bot.name.trim();
-    final initials = trimmed.isEmpty
-        ? '?'
-        : trimmed.substring(0, trimmed.length >= 2 ? 2 : 1);
     final l = context.l10n;
-    return StudioRail(
-      badge: RailBadge(
-        text: initials.toUpperCase(),
-        color: const Color(0xFF38BDF8),
-      ),
-      selectedId: _editorSection,
-      extraSelected: {if (_beginner.enabled) 'beginner'},
-      items: _visibleRailItems(),
-      bottomItems: [
-        RailEntry('beginner', l.navBeginner, Icons.school_rounded),
-        RailEntry('settings', l.navSettings, Icons.settings_outlined),
-      ],
-      onSelect: (id) {
-        if (id == 'beginner') {
-          _beginner.set(!_beginner.enabled);
-        } else if (id == 'back') {
-          _leaveBot();
-        } else {
-          setState(() => _editorSection = id);
+    // Sections du rail de l'app : les séparateurs deviennent des sections.
+    final sections = <EditorSidebarSection>[];
+    var current = <EditorSidebarItem>[];
+    for (final e in _visibleRailItems()) {
+      if (e == null) {
+        if (current.isNotEmpty) {
+          sections.add(EditorSidebarSection(title: '', items: current));
         }
-      },
+        current = [];
+      } else if (e.id != 'back') {
+        current.add(EditorSidebarItem(id: e.id, icon: e.icon, label: e.label));
+      }
+    }
+    if (current.isNotEmpty) {
+      sections.add(EditorSidebarSection(title: '', items: current));
+    }
+    return EditorRail(
+      appName: bot.name,
+      botId: bot.id,
+      sections: sections,
+      activeItemId: _editorSection,
+      showBackButton: true,
+      showBeginnerMode: true,
+      beginnerMode: _beginner.enabled,
+      onBeginnerModeChanged: _beginner.set,
+      pinnedItem: EditorSidebarItem(
+        id: 'settings',
+        icon: Icons.settings_outlined,
+        label: l.navSettings,
+      ),
+      onBack: _leaveBot,
+      onSelectItem: (id) => setState(() => _editorSection = id),
     );
   }
 
@@ -486,4 +515,13 @@ class _LanguagePicker extends StatelessWidget {
           controller.set(code == null || code.isEmpty ? null : Locale(code)),
     );
   }
+}
+
+/// Une entrée de navigation du Studio.
+class _NavEntry {
+  const _NavEntry(this.id, this.label, this.icon);
+
+  final String id;
+  final String label;
+  final IconData icon;
 }
