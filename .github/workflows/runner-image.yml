@@ -23,7 +23,7 @@ jobs:
   publish-dev-image:
     name: Publish staging image (Manager webhook deploys)
     if: github.ref == 'refs/heads/dev'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     permissions:
       contents: read
       packages: write
