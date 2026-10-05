@@ -182,6 +182,19 @@ class StudioWorkflowDetail {
   final String? revision;
 }
 
+/// Une version journalisée d'une commande (métadonnées seulement).
+class StudioCommandVersion {
+  const StudioCommandVersion({
+    required this.historyId,
+    required this.createdAt,
+    this.sizeBytes = 0,
+  });
+
+  final String historyId;
+  final DateTime? createdAt;
+  final int sizeBytes;
+}
+
 /// Un message d'une conversation du Copilot (`role` : user, assistant, tool).
 class StudioAiEvent {
   const StudioAiEvent({
@@ -479,6 +492,45 @@ class StudioApi {
       timeout: const Duration(seconds: 60),
     );
     return _string(json, const ['revision']) ?? revision;
+  }
+
+  /// Dernières versions journalisées d'une commande, la plus récente d'abord.
+  Future<List<StudioCommandVersion>> commandHistory(
+    String botId,
+    String commandId,
+  ) async {
+    final json = await _send(
+      'GET',
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/commands/${Uri.encodeComponent(commandId)}/history',
+    );
+    final raw = json['versions'];
+    if (raw is! List) return const [];
+    return [
+      for (final v in raw.whereType<Map>())
+        StudioCommandVersion(
+          historyId: '${v['history_id'] ?? ''}',
+          createdAt: DateTime.tryParse('${v['created_at'] ?? ''}'),
+          sizeBytes: (v['size_bytes'] as num?)?.toInt() ?? 0,
+        ),
+    ];
+  }
+
+  /// Réapplique une version ; le retour arrière est lui-même journalisé.
+  Future<String?> restoreCommandVersion(
+    String botId,
+    String commandId,
+    String historyId, {
+    String? revision,
+  }) async {
+    final json = await _send(
+      'POST',
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/commands/${Uri.encodeComponent(commandId)}/rollback/${Uri.encodeComponent(historyId)}',
+      headers: {
+        if (revision != null && revision.isNotEmpty) 'if-match': '"$revision"',
+      },
+      timeout: const Duration(seconds: 60),
+    );
+    return _string(json, const ['revision']);
   }
 
   /// Il n'existe pas de DELETE v2 : l'app passe par cette route.

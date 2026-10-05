@@ -90,6 +90,15 @@ class CommandDraft implements ActionListHost {
     return created;
   }
 
+  /// Options (arguments) de la commande, telles que Discord les attend.
+  List<Map<String, dynamic>> get options {
+    final o = _data['options'];
+    if (o is! List) return const [];
+    return [for (final e in o.whereType<Map>()) Map<String, dynamic>.from(e)];
+  }
+
+  set options(List<Map<String, dynamic>> value) => _data['options'] = value;
+
   int get optionCount {
     final o = _data['options'];
     return o is List ? o.length : 0;
