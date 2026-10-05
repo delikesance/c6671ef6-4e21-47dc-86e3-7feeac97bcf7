@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../api/studio_api.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
+import '../layout.dart';
 
 /// Valeur saisie -> valeur JSON : `12`, `true`, `{"a":1}` gardent leur type,
 /// tout le reste est du texte. Le serveur stocke du JSON ; l'app propose un
@@ -78,8 +79,8 @@ class _VariablesPageState extends State<VariablesPage> {
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(key == null ? 'Nouvelle variable' : 'Modifier la variable'),
-        content: SizedBox(
-          width: 420,
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -143,7 +144,7 @@ class _VariablesPageState extends State<VariablesPage> {
         final (globals, defs) = snapshot.data!;
         final keys = globals.keys.toList()..sort();
         return SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
+          padding: pageInsets(context),
           child: PageContent(
             maxWidth: 860,
             child: Column(

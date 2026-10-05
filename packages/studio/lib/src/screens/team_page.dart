@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../api/studio_api.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
+import '../layout.dart';
 
 const _permissionLabels = {
   'can_edit_commands': 'Modifier les commandes',
@@ -113,7 +114,7 @@ class _TeamPageState extends State<TeamPage> {
     if (team == null) return const Center(child: CircularProgressIndicator());
     final canChat = team.mine['can_view_chat'] != false;
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
+      padding: pageInsets(context),
       child: PageContent(
         maxWidth: 860,
         child: Column(

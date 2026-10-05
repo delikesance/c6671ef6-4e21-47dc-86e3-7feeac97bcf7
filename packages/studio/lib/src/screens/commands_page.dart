@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../api/studio_api.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
+import '../layout.dart';
 import 'command_editor_page.dart';
 
 /// Onglet « Commandes » de l'éditeur de bot.
@@ -49,7 +50,12 @@ class _CommandsPageState extends State<CommandsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+              padding: EdgeInsets.fromLTRB(
+                pagePadding(context),
+                12,
+                pagePadding(context),
+                0,
+              ),
               child: Row(
                 children: [
                   const Text(
@@ -101,7 +107,7 @@ class _CommandsPageState extends State<CommandsPage> {
         ? commands
         : commands.where((c) => c.name.toLowerCase().contains(q)).toList();
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
+      padding: pageInsets(context),
       child: PageContent(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
