@@ -59,6 +59,20 @@ abstract class EditorHost {
     required List<VariableSuggestion> variableSuggestions,
   }) async => null;
 
+  /// Le bot s'exécute sur le runtime JavaScript (les options proposent alors
+  /// l'autocomplétion en JavaScript).
+  Future<bool> isJavascriptBot(String botId) async => false;
+
+  /// Éditeur plein écran d'un script JavaScript ; `null` si absent ou annulé.
+  Future<String?> editJavascript(
+    BuildContext context, {
+    required String initialCode,
+    required String title,
+    required List<Object> snippets,
+  }) async => null;
+
+  bool get supportsJavascriptEditor => false;
+
   /// Diagnostics d'un script BDFD (vide quand l'hôte n'a pas de compilateur).
   List<EditorDiagnostic> bdfdDiagnostics(String source, String backend) =>
       const [];

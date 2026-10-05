@@ -2,7 +2,7 @@ import 'package:bot_creator_studio/src/api/studio_api.dart';
 import 'package:bot_creator_studio/src/commands/action_list.dart';
 import 'package:bot_creator_studio/src/commands/command_draft.dart';
 import 'package:bot_creator_studio/src/commands/workflow_draft.dart';
-import 'package:bot_creator_studio/src/widgets/options_editor.dart';
+import 'package:bot_creator_studio/src/commands/options_validation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
