@@ -802,6 +802,40 @@ class StudioApi {
     '/api/v2/bots/${Uri.encodeComponent(botId)}/scheduled-triggers/${Uri.encodeComponent(triggerId)}',
   );
 
+  // ── Webhooks entrants (secret en écriture seule) ──────────────────────────
+
+  Future<List<Map<String, dynamic>>> listInboundWebhooks(String botId) async {
+    final json = await _send(
+      'GET',
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/inbound-webhooks',
+    );
+    final raw = json['webhooks'];
+    return raw is List
+        ? [for (final w in raw.whereType<Map>()) Map<String, dynamic>.from(w)]
+        : const [];
+  }
+
+  /// Enregistre un webhook ; rend le secret généré par le serveur, le cas
+  /// échéant (il n'est montré qu'une fois).
+  Future<String?> saveInboundWebhook(
+    String botId,
+    String webhookId,
+    Map<String, dynamic> webhook,
+  ) async {
+    final json = await _send(
+      'PUT',
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/inbound-webhooks/${Uri.encodeComponent(webhookId)}',
+      body: webhook,
+    );
+    final generated = json['generated_secret'];
+    return generated is String && generated.isNotEmpty ? generated : null;
+  }
+
+  Future<void> deleteInboundWebhook(String botId, String webhookId) => _send(
+    'DELETE',
+    '/api/v2/bots/${Uri.encodeComponent(botId)}/inbound-webhooks/${Uri.encodeComponent(webhookId)}',
+  );
+
   Future<StudioWorkflowDetail> getWorkflow(String botId, String name) async {
     final json = await _send(
       'GET',
