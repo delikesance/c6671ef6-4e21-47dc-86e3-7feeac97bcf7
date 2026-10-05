@@ -774,6 +774,34 @@ class StudioApi {
     ];
   }
 
+  // ── Déclencheurs planifiés ────────────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> listScheduledTriggers(String botId) async {
+    final json = await _send(
+      'GET',
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/scheduled-triggers',
+    );
+    final raw = json['triggers'];
+    return raw is List
+        ? [for (final t in raw.whereType<Map>()) Map<String, dynamic>.from(t)]
+        : const [];
+  }
+
+  Future<void> saveScheduledTrigger(
+    String botId,
+    String triggerId,
+    Map<String, dynamic> trigger,
+  ) => _send(
+    'PUT',
+    '/api/v2/bots/${Uri.encodeComponent(botId)}/scheduled-triggers/${Uri.encodeComponent(triggerId)}',
+    body: trigger,
+  );
+
+  Future<void> deleteScheduledTrigger(String botId, String triggerId) => _send(
+    'DELETE',
+    '/api/v2/bots/${Uri.encodeComponent(botId)}/scheduled-triggers/${Uri.encodeComponent(triggerId)}',
+  );
+
   Future<StudioWorkflowDetail> getWorkflow(String botId, String name) async {
     final json = await _send(
       'GET',
@@ -1061,6 +1089,7 @@ class StudioApi {
       final encoded = body == null ? null : jsonEncode(body);
       final request = switch (method) {
         'GET' => _http.get(uri, headers: allHeaders),
+        'PUT' => _http.put(uri, headers: allHeaders, body: encoded),
         'PATCH' => _http.patch(uri, headers: allHeaders, body: encoded),
         'DELETE' => _http.delete(uri, headers: allHeaders),
         _ => _http.post(uri, headers: allHeaders, body: encoded),

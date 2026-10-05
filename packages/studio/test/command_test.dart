@@ -102,6 +102,33 @@ void main() {
       expect(data['legacyAliases'], ['b']);
     });
 
+    test(
+      'déclencheurs planifiés : PUT par identifiant, DELETE, liste',
+      () async {
+        final calls = <String>[];
+        final a = api(
+          MockClient((r) async {
+            calls.add('${r.method} ${r.url.path}');
+            return http.Response(
+              '{"triggers":[{"id":"t1","workflowName":"w","everyMinutes":5}]}',
+              200,
+            );
+          }),
+        );
+        expect((await a.listScheduledTriggers('1')).single['id'], 't1');
+        await a.saveScheduledTrigger('1', 't1', {
+          'workflowName': 'w',
+          'everyMinutes': 5,
+        });
+        await a.deleteScheduledTrigger('1', 't1');
+        expect(calls, [
+          'GET /api/v2/bots/1/scheduled-triggers',
+          'PUT /api/v2/bots/1/scheduled-triggers/t1',
+          'DELETE /api/v2/bots/1/scheduled-triggers/t1',
+        ]);
+      },
+    );
+
     test('get lit la commande et la révision', () async {
       final a = api(
         MockClient((r) async {

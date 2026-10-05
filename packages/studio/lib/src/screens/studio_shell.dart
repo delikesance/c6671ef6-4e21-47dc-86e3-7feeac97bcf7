@@ -7,6 +7,7 @@ import '../auth/studio_session.dart';
 import '../l10n_ext.dart';
 import '../layout.dart';
 import '../locale_controller.dart';
+import '../editor/studio_editor_host.dart';
 import '../premium/premium_gate.dart';
 import '../premium/studio_feature.dart';
 import '../theme.dart';
@@ -306,10 +307,13 @@ class _StudioShellState extends State<StudioShell> {
       case 'team':
         return TeamPage(key: ValueKey(bot.id), api: api, bot: bot);
       case 'sched':
-        return _premiumSection(
-          context.l10n.modulesScheduler,
-          StudioFeature.scheduler,
-          plan,
+        return SchedulerView(
+          key: ValueKey('sched-${bot.id}'),
+          controller: StudioSchedulerController(
+            api: api,
+            botId: bot.id,
+            available: StudioFeature.scheduler.isAvailableFor(plan),
+          ),
         );
       case 'hooks':
         return _premiumSection(
