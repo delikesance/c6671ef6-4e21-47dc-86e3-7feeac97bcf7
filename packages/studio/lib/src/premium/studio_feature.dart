@@ -1,4 +1,5 @@
 import '../auth/studio_session.dart';
+import '../l10n_ext.dart';
 
 /// Fonctionnalités du Studio et formule requise pour les utiliser.
 ///
@@ -8,36 +9,31 @@ import '../auth/studio_session.dart';
 /// webhooks entrants).
 enum StudioFeature {
   commands(minPlan: StudioPlan.free),
-  scheduler(
-    minPlan: StudioPlan.premium,
-    title: 'Déclencheurs planifiés',
-    description:
-        "Exécute des workflows automatiquement toutes les X minutes (jusqu'à 10 actifs).",
-  ),
-  analytics(
-    minPlan: StudioPlan.premium,
-    title: 'Analytics Premium',
-    description:
-        "Débloquez le taux d'erreur, les percentiles de latence et les insights de localisation.",
-  ),
-  inboundWebhooks(
-    minPlan: StudioPlan.premium,
-    title: 'Webhooks entrants',
-    description:
-        'Crée des endpoints webhook sécurisés et route les appels vers les workflows.',
-  );
+  scheduler(minPlan: StudioPlan.premium),
+  analytics(minPlan: StudioPlan.premium),
+  inboundWebhooks(minPlan: StudioPlan.premium);
 
-  const StudioFeature({
-    required this.minPlan,
-    this.title = '',
-    this.description = '',
-  });
+  const StudioFeature({required this.minPlan});
 
   final StudioPlan minPlan;
-  final String title;
-  final String description;
 
   bool get isPremium => minPlan == StudioPlan.premium;
 
   bool isAvailableFor(StudioPlan plan) => plan.index >= minPlan.index;
+
+  /// Titre et description des fonctionnalités Premium, dans la langue de
+  /// l'utilisateur (mêmes textes que dans l'app).
+  String title(AppLocalizations l) => switch (this) {
+    scheduler => l.featureSchedulerTitle,
+    analytics => l.featureAnalyticsTitle,
+    inboundWebhooks => l.featureHooksTitle,
+    commands => '',
+  };
+
+  String description(AppLocalizations l) => switch (this) {
+    scheduler => l.featureSchedulerDesc,
+    analytics => l.featureAnalyticsDesc,
+    inboundWebhooks => l.featureHooksDesc,
+    commands => '',
+  };
 }

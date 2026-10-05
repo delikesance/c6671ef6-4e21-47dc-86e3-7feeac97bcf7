@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n_ext.dart';
 import '../theme.dart';
 
 /// Contenu centré, 1200 px max (comme `PageContent` de l'app en mode large).
@@ -87,7 +88,7 @@ class StatusPill extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           Text(
-            running ? 'En ligne' : 'Arrêté',
+            running ? context.l10n.statusOnline : context.l10n.statusStopped,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -116,8 +117,8 @@ class ComingSoon extends StatelessWidget {
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 8),
-        const Text(
-          "Cette section arrive bientôt dans le Studio. Elle reste disponible dans l'app Bot Creator.",
+        Text(
+          context.l10n.comingSoonBody,
           textAlign: TextAlign.center,
           style: TextStyle(color: StudioColors.muted),
         ),
@@ -150,8 +151,8 @@ class ErrorNotice extends StatelessWidget {
             color: StudioColors.errorText,
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Erreur de chargement',
+          Text(
+            context.l10n.loadError,
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 4),
@@ -161,7 +162,10 @@ class ErrorNotice extends StatelessWidget {
             style: const TextStyle(color: StudioColors.muted),
           ),
           const SizedBox(height: 16),
-          FilledButton(onPressed: onRetry, child: const Text('Réessayer')),
+          FilledButton(
+            onPressed: onRetry,
+            child: Text(context.l10n.commonRetry),
+          ),
         ],
       ),
     ),

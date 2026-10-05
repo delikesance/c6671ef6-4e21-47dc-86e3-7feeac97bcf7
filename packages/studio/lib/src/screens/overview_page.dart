@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
+import '../l10n_ext.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 import '../layout.dart';
@@ -115,17 +116,17 @@ class _OverviewPageState extends State<OverviewPage> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text('Arrêter'),
+                        child: Text(context.l10n.botStop),
                       )
                     : FilledButton.icon(
                         onPressed: _busy ? null : _toggle,
                         icon: const Icon(Icons.play_arrow_rounded, size: 16),
-                        label: const Text('Lancer le bot'),
+                        label: Text(context.l10n.botStart),
                       ),
               ],
             ),
             const SizedBox(height: 24),
-            const Overline('Journaux'),
+            Overline(context.l10n.overviewLogs),
             const SizedBox(height: 12),
             Container(
               constraints: const BoxConstraints(minHeight: 120, maxHeight: 420),
@@ -139,15 +140,15 @@ class _OverviewPageState extends State<OverviewPage> {
                   ? Center(
                       child: _logsError != null
                           ? Text(
-                              'Journaux indisponibles : $_logsError',
+                              context.l10n.overviewLogsUnavailable(_logsError!),
                               style: const TextStyle(color: StudioColors.muted),
                             )
                           : const CircularProgressIndicator(),
                     )
                   : logs.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Text(
-                        'Aucun journal pour le moment.',
+                        context.l10n.overviewNoLogs,
                         style: TextStyle(color: StudioColors.muted),
                       ),
                     )

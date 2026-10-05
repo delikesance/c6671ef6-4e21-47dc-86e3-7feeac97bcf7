@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
+import '../l10n_ext.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 import '../layout.dart';
@@ -58,8 +59,8 @@ class _CommandsPageState extends State<CommandsPage> {
               ),
               child: Row(
                 children: [
-                  const Text(
-                    'Commandes',
+                  Text(
+                    context.l10n.navCommands,
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(width: 12),
@@ -117,7 +118,7 @@ class _CommandsPageState extends State<CommandsPage> {
               child: TextField(
                 onChanged: (v) => setState(() => _query = v),
                 decoration: InputDecoration(
-                  hintText: 'Rechercher des commandes...',
+                  hintText: context.l10n.commandsSearch,
                   prefixIcon: const Icon(Icons.search, size: 18),
                   isDense: true,
                   border: OutlineInputBorder(
@@ -135,8 +136,8 @@ class _CommandsPageState extends State<CommandsPage> {
                 child: Center(
                   child: Text(
                     commands.isEmpty
-                        ? "Aucune commande pour l'instant. Créez-en une depuis l'app Bot Creator."
-                        : 'Aucune commande ne correspond aux filtres actuels.',
+                        ? context.l10n.commandsEmpty
+                        : context.l10n.commandsNoMatch,
                     style: const TextStyle(color: StudioColors.muted),
                   ),
                 ),

@@ -1,3 +1,4 @@
+import 'package:bot_creator_studio/l10n/app_localizations_fr.dart';
 import 'package:bot_creator_studio/src/api/start_refusal.dart';
 import 'package:bot_creator_studio/src/api/studio_api.dart';
 import 'package:bot_creator_studio/src/screens/bots_page.dart';
@@ -92,24 +93,35 @@ void main() {
     expect(path, '/gateway/bots/7/stop');
   });
 
+  final l = AppLocalizationsFr();
+
   test('case hébergement : illimité, restant, préservé', () {
     const running = StudioBot(id: '1', name: 'A', running: true);
     const stopped = StudioBot(id: '1', name: 'A');
     final now = DateTime(2026, 1, 1, 12);
-    expect(hostingCopy(running, null), isNull);
+    expect(hostingCopy(l, running, null), isNull);
     expect(
-      hostingCopy(running, const StudioBotRuntime(premiumFunded: true))!.label,
-      'HÉBERGEMENT INCLUS',
+      hostingCopy(
+        l,
+        running,
+        const StudioBotRuntime(premiumFunded: true),
+      )!.label,
+      'Hébergement inclus',
     );
     final left = hostingCopy(
+      l,
       running,
       StudioBotRuntime(sessionExpiresAt: now.add(const Duration(minutes: 90))),
       now: now,
     )!;
-    expect(left.label, 'TEMPS RESTANT');
+    expect(left.label, 'Temps restant');
     expect(left.value, '1 h 30 min');
-    final kept = hostingCopy(stopped, const StudioBotRuntime(freeMinutes: 45))!;
-    expect(kept.label, 'TEMPS PRÉSERVÉ');
+    final kept = hostingCopy(
+      l,
+      stopped,
+      const StudioBotRuntime(freeMinutes: 45),
+    )!;
+    expect(kept.label, 'Temps préservé');
     expect(kept.value, 'Réserve : 45 min');
   });
 }

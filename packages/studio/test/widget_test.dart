@@ -3,6 +3,8 @@ import 'package:bot_creator_studio/src/auth/auth_controller.dart';
 import 'package:bot_creator_studio/src/auth/studio_session.dart';
 import 'package:bot_creator_studio/src/premium/premium_gate.dart';
 import 'package:bot_creator_studio/src/premium/studio_feature.dart';
+import 'package:bot_creator_studio/src/l10n_ext.dart';
+import 'package:bot_creator_studio/src/locale_controller.dart';
 import 'package:bot_creator_studio/src/studio_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -121,7 +123,9 @@ void main() {
     tester,
   ) async {
     final auth = _controller(MockClient((_) async => http.Response('{}', 200)));
-    await tester.pumpWidget(StudioApp(auth: auth));
+    final locale = LocaleController();
+    await locale.set(const Locale('fr'));
+    await tester.pumpWidget(StudioApp(auth: auth, locale: locale));
     await tester.pumpAndSettle();
     expect(find.text('Se connecter avec Discord'), findsOneWidget);
     expect(find.text('Mes bots'), findsNothing);
@@ -132,6 +136,9 @@ void main() {
     (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: PremiumGate(
             feature: StudioFeature.scheduler,
             plan: StudioPlan.free,

@@ -1,0 +1,170 @@
+{
+  "@@locale": "fr",
+  "navHome": "Accueil",
+  "navDocs": "Documentation",
+  "navSettings": "Paramètres",
+  "navBack": "Retour",
+  "navCommands": "Commandes",
+  "navCommandsShort": "Cmd",
+  "navCopilot": "Copilote IA",
+  "navFlows": "Flux",
+  "navVars": "Vars",
+  "navSched": "Planif",
+  "navHooks": "Webhooks entrants",
+  "navEmojis": "Émojis",
+  "navTeam": "Équipe",
+  "navGuilds": "Serveurs",
+  "navDashboard": "Tableau de bord",
+  "navModules": "Modules",
+  "navBeginner": "Mode débutant",
+  "modulesTitle": "Modules",
+  "modulesSearch": "Rechercher",
+  "modulesGroupCreate": "Création",
+  "modulesGroupAutomation": "Automatisation",
+  "modulesGroupManagement": "Gestion",
+  "modulesGroupTools": "Outils",
+  "modulesWorkflows": "Workflows",
+  "modulesVariables": "Variables",
+  "modulesEmojis": "Émoticônes",
+  "modulesScheduler": "Planificateur",
+  "modulesDescWorkflows": "Automatisez vos actions et événements",
+  "modulesDescVariables": "Données mémorisées : tout le bot, serveur, membre…",
+  "modulesDescEmojis": "Emojis applicatifs du bot",
+  "modulesDescScheduler": "Exécute un workflow toutes les X min",
+  "modulesDescHooks": "Appels HTTP routés vers un workflow",
+  "modulesDescTeam": "Collaborateurs et tchat d'équipe",
+  "modulesDescGuilds": "Serveurs où le bot est présent",
+  "modulesDescDashboard": "Usage des commandes sur 24 h, 7 j, 30 j",
+  "modulesDescCopilot": "Assistant pour créer vos commandes",
+  "beginnerOnHint": "Affichage des onglets essentiels uniquement",
+  "beginnerOffHint": "Affichage de toutes les fonctionnalités",
+  "commonRetry": "Réessayer",
+  "commonClose": "Fermer",
+  "commonCancel": "Annuler",
+  "commonRefresh": "Actualiser",
+  "commonSend": "Envoyer",
+  "statusOnline": "En ligne",
+  "statusStopped": "Arrêté",
+  "loadError": "Erreur de chargement",
+  "comingSoonBody": "Cette section arrive bientôt dans le Studio. Elle reste disponible dans l'app Bot Creator.",
+  "comingSoonShort": "Disponible bientôt dans le Studio.",
+  "appTitle": "Bot Creator Studio",
+  "loginSubtitle": "Connectez-vous avec Discord pour accéder à vos bots. Le Studio demande toujours une connexion valide.",
+  "loginDiscord": "Se connecter avec Discord",
+  "accountTitle": "Compte",
+  "accountSignedIn": "Connecté avec Discord",
+  "accountSignedInAs": "Connecté avec Discord : {name}",
+  "@accountSignedInAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "accountPlanPremium": "Formule Premium",
+  "accountPlanFree": "Formule gratuite : l'abonnement se gère depuis l'application mobile.",
+  "accountSignOut": "Se déconnecter",
+  "settingsTitle": "Paramètres",
+  "settingsLanguage": "Langue",
+  "languageSystem": "Système",
+  "botsOverline": "Mes projets",
+  "botsTitle": "Mes bots",
+  "botsCreate": "Créer un bot",
+  "botsManage": "Gérer",
+  "botStop": "Arrêter",
+  "botStart": "Lancer le bot",
+  "botsEmptyTitle": "Vous n'avez pas encore d'applications.",
+  "botsEmptyHint": "Créez votre premier bot depuis l'app Bot Creator : il apparaîtra ici.",
+  "hostingIncludedTitle": "Hébergement inclus",
+  "hostingIncludedValue": "Illimité avec ton abonnement",
+  "hostingRemainingTitle": "Temps restant",
+  "hostingExpired": "Hébergement expiré",
+  "hostingSessionActive": "Session active",
+  "hostingSessionActiveOnline": "Session active (en ligne)",
+  "hostingPreservedTitle": "Temps préservé",
+  "hostingReserve": "Réserve : {time}",
+  "@hostingReserve": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "hostingReserveAvailable": "Réserve disponible (en pause)",
+  "hostingPreservedDetail": "Le temps est préservé tant que le bot est arrêté.",
+  "durationHoursMinutes": "{hours} h {minutes} min",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "durationMinutes": "{minutes} min",
+  "@durationMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "createBotToken": "Jeton du bot Discord",
+  "createBotTokenHint": "Il est envoyé en HTTPS au serveur Bot Creator et jamais conservé dans le navigateur.",
+  "createBotValidNamed": "Jeton valide : {name}",
+  "@createBotValidNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "createBotValidId": "Jeton valide (ID {id})",
+  "@createBotValidId": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "createBotSamplePing": "Ajouter une commande /ping d'exemple",
+  "createBotBusy": "Création en cours : cela peut prendre jusqu'à deux minutes. Ne fermez pas cette page.",
+  "createBotVerify": "Vérifier le jeton",
+  "createBotSubmit": "Créer le bot",
+  "createBotSyncBusy": "Une synchronisation de ce bot est déjà en cours. Patientez quelques minutes.",
+  "createBotNoId": "Impossible de lire l'identifiant du bot à partir de ce jeton.",
+  "overviewLogs": "Journaux",
+  "overviewLogsUnavailable": "Journaux indisponibles : {error}",
+  "@overviewLogsUnavailable": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "overviewNoLogs": "Aucun journal pour le moment.",
+  "commandsSearch": "Rechercher des commandes...",
+  "commandsEmpty": "Aucune commande pour l'instant. Créez-en une depuis l'app Bot Creator.",
+  "commandsNoMatch": "Aucune commande ne correspond aux filtres actuels.",
+  "teamSubtitle": "Collaborateurs et tchat d'équipe.",
+  "teamChatTitle": "Tchat d'équipe",
+  "teamNoChatAccess": "Le propriétaire ne vous a pas donné accès au tchat.",
+  "teamNoMessages": "Aucun message.",
+  "teamWriteHint": "Écrire un message…",
+  "teamOwner": "Propriétaire",
+  "teamNoPermissions": "Aucun droit particulier",
+  "teamRemove": "Retirer de l'équipe",
+  "teamPermEditCommands": "Modifier les commandes",
+  "teamPermStartStop": "Lancer / arrêter",
+  "teamPermClaimAds": "Gagner du temps (pubs)",
+  "teamPermInvite": "Inviter",
+  "premiumHint": "Ton compte est en formule gratuite : l'abonnement s'active depuis l'application mobile (le Studio n'affiche ni publicité ni achat).",
+  "featureSchedulerTitle": "Déclencheurs planifiés",
+  "featureSchedulerDesc": "Exécute des workflows automatiquement toutes les X minutes (jusqu'à 10 actifs).",
+  "featureAnalyticsTitle": "Analytics Premium",
+  "featureAnalyticsDesc": "Débloquez le taux d'erreur, les percentiles de latence et les insights de localisation.",
+  "featureHooksTitle": "Webhooks entrants",
+  "featureHooksDesc": "Crée des endpoints webhook sécurisés et route les appels vers les workflows."
+}

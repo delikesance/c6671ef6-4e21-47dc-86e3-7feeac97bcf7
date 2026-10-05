@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bot_creator_studio/src/api/studio_api.dart';
 import 'package:bot_creator_studio/src/auth/auth_controller.dart';
 import 'package:bot_creator_studio/src/auth/studio_session.dart';
+import 'package:bot_creator_studio/src/locale_controller.dart';
 import 'package:bot_creator_studio/src/studio_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -72,11 +73,19 @@ Future<AuthController> _signedIn() async {
   );
 }
 
+Future<LocaleController> _french() async {
+  final controller = LocaleController();
+  await controller.set(const Locale('fr'));
+  return controller;
+}
+
 Future<void> _pumpApp(WidgetTester tester, Size size) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  await tester.pumpWidget(StudioApp(auth: await _signedIn()));
+  await tester.pumpWidget(
+    StudioApp(auth: await _signedIn(), locale: await _french()),
+  );
   await _settle(tester);
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../auth/auth_controller.dart';
+import '../l10n_ext.dart';
 import '../theme.dart';
 import '../widgets/studio_rail.dart';
 
@@ -31,8 +32,8 @@ class LoginPage extends StatelessWidget {
                 children: [
                   const RailBadge(text: 'BC', color: StudioColors.action),
                   const SizedBox(height: 20),
-                  const Text(
-                    'Bot Creator Studio',
+                  Text(
+                    context.l10n.appTitle,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
@@ -40,8 +41,8 @@ class LoginPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Connectez-vous avec Discord pour accéder à vos bots. Le Studio demande toujours une connexion valide.',
+                  Text(
+                    context.l10n.loginSubtitle,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
@@ -69,7 +70,7 @@ class LoginPage extends StatelessWidget {
                     child: failed
                         ? FilledButton(
                             onPressed: auth.retry,
-                            child: const Text('Réessayer'),
+                            child: Text(context.l10n.commonRetry),
                           )
                         : FilledButton.icon(
                             style: FilledButton.styleFrom(
@@ -78,7 +79,7 @@ class LoginPage extends StatelessWidget {
                             ),
                             onPressed: auth.signIn,
                             icon: const Icon(Icons.login_rounded, size: 18),
-                            label: const Text('Se connecter avec Discord'),
+                            label: Text(context.l10n.loginDiscord),
                           ),
                   ),
                 ],
