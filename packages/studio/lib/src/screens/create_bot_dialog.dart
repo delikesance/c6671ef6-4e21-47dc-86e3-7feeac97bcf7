@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../api/start_refusal.dart';
+import '../l10n_ext.dart';
 import '../api/studio_api.dart';
 import '../bots/new_bot.dart';
 import '../theme.dart';
@@ -38,7 +39,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
     if (refusal != null) return '${refusal.title}. ${refusal.body}';
     if (e is StudioApiException) {
       if (e.code == 'bot_sync_in_progress') {
-        return 'Une synchronisation de ce bot est déjà en cours. Patientez quelques minutes.';
+        return context.l10n.createBotSyncBusy;
       }
       return e.message;
     }
@@ -48,6 +49,8 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
   Future<void> _verify() async {
     final token = _token.text.trim();
     if (token.isEmpty) return;
+    final l =
+        context.l10n; // lu avant les `await` : le contexte peut changer ensuite
     setState(() {
       _busy = true;
       _error = null;
@@ -56,9 +59,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
       final found = await widget.api.validateBotToken(token);
       final id = found.id.isNotEmpty ? found.id : botIdFromToken(token) ?? '';
       if (id.isEmpty) {
-        throw const StudioApiException(
-          "Impossible de lire l'identifiant du bot à partir de ce jeton.",
-        );
+        throw StudioApiException(l.createBotNoId);
       }
       if (!mounted) return;
       setState(() => _identity = StudioBotIdentity(id: id, name: found.name));
@@ -101,7 +102,7 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
     final identity = _identity;
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: const Text('Créer un bot'),
+      title: Text(context.l10n.botsCreate),
       content: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 440),
         child: Column(
@@ -114,10 +115,9 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
               obscureText: true,
               enableSuggestions: false,
               autocorrect: false,
-              decoration: const InputDecoration(
-                labelText: 'Jeton du bot Discord',
-                helperText:
-                    'Il est envoyé en HTTPS au serveur Bot Creator et jamais conservé dans le navigateur.',
+              decoration: InputDecoration(
+                labelText: context.l10n.createBotToken,
+                helperText: context.l10n.createBotTokenHint,
                 helperMaxLines: 2,
               ),
               onSubmitted: (_) => _verify(),
@@ -135,8 +135,8 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                   Expanded(
                     child: Text(
                       identity.name.isEmpty
-                          ? 'Jeton valide (ID ${identity.id})'
-                          : 'Jeton valide : ${identity.name}',
+                          ? context.l10n.createBotValidId(identity.id)
+                          : context.l10n.createBotValidNamed(identity.name),
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -149,15 +149,15 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
                 onChanged: _busy
                     ? null
                     : (v) => setState(() => _samplePing = v ?? true),
-                title: const Text("Ajouter une commande /ping d'exemple"),
+                title: Text(context.l10n.createBotSamplePing),
               ),
             ],
             if (_busy && identity != null) ...[
               const SizedBox(height: 12),
               const LinearProgressIndicator(),
               const SizedBox(height: 8),
-              const Text(
-                'Création en cours : cela peut prendre jusqu\'à deux minutes. Ne fermez pas cette page.',
+              Text(
+                context.l10n.createBotBusy,
                 style: TextStyle(fontSize: 12.5, color: StudioColors.muted),
               ),
             ],
@@ -179,17 +179,17 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
           onPressed: _busy && identity != null
               ? null
               : () => Navigator.of(context).pop(false),
-          child: const Text('Annuler'),
+          child: Text(context.l10n.commonCancel),
         ),
         if (identity == null)
           FilledButton(
             onPressed: _busy ? null : _verify,
-            child: const Text('Vérifier le jeton'),
+            child: Text(context.l10n.createBotVerify),
           )
         else
           FilledButton(
             onPressed: _busy ? null : _create,
-            child: const Text('Créer le bot'),
+            child: Text(context.l10n.createBotSubmit),
           ),
       ],
     );

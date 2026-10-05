@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
+import '../l10n_ext.dart';
 import '../platform/event_socket.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
@@ -161,14 +162,14 @@ class _BotsPageState extends State<BotsPage> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Overline('Mes projets'),
+                      Overline(context.l10n.botsOverline),
                       SizedBox(height: 6),
                       Text(
-                        'Mes bots',
+                        context.l10n.botsTitle,
                         style: TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.w700,
@@ -181,7 +182,7 @@ class _BotsPageState extends State<BotsPage> {
                 ),
                 const SizedBox(width: 12),
                 IconButton(
-                  tooltip: 'Actualiser',
+                  tooltip: context.l10n.commonRefresh,
                   onPressed: _load,
                   style: IconButton.styleFrom(
                     fixedSize: const Size(44, 44),
@@ -197,7 +198,7 @@ class _BotsPageState extends State<BotsPage> {
                 FilledButton.icon(
                   onPressed: _create,
                   icon: const Icon(Icons.add_rounded, size: 18),
-                  label: const Text('Créer un bot'),
+                  label: Text(context.l10n.botsCreate),
                 ),
               ],
             ),
@@ -217,7 +218,7 @@ class _BotsPageState extends State<BotsPage> {
                 children: [
                   Row(
                     children: [
-                      const Overline('Mes bots'),
+                      Overline(context.l10n.botsTitle),
                       const SizedBox(width: 8),
                       CountChip(bots.length),
                     ],
@@ -261,6 +262,7 @@ class _BotsPageState extends State<BotsPage> {
 /// Texte de la case « hébergement » (`HostingCardCopy` de l'app). `null` =
 /// pas de case.
 ({String label, String value, String detail})? hostingCopy(
+  AppLocalizations l,
   StudioBot bot,
   StudioBotRuntime? runtime, {
   DateTime? now,
@@ -268,8 +270,8 @@ class _BotsPageState extends State<BotsPage> {
   if (runtime == null) return null;
   if (runtime.premiumFunded) {
     return (
-      label: 'HÉBERGEMENT INCLUS',
-      value: 'Illimité avec ton abonnement',
+      label: l.hostingIncludedTitle,
+      value: l.hostingIncludedValue,
       detail: '',
     );
   }
@@ -277,35 +279,35 @@ class _BotsPageState extends State<BotsPage> {
     if (runtime.sessionExpiresAt != null) {
       final left = runtime.sessionExpiresAt!.difference(now ?? DateTime.now());
       return (
-        label: 'TEMPS RESTANT',
-        value: left.isNegative ? 'Hébergement expiré' : _duration(left),
-        detail: 'Session active (en ligne)',
+        label: l.hostingRemainingTitle,
+        value: left.isNegative ? l.hostingExpired : _duration(l, left),
+        detail: l.hostingSessionActiveOnline,
       );
     }
     final minutes = runtime.freeMinutes;
     return (
-      label: 'TEMPS RESTANT',
+      label: l.hostingRemainingTitle,
       value: minutes == null
-          ? 'Session active'
-          : _duration(Duration(minutes: minutes)),
-      detail: 'Session active (en ligne)',
+          ? l.hostingSessionActive
+          : _duration(l, Duration(minutes: minutes)),
+      detail: l.hostingSessionActiveOnline,
     );
   }
   final minutes = runtime.freeMinutes;
   return (
-    label: 'TEMPS PRÉSERVÉ',
+    label: l.hostingPreservedTitle,
     value: minutes != null && minutes > 0
-        ? 'Réserve : ${_duration(Duration(minutes: minutes))}'
-        : 'Réserve disponible (en pause)',
-    detail: 'Le temps est préservé tant que le bot est arrêté.',
+        ? l.hostingReserve(_duration(l, Duration(minutes: minutes)))
+        : l.hostingReserveAvailable,
+    detail: l.hostingPreservedDetail,
   );
 }
 
-String _duration(Duration d) {
+String _duration(AppLocalizations l, Duration d) {
   final h = d.inHours;
   final m = d.inMinutes.remainder(60);
-  if (h > 0) return '$h h ${m.toString().padLeft(2, '0')} min';
-  return '${d.inMinutes} min';
+  if (h > 0) return l.durationHoursMinutes(h, m.toString().padLeft(2, '0'));
+  return l.durationMinutes(d.inMinutes);
 }
 
 class BotCard extends StatelessWidget {
@@ -326,7 +328,7 @@ class BotCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hosting = hostingCopy(bot, runtime);
+    final hosting = hostingCopy(context.l10n, bot, runtime);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -425,7 +427,7 @@ class BotCard extends StatelessWidget {
                     ),
                   ),
                   icon: const Icon(Icons.tune_rounded, size: 14),
-                  label: const Text('Gérer'),
+                  label: Text(context.l10n.botsManage),
                 ),
               ),
             ],
@@ -477,13 +479,13 @@ class _StartStopButton extends StatelessWidget {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-        label: const Text('Arrêter'),
+        label: Text(context.l10n.botStop),
       );
     }
     return FilledButton.icon(
       onPressed: busy ? null : onTap,
       icon: busy ? spinner : const Icon(Icons.play_arrow_rounded, size: 16),
-      label: const Text('Lancer le bot'),
+      label: Text(context.l10n.botStart),
     );
   }
 }
@@ -492,7 +494,7 @@ class _EmptyBots extends StatelessWidget {
   const _EmptyBots();
 
   @override
-  Widget build(BuildContext context) => const Padding(
+  Widget build(BuildContext context) => Padding(
     padding: EdgeInsets.only(top: 40),
     child: Center(
       child: Column(
@@ -500,12 +502,12 @@ class _EmptyBots extends StatelessWidget {
           Icon(Icons.smart_toy_outlined, size: 64, color: Color(0x669AA0AF)),
           SizedBox(height: 16),
           Text(
-            "Vous n'avez pas encore d'applications.",
+            context.l10n.botsEmptyTitle,
             style: TextStyle(color: StudioColors.muted, fontSize: 16),
           ),
           SizedBox(height: 8),
           Text(
-            "Créez votre premier bot depuis l'app Bot Creator : il apparaîtra ici.",
+            context.l10n.botsEmptyHint,
             style: TextStyle(color: StudioColors.muted, fontSize: 13),
           ),
         ],

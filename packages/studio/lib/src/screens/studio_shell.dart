@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../api/studio_api.dart';
 import '../auth/auth_controller.dart';
 import '../auth/studio_session.dart';
+import '../l10n_ext.dart';
 import '../layout.dart';
+import '../locale_controller.dart';
 import '../premium/premium_gate.dart';
 import '../premium/studio_feature.dart';
 import '../theme.dart';
@@ -85,12 +87,12 @@ class _StudioShellState extends State<StudioShell> {
         ),
         bottomNavigationBar: bot == null
             ? StudioBottomBar(
-                items: _homeItems,
+                items: _homeItems(context),
                 selectedId: _homeSection,
                 onSelect: (id) => setState(() => _homeSection = id),
               )
             : StudioBottomBar(
-                items: _compactEditorItems,
+                items: _compactEditorItems(context),
                 selectedId: _editorSection,
                 onSelect: (id) => setState(() {
                   _editorSection = id;
@@ -116,10 +118,10 @@ class _StudioShellState extends State<StudioShell> {
 
   // ── Accueil ───────────────────────────────────────────────────────────────
 
-  static const _homeItems = [
-    RailEntry('home', 'Accueil', Icons.home_outlined),
-    RailEntry('docs', 'Documentation', Icons.menu_book_outlined),
-    RailEntry('settings', 'Paramètres', Icons.settings_outlined),
+  List<RailEntry> _homeItems(BuildContext context) => [
+    RailEntry('home', context.l10n.navHome, Icons.home_outlined),
+    RailEntry('docs', context.l10n.navDocs, Icons.menu_book_outlined),
+    RailEntry('settings', context.l10n.navSettings, Icons.settings_outlined),
   ];
 
   Widget _homeRail() => StudioRail(
@@ -127,7 +129,7 @@ class _StudioShellState extends State<StudioShell> {
     itemHeight: 64,
     selectedId: _homeSection,
     onSelect: (id) => setState(() => _homeSection = id),
-    items: _homeItems,
+    items: _homeItems(context),
   );
 
   Widget _homeBody() {
@@ -135,7 +137,7 @@ class _StudioShellState extends State<StudioShell> {
       case 'settings':
         return _SettingsPage(auth: widget.auth);
       case 'docs':
-        return const ComingSoon(title: 'Documentation');
+        return ComingSoon(title: context.l10n.navDocs);
       default:
         return BotsPage(
           api: widget.auth.api,
@@ -150,36 +152,42 @@ class _StudioShellState extends State<StudioShell> {
 
   // ── Éditeur de bot ────────────────────────────────────────────────────────
 
-  static const _editorItems = <RailEntry?>[
-    RailEntry('back', 'Retour', Icons.arrow_back_rounded),
-    null,
-    RailEntry('overview', 'Accueil', Icons.dashboard_rounded),
-    RailEntry('copilot', 'Copilote IA', Icons.auto_awesome_outlined),
-    RailEntry('commands', 'Commandes', Icons.terminal_rounded),
-    null,
-    RailEntry('flows', 'Flux', Icons.account_tree_outlined),
-    RailEntry('vars', 'Vars', Icons.data_object_rounded),
-    RailEntry('sched', 'Planif', Icons.schedule_rounded),
-    RailEntry('hooks', 'Webhooks entrants', Icons.webhook_rounded),
-    RailEntry('emojis', 'Émojis', Icons.emoji_emotions_outlined),
-    RailEntry('team', 'Équipe', Icons.groups_outlined),
-    RailEntry('guilds', 'Serveurs', Icons.dns_outlined),
-    null,
-    RailEntry('dash', 'Tableau de bord', Icons.bar_chart_rounded),
-  ];
+  List<RailEntry?> _editorItems(BuildContext context) {
+    final l = context.l10n;
+    return [
+      RailEntry('back', l.navBack, Icons.arrow_back_rounded),
+      null,
+      RailEntry('overview', l.navHome, Icons.dashboard_rounded),
+      RailEntry('copilot', l.navCopilot, Icons.auto_awesome_outlined),
+      RailEntry('commands', l.navCommands, Icons.terminal_rounded),
+      null,
+      RailEntry('flows', l.navFlows, Icons.account_tree_outlined),
+      RailEntry('vars', l.navVars, Icons.data_object_rounded),
+      RailEntry('sched', l.navSched, Icons.schedule_rounded),
+      RailEntry('hooks', l.navHooks, Icons.webhook_rounded),
+      RailEntry('emojis', l.navEmojis, Icons.emoji_emotions_outlined),
+      RailEntry('team', l.navTeam, Icons.groups_outlined),
+      RailEntry('guilds', l.navGuilds, Icons.dns_outlined),
+      null,
+      RailEntry('dash', l.navDashboard, Icons.bar_chart_rounded),
+    ];
+  }
 
-  static const _compactEditorItems = [
-    RailEntry('overview', 'Accueil', Icons.dashboard_outlined),
-    RailEntry('commands', 'Cmd', Icons.terminal_rounded),
-    RailEntry('modules', 'Modules', Icons.widgets_outlined),
-    RailEntry('settings', 'Paramètres', Icons.settings_outlined),
-  ];
+  List<RailEntry> _compactEditorItems(BuildContext context) {
+    final l = context.l10n;
+    return [
+      RailEntry('overview', l.navHome, Icons.dashboard_outlined),
+      RailEntry('commands', l.navCommandsShort, Icons.terminal_rounded),
+      RailEntry('modules', l.navModules, Icons.widgets_outlined),
+      RailEntry('settings', l.navSettings, Icons.settings_outlined),
+    ];
+  }
 
   /// Les entrées du rail, sans celles que le mode débutant masque, et sans
   /// séparateur orphelin (en tête, en queue ou doublé).
   List<RailEntry?> _visibleRailItems() {
     final out = <RailEntry?>[];
-    for (final e in _editorItems) {
+    for (final e in _editorItems(context)) {
       if (e == null) {
         if (out.isNotEmpty && out.last != null) out.add(null);
       } else if (e.id == 'back' || _beginner.isVisible(e.id)) {
@@ -197,6 +205,7 @@ class _StudioShellState extends State<StudioShell> {
     final initials = trimmed.isEmpty
         ? '?'
         : trimmed.substring(0, trimmed.length >= 2 ? 2 : 1);
+    final l = context.l10n;
     return StudioRail(
       badge: RailBadge(
         text: initials.toUpperCase(),
@@ -205,9 +214,9 @@ class _StudioShellState extends State<StudioShell> {
       selectedId: _editorSection,
       extraSelected: {if (_beginner.enabled) 'beginner'},
       items: _visibleRailItems(),
-      bottomItems: const [
-        RailEntry('beginner', 'Mode débutant', Icons.school_rounded),
-        RailEntry('settings', 'Paramètres', Icons.settings_outlined),
+      bottomItems: [
+        RailEntry('beginner', l.navBeginner, Icons.school_rounded),
+        RailEntry('settings', l.navSettings, Icons.settings_outlined),
       ],
       onSelect: (id) {
         if (id == 'beginner') {
@@ -261,10 +270,14 @@ class _StudioShellState extends State<StudioShell> {
       case 'team':
         return TeamPage(key: ValueKey(bot.id), api: api, bot: bot);
       case 'sched':
-        return _premiumSection('Planificateur', StudioFeature.scheduler, plan);
+        return _premiumSection(
+          context.l10n.modulesScheduler,
+          StudioFeature.scheduler,
+          plan,
+        );
       case 'hooks':
         return _premiumSection(
-          'Webhooks entrants',
+          context.l10n.navHooks,
           StudioFeature.inboundWebhooks,
           plan,
         );
@@ -274,10 +287,10 @@ class _StudioShellState extends State<StudioShell> {
   }
 
   String _titleOf(String id) {
-    for (final e in _editorItems) {
+    for (final e in _editorItems(context)) {
       if (e?.id == id) return e!.label;
     }
-    return 'Paramètres';
+    return context.l10n.navSettings;
   }
 
   Widget _premiumSection(String title, StudioFeature feature, StudioPlan plan) {
@@ -295,9 +308,9 @@ class _StudioShellState extends State<StudioShell> {
             PremiumGate(
               feature: feature,
               plan: plan,
-              child: const Text(
-                'Disponible bientôt dans le Studio.',
-                style: TextStyle(color: StudioColors.muted),
+              child: Text(
+                context.l10n.comingSoonShort,
+                style: const TextStyle(color: StudioColors.muted),
               ),
             ),
           ],
@@ -320,7 +333,7 @@ class _CompactHeader extends StatelessWidget {
     child: Row(
       children: [
         IconButton(
-          tooltip: 'Retour',
+          tooltip: context.l10n.navBack,
           onPressed: onBack,
           icon: const Icon(Icons.arrow_back_rounded, size: 20),
         ),
@@ -350,9 +363,9 @@ class _ModuleBack extends StatelessWidget {
       onPressed: onBack,
       style: TextButton.styleFrom(foregroundColor: StudioColors.actionSoft),
       icon: const Icon(Icons.chevron_left_rounded, size: 24),
-      label: const Text(
-        'Modules',
-        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+      label: Text(
+        context.l10n.navModules,
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
       ),
     ),
   );
@@ -365,6 +378,7 @@ class _SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final name = auth.session?.username;
     return SingleChildScrollView(
       padding: pageInsets(context, top: 24),
@@ -374,53 +388,95 @@ class _SettingsPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Paramètres',
+              l.settingsTitle,
               style: TextStyle(
                 fontSize: isCompact(context) ? 24 : 28,
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 24),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: StudioColors.card,
-                border: Border.all(color: StudioColors.cardBorder),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Compte',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    name == null
-                        ? 'Connecté avec Discord'
-                        : 'Connecté avec Discord : $name',
-                    style: const TextStyle(color: StudioColors.muted),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    auth.plan == StudioPlan.premium
-                        ? 'Formule Premium'
-                        : "Formule gratuite : l'abonnement se gère depuis l'application mobile.",
-                    style: const TextStyle(color: StudioColors.muted),
-                  ),
-                  const SizedBox(height: 16),
-                  OutlinedButton.icon(
-                    onPressed: auth.signOut,
-                    icon: const Icon(Icons.logout_rounded, size: 16),
-                    label: const Text('Se déconnecter'),
-                  ),
-                ],
-              ),
+            _Card(
+              title: l.accountTitle,
+              children: [
+                Text(
+                  name == null ? l.accountSignedIn : l.accountSignedInAs(name),
+                  style: const TextStyle(color: StudioColors.muted),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  auth.plan == StudioPlan.premium
+                      ? l.accountPlanPremium
+                      : l.accountPlanFree,
+                  style: const TextStyle(color: StudioColors.muted),
+                ),
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  onPressed: auth.signOut,
+                  icon: const Icon(Icons.logout_rounded, size: 16),
+                  label: Text(l.accountSignOut),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _Card(
+              title: l.settingsLanguage,
+              children: const [_LanguagePicker()],
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _Card extends StatelessWidget {
+  const _Card({required this.title, required this.children});
+
+  final String title;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: StudioColors.card,
+      border: Border.all(color: StudioColors.cardBorder),
+      borderRadius: BorderRadius.circular(24),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 8),
+        ...children,
+      ],
+    ),
+  );
+}
+
+/// Choix de la langue : « Système » (la langue du navigateur) ou l'une des six
+/// langues, chacune écrite dans sa propre langue.
+class _LanguagePicker extends StatelessWidget {
+  const _LanguagePicker();
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = LocaleScope.of(context);
+    return DropdownButton<String>(
+      value: controller.locale?.languageCode ?? '',
+      isExpanded: true,
+      underline: const SizedBox.shrink(),
+      items: [
+        DropdownMenuItem(value: '', child: Text(context.l10n.languageSystem)),
+        for (final e in LocaleController.names.entries)
+          DropdownMenuItem(value: e.key, child: Text(e.value)),
+      ],
+      onChanged: (code) =>
+          controller.set(code == null || code.isEmpty ? null : Locale(code)),
     );
   }
 }

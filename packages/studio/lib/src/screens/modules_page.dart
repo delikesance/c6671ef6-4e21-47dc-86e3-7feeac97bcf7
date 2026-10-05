@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme.dart';
+import '../l10n_ext.dart';
 import '../widgets/common.dart';
 import 'beginner_mode.dart';
 
@@ -13,77 +14,62 @@ class _Module {
   final IconData icon;
 }
 
-const _groups = <(String, List<_Module>)>[
+List<(String, List<_Module>)> _groups(AppLocalizations l) => [
   (
-    'Création',
+    l.modulesGroupCreate,
     [
       _Module(
         'flows',
-        'Workflows',
-        'Automatisez vos actions et événements',
+        l.modulesWorkflows,
+        l.modulesDescWorkflows,
         Icons.account_tree_outlined,
       ),
       _Module(
         'vars',
-        'Variables',
-        'Données mémorisées : tout le bot, serveur, membre…',
+        l.modulesVariables,
+        l.modulesDescVariables,
         Icons.data_object_rounded,
       ),
       _Module(
         'emojis',
-        'Émoticônes',
-        'Emojis applicatifs du bot',
+        l.modulesEmojis,
+        l.modulesDescEmojis,
         Icons.emoji_emotions_outlined,
       ),
     ],
   ),
   (
-    'Automatisation',
+    l.modulesGroupAutomation,
     [
       _Module(
         'sched',
-        'Planificateur',
-        'Exécute un workflow toutes les X min',
+        l.modulesScheduler,
+        l.modulesDescScheduler,
         Icons.schedule_rounded,
       ),
-      _Module(
-        'hooks',
-        'Webhooks entrants',
-        'Appels HTTP routés vers un workflow',
-        Icons.webhook_rounded,
-      ),
+      _Module('hooks', l.navHooks, l.modulesDescHooks, Icons.webhook_rounded),
     ],
   ),
   (
-    'Gestion',
+    l.modulesGroupManagement,
     [
-      _Module(
-        'team',
-        'Équipe',
-        "Collaborateurs et tchat d'équipe",
-        Icons.groups_outlined,
-      ),
-      _Module(
-        'guilds',
-        'Serveurs',
-        'Serveurs où le bot est présent',
-        Icons.dns_outlined,
-      ),
+      _Module('team', l.navTeam, l.modulesDescTeam, Icons.groups_outlined),
+      _Module('guilds', l.navGuilds, l.modulesDescGuilds, Icons.dns_outlined),
     ],
   ),
   (
-    'Outils',
+    l.modulesGroupTools,
     [
       _Module(
         'dash',
-        'Tableau de bord',
-        'Usage des commandes sur 24 h, 7 j, 30 j',
+        l.navDashboard,
+        l.modulesDescDashboard,
         Icons.bar_chart_rounded,
       ),
       _Module(
         'copilot',
-        'Copilote IA',
-        'Assistant pour créer vos commandes',
+        l.navCopilot,
+        l.modulesDescCopilot,
         Icons.auto_awesome_outlined,
       ),
     ],
@@ -139,8 +125,8 @@ class _ModulesPageState extends State<ModulesPage> {
           children: [
             Overline(widget.botName),
             const SizedBox(height: 6),
-            const Text(
-              'Modules',
+            Text(
+              context.l10n.modulesTitle,
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 16),
@@ -152,13 +138,13 @@ class _ModulesPageState extends State<ModulesPage> {
               const SizedBox(height: 16),
               TextField(
                 onChanged: (v) => setState(() => _query = v),
-                decoration: const InputDecoration(
-                  hintText: 'Rechercher',
+                decoration: InputDecoration(
+                  hintText: context.l10n.modulesSearch,
                   prefixIcon: Icon(Icons.search, size: 18),
                   isDense: true,
                 ),
               ),
-              for (final (title, modules) in _groups)
+              for (final (title, modules) in _groups(context.l10n))
                 ..._group(title, modules, q),
             ],
           ],
@@ -265,14 +251,12 @@ class _BeginnerSwitch extends StatelessWidget {
       contentPadding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
       value: value,
       onChanged: onChanged,
-      title: const Text(
-        'Mode débutant',
+      title: Text(
+        context.l10n.navBeginner,
         style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
       ),
       subtitle: Text(
-        value
-            ? 'Affichage des onglets essentiels uniquement'
-            : 'Affichage de toutes les fonctionnalités',
+        value ? context.l10n.beginnerOnHint : context.l10n.beginnerOffHint,
         style: const TextStyle(fontSize: 12.5, color: StudioColors.muted),
       ),
     ),

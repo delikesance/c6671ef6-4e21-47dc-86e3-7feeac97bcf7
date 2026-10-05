@@ -3,15 +3,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
+import '../l10n_ext.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 import '../layout.dart';
 
-const _permissionLabels = {
-  'can_edit_commands': 'Modifier les commandes',
-  'can_start_stop': 'Lancer / arrêter',
-  'can_claim_ads': 'Gagner du temps (pubs)',
-  'can_invite': 'Inviter',
+Map<String, String> _permissionLabels(BuildContext context) => {
+  'can_edit_commands': context.l10n.teamPermEditCommands,
+  'can_start_stop': context.l10n.teamPermStartStop,
+  'can_claim_ads': context.l10n.teamPermClaimAds,
+  'can_invite': context.l10n.teamPermInvite,
 };
 
 /// Onglet « Équipe » : collaborateurs, droits et tchat d'équipe.
@@ -120,13 +121,13 @@ class _TeamPageState extends State<TeamPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Équipe',
+            Text(
+              context.l10n.navTeam,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Collaborateurs et tchat d\'équipe.',
+            Text(
+              context.l10n.teamSubtitle,
               style: TextStyle(color: StudioColors.muted),
             ),
             const SizedBox(height: 16),
@@ -138,11 +139,11 @@ class _TeamPageState extends State<TeamPage> {
                     : () => _remove(c),
               ),
             const SizedBox(height: 24),
-            const Overline('Tchat d\'équipe'),
+            Overline(context.l10n.teamChatTitle),
             const SizedBox(height: 12),
             if (!canChat)
-              const Text(
-                'Le propriétaire ne vous a pas donné accès au tchat.',
+              Text(
+                context.l10n.teamNoChatAccess,
                 style: TextStyle(color: StudioColors.muted),
               )
             else ...[
@@ -155,10 +156,10 @@ class _TeamPageState extends State<TeamPage> {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: _messages.isEmpty
-                    ? const Padding(
+                    ? Padding(
                         padding: EdgeInsets.all(16),
                         child: Text(
-                          'Aucun message.',
+                          context.l10n.teamNoMessages,
                           style: TextStyle(color: StudioColors.muted),
                         ),
                       )
@@ -194,14 +195,14 @@ class _TeamPageState extends State<TeamPage> {
                     child: TextField(
                       controller: _input,
                       onSubmitted: (_) => _send(),
-                      decoration: const InputDecoration(
-                        hintText: 'Écrire un message…',
+                      decoration: InputDecoration(
+                        hintText: context.l10n.teamWriteHint,
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   IconButton.filled(
-                    tooltip: 'Envoyer',
+                    tooltip: context.l10n.commonSend,
                     onPressed: _sending ? null : _send,
                     icon: const Icon(Icons.send_rounded, size: 18),
                   ),
@@ -225,7 +226,7 @@ class _CollaboratorRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = collaborator;
     final granted = [
-      for (final e in _permissionLabels.entries)
+      for (final e in _permissionLabels(context).entries)
         if (c.permissions[e.key] == true) e.value,
     ];
     return Container(
@@ -251,9 +252,9 @@ class _CollaboratorRow extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   c.isOwner
-                      ? 'Propriétaire'
+                      ? context.l10n.teamOwner
                       : granted.isEmpty
-                      ? 'Aucun droit particulier'
+                      ? context.l10n.teamNoPermissions
                       : granted.join(' · '),
                   style: const TextStyle(
                     fontSize: 12.5,
@@ -265,7 +266,7 @@ class _CollaboratorRow extends StatelessWidget {
           ),
           if (onRemove != null)
             IconButton(
-              tooltip: 'Retirer de l\'équipe',
+              tooltip: context.l10n.teamRemove,
               onPressed: onRemove,
               icon: const Icon(Icons.person_remove_outlined, size: 18),
             ),

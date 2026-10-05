@@ -15,11 +15,13 @@ on:
     branches: [main, master, dev]
     paths:
       - "packages/studio/**"
+      - "packages/app/lib/core/i18n/l10n/*.arb"
       - "pubspec.yaml"
       - ".github/workflows/studio.yml"
   pull_request:
     paths:
       - "packages/studio/**"
+      - "packages/app/lib/core/i18n/l10n/*.arb"
       - "pubspec.yaml"
       - ".github/workflows/studio.yml"
   workflow_dispatch:
@@ -52,6 +54,11 @@ jobs:
       # mais seul le Studio est analysé, testé et compilé ici.
       - name: Resolve dependencies
         run: flutter pub get
+        working-directory: packages/studio
+
+      # Les clés copiées de l'app doivent valoir celles de l'app dans chaque langue.
+      - name: Check translations are in sync with the app
+        run: dart run tool/l10n_sync.dart --check
         working-directory: packages/studio
 
       - name: Analyze

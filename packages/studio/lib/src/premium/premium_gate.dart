@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../auth/studio_session.dart';
+import '../l10n_ext.dart';
 import '../theme.dart';
 import 'studio_feature.dart';
 
@@ -59,7 +60,7 @@ class PremiumLockedCard extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  feature.title,
+                  feature.title(context.l10n),
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -70,7 +71,7 @@ class PremiumLockedCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            feature.description,
+            feature.description(context.l10n),
             style: const TextStyle(
               fontSize: 14,
               height: 1.5,
@@ -78,7 +79,7 @@ class PremiumLockedCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          const Row(
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
@@ -92,7 +93,7 @@ class PremiumLockedCard extends StatelessWidget {
               SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  "Ton compte est en formule gratuite : l'abonnement s'active depuis l'application mobile (le Studio n'affiche ni publicité ni achat).",
+                  context.l10n.premiumHint,
                   style: TextStyle(
                     fontSize: 12,
                     height: 1.5,
