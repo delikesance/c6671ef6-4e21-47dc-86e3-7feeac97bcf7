@@ -289,6 +289,9 @@ void main() {
       await tester.ensureVisible(description);
       await tester.enterText(description, 'Updated option description');
       await tester.pumpAndSettle();
+      // The option is edited on its own screen; confirm to go back.
+      await tester.tap(find.widgetWithText(FilledButton, 'OK'));
+      await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Save'));
       await tester.pumpAndSettle();
       expect(find.byTooltip('Save changes'), findsOneWidget);

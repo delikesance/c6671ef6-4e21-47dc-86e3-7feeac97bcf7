@@ -48,4 +48,79 @@ void main() {
     expect(find.text('Pièce jointe'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  Future<List<CommandOptionBuilder>> pumpList(
+    WidgetTester tester,
+    List<List<CommandOptionBuilder>> changes,
+  ) async {
+    final options = [
+      CommandOptionBuilder(
+        type: CommandOptionType.string,
+        name: 'cible',
+        description: 'Le membre',
+      ),
+    ];
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: OptionWidget(
+              onChange: (o) => changes.add(List.of(o)),
+              initialOptions: options,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    return options;
+  }
+
+  testWidgets('editing on the option screen updates the list summary', (
+    tester,
+  ) async {
+    final changes = <List<CommandOptionBuilder>>[];
+    await pumpList(tester, changes);
+    expect(find.text('Texte'), findsOneWidget);
+
+    await tester.tap(find.text('cible').last);
+    await tester.pumpAndSettle();
+    // Own screen: the AppBar shows the option name and an OK button.
+    expect(find.widgetWithText(AppBar, 'cible'), findsOneWidget);
+    await tester.tap(find.text('Utilisateur'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'OK'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AppBar), findsNothing);
+    expect(find.text('Utilisateur'), findsOneWidget);
+    expect(changes.last.single.type, CommandOptionType.user);
+  });
+
+  testWidgets('deleting from the option screen closes it and removes it', (
+    tester,
+  ) async {
+    final changes = <List<CommandOptionBuilder>>[];
+    await pumpList(tester, changes);
+
+    await tester.tap(find.text('cible').last);
+    await tester.pumpAndSettle();
+    // Bottom of a long screen: scroll it into view first.
+    await tester.ensureVisible(
+      find.text("Supprimer l'option", skipOffstage: false),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text("Supprimer l'option"));
+    await tester.pumpAndSettle();
+    // Confirm the destructive dialog.
+    await tester.tap(find.widgetWithText(FilledButton, 'Supprimer').last);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AppBar), findsNothing);
+    expect(find.text('cible'), findsNothing);
+    expect(changes.last, isEmpty);
+  });
 }
