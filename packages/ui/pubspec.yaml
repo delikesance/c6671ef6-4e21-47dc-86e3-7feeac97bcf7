@@ -21,6 +21,13 @@ dependencies:
   highlight: ^0.7.0
   flutter_colorpicker: ^1.1.0
   http: ^1.6.0
+  provider: ^6.1.5
+  re_highlight: ^0.0.3
+  flutter_markdown_plus: ^1.0.12
+  markdown: ^7.3.1
+  crypto: ^3.0.6
+  shared_preferences: ^2.5.5
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:
