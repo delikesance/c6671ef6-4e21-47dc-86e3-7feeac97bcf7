@@ -30,7 +30,7 @@ class LoginPage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const RailBadge(text: 'BC', color: StudioColors.action),
+                  const StudioLogo(size: 56),
                   const SizedBox(height: 20),
                   Text(
                     context.l10n.appTitle,
