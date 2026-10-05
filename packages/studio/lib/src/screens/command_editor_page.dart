@@ -388,20 +388,81 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
                     padding: const EdgeInsets.all(16),
                     children: [
                       _metadataBlock(draft),
+                      const SizedBox(height: 8),
                       _entryBlock(draft),
                       const SizedBox(height: 12),
-                      const Text(
-                        "Cette commande est écrite en code (BDFD ou JavaScript) : l'éditeur de code se trouve dans l'app. Le Studio la conserve telle quelle.",
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          color: StudioColors.muted,
-                          height: 1.5,
+                      if (draft.executionMode == 'javascript')
+                        _scriptCard(draft)
+                      else
+                        const Text(
+                          "Cette commande est écrite en BDFD : l'éditeur BDFD se trouve dans l'app. Le Studio la conserve telle quelle.",
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            color: StudioColors.muted,
+                            height: 1.5,
+                          ),
                         ),
-                      ),
                     ],
                   ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Script JavaScript de la commande : aperçu et éditeur plein écran de l'app.
+  Widget _scriptCard(CommandDraft draft) {
+    final code = draft.jsScript;
+    return ScratchBlock(
+      color: AppTheme.warning,
+      icon: Icons.javascript_outlined,
+      title: 'JavaScript',
+      required: true,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              constraints: const BoxConstraints(minHeight: 80),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.codeSurfaceVariant,
+                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                border: Border.all(color: AppTheme.grey),
+              ),
+              child: Text(
+                code.trim().isEmpty ? '// …' : code,
+                maxLines: 12,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontFamily: 'JetBrainsMono',
+                  fontSize: 12,
+                  color: Colors.white70,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            FilledButton.icon(
+              onPressed: () async {
+                final result = await Navigator.of(context).push<String>(
+                  MaterialPageRoute<String>(
+                    builder: (_) => EditorHostScope(
+                      host: StudioEditorHost(api: widget.api, bot: widget.bot),
+                      child: JsEditorPage(initialCode: code, title: draft.name),
+                    ),
+                  ),
+                );
+                if (result != null && mounted) {
+                  setState(() => draft.jsScript = result);
+                }
+              },
+              icon: const AppIcon.fromMaterial(Icons.edit_note, size: 18),
+              label: const Text('Modifier le script'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -517,7 +578,9 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
           setState(() => draft.legacyResponseTarget = value),
       executionMode: draft.executionMode,
       showBdfdMode: false,
-      showJavascriptMode: false,
+      showJavascriptMode: true,
+      onExecutionModeChanged: (mode) =>
+          setState(() => draft.executionMode = mode),
     );
   }
 }

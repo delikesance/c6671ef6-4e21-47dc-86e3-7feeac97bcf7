@@ -39,6 +39,7 @@ flutter:
   assets:
     # google_fonts retrouve les polices embarquées par leur nom de fichier dans
     # l'AssetManifest (cf. pubspec de l'app) : on les liste aussi comme assets.
+    - assets/js_editor/
     - assets/fonts/inter/
     - assets/fonts/jetbrainsmono/
 

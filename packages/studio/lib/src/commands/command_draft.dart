@@ -72,6 +72,9 @@ class CommandDraft implements ActionListHost {
     _data['commandType'] = value;
   }
 
+  String get jsScript => '${_data['jsScriptContent'] ?? ''}';
+  set jsScript(String value) => _data['jsScriptContent'] = value;
+
   /// `workflow` | `bdfd_script` | `javascript`.
   String get executionMode => '${_data['executionMode'] ?? 'workflow'}';
   set executionMode(String value) => _data['executionMode'] = value;

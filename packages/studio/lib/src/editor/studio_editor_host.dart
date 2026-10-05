@@ -49,6 +49,25 @@ class StudioEditorHost extends EditorHost {
   ];
 
   @override
+  bool get supportsJavascriptEditor => true;
+
+  @override
+  Future<String?> editJavascript(
+    BuildContext context, {
+    required String initialCode,
+    required String title,
+    required List<Object> snippets,
+  }) => Navigator.of(context).push<String>(
+    MaterialPageRoute<String>(
+      builder: (_) => JsEditorPage(
+        initialCode: initialCode,
+        title: title,
+        snippets: snippets.cast<JsEditorSnippet>(),
+      ),
+    ),
+  );
+
+  @override
   Future<void> manageGlobalVariables(BuildContext context, String botId) =>
       _push(context, VariablesPage(api: api, bot: bot));
 
