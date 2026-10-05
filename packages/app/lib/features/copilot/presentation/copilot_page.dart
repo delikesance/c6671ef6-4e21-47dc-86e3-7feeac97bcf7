@@ -1,5 +1,15 @@
 import 'dart:async';
-import 'package:bot_creator_ui/bot_creator_ui.dart' show CopilotMarkdown;
+import 'package:bot_creator_ui/bot_creator_ui.dart'
+    show
+        CopilotChatSummary,
+        copilotToolLabel,
+        CopilotComposer,
+        CopilotContextHeader,
+        CopilotDiscussionsPane,
+        CopilotMessageBubble,
+        CopilotSidePanel,
+        CopilotWalletStrip,
+        CopilotWelcome;
 import 'dart:convert';
 import 'dart:io';
 import 'package:bot_creator/core/widgets/app_icon.dart';
@@ -8,7 +18,6 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command.create.dart';
 import 'package:bot_creator/features/copilot/presentation/copilot_activity.dart';
 import 'package:bot_creator/features/copilot/presentation/copilot_code_preview.dart';
-import 'package:bot_creator/features/copilot/presentation/copilot_section.dart';
 import 'package:reicon_flutter/reicon_flutter.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
@@ -1215,28 +1224,7 @@ class _CopilotPageState extends State<CopilotPage> {
     ];
   }
 
-  String _label(String name) => switch (name) {
-    'remote_start_bot' ||
-    'local_start_bot' => context.tr.copilot_tool_start_bot,
-    'remote_stop_bot' || 'local_stop_bot' => context.tr.copilot_tool_stop_bot,
-    'local_create_command' => context.tr.copilot_tool_create_command,
-    'local_update_command_execution' => context.tr.copilot_tool_update_command,
-    'library_search' || 'library_get' => context.tr.copilot_tool_library_search,
-    'local_create_command_from_library' =>
-      context.tr.copilot_tool_create_from_library,
-    'local_patch_command_execution' => context.tr.copilot_tool_patch_command,
-    'local_update_command_options' => context.tr.copilot_tool_options,
-    'local_update_command_settings' => context.tr.copilot_tool_settings,
-    'local_create_workflow' => context.tr.copilot_tool_create_workflow,
-    'local_update_workflow' => context.tr.copilot_tool_update_workflow,
-    'local_update_bot_presence' => context.tr.copilot_tool_presence,
-    'local_update_bot_profile' => context.tr.copilot_tool_profile,
-    'local_set_variable' => context.tr.copilot_tool_variable,
-    'local_update_scheduled_trigger' => context.tr.copilot_tool_schedule,
-    'local_update_inbound_webhook' => context.tr.copilot_tool_webhook,
-    'docs_search' || 'docs_get' => context.tr.copilot_tool_read_docs,
-    _ => context.tr.copilot_tool_inspect_bot,
-  };
+  String _label(String name) => copilotToolLabel(context, name);
   Future<void> _menu(String action) async {
     if (_chat == null) {
       return;
@@ -1647,715 +1635,107 @@ class _CopilotPageState extends State<CopilotPage> {
     locale: Localizations.localeOf(context).toString(),
   );
 
-  Widget _contextHeader(String? bot, String location) {
-    final colors = Theme.of(context).colorScheme;
-    final name = bot == null || bot.isEmpty
-        ? context.tr.copilot_global_discussion
-        : widget.botName ?? _botNames[bot] ?? bot;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 14),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppTheme.homeCard,
-              border: Border.all(color: AppTheme.homeCardBorder),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Center(
-              child: AppIcon(
-                bot == null || bot.isEmpty
-                    ? Reicon.outline.magicStar
-                    : Reicon.outline.cpu,
-                color: AppTheme.actionVioletSoft,
-                size: 24,
-              ),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  _chat?['title'] as String? ??
-                      context.tr.copilot_new_discussion,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (bot != null && bot.isNotEmpty)
-            Builder(
-              builder: (_) {
-                final live = location != 'local' && _cloudRunning == true;
-                final tint = live
-                    ? AppTheme.statusOnline
-                    : colors.onSurfaceVariant;
-                return Container(
-                  margin: const EdgeInsets.only(left: 10),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: tint.withValues(alpha: live ? .1 : .08),
-                    border: Border.all(
-                      color: tint.withValues(alpha: live ? .25 : .18),
-                    ),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 7,
-                        height: 7,
-                        decoration: BoxDecoration(
-                          color: tint,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 7),
-                      Text(
-                        location == 'local'
-                            ? context.tr.copilot_location_local
-                            : _cloudRunning == false
-                            ? '${context.tr.copilot_location_remote} · ${_copy('arrêté', 'stopped')}'
-                            : _cloudRunning == true
-                            ? '${context.tr.copilot_location_remote} · ${_copy('actif', 'running')}'
-                            : context.tr.copilot_location_remote,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: tint,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-        ],
-      ),
-    );
-  }
+  Widget _contextHeader(String? bot, String location) => CopilotContextHeader(
+    isBot: bot != null && bot.isNotEmpty,
+    botName: bot == null || bot.isEmpty
+        ? ''
+        : widget.botName ?? _botNames[bot] ?? bot,
+    title: _chat?['title'] as String?,
+    local: location == 'local',
+    cloudRunning: _cloudRunning,
+  );
 
   Widget _walletStrip() {
-    final colors = Theme.of(context).colorScheme;
     final reserved = (_wallet!['reserved'] as num? ?? 0);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(14, 10, 4, 10),
-        decoration: BoxDecoration(
-          color: AppTheme.homeCard,
-          border: Border.all(color: AppTheme.homeCardBorder),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: AppTheme.actionViolet.withValues(alpha: .16),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Center(
-                child: AppIcon(
-                  Reicon.outline.coin,
-                  size: 20,
-                  color: AppTheme.actionVioletSoft,
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Wrap(
-                    spacing: 6,
-                    crossAxisAlignment: WrapCrossAlignment.end,
-                    children: [
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 140),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            _credits(_wallet!['available']),
-                            softWrap: false,
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(fontWeight: FontWeight.w700),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 3),
-                        child: Text(
-                          _copy('crédits IA', 'AI credits'),
-                          style: Theme.of(context).textTheme.labelMedium
-                              ?.copyWith(color: colors.onSurfaceVariant),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (reserved > 0)
-                    Text(
-                      _copy(
-                        '${_credits(reserved)} en cours d’utilisation',
-                        '${_credits(reserved)} being used right now',
-                      ),
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            IconButton(
-              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-              tooltip: context.tr.copilot_action_credits,
-              onPressed: () => _handleMenu('wallet'),
-              icon: AppIcon(
-                Reicon.outline.arrowRight,
-                size: 18,
-                color: colors.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return CopilotWalletStrip(
+      available: _credits(_wallet!['available']),
+      reserved: reserved > 0 ? _credits(reserved) : null,
+      onOpenCredits: () => _handleMenu('wallet'),
     );
   }
 
   /// Colonne des discussions (desktop).
-  Widget _discussionsPane() {
-    final colors = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-          child: TextField(
-            controller: _search,
-            decoration: InputDecoration(
-              isDense: true,
-              hintText: context.tr.copilot_search_title_hint,
-              prefixIcon: const AppIcon.fromMaterial(
-                Icons.search_rounded,
-                size: 18,
-              ),
-            ),
-            onSubmitted: (_) async {
-              try {
-                await _loadHistory();
-              } catch (e) {
-                if (mounted) setState(() => _error = _describe(e));
-              }
-            },
-          ),
-        ),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            children: [
-              if (_history.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Text(
-                    context.tr.copilot_no_conversations,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-              for (final c in _history)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 2),
-                  child: ListTile(
-                    dense: true,
-                    minTileHeight: 44,
-                    selected: _chat?['id'] == c['id'],
-                    selectedTileColor: AppTheme.homeNavSelected,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    title: Text(
-                      c['title'] as String,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    onTap: _busy
-                        ? null
-                        : () => unawaited(_open(c['id'] as String)),
-                  ),
-                ),
-              if (_historyMore)
-                TextButton(
-                  onPressed: () async {
-                    try {
-                      await _loadHistory(more: true);
-                    } catch (e) {
-                      if (mounted) setState(() => _error = _describe(e));
-                    }
-                  },
-                  child: Text(context.tr.copilot_load_more),
-                ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+  Widget _discussionsPane() => CopilotDiscussionsPane(
+    search: _search,
+    history: [
+      for (final c in _history)
+        CopilotChatSummary(id: c['id'] as String, title: c['title'] as String),
+    ],
+    selectedId: _chat?['id'] as String?,
+    busy: _busy,
+    hasMore: _historyMore,
+    onOpen: (id) => unawaited(_open(id)),
+    onSearch: () async {
+      try {
+        await _loadHistory();
+      } catch (e) {
+        if (mounted) setState(() => _error = _describe(e));
+      }
+    },
+    onLoadMore: () async {
+      try {
+        await _loadHistory(more: true);
+      } catch (e) {
+        if (mounted) setState(() => _error = _describe(e));
+      }
+    },
+  );
 
   /// Panneau latéral desktop : crédits et capacités, sections repliables.
   Widget _sidePanel() {
-    final colors = Theme.of(context).colorScheme;
-    final muted = Theme.of(
-      context,
-    ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant);
     final tools = <String>{
       for (final t in _mcp?.tools ?? const <Map<String, dynamic>>[])
         _label(t['name'] as String),
     };
     final bot = _chat?['bot_id'] ?? widget.botId;
-    return ListView(
-      children: [
-        CopilotSection(
-          title: _copy('Crédits IA', 'AI credits'),
-          child: _wallet == null
-              ? Text('—', style: muted)
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Row(
-                        children: [
-                          AppIcon(
-                            Reicon.outline.coin,
-                            size: 16,
-                            color: AppTheme.actionVioletSoft,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              context.tr.copilot_available,
-                              style: muted,
-                            ),
-                          ),
-                          Text(
-                            _credits(_wallet!['available']),
-                            style: Theme.of(context).textTheme.labelLarge
-                                ?.copyWith(fontWeight: FontWeight.w600),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (_chat != null)
-                      Text(
-                        context.tr.copilot_credits_in_discussion(
-                          _credits(_chat?['consumed_tokens']),
-                        ),
-                        style: muted,
-                      ),
-                    TextButton(
-                      onPressed: () => _handleMenu('wallet'),
-                      child: Text(context.tr.copilot_action_credits),
-                    ),
-                  ],
-                ),
-        ),
-        CopilotSection(
-          title: _copy('Capacités', 'Capabilities'),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                bot == null || (bot as String).isEmpty
-                    ? context.tr.copilot_global_discussion
-                    : widget.botName ?? _botNames[bot] ?? bot,
-                style: muted,
-              ),
-              const SizedBox(height: 8),
-              for (final tool in tools)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Row(
-                    children: [
-                      AppIcon.fromMaterial(
-                        Icons.check_rounded,
-                        size: 14,
-                        color: colors.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(tool, style: muted)),
-                    ],
-                  ),
-                ),
-              if (_mcp?.desktop == true)
-                TextButton(
-                  onPressed: _busy ? null : _connection,
-                  child: Text(context.tr.copilot_action_mcp_connection),
-                ),
-            ],
-          ),
-        ),
-      ],
+    return CopilotSidePanel(
+      available: _wallet == null ? null : _credits(_wallet!['available']),
+      consumedInDiscussion: _chat == null
+          ? null
+          : _credits(_chat?['consumed_tokens']),
+      onOpenCredits: () => _handleMenu('wallet'),
+      botLabel: bot == null || (bot as String).isEmpty
+          ? context.tr.copilot_global_discussion
+          : widget.botName ?? _botNames[bot] ?? bot,
+      tools: tools,
+      onConnection: _mcp?.desktop == true && !_busy ? _connection : null,
     );
   }
 
-  Widget _welcome() {
-    final colors = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            context.tr.copilot_welcome_title,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-              letterSpacing: -.5,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            context.tr.copilot_welcome_subtitle,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: colors.onSurfaceVariant,
-              height: 1.6,
-            ),
-          ),
-          const SizedBox(height: 22),
-          for (final suggestion in [
-            (
-              Reicon.outline.search,
-              context.tr.copilot_suggestion_check_title,
-              context.tr.copilot_suggestion_check_prompt,
-            ),
-            (
-              Reicon.outline.code,
-              context.tr.copilot_suggestion_command_title,
-              context.tr.copilot_suggestion_command_prompt,
-            ),
-            (
-              Reicon.outline.lightbulb,
-              context.tr.copilot_suggestion_feature_title,
-              context.tr.copilot_suggestion_feature_prompt,
-            ),
-          ])
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Material(
-                color: colors.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(14),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(14),
-                  onTap: !_ready
-                      ? null
-                      : () {
-                          _prompt.text = suggestion.$3;
-                        },
-                  child: Padding(
-                    padding: const EdgeInsets.all(15),
-                    child: Row(
-                      children: [
-                        AppIcon(suggestion.$1, size: 19, color: colors.primary),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            suggestion.$2,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ),
-                        AppIcon(
-                          Reicon.outline.arrowUpRight,
-                          size: 15,
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          if (_history.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            Text(
-              context.tr.copilot_history_section_title,
-              style: Theme.of(
-                context,
-              ).textTheme.labelMedium?.copyWith(color: colors.onSurfaceVariant),
-            ),
-            const SizedBox(height: 8),
-            for (final c in _history.take(3))
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-                leading: AppIcon(
-                  Reicon.outline.chatRound,
-                  size: 19,
-                  color: colors.onSurfaceVariant,
-                ),
-                title: Text(
-                  c['title'] as String,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                trailing: AppIcon(Reicon.outline.arrowRight2, size: 18),
-                onTap: () => _open(c['id'] as String),
-              ),
-          ],
-        ],
-      ),
-    );
-  }
+  Widget _welcome() => CopilotWelcome(
+    ready: _ready,
+    history: [
+      for (final c in _history)
+        CopilotChatSummary(id: c['id'] as String, title: c['title'] as String),
+    ],
+    onSuggestion: (prompt) => _prompt.text = prompt,
+    onOpen: _open,
+  );
 
   Widget _messageBubble(
     Map<String, dynamic> message, {
     bool streaming = false,
     int tokens = 0,
-  }) {
-    final colors = Theme.of(context).colorScheme,
-        user = message['role'] == 'user',
-        content = (message['content'] ?? '').toString();
-    return Align(
-      alignment: user ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: user ? MediaQuery.sizeOf(context).width * .82 : 850,
-        ),
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: EdgeInsets.symmetric(
-          horizontal: user ? 12 : 2,
-          vertical: user ? 8 : 2,
-        ),
-        decoration: BoxDecoration(
-          // Bulle utilisateur neutre : fond relevé, bordure fine, pas de teinte.
-          color: user ? AppTheme.homeCard : Colors.transparent,
-          border: user ? Border.all(color: AppTheme.homeGhostBorder) : null,
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16),
-            topRight: const Radius.circular(16),
-            bottomLeft: Radius.circular(user ? 16 : 4),
-            bottomRight: Radius.circular(user ? 4 : 16),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                if (!user) ...[
-                  AppIcon(
-                    Reicon.outline.magicStar,
-                    size: 14,
-                    color: colors.primary,
-                  ),
-                  const SizedBox(width: 7),
-                ],
-                Expanded(
-                  child: Text(
-                    user
-                        ? context.tr.copilot_role_you
-                        : context.tr.copilot_role_assistant,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: user ? colors.onSurfaceVariant : colors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                if (streaming)
-                  Text(
-                    context.tr.copilot_generating,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  )
-                else
-                  IconButton(
-                    visualDensity: VisualDensity.compact,
-                    constraints: const BoxConstraints(
-                      minWidth: 24,
-                      minHeight: 24,
-                    ),
-                    padding: EdgeInsets.zero,
-                    tooltip: context.tr.copilot_copy_message,
-                    icon: AppIcon(
-                      Reicon.outline.copy,
-                      size: 14,
-                      color: colors.onSurfaceVariant,
-                    ),
-                    onPressed: () =>
-                        Clipboard.setData(ClipboardData(text: content)),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            CopilotMarkdown(content: content),
-            if (!user && !streaming && tokens > 0)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AppIcon(
-                      Reicon.outline.coin,
-                      size: 14,
-                      color: AppTheme.actionVioletSoft,
-                    ),
-                    const SizedBox(width: 7),
-                    Text(
-                      _copy(
-                        '${_credits(tokens)} crédits',
-                        '${_credits(tokens)} credits',
-                      ),
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: colors.onSurfaceVariant,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
+  }) => CopilotMessageBubble(
+    content: (message['content'] ?? '').toString(),
+    user: message['role'] == 'user',
+    streaming: streaming,
+    credits: tokens > 0 ? _credits(tokens) : null,
+  );
 
   Widget _composer(bool canSend) {
-    final colors = Theme.of(context).colorScheme;
     final retryPending =
         _pending != null && !_pendingRejected && _error != null;
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(
-          top: BorderSide(color: colors.outlineVariant.withValues(alpha: .4)),
-        ),
-      ),
-      child: Column(
-        children: [
-          if (_wallet != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),
-              child: Row(
-                children: [
-                  AppIcon(
-                    Reicon.outline.coin,
-                    size: 14,
-                    color: AppTheme.actionVioletSoft,
-                  ),
-                  const SizedBox(width: 7),
-                  Flexible(
-                    child: Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: _credits(_wallet!['available']),
-                            style: TextStyle(
-                              color: colors.onSurface,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          TextSpan(
-                            text: _copy(' crédits restants', ' credits left'),
-                          ),
-                        ],
-                      ),
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: colors.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          Container(
-            padding: const EdgeInsets.fromLTRB(18, 4, 6, 4),
-            decoration: BoxDecoration(
-              color: AppTheme.homeCard,
-              border: Border.all(color: AppTheme.homeClusterBorder),
-              borderRadius: BorderRadius.circular(22),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _prompt,
-                    focusNode: _promptFocus,
-                    minLines: 1,
-                    maxLines: 5,
-                    enabled: _ready,
-                    decoration: InputDecoration(
-                      hintText: context.tr.copilot_input_hint,
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      filled: false,
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 10,
-                      ),
-                    ),
-                  ),
-                ),
-                IconButton.filled(
-                  style: IconButton.styleFrom(
-                    backgroundColor: AppTheme.actionViolet,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: AppTheme.homeGhostBorder,
-                    minimumSize: const Size(44, 44),
-                    fixedSize: const Size(44, 44),
-                    padding: EdgeInsets.zero,
-                  ),
-                  tooltip: retryPending
-                      ? _copy(
-                          'Réessayer la demande en attente',
-                          'Retry pending request',
-                        )
-                      : context.tr.copilot_send,
-                  onPressed: canSend
-                      ? () => _send(null, true, retryPending)
-                      : null,
-                  icon: Transform.translate(
-                    offset: retryPending
-                        ? Offset.zero
-                        : const Offset(1.5, -0.5),
-                    child: AppIcon.fromMaterial(
-                      retryPending ? Icons.replay_rounded : Icons.send,
-                      size: 18,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return CopilotComposer(
+      controller: _prompt,
+      focusNode: _promptFocus,
+      enabled: _ready,
+      canSend: canSend,
+      availableCredits: _wallet == null
+          ? null
+          : _credits(_wallet!['available']),
+      retryPending: retryPending,
+      onSend: () => _send(null, true, retryPending),
     );
   }
 

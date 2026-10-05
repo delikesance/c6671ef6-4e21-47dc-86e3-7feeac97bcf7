@@ -90,3 +90,5 @@ export 'src/code/script_editor_language.dart';
 export 'src/code/js_editor_snippets.dart';
 export 'src/editor/logic/discord_application_command_rules.dart';
 export 'src/editor/logic/discord_command_validation_messages.dart';
+export 'src/copilot/copilot_views.dart';
+export 'src/copilot/ai_credit_format.dart';
