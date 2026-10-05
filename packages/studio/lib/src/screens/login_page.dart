@@ -1,0 +1,92 @@
+import 'package:flutter/material.dart';
+
+import '../auth/auth_controller.dart';
+import '../theme.dart';
+import '../widgets/studio_rail.dart';
+
+/// Seul écran accessible sans session valide.
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key, required this.auth});
+
+  final AuthController auth;
+
+  @override
+  Widget build(BuildContext context) {
+    final failed = auth.status == AuthStatus.error;
+    return Scaffold(
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: StudioColors.card,
+                border: Border.all(color: StudioColors.cardBorder),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const RailBadge(text: 'BC', color: StudioColors.action),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Bot Creator Studio',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.4,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Connectez-vous avec Discord pour accéder à vos bots. Le Studio demande toujours une connexion valide.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      height: 1.5,
+                      color: StudioColors.muted,
+                    ),
+                  ),
+                  if (auth.errorMessage != null) ...[
+                    const SizedBox(height: 16),
+                    Semantics(
+                      liveRegion: true,
+                      child: Text(
+                        auth.errorMessage!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: StudioColors.errorText,
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: failed
+                        ? FilledButton(
+                            onPressed: auth.retry,
+                            child: const Text('Réessayer'),
+                          )
+                        : FilledButton.icon(
+                            style: FilledButton.styleFrom(
+                              backgroundColor: StudioColors.discord,
+                              minimumSize: const Size.fromHeight(48),
+                            ),
+                            onPressed: auth.signIn,
+                            icon: const Icon(Icons.login_rounded, size: 18),
+                            label: const Text('Se connecter avec Discord'),
+                          ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
