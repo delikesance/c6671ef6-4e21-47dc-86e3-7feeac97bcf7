@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:nyxx/nyxx.dart' hide Builder;
@@ -61,6 +62,23 @@ class OptionWidgetState extends State<OptionWidget> {
       ];
 
   final List<CommandOptionBuilder> options = <CommandOptionBuilder>[];
+
+  /// Bumped on every state change so an open option screen rebuilds too
+  /// (it lives in its own route, outside this widget's subtree).
+  final ValueNotifier<int> _revision = ValueNotifier<int>(0);
+
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+    _revision.value++;
+  }
+
+  @override
+  void dispose() {
+    _revision.dispose();
+    super.dispose();
+  }
+
   List<String> _availableWorkflowNames = const [];
   bool _loadingWorkflows = false;
   bool _isJavascriptBot = false;
@@ -356,7 +374,7 @@ class OptionWidgetState extends State<OptionWidget> {
                 _normalizeForType(option);
               }
 
-              Future<void> deleteOption() async {
+              Future<bool> deleteOption() async {
                 final shouldDelete = await AppTheme.showConfirmDialog(
                   context,
                   title: context.tr.option_delete_title,
@@ -365,12 +383,13 @@ class OptionWidgetState extends State<OptionWidget> {
                   isDestructive: true,
                 );
                 if (!shouldDelete) {
-                  return;
+                  return false;
                 }
                 setState(() {
-                  levelOptions.removeAt(index);
+                  levelOptions.remove(option);
                   _updateWidget();
                 });
+                return true;
               }
 
               final summary = <String>[
@@ -381,15 +400,1213 @@ class OptionWidgetState extends State<OptionWidget> {
                   context.tr.option_choices_count(option.choices!.length),
               ].join(' · ');
 
+              // The editor lives on its own screen; the list only summarises.
+              Widget body(BuildContext pageContext) => Padding(
+                padding: EdgeInsets.only(left: depth > 0 ? 12 : 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    _sectionLabel(context.tr.option_section_identity),
+                    TextFormField(
+                      decoration: _fieldDecoration(
+                        widget.isPrefixCommand
+                            ? context.tr.common_name
+                            : requiredFieldLabel(context.tr.common_name),
+                      ),
+                      initialValue: option.name,
+                      maxLength: 32,
+                      validator: (String? value) {
+                        return _nameValidator(value, levelOptions, option);
+                      },
+                      onChanged: (String value) {
+                        setState(() {
+                          option.name = value;
+                          _updateWidget();
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      decoration: _fieldDecoration(
+                        widget.isPrefixCommand
+                            ? context.tr.common_description
+                            : requiredFieldLabel(context.tr.common_description),
+                      ),
+                      maxLength: 100,
+                      maxLines: 2,
+                      minLines: 1,
+                      initialValue: option.description,
+                      validator: (String? value) {
+                        if (widget.isPrefixCommand) {
+                          if (value != null && value.length > 100) {
+                            return context.tr.command_description_length;
+                          }
+                          return null;
+                        }
+                        if (value == null || value.isEmpty) {
+                          return context.tr.option_desc_required;
+                        }
+                        return null;
+                      },
+                      onChanged: (String value) {
+                        setState(() {
+                          option.description = value;
+                          _updateWidget();
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    _sectionLabel(context.tr.option_section_type),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final type in allowedTypes)
+                          _typeChip(
+                            type,
+                            selected: option.type == type,
+                            onTap: () => setState(() {
+                              option.type = type;
+                              _normalizeForType(option);
+                              _updateWidget();
+                            }),
+                          ),
+                      ],
+                    ),
+                    _sectionLabel(context.tr.option_section_behavior),
+                    if (!_isHierarchyType(option.type))
+                      _tile(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 4, 12, 4),
+                          child: Row(
+                            children: [
+                              Text(context.tr.common_required),
+                              const Spacer(),
+                              Switch(
+                                value: option.isRequired ?? false,
+                                onChanged: (bool value) {
+                                  setState(() {
+                                    option.isRequired = value;
+                                    _updateWidget();
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    if (!_isHierarchyType(option.type) &&
+                        _supportsAutocomplete(option.type))
+                      _tile(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: SwitchListTile.adaptive(
+                          title: Text(context.tr.autocomplete_dynamic),
+                          subtitle: Text(context.tr.autocomplete_dynamic_desc),
+                          value: isCommandOptionAutocompleteEnabled(option),
+                          onChanged: (bool value) {
+                            setState(() {
+                              if (value == true) {
+                                setCommandOptionAutocompleteConfig(option, {
+                                  'enabled': true,
+                                  'mode': _isJavascriptBot
+                                      ? 'javascript'
+                                      : 'inline',
+                                  if (_isJavascriptBot)
+                                    'jsScript': defaultJsAutocompleteScript,
+                                  'staticChoices': <Map<String, dynamic>>[],
+                                });
+                              } else {
+                                setCommandOptionAutocompleteConfig(
+                                  option,
+                                  null,
+                                );
+                              }
+                              _normalizeForType(option);
+                              _updateWidget();
+                            });
+                          },
+                        ),
+                      ),
+                    if (isCommandOptionAutocompleteEnabled(option)) ...<Widget>[
+                      Builder(
+                        builder: (context) {
+                          final cfg =
+                              getCommandOptionAutocompleteConfig(option) ??
+                              <String, dynamic>{
+                                'enabled': true,
+                                'mode': 'inline',
+                                'staticChoices': <Map<String, dynamic>>[],
+                              };
+                          final currentMode = () {
+                            final raw = (cfg['mode'] ?? '')
+                                .toString()
+                                .trim()
+                                .toLowerCase();
+                            if (raw == 'static') {
+                              return 'static';
+                            }
+                            if (raw == 'javascript') {
+                              return 'javascript';
+                            }
+                            if (raw == 'workflow' && !_isJavascriptBot) {
+                              return 'workflow';
+                            }
+                            return _isJavascriptBot ? 'javascript' : 'inline';
+                          }();
+
+                          Map<String, dynamic> updatedCfg([
+                            Map<String, dynamic>? overrides,
+                          ]) {
+                            final base = Map<String, dynamic>.from(cfg);
+                            if (overrides != null) {
+                              base.addAll(overrides);
+                            }
+                            return base;
+                          }
+
+                          void saveConfig(Map<String, dynamic> newCfg) {
+                            setState(() {
+                              setCommandOptionAutocompleteConfig(
+                                option,
+                                newCfg,
+                              );
+                              _updateWidget();
+                            });
+                          }
+
+                          // ── Mode selector ──────────────────────────────
+                          final modeSelector = SegmentedButton<String>(
+                            segments: [
+                              if (_isJavascriptBot)
+                                const ButtonSegment(
+                                  value: 'javascript',
+                                  label: Text('JavaScript'),
+                                  icon: AppIcon.fromMaterial(Icons.javascript),
+                                )
+                              else
+                                ButtonSegment(
+                                  value: 'inline',
+                                  label: Text(context.tr.common_inline),
+                                  icon: const AppIcon.fromMaterial(Icons.code),
+                                ),
+                              ButtonSegment(
+                                value: 'static',
+                                label: Text(context.tr.common_static_options),
+                                icon: const AppIcon.fromMaterial(
+                                  Icons.list_alt_outlined,
+                                ),
+                              ),
+                            ],
+                            selected: {currentMode},
+                            onSelectionChanged: (Set<String> selection) {
+                              final nextMode = selection.first;
+                              saveConfig(
+                                updatedCfg({
+                                  'mode': nextMode,
+                                  if (nextMode == 'javascript' &&
+                                      (cfg['jsScript'] ?? '')
+                                          .toString()
+                                          .trim()
+                                          .isEmpty)
+                                    'jsScript': defaultJsAutocompleteScript,
+                                }),
+                              );
+                            },
+                          );
+
+                          // ── Workflow panel ─────────────────────────────
+                          Widget workflowPanel() {
+                            final currentWorkflow = (cfg['workflow'] ?? '')
+                                .toString()
+                                .trim();
+                            final dropdownValue =
+                                _availableWorkflowNames.contains(
+                                  currentWorkflow,
+                                )
+                                ? currentWorkflow
+                                : null;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: DropdownButtonFormField<String>(
+                                        initialValue: dropdownValue,
+                                        isExpanded: true,
+                                        items: _availableWorkflowNames
+                                            .map(
+                                              (name) =>
+                                                  DropdownMenuItem<String>(
+                                                    value: name,
+                                                    child: Text(name),
+                                                  ),
+                                            )
+                                            .toList(),
+                                        onChanged: _loadingWorkflows
+                                            ? null
+                                            : (value) => saveConfig(
+                                                updatedCfg({
+                                                  'workflow': value ?? '',
+                                                }),
+                                              ),
+                                        decoration: InputDecoration(
+                                          labelText: context
+                                              .tr
+                                              .autocomplete_workflow_label,
+                                          border: const OutlineInputBorder(),
+                                          helperText: _loadingWorkflows
+                                              ? context.tr.autocomplete_loading
+                                              : (_availableWorkflowNames.isEmpty
+                                                    ? context
+                                                          .tr
+                                                          .autocomplete_no_workflows
+                                                    : context
+                                                          .tr
+                                                          .autocomplete_select_workflow),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    IconButton(
+                                      tooltip:
+                                          context.tr.common_refresh_workflows,
+                                      onPressed: _loadingWorkflows
+                                          ? null
+                                          : _loadAvailableWorkflows,
+                                      icon: const AppIcon.fromMaterial(
+                                        Icons.refresh,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                TextFormField(
+                                  key: ValueKey(
+                                    'ac_workflow_manual_$currentWorkflow',
+                                  ),
+                                  initialValue: currentWorkflow,
+                                  decoration: InputDecoration(
+                                    labelText:
+                                        context.tr.autocomplete_type_name,
+                                    border: const OutlineInputBorder(),
+                                    isDense: true,
+                                  ),
+                                  onChanged: (v) =>
+                                      saveConfig(updatedCfg({'workflow': v})),
+                                ),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  key: ValueKey('ac_ep_${cfg['workflow']}'),
+                                  decoration: InputDecoration(
+                                    labelText: context.tr.workflow_entry_point,
+                                    border: const OutlineInputBorder(),
+                                  ),
+                                  initialValue: (cfg['entryPoint'] ?? 'main')
+                                      .toString(),
+                                  onChanged: (v) => saveConfig(
+                                    updatedCfg({
+                                      'entryPoint': v.trim().isEmpty
+                                          ? 'main'
+                                          : v,
+                                    }),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Builder(
+                                  builder: (context) {
+                                    final args = Map<String, dynamic>.from(
+                                      cfg['arguments'] is Map
+                                          ? (cfg['arguments'] as Map).map(
+                                              (k, v) =>
+                                                  MapEntry(k.toString(), v),
+                                            )
+                                          : const {},
+                                    );
+                                    final entries = args.entries.toList();
+
+                                    void saveArgs(
+                                      Map<String, dynamic> newArgs,
+                                    ) {
+                                      saveConfig(
+                                        updatedCfg({'arguments': newArgs}),
+                                      );
+                                    }
+
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        if (entries.isNotEmpty)
+                                          Text(
+                                            context
+                                                .tr
+                                                .workflow_arguments_section,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        if (entries.isNotEmpty)
+                                          const SizedBox(height: 4),
+                                        ...List.generate(entries.length, (i) {
+                                          final k = entries[i].key;
+                                          final v =
+                                              entries[i].value?.toString() ??
+                                              '';
+                                          return Padding(
+                                            padding: const EdgeInsets.only(
+                                              bottom: 6,
+                                            ),
+                                            child: _responsiveRow(
+                                              first: TextFormField(
+                                                key: ValueKey(
+                                                  'arg_k_${option.name}_$i',
+                                                ),
+                                                initialValue: k,
+                                                decoration: InputDecoration(
+                                                  labelText:
+                                                      context.tr.common_key,
+                                                  border: OutlineInputBorder(),
+                                                  isDense: true,
+                                                ),
+                                                onChanged: (newKey) {
+                                                  final updated =
+                                                      Map<String, dynamic>.from(
+                                                        args,
+                                                      );
+                                                  updated.remove(k);
+                                                  if (newKey
+                                                      .trim()
+                                                      .isNotEmpty) {
+                                                    updated[newKey.trim()] = v;
+                                                  }
+                                                  saveArgs(updated);
+                                                },
+                                              ),
+                                              second: VariableTextField(
+                                                key: ValueKey(
+                                                  'arg_v_${option.name}_$i',
+                                                ),
+                                                label: context.tr.common_value,
+                                                useLabelText: true,
+                                                initialValue: v,
+                                                suggestions:
+                                                    widget.variableSuggestions,
+                                                hint: context
+                                                    .tr
+                                                    .hint_use_variables,
+                                                onChanged: (newVal) {
+                                                  final updated =
+                                                      Map<String, dynamic>.from(
+                                                        args,
+                                                      );
+                                                  updated[k] = newVal;
+                                                  saveArgs(updated);
+                                                },
+                                              ),
+                                              trailing: IconButton(
+                                                icon:
+                                                    const AppIcon.fromMaterial(
+                                                      Icons.delete_outline,
+                                                    ),
+                                                tooltip:
+                                                    context.tr.common_remove,
+                                                onPressed: () async {
+                                                  final shouldDelete =
+                                                      await AppTheme.showConfirmDialog(
+                                                        context,
+                                                        title: context
+                                                            .tr
+                                                            .option_delete_argument_title,
+                                                        content: context
+                                                            .tr
+                                                            .option_delete_argument_confirm,
+                                                        confirmLabel: context
+                                                            .tr
+                                                            .common_delete,
+                                                        isDestructive: true,
+                                                      );
+                                                  if (!shouldDelete) {
+                                                    return;
+                                                  }
+                                                  final updated =
+                                                      Map<String, dynamic>.from(
+                                                        args,
+                                                      )..remove(k);
+                                                  saveArgs(updated);
+                                                },
+                                              ),
+                                            ),
+                                          );
+                                        }),
+                                        OutlinedButton.icon(
+                                          onPressed: () {
+                                            final updated =
+                                                Map<String, dynamic>.from(args);
+                                            var idx = entries.length;
+                                            var newKey = 'arg$idx';
+                                            while (updated.containsKey(
+                                              newKey,
+                                            )) {
+                                              idx++;
+                                              newKey = 'arg$idx';
+                                            }
+                                            updated[newKey] = '';
+                                            saveArgs(updated);
+                                          },
+                                          icon: const AppIcon.fromMaterial(
+                                            Icons.add,
+                                          ),
+                                          label: Text(
+                                            context.tr.common_add_argument,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ],
+                            );
+                          }
+
+                          // ── Static options panel ───────────────────────
+                          Widget staticPanel() {
+                            final staticChoices = <Map<String, dynamic>>[];
+                            if (cfg['staticChoices'] is List) {
+                              for (final raw in cfg['staticChoices'] as List) {
+                                if (raw is Map) {
+                                  staticChoices.add(
+                                    Map<String, dynamic>.from(
+                                      raw.map(
+                                        (k, v) => MapEntry(k.toString(), v),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                            }
+
+                            void saveChoices(
+                              List<Map<String, dynamic>> choices,
+                            ) {
+                              saveConfig(
+                                updatedCfg({'staticChoices': choices}),
+                              );
+                            }
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Text(
+                                  context.tr.autocomplete_filter_hint,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: AppTheme.grey,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                ...List.generate(staticChoices.length, (i) {
+                                  final choice = staticChoices[i];
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 6),
+                                    child: _responsiveRow(
+                                      firstFlex: 3,
+                                      secondFlex: 3,
+                                      first: TextFormField(
+                                        key: ValueKey(
+                                          'sc_name_${option.name}_$i',
+                                        ),
+                                        initialValue: (choice['name'] ?? '')
+                                            .toString(),
+                                        decoration: InputDecoration(
+                                          labelText: context.tr
+                                              .option_label_number(i + 1),
+                                          border: const OutlineInputBorder(),
+                                          isDense: true,
+                                        ),
+                                        onChanged: (v) {
+                                          final updated =
+                                              List<Map<String, dynamic>>.from(
+                                                staticChoices,
+                                              );
+                                          updated[i] = {
+                                            ...updated[i],
+                                            'name': v,
+                                          };
+                                          saveChoices(updated);
+                                        },
+                                      ),
+                                      second: TextFormField(
+                                        key: ValueKey(
+                                          'sc_val_${option.name}_$i',
+                                        ),
+                                        initialValue: (choice['value'] ?? '')
+                                            .toString(),
+                                        decoration: InputDecoration(
+                                          labelText: context.tr
+                                              .option_value_number(i + 1),
+                                          border: const OutlineInputBorder(),
+                                          isDense: true,
+                                        ),
+                                        onChanged: (v) {
+                                          final updated =
+                                              List<Map<String, dynamic>>.from(
+                                                staticChoices,
+                                              );
+                                          updated[i] = {
+                                            ...updated[i],
+                                            'value': v,
+                                          };
+                                          saveChoices(updated);
+                                        },
+                                      ),
+                                      trailing: IconButton(
+                                        icon: const AppIcon.fromMaterial(
+                                          Icons.delete_outline,
+                                        ),
+                                        tooltip: context.tr.common_remove,
+                                        onPressed: () async {
+                                          final shouldDelete =
+                                              await AppTheme.showConfirmDialog(
+                                                context,
+                                                title: context
+                                                    .tr
+                                                    .option_delete_title,
+                                                content: context
+                                                    .tr
+                                                    .option_choice_delete_confirm,
+                                                confirmLabel:
+                                                    context.tr.common_delete,
+                                                isDestructive: true,
+                                              );
+                                          if (!shouldDelete) {
+                                            return;
+                                          }
+                                          final updated =
+                                              List<Map<String, dynamic>>.from(
+                                                staticChoices,
+                                              )..removeAt(i);
+                                          saveChoices(updated);
+                                        },
+                                      ),
+                                    ),
+                                  );
+                                }),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: OutlinedButton.icon(
+                                    onPressed: () {
+                                      final updated = [
+                                        ...staticChoices,
+                                        {
+                                          'name':
+                                              'Option ${staticChoices.length + 1}',
+                                          'value':
+                                              'option_${staticChoices.length + 1}',
+                                        },
+                                      ];
+                                      saveChoices(updated);
+                                    },
+                                    icon: const AppIcon.fromMaterial(Icons.add),
+                                    label: Text(context.tr.common_add_option),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+
+                          // ── JavaScript panel ───────────────────────────
+                          Widget javascriptPanel() {
+                            final script =
+                                (cfg['jsScript'] ?? defaultJsAutocompleteScript)
+                                    .toString();
+                            final preview = script.trim().isEmpty
+                                ? defaultJsAutocompleteScript
+                                : (script.length > 220
+                                      ? '${script.substring(0, 220)}…'
+                                      : script);
+
+                            return Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(
+                                  AppTheme.radiusSm,
+                                ),
+                                border: Border.all(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.outlineVariant,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text(
+                                    context.tr.option_autocomplete_js_hint,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    preview,
+                                    style: const TextStyle(
+                                      fontFamily: 'monospace',
+                                      fontSize: 12,
+                                      color: Color(0xFFCFD8DC),
+                                    ),
+                                    maxLines: 8,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  FilledButton.icon(
+                                    onPressed: () async {
+                                      final result = await Navigator.push<String>(
+                                        context,
+                                        MaterialPageRoute<String>(
+                                          builder: (_) => JsEditorPage(
+                                            initialCode: script.trim().isEmpty
+                                                ? defaultJsAutocompleteScript
+                                                : script,
+                                            title: context
+                                                .tr
+                                                .option_autocomplete_javascript,
+                                            snippets: jsAutocompleteSnippets,
+                                          ),
+                                        ),
+                                      );
+                                      if (result != null) {
+                                        saveConfig(
+                                          updatedCfg({'jsScript': result}),
+                                        );
+                                      }
+                                    },
+                                    icon: const AppIcon.fromMaterial(
+                                      Icons.edit_note,
+                                      size: 18,
+                                    ),
+                                    label: Text(
+                                      script.trim().isEmpty
+                                          ? 'Configure Autocomplete JavaScript'
+                                          : 'Edit Autocomplete JavaScript',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+
+                          // ── Inline actions panel ──────────────────────
+                          Widget inlinePanel() {
+                            final inlineActions = cfg['inlineActions'];
+                            final count = inlineActions is List
+                                ? inlineActions.length
+                                : 0;
+                            return Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(
+                                  AppTheme.radiusSm,
+                                ),
+                                border: Border.all(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.outlineVariant,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  if (count > 0) ...[
+                                    Text(
+                                      context.tr.actions_configured_count(
+                                        count,
+                                      ),
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                  ],
+                                  FilledButton.icon(
+                                    onPressed: () async {
+                                      final initial = (inlineActions is List)
+                                          ? List<Map<String, dynamic>>.from(
+                                              inlineActions
+                                                  .whereType<Map>()
+                                                  .map(
+                                                    (e) =>
+                                                        Map<
+                                                          String,
+                                                          dynamic
+                                                        >.from(e),
+                                                  ),
+                                            )
+                                          : <Map<String, dynamic>>[];
+
+                                      final result =
+                                          await Navigator.push<
+                                            List<Map<String, dynamic>>
+                                          >(
+                                            context,
+                                            MaterialPageRoute<
+                                              List<Map<String, dynamic>>
+                                            >(
+                                              builder: (_) => ActionsBuilderPage(
+                                                initialActions: initial,
+                                                variableSuggestions:
+                                                    widget.variableSuggestions,
+                                                emojiSuggestions: const [],
+                                                botIdForConfig:
+                                                    widget.botIdForConfig,
+                                                isInteraction: false,
+                                                isWorkflow: true,
+                                                isAutocompleteContext: true,
+                                                onChanged: (updatedActions) {
+                                                  saveConfig(
+                                                    updatedCfg({
+                                                      'inlineActions':
+                                                          updatedActions,
+                                                    }),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          );
+
+                                      if (result != null) {
+                                        saveConfig(
+                                          updatedCfg({'inlineActions': result}),
+                                        );
+                                      }
+                                    },
+                                    icon: AppIcon.fromMaterial(
+                                      count > 0 ? Icons.edit_note : Icons.add,
+                                      size: 18,
+                                    ),
+                                    label: Text(
+                                      count > 0
+                                          ? 'Edit Autocomplete Actions'
+                                          : 'Configure Autocomplete Actions',
+                                    ),
+                                    style: FilledButton.styleFrom(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          AppTheme.radiusSm,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              modeSelector,
+                              const SizedBox(height: 10),
+                              if (currentMode == 'workflow')
+                                workflowPanel()
+                              else if (currentMode == 'inline')
+                                inlinePanel()
+                              else if (currentMode == 'javascript')
+                                javascriptPanel()
+                              else
+                                staticPanel(),
+                            ],
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                    if (_isNumericType(option.type)) ...<Widget>[
+                      _responsiveRow(
+                        first: TextFormField(
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: context.tr.option_min_value,
+                            border: const OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                          initialValue: option.minValue?.toString(),
+                          onChanged: (String value) {
+                            setState(() {
+                              option.minValue = value.isEmpty
+                                  ? null
+                                  : num.tryParse(value);
+                              _updateWidget();
+                            });
+                          },
+                        ),
+                        second: TextFormField(
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: context.tr.option_max_value,
+                            border: const OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                          initialValue: option.maxValue?.toString(),
+                          onChanged: (String value) {
+                            setState(() {
+                              option.maxValue = value.isEmpty
+                                  ? null
+                                  : num.tryParse(value);
+                              _updateWidget();
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                    _tile(
+                      margin: const EdgeInsets.only(top: 4),
+                      child: ExpansionTile(
+                        shape: const Border(),
+                        collapsedShape: const Border(),
+                        title: Text(context.tr.option_translations),
+                        childrenPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        children: <Widget>[
+                          DropdownButtonFormField<Locale>(
+                            decoration: InputDecoration(
+                              labelText: context.tr.option_select_language,
+                              border: const OutlineInputBorder(),
+                            ),
+                            initialValue: Locale.fr,
+                            items: Locale.values
+                                .map(
+                                  (Locale locale) => DropdownMenuItem<Locale>(
+                                    value: locale,
+                                    child: Text(
+                                      locale.toString().split('.').last,
+                                    ),
+                                  ),
+                                )
+                                .toList(growable: false),
+                            onChanged: (Locale? value) {
+                              if (value == null) {
+                                return;
+                              }
+                              setState(() {
+                                option.nameLocalizations ??= <Locale, String>{};
+                                option.descriptionLocalizations ??=
+                                    <Locale, String>{};
+                                option.nameLocalizations!.putIfAbsent(
+                                  value,
+                                  () => '',
+                                );
+                                option.descriptionLocalizations!.putIfAbsent(
+                                  value,
+                                  () => '',
+                                );
+                                _updateWidget();
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          if (option.nameLocalizations != null &&
+                              option.nameLocalizations!.isNotEmpty)
+                            ...option.nameLocalizations!.entries.map((entry) {
+                              final locale = entry.key;
+                              return Card(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(
+                                            locale.toString().split('.').last,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: const AppIcon.fromMaterial(
+                                              Icons.delete,
+                                              size: 20,
+                                            ),
+                                            onPressed: () async {
+                                              final shouldDelete =
+                                                  await AppTheme.showConfirmDialog(
+                                                    context,
+                                                    title: context
+                                                        .tr
+                                                        .option_delete_localization_title,
+                                                    content: context
+                                                        .tr
+                                                        .option_delete_localization_confirm,
+                                                    confirmLabel: context
+                                                        .tr
+                                                        .common_delete,
+                                                    isDestructive: true,
+                                                  );
+                                              if (!shouldDelete) {
+                                                return;
+                                              }
+                                              setState(() {
+                                                option.nameLocalizations!
+                                                    .remove(locale);
+                                                option.descriptionLocalizations!
+                                                    .remove(locale);
+                                                _updateWidget();
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      TextFormField(
+                                        decoration: InputDecoration(
+                                          labelText:
+                                              context.tr.option_localized_name,
+                                          isDense: true,
+                                        ),
+                                        initialValue:
+                                            option.nameLocalizations![locale],
+                                        onChanged: (String val) {
+                                          setState(() {
+                                            option.nameLocalizations![locale] =
+                                                val;
+                                            _updateWidget();
+                                          });
+                                        },
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextFormField(
+                                        decoration: InputDecoration(
+                                          labelText: context
+                                              .tr
+                                              .option_localized_description,
+                                          isDense: true,
+                                        ),
+                                        initialValue: option
+                                            .descriptionLocalizations![locale],
+                                        onChanged: (String val) {
+                                          setState(() {
+                                            option.descriptionLocalizations![locale] =
+                                                val;
+                                            _updateWidget();
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    if (_supportsChoices(option.type) &&
+                        !isCommandOptionAutocompleteEnabled(
+                          option,
+                        )) ...<Widget>[
+                      if (option.choices != null)
+                        ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: option.choices?.length ?? 0,
+                          itemBuilder: (BuildContext context, int choiceIndex) {
+                            return ExpansionTile(
+                              title: Text(
+                                context.tr.component_choice_number(
+                                  choiceIndex + 1,
+                                ),
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                              trailing: IconButton(
+                                icon: const AppIcon.fromMaterial(Icons.delete),
+                                onPressed: () async {
+                                  final shouldDelete =
+                                      await AppTheme.showConfirmDialog(
+                                        context,
+                                        title: context
+                                            .tr
+                                            .option_choice_delete_title,
+                                        content: context
+                                            .tr
+                                            .option_choice_delete_confirm,
+                                        confirmLabel: context.tr.common_delete,
+                                        isDestructive: true,
+                                      );
+                                  if (!shouldDelete) {
+                                    return;
+                                  }
+
+                                  setState(() {
+                                    option.choices!.removeAt(choiceIndex);
+                                    _updateWidget();
+                                  });
+                                },
+                              ),
+                              controlAffinity: ListTileControlAffinity.leading,
+                              children: <Widget>[
+                                TextFormField(
+                                  decoration: InputDecoration(
+                                    labelText: context.tr.option_choice_name,
+                                    border: const OutlineInputBorder(),
+                                  ),
+                                  initialValue:
+                                      option.choices![choiceIndex].name,
+                                  maxLength: 100,
+                                  onChanged: (String value) {
+                                    setState(() {
+                                      option.choices![choiceIndex].name = value;
+                                      _updateWidget();
+                                    });
+                                  },
+                                ),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  keyboardType: _choiceKeyboardType(
+                                    option.type,
+                                  ),
+                                  decoration: InputDecoration(
+                                    labelText: context.tr.option_choice_value,
+                                    border: const OutlineInputBorder(),
+                                  ),
+                                  initialValue: option
+                                      .choices![choiceIndex]
+                                      .value
+                                      .toString(),
+                                  maxLength: 100,
+                                  onChanged: (String value) {
+                                    setState(() {
+                                      if (_isNumericType(option.type)) {
+                                        option.choices![choiceIndex].value =
+                                            num.tryParse(value) ?? 0;
+                                      } else {
+                                        option.choices![choiceIndex].value =
+                                            value;
+                                      }
+                                      _updateWidget();
+                                    });
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.homeContainerLowest,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onSurface,
+                            elevation: 0,
+                            minimumSize: const Size.fromHeight(52),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              side: const BorderSide(
+                                color: AppTheme.homeGhostBorder,
+                              ),
+                            ),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              option.choices ??= <CommandOptionChoiceBuilder>[];
+                              option.choices!.add(
+                                CommandOptionChoiceBuilder(
+                                  name: 'Choice ${option.choices!.length + 1}',
+                                  value: _isNumericType(option.type)
+                                      ? 0
+                                      : 'Value ${option.choices!.length + 1}',
+                                ),
+                              );
+                              _updateWidget();
+                            });
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              const AppIcon.fromMaterial(Icons.add),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  context.tr.option_add_choice,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (_isHierarchyType(option.type)) ...<Widget>[
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          option.type == CommandOptionType.subCommandGroup
+                              ? context.tr.option_subcommands
+                              : context.tr.option_subcommand_options,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: AppTheme.grey),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusSm,
+                          ),
+                        ),
+                        child: _buildOptionsLevel(
+                          option.options ?? <CommandOptionBuilder>[],
+                          parentType: option.type,
+                          depth: depth + 1,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 8),
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppTheme.statusErrorText,
+                        minimumSize: const Size.fromHeight(48),
+                      ),
+                      onPressed: () async {
+                        if (await deleteOption() && pageContext.mounted) {
+                          Navigator.of(pageContext).pop();
+                        }
+                      },
+                      icon: const AppIcon.fromMaterial(
+                        Icons.delete_outline,
+                        size: 18,
+                        color: AppTheme.statusErrorText,
+                      ),
+                      label: Text(context.tr.option_delete_action),
+                    ),
+                  ],
+                ),
+              );
+
               return Column(
                 children: [
                   if (index > 0)
                     const Divider(height: 1, indent: 52, color: _divider),
-                  ExpansionTile(
-                    shape: const Border(),
-                    collapsedShape: const Border(),
-                    tilePadding: const EdgeInsets.fromLTRB(16, 2, 12, 2),
-                    childrenPadding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                  ListTile(
+                    contentPadding: const EdgeInsets.fromLTRB(16, 2, 12, 2),
                     leading: SizedBox(
                       width: 22,
                       child: Center(
@@ -414,1375 +1631,20 @@ class OptionWidgetState extends State<OptionWidget> {
                         color: AppTheme.homeMuted,
                       ),
                     ),
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.only(left: depth > 0 ? 12 : 0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            _sectionLabel(context.tr.option_section_identity),
-                            TextFormField(
-                              decoration: _fieldDecoration(
-                                widget.isPrefixCommand
-                                    ? context.tr.common_name
-                                    : requiredFieldLabel(
-                                        context.tr.common_name,
-                                      ),
-                              ),
-                              initialValue: option.name,
-                              maxLength: 32,
-                              validator: (String? value) {
-                                return _nameValidator(
-                                  value,
-                                  levelOptions,
-                                  option,
-                                );
-                              },
-                              onChanged: (String value) {
-                                setState(() {
-                                  option.name = value;
-                                  _updateWidget();
-                                });
-                              },
-                            ),
-                            const SizedBox(height: 8),
-                            TextFormField(
-                              decoration: _fieldDecoration(
-                                widget.isPrefixCommand
-                                    ? context.tr.common_description
-                                    : requiredFieldLabel(
-                                        context.tr.common_description,
-                                      ),
-                              ),
-                              maxLength: 100,
-                              maxLines: 2,
-                              minLines: 1,
-                              initialValue: option.description,
-                              validator: (String? value) {
-                                if (widget.isPrefixCommand) {
-                                  if (value != null && value.length > 100) {
-                                    return context
-                                        .tr
-                                        .command_description_length;
-                                  }
-                                  return null;
-                                }
-                                if (value == null || value.isEmpty) {
-                                  return context.tr.option_desc_required;
-                                }
-                                return null;
-                              },
-                              onChanged: (String value) {
-                                setState(() {
-                                  option.description = value;
-                                  _updateWidget();
-                                });
-                              },
-                            ),
-                            const SizedBox(height: 8),
-                            _sectionLabel(context.tr.option_section_type),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: [
-                                for (final type in allowedTypes)
-                                  _typeChip(
-                                    type,
-                                    selected: option.type == type,
-                                    onTap: () => setState(() {
-                                      option.type = type;
-                                      _normalizeForType(option);
-                                      _updateWidget();
-                                    }),
-                                  ),
-                              ],
-                            ),
-                            _sectionLabel(context.tr.option_section_behavior),
-                            if (!_isHierarchyType(option.type))
-                              _tile(
-                                margin: const EdgeInsets.only(bottom: 8),
-                                child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    16,
-                                    4,
-                                    12,
-                                    4,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Text(context.tr.common_required),
-                                      const Spacer(),
-                                      Switch(
-                                        value: option.isRequired ?? false,
-                                        onChanged: (bool value) {
-                                          setState(() {
-                                            option.isRequired = value;
-                                            _updateWidget();
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            if (!_isHierarchyType(option.type) &&
-                                _supportsAutocomplete(option.type))
-                              _tile(
-                                margin: const EdgeInsets.only(bottom: 8),
-                                child: SwitchListTile.adaptive(
-                                  title: Text(context.tr.autocomplete_dynamic),
-                                  subtitle: Text(
-                                    context.tr.autocomplete_dynamic_desc,
-                                  ),
-                                  value: isCommandOptionAutocompleteEnabled(
-                                    option,
-                                  ),
-                                  onChanged: (bool value) {
-                                    setState(() {
-                                      if (value == true) {
-                                        setCommandOptionAutocompleteConfig(
-                                          option,
-                                          {
-                                            'enabled': true,
-                                            'mode': _isJavascriptBot
-                                                ? 'javascript'
-                                                : 'inline',
-                                            if (_isJavascriptBot)
-                                              'jsScript':
-                                                  defaultJsAutocompleteScript,
-                                            'staticChoices':
-                                                <Map<String, dynamic>>[],
-                                          },
-                                        );
-                                      } else {
-                                        setCommandOptionAutocompleteConfig(
-                                          option,
-                                          null,
-                                        );
-                                      }
-                                      _normalizeForType(option);
-                                      _updateWidget();
-                                    });
-                                  },
-                                ),
-                              ),
-                            if (isCommandOptionAutocompleteEnabled(
-                              option,
-                            )) ...<Widget>[
-                              Builder(
-                                builder: (context) {
-                                  final cfg =
-                                      getCommandOptionAutocompleteConfig(
-                                        option,
-                                      ) ??
-                                      <String, dynamic>{
-                                        'enabled': true,
-                                        'mode': 'inline',
-                                        'staticChoices':
-                                            <Map<String, dynamic>>[],
-                                      };
-                                  final currentMode = () {
-                                    final raw = (cfg['mode'] ?? '')
-                                        .toString()
-                                        .trim()
-                                        .toLowerCase();
-                                    if (raw == 'static') {
-                                      return 'static';
-                                    }
-                                    if (raw == 'javascript') {
-                                      return 'javascript';
-                                    }
-                                    if (raw == 'workflow' &&
-                                        !_isJavascriptBot) {
-                                      return 'workflow';
-                                    }
-                                    return _isJavascriptBot
-                                        ? 'javascript'
-                                        : 'inline';
-                                  }();
-
-                                  Map<String, dynamic> updatedCfg([
-                                    Map<String, dynamic>? overrides,
-                                  ]) {
-                                    final base = Map<String, dynamic>.from(cfg);
-                                    if (overrides != null) {
-                                      base.addAll(overrides);
-                                    }
-                                    return base;
-                                  }
-
-                                  void saveConfig(Map<String, dynamic> newCfg) {
-                                    setState(() {
-                                      setCommandOptionAutocompleteConfig(
-                                        option,
-                                        newCfg,
-                                      );
-                                      _updateWidget();
-                                    });
-                                  }
-
-                                  // ── Mode selector ──────────────────────────────
-                                  final modeSelector = SegmentedButton<String>(
-                                    segments: [
-                                      if (_isJavascriptBot)
-                                        const ButtonSegment(
-                                          value: 'javascript',
-                                          label: Text('JavaScript'),
-                                          icon: AppIcon.fromMaterial(
-                                            Icons.javascript,
-                                          ),
-                                        )
-                                      else
-                                        ButtonSegment(
-                                          value: 'inline',
-                                          label: Text(context.tr.common_inline),
-                                          icon: const AppIcon.fromMaterial(
-                                            Icons.code,
-                                          ),
-                                        ),
-                                      ButtonSegment(
-                                        value: 'static',
-                                        label: Text(
-                                          context.tr.common_static_options,
-                                        ),
-                                        icon: const AppIcon.fromMaterial(
-                                          Icons.list_alt_outlined,
-                                        ),
-                                      ),
-                                    ],
-                                    selected: {currentMode},
-                                    onSelectionChanged:
-                                        (Set<String> selection) {
-                                          final nextMode = selection.first;
-                                          saveConfig(
-                                            updatedCfg({
-                                              'mode': nextMode,
-                                              if (nextMode == 'javascript' &&
-                                                  (cfg['jsScript'] ?? '')
-                                                      .toString()
-                                                      .trim()
-                                                      .isEmpty)
-                                                'jsScript':
-                                                    defaultJsAutocompleteScript,
-                                            }),
-                                          );
-                                        },
-                                  );
-
-                                  // ── Workflow panel ─────────────────────────────
-                                  Widget workflowPanel() {
-                                    final currentWorkflow =
-                                        (cfg['workflow'] ?? '')
-                                            .toString()
-                                            .trim();
-                                    final dropdownValue =
-                                        _availableWorkflowNames.contains(
-                                          currentWorkflow,
-                                        )
-                                        ? currentWorkflow
-                                        : null;
-                                    return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: DropdownButtonFormField<String>(
-                                                initialValue: dropdownValue,
-                                                isExpanded: true,
-                                                items: _availableWorkflowNames
-                                                    .map(
-                                                      (name) =>
-                                                          DropdownMenuItem<
-                                                            String
-                                                          >(
-                                                            value: name,
-                                                            child: Text(name),
-                                                          ),
-                                                    )
-                                                    .toList(),
-                                                onChanged: _loadingWorkflows
-                                                    ? null
-                                                    : (value) => saveConfig(
-                                                        updatedCfg({
-                                                          'workflow':
-                                                              value ?? '',
-                                                        }),
-                                                      ),
-                                                decoration: InputDecoration(
-                                                  labelText: context
-                                                      .tr
-                                                      .autocomplete_workflow_label,
-                                                  border:
-                                                      const OutlineInputBorder(),
-                                                  helperText: _loadingWorkflows
-                                                      ? context
-                                                            .tr
-                                                            .autocomplete_loading
-                                                      : (_availableWorkflowNames
-                                                                .isEmpty
-                                                            ? context
-                                                                  .tr
-                                                                  .autocomplete_no_workflows
-                                                            : context
-                                                                  .tr
-                                                                  .autocomplete_select_workflow),
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 4),
-                                            IconButton(
-                                              tooltip: context
-                                                  .tr
-                                                  .common_refresh_workflows,
-                                              onPressed: _loadingWorkflows
-                                                  ? null
-                                                  : _loadAvailableWorkflows,
-                                              icon: const AppIcon.fromMaterial(
-                                                Icons.refresh,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 6),
-                                        TextFormField(
-                                          key: ValueKey(
-                                            'ac_workflow_manual_$currentWorkflow',
-                                          ),
-                                          initialValue: currentWorkflow,
-                                          decoration: InputDecoration(
-                                            labelText: context
-                                                .tr
-                                                .autocomplete_type_name,
-                                            border: const OutlineInputBorder(),
-                                            isDense: true,
-                                          ),
-                                          onChanged: (v) => saveConfig(
-                                            updatedCfg({'workflow': v}),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        TextFormField(
-                                          key: ValueKey(
-                                            'ac_ep_${cfg['workflow']}',
-                                          ),
-                                          decoration: InputDecoration(
-                                            labelText:
-                                                context.tr.workflow_entry_point,
-                                            border: const OutlineInputBorder(),
-                                          ),
-                                          initialValue:
-                                              (cfg['entryPoint'] ?? 'main')
-                                                  .toString(),
-                                          onChanged: (v) => saveConfig(
-                                            updatedCfg({
-                                              'entryPoint': v.trim().isEmpty
-                                                  ? 'main'
-                                                  : v,
-                                            }),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Builder(
-                                          builder: (context) {
-                                            final args =
-                                                Map<String, dynamic>.from(
-                                                  cfg['arguments'] is Map
-                                                      ? (cfg['arguments']
-                                                                as Map)
-                                                            .map(
-                                                              (
-                                                                k,
-                                                                v,
-                                                              ) => MapEntry(
-                                                                k.toString(),
-                                                                v,
-                                                              ),
-                                                            )
-                                                      : const {},
-                                                );
-                                            final entries = args.entries
-                                                .toList();
-
-                                            void saveArgs(
-                                              Map<String, dynamic> newArgs,
-                                            ) {
-                                              saveConfig(
-                                                updatedCfg({
-                                                  'arguments': newArgs,
-                                                }),
-                                              );
-                                            }
-
-                                            return Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.stretch,
-                                              children: [
-                                                if (entries.isNotEmpty)
-                                                  Text(
-                                                    context
-                                                        .tr
-                                                        .workflow_arguments_section,
-                                                    style: const TextStyle(
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                if (entries.isNotEmpty)
-                                                  const SizedBox(height: 4),
-                                                ...List.generate(entries.length, (
-                                                  i,
-                                                ) {
-                                                  final k = entries[i].key;
-                                                  final v =
-                                                      entries[i].value
-                                                          ?.toString() ??
-                                                      '';
-                                                  return Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                          bottom: 6,
-                                                        ),
-                                                    child: _responsiveRow(
-                                                      first: TextFormField(
-                                                        key: ValueKey(
-                                                          'arg_k_${option.name}_$i',
-                                                        ),
-                                                        initialValue: k,
-                                                        decoration: InputDecoration(
-                                                          labelText: context
-                                                              .tr
-                                                              .common_key,
-                                                          border:
-                                                              OutlineInputBorder(),
-                                                          isDense: true,
-                                                        ),
-                                                        onChanged: (newKey) {
-                                                          final updated =
-                                                              Map<
-                                                                String,
-                                                                dynamic
-                                                              >.from(args);
-                                                          updated.remove(k);
-                                                          if (newKey
-                                                              .trim()
-                                                              .isNotEmpty) {
-                                                            updated[newKey
-                                                                    .trim()] =
-                                                                v;
-                                                          }
-                                                          saveArgs(updated);
-                                                        },
-                                                      ),
-                                                      second: VariableTextField(
-                                                        key: ValueKey(
-                                                          'arg_v_${option.name}_$i',
-                                                        ),
-                                                        label: context
-                                                            .tr
-                                                            .common_value,
-                                                        useLabelText: true,
-                                                        initialValue: v,
-                                                        suggestions: widget
-                                                            .variableSuggestions,
-                                                        hint: context
-                                                            .tr
-                                                            .hint_use_variables,
-                                                        onChanged: (newVal) {
-                                                          final updated =
-                                                              Map<
-                                                                String,
-                                                                dynamic
-                                                              >.from(args);
-                                                          updated[k] = newVal;
-                                                          saveArgs(updated);
-                                                        },
-                                                      ),
-                                                      trailing: IconButton(
-                                                        icon: const AppIcon.fromMaterial(
-                                                          Icons.delete_outline,
-                                                        ),
-                                                        tooltip: context
-                                                            .tr
-                                                            .common_remove,
-                                                        onPressed: () async {
-                                                          final shouldDelete =
-                                                              await AppTheme.showConfirmDialog(
-                                                                context,
-                                                                title: context
-                                                                    .tr
-                                                                    .option_delete_argument_title,
-                                                                content: context
-                                                                    .tr
-                                                                    .option_delete_argument_confirm,
-                                                                confirmLabel:
-                                                                    context
-                                                                        .tr
-                                                                        .common_delete,
-                                                                isDestructive:
-                                                                    true,
-                                                              );
-                                                          if (!shouldDelete) {
-                                                            return;
-                                                          }
-                                                          final updated =
-                                                              Map<
-                                                                  String,
-                                                                  dynamic
-                                                                >.from(args)
-                                                                ..remove(k);
-                                                          saveArgs(updated);
-                                                        },
-                                                      ),
-                                                    ),
-                                                  );
-                                                }),
-                                                OutlinedButton.icon(
-                                                  onPressed: () {
-                                                    final updated =
-                                                        Map<
-                                                          String,
-                                                          dynamic
-                                                        >.from(args);
-                                                    var idx = entries.length;
-                                                    var newKey = 'arg$idx';
-                                                    while (updated.containsKey(
-                                                      newKey,
-                                                    )) {
-                                                      idx++;
-                                                      newKey = 'arg$idx';
-                                                    }
-                                                    updated[newKey] = '';
-                                                    saveArgs(updated);
-                                                  },
-                                                  icon:
-                                                      const AppIcon.fromMaterial(
-                                                        Icons.add,
-                                                      ),
-                                                  label: Text(
-                                                    context
-                                                        .tr
-                                                        .common_add_argument,
-                                                  ),
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  }
-
-                                  // ── Static options panel ───────────────────────
-                                  Widget staticPanel() {
-                                    final staticChoices =
-                                        <Map<String, dynamic>>[];
-                                    if (cfg['staticChoices'] is List) {
-                                      for (final raw
-                                          in cfg['staticChoices'] as List) {
-                                        if (raw is Map) {
-                                          staticChoices.add(
-                                            Map<String, dynamic>.from(
-                                              raw.map(
-                                                (k, v) =>
-                                                    MapEntry(k.toString(), v),
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                      }
-                                    }
-
-                                    void saveChoices(
-                                      List<Map<String, dynamic>> choices,
-                                    ) {
-                                      saveConfig(
-                                        updatedCfg({'staticChoices': choices}),
-                                      );
-                                    }
-
-                                    return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        Text(
-                                          context.tr.autocomplete_filter_hint,
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: AppTheme.grey,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 6),
-                                        ...List.generate(staticChoices.length, (
-                                          i,
-                                        ) {
-                                          final choice = staticChoices[i];
-                                          return Padding(
-                                            padding: const EdgeInsets.only(
-                                              bottom: 6,
-                                            ),
-                                            child: _responsiveRow(
-                                              firstFlex: 3,
-                                              secondFlex: 3,
-                                              first: TextFormField(
-                                                key: ValueKey(
-                                                  'sc_name_${option.name}_$i',
-                                                ),
-                                                initialValue:
-                                                    (choice['name'] ?? '')
-                                                        .toString(),
-                                                decoration: InputDecoration(
-                                                  labelText: context.tr
-                                                      .option_label_number(
-                                                        i + 1,
-                                                      ),
-                                                  border:
-                                                      const OutlineInputBorder(),
-                                                  isDense: true,
-                                                ),
-                                                onChanged: (v) {
-                                                  final updated =
-                                                      List<
-                                                        Map<String, dynamic>
-                                                      >.from(staticChoices);
-                                                  updated[i] = {
-                                                    ...updated[i],
-                                                    'name': v,
-                                                  };
-                                                  saveChoices(updated);
-                                                },
-                                              ),
-                                              second: TextFormField(
-                                                key: ValueKey(
-                                                  'sc_val_${option.name}_$i',
-                                                ),
-                                                initialValue:
-                                                    (choice['value'] ?? '')
-                                                        .toString(),
-                                                decoration: InputDecoration(
-                                                  labelText: context.tr
-                                                      .option_value_number(
-                                                        i + 1,
-                                                      ),
-                                                  border:
-                                                      const OutlineInputBorder(),
-                                                  isDense: true,
-                                                ),
-                                                onChanged: (v) {
-                                                  final updated =
-                                                      List<
-                                                        Map<String, dynamic>
-                                                      >.from(staticChoices);
-                                                  updated[i] = {
-                                                    ...updated[i],
-                                                    'value': v,
-                                                  };
-                                                  saveChoices(updated);
-                                                },
-                                              ),
-                                              trailing: IconButton(
-                                                icon:
-                                                    const AppIcon.fromMaterial(
-                                                      Icons.delete_outline,
-                                                    ),
-                                                tooltip:
-                                                    context.tr.common_remove,
-                                                onPressed: () async {
-                                                  final shouldDelete =
-                                                      await AppTheme.showConfirmDialog(
-                                                        context,
-                                                        title: context
-                                                            .tr
-                                                            .option_delete_title,
-                                                        content: context
-                                                            .tr
-                                                            .option_choice_delete_confirm,
-                                                        confirmLabel: context
-                                                            .tr
-                                                            .common_delete,
-                                                        isDestructive: true,
-                                                      );
-                                                  if (!shouldDelete) {
-                                                    return;
-                                                  }
-                                                  final updated =
-                                                      List<
-                                                          Map<String, dynamic>
-                                                        >.from(staticChoices)
-                                                        ..removeAt(i);
-                                                  saveChoices(updated);
-                                                },
-                                              ),
-                                            ),
-                                          );
-                                        }),
-                                        SizedBox(
-                                          width: double.infinity,
-                                          child: OutlinedButton.icon(
-                                            onPressed: () {
-                                              final updated = [
-                                                ...staticChoices,
-                                                {
-                                                  'name':
-                                                      'Option ${staticChoices.length + 1}',
-                                                  'value':
-                                                      'option_${staticChoices.length + 1}',
-                                                },
-                                              ];
-                                              saveChoices(updated);
-                                            },
-                                            icon: const AppIcon.fromMaterial(
-                                              Icons.add,
-                                            ),
-                                            label: Text(
-                                              context.tr.common_add_option,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }
-
-                                  // ── JavaScript panel ───────────────────────────
-                                  Widget javascriptPanel() {
-                                    final script =
-                                        (cfg['jsScript'] ??
-                                                defaultJsAutocompleteScript)
-                                            .toString();
-                                    final preview = script.trim().isEmpty
-                                        ? defaultJsAutocompleteScript
-                                        : (script.length > 220
-                                              ? '${script.substring(0, 220)}…'
-                                              : script);
-
-                                    return Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(
-                                          AppTheme.radiusSm,
-                                        ),
-                                        border: Border.all(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.outlineVariant,
-                                        ),
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.stretch,
-                                        children: [
-                                          Text(
-                                            context
-                                                .tr
-                                                .option_autocomplete_js_hint,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Theme.of(
-                                                context,
-                                              ).colorScheme.onSurfaceVariant,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            preview,
-                                            style: const TextStyle(
-                                              fontFamily: 'monospace',
-                                              fontSize: 12,
-                                              color: Color(0xFFCFD8DC),
-                                            ),
-                                            maxLines: 8,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          const SizedBox(height: 10),
-                                          FilledButton.icon(
-                                            onPressed: () async {
-                                              final result = await Navigator.push<String>(
-                                                context,
-                                                MaterialPageRoute<String>(
-                                                  builder: (_) => JsEditorPage(
-                                                    initialCode:
-                                                        script.trim().isEmpty
-                                                        ? defaultJsAutocompleteScript
-                                                        : script,
-                                                    title: context
-                                                        .tr
-                                                        .option_autocomplete_javascript,
-                                                    snippets:
-                                                        jsAutocompleteSnippets,
-                                                  ),
-                                                ),
-                                              );
-                                              if (result != null) {
-                                                saveConfig(
-                                                  updatedCfg({
-                                                    'jsScript': result,
-                                                  }),
-                                                );
-                                              }
-                                            },
-                                            icon: const AppIcon.fromMaterial(
-                                              Icons.edit_note,
-                                              size: 18,
-                                            ),
-                                            label: Text(
-                                              script.trim().isEmpty
-                                                  ? 'Configure Autocomplete JavaScript'
-                                                  : 'Edit Autocomplete JavaScript',
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }
-
-                                  // ── Inline actions panel ──────────────────────
-                                  Widget inlinePanel() {
-                                    final inlineActions = cfg['inlineActions'];
-                                    final count = inlineActions is List
-                                        ? inlineActions.length
-                                        : 0;
-                                    return Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(
-                                          AppTheme.radiusSm,
-                                        ),
-                                        border: Border.all(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.outlineVariant,
-                                        ),
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.stretch,
-                                        children: [
-                                          if (count > 0) ...[
-                                            Text(
-                                              context.tr
-                                                  .actions_configured_count(
-                                                    count,
-                                                  ),
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                color: Theme.of(
-                                                  context,
-                                                ).colorScheme.primary,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 8),
-                                          ],
-                                          FilledButton.icon(
-                                            onPressed: () async {
-                                              final initial =
-                                                  (inlineActions is List)
-                                                  ? List<
-                                                      Map<String, dynamic>
-                                                    >.from(
-                                                      inlineActions
-                                                          .whereType<Map>()
-                                                          .map(
-                                                            (e) =>
-                                                                Map<
-                                                                  String,
-                                                                  dynamic
-                                                                >.from(e),
-                                                          ),
-                                                    )
-                                                  : <Map<String, dynamic>>[];
-
-                                              final result =
-                                                  await Navigator.push<
-                                                    List<Map<String, dynamic>>
-                                                  >(
-                                                    context,
-                                                    MaterialPageRoute<
-                                                      List<Map<String, dynamic>>
-                                                    >(
-                                                      builder: (_) => ActionsBuilderPage(
-                                                        initialActions: initial,
-                                                        variableSuggestions: widget
-                                                            .variableSuggestions,
-                                                        emojiSuggestions:
-                                                            const [],
-                                                        botIdForConfig: widget
-                                                            .botIdForConfig,
-                                                        isInteraction: false,
-                                                        isWorkflow: true,
-                                                        isAutocompleteContext:
-                                                            true,
-                                                        onChanged: (updatedActions) {
-                                                          saveConfig(
-                                                            updatedCfg({
-                                                              'inlineActions':
-                                                                  updatedActions,
-                                                            }),
-                                                          );
-                                                        },
-                                                      ),
-                                                    ),
-                                                  );
-
-                                              if (result != null) {
-                                                saveConfig(
-                                                  updatedCfg({
-                                                    'inlineActions': result,
-                                                  }),
-                                                );
-                                              }
-                                            },
-                                            icon: AppIcon.fromMaterial(
-                                              count > 0
-                                                  ? Icons.edit_note
-                                                  : Icons.add,
-                                              size: 18,
-                                            ),
-                                            label: Text(
-                                              count > 0
-                                                  ? 'Edit Autocomplete Actions'
-                                                  : 'Configure Autocomplete Actions',
-                                            ),
-                                            style: FilledButton.styleFrom(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                      AppTheme.radiusSm,
-                                                    ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }
-
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      modeSelector,
-                                      const SizedBox(height: 10),
-                                      if (currentMode == 'workflow')
-                                        workflowPanel()
-                                      else if (currentMode == 'inline')
-                                        inlinePanel()
-                                      else if (currentMode == 'javascript')
-                                        javascriptPanel()
-                                      else
-                                        staticPanel(),
-                                    ],
-                                  );
-                                },
-                              ),
-                              const SizedBox(height: 8),
-                            ],
-                            if (_isNumericType(option.type)) ...<Widget>[
-                              _responsiveRow(
-                                first: TextFormField(
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                    labelText: context.tr.option_min_value,
-                                    border: const OutlineInputBorder(),
-                                    isDense: true,
-                                  ),
-                                  initialValue: option.minValue?.toString(),
-                                  onChanged: (String value) {
-                                    setState(() {
-                                      option.minValue = value.isEmpty
-                                          ? null
-                                          : num.tryParse(value);
-                                      _updateWidget();
-                                    });
-                                  },
-                                ),
-                                second: TextFormField(
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                    labelText: context.tr.option_max_value,
-                                    border: const OutlineInputBorder(),
-                                    isDense: true,
-                                  ),
-                                  initialValue: option.maxValue?.toString(),
-                                  onChanged: (String value) {
-                                    setState(() {
-                                      option.maxValue = value.isEmpty
-                                          ? null
-                                          : num.tryParse(value);
-                                      _updateWidget();
-                                    });
-                                  },
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                            ],
-                            _tile(
-                              margin: const EdgeInsets.only(top: 4),
-                              child: ExpansionTile(
-                                shape: const Border(),
-                                collapsedShape: const Border(),
-                                title: Text(context.tr.option_translations),
-                                childrenPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                children: <Widget>[
-                                  DropdownButtonFormField<Locale>(
-                                    decoration: InputDecoration(
-                                      labelText:
-                                          context.tr.option_select_language,
-                                      border: const OutlineInputBorder(),
-                                    ),
-                                    initialValue: Locale.fr,
-                                    items: Locale.values
-                                        .map(
-                                          (Locale locale) =>
-                                              DropdownMenuItem<Locale>(
-                                                value: locale,
-                                                child: Text(
-                                                  locale
-                                                      .toString()
-                                                      .split('.')
-                                                      .last,
-                                                ),
-                                              ),
-                                        )
-                                        .toList(growable: false),
-                                    onChanged: (Locale? value) {
-                                      if (value == null) {
-                                        return;
-                                      }
-                                      setState(() {
-                                        option.nameLocalizations ??=
-                                            <Locale, String>{};
-                                        option.descriptionLocalizations ??=
-                                            <Locale, String>{};
-                                        option.nameLocalizations!.putIfAbsent(
-                                          value,
-                                          () => '',
-                                        );
-                                        option.descriptionLocalizations!
-                                            .putIfAbsent(value, () => '');
-                                        _updateWidget();
-                                      });
-                                    },
-                                  ),
-                                  const SizedBox(height: 16),
-                                  if (option.nameLocalizations != null &&
-                                      option.nameLocalizations!.isNotEmpty)
-                                    ...option.nameLocalizations!.entries.map((
-                                      entry,
-                                    ) {
-                                      final locale = entry.key;
-                                      return Card(
-                                        margin: const EdgeInsets.only(
-                                          bottom: 8,
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: <Widget>[
-                                                  Text(
-                                                    locale
-                                                        .toString()
-                                                        .split('.')
-                                                        .last,
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                  IconButton(
-                                                    icon:
-                                                        const AppIcon.fromMaterial(
-                                                          Icons.delete,
-                                                          size: 20,
-                                                        ),
-                                                    onPressed: () async {
-                                                      final shouldDelete =
-                                                          await AppTheme.showConfirmDialog(
-                                                            context,
-                                                            title: context
-                                                                .tr
-                                                                .option_delete_localization_title,
-                                                            content: context
-                                                                .tr
-                                                                .option_delete_localization_confirm,
-                                                            confirmLabel: context
-                                                                .tr
-                                                                .common_delete,
-                                                            isDestructive: true,
-                                                          );
-                                                      if (!shouldDelete) {
-                                                        return;
-                                                      }
-                                                      setState(() {
-                                                        option
-                                                            .nameLocalizations!
-                                                            .remove(locale);
-                                                        option
-                                                            .descriptionLocalizations!
-                                                            .remove(locale);
-                                                        _updateWidget();
-                                                      });
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                              TextFormField(
-                                                decoration: InputDecoration(
-                                                  labelText: context
-                                                      .tr
-                                                      .option_localized_name,
-                                                  isDense: true,
-                                                ),
-                                                initialValue: option
-                                                    .nameLocalizations![locale],
-                                                onChanged: (String val) {
-                                                  setState(() {
-                                                    option.nameLocalizations![locale] =
-                                                        val;
-                                                    _updateWidget();
-                                                  });
-                                                },
-                                              ),
-                                              const SizedBox(height: 8),
-                                              TextFormField(
-                                                decoration: InputDecoration(
-                                                  labelText: context
-                                                      .tr
-                                                      .option_localized_description,
-                                                  isDense: true,
-                                                ),
-                                                initialValue: option
-                                                    .descriptionLocalizations![locale],
-                                                onChanged: (String val) {
-                                                  setState(() {
-                                                    option.descriptionLocalizations![locale] =
-                                                        val;
-                                                    _updateWidget();
-                                                  });
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    }),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            if (_supportsChoices(option.type) &&
-                                !isCommandOptionAutocompleteEnabled(
-                                  option,
-                                )) ...<Widget>[
-                              if (option.choices != null)
-                                ListView.builder(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  itemCount: option.choices?.length ?? 0,
-                                  itemBuilder: (BuildContext context, int choiceIndex) {
-                                    return ExpansionTile(
-                                      title: Text(
-                                        context.tr.component_choice_number(
-                                          choiceIndex + 1,
-                                        ),
-                                        style: const TextStyle(fontSize: 18),
-                                      ),
-                                      trailing: IconButton(
-                                        icon: const AppIcon.fromMaterial(
-                                          Icons.delete,
-                                        ),
-                                        onPressed: () async {
-                                          final shouldDelete =
-                                              await AppTheme.showConfirmDialog(
-                                                context,
-                                                title: context
-                                                    .tr
-                                                    .option_choice_delete_title,
-                                                content: context
-                                                    .tr
-                                                    .option_choice_delete_confirm,
-                                                confirmLabel:
-                                                    context.tr.common_delete,
-                                                isDestructive: true,
-                                              );
-                                          if (!shouldDelete) {
-                                            return;
-                                          }
-
-                                          setState(() {
-                                            option.choices!.removeAt(
-                                              choiceIndex,
-                                            );
-                                            _updateWidget();
-                                          });
-                                        },
-                                      ),
-                                      controlAffinity:
-                                          ListTileControlAffinity.leading,
-                                      children: <Widget>[
-                                        TextFormField(
-                                          decoration: InputDecoration(
-                                            labelText:
-                                                context.tr.option_choice_name,
-                                            border: const OutlineInputBorder(),
-                                          ),
-                                          initialValue:
-                                              option.choices![choiceIndex].name,
-                                          maxLength: 100,
-                                          onChanged: (String value) {
-                                            setState(() {
-                                              option
-                                                      .choices![choiceIndex]
-                                                      .name =
-                                                  value;
-                                              _updateWidget();
-                                            });
-                                          },
-                                        ),
-                                        const SizedBox(height: 8),
-                                        TextFormField(
-                                          keyboardType: _choiceKeyboardType(
-                                            option.type,
-                                          ),
-                                          decoration: InputDecoration(
-                                            labelText:
-                                                context.tr.option_choice_value,
-                                            border: const OutlineInputBorder(),
-                                          ),
-                                          initialValue: option
-                                              .choices![choiceIndex]
-                                              .value
-                                              .toString(),
-                                          maxLength: 100,
-                                          onChanged: (String value) {
-                                            setState(() {
-                                              if (_isNumericType(option.type)) {
-                                                option
-                                                        .choices![choiceIndex]
-                                                        .value =
-                                                    num.tryParse(value) ?? 0;
-                                              } else {
-                                                option
-                                                        .choices![choiceIndex]
-                                                        .value =
-                                                    value;
-                                              }
-                                              _updateWidget();
-                                            });
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              const SizedBox(height: 8),
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        AppTheme.homeContainerLowest,
-                                    foregroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface,
-                                    elevation: 0,
-                                    minimumSize: const Size.fromHeight(52),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      side: const BorderSide(
-                                        color: AppTheme.homeGhostBorder,
-                                      ),
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      option.choices ??=
-                                          <CommandOptionChoiceBuilder>[];
-                                      option.choices!.add(
-                                        CommandOptionChoiceBuilder(
-                                          name:
-                                              'Choice ${option.choices!.length + 1}',
-                                          value: _isNumericType(option.type)
-                                              ? 0
-                                              : 'Value ${option.choices!.length + 1}',
-                                        ),
-                                      );
-                                      _updateWidget();
-                                    });
-                                  },
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      const AppIcon.fromMaterial(Icons.add),
-                                      const SizedBox(width: 8),
-                                      Flexible(
-                                        child: Text(
-                                          context.tr.option_add_choice,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                            if (_isHierarchyType(option.type)) ...<Widget>[
-                              const SizedBox(height: 8),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  option.type ==
-                                          CommandOptionType.subCommandGroup
-                                      ? context.tr.option_subcommands
-                                      : context.tr.option_subcommand_options,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: AppTheme.grey),
-                                  borderRadius: BorderRadius.circular(
-                                    AppTheme.radiusSm,
-                                  ),
-                                ),
-                                child: _buildOptionsLevel(
-                                  option.options ?? <CommandOptionBuilder>[],
-                                  parentType: option.type,
-                                  depth: depth + 1,
-                                ),
-                              ),
-                            ],
-                            const SizedBox(height: 8),
-                            TextButton.icon(
-                              style: TextButton.styleFrom(
-                                foregroundColor: AppTheme.statusErrorText,
-                                minimumSize: const Size.fromHeight(48),
-                              ),
-                              onPressed: deleteOption,
-                              icon: const AppIcon.fromMaterial(
-                                Icons.delete_outline,
-                                size: 18,
-                                color: AppTheme.statusErrorText,
-                              ),
-                              label: Text(context.tr.option_delete_action),
-                            ),
-                          ],
+                    trailing: const AppIcon.fromMaterial(
+                      Icons.chevron_right_rounded,
+                      size: 22,
+                      color: AppTheme.homeMuted,
+                    ),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => _OptionEditPage(
+                          revision: _revision,
+                          title: () => option.name,
+                          body: body,
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ],
               );
@@ -2082,6 +1944,56 @@ class OptionWidgetState extends State<OptionWidget> {
           _buildOptionsLevel(options, parentType: null, depth: 0),
           const SizedBox(height: 10),
         ],
+      ),
+    );
+  }
+}
+
+/// Full-screen editor for one option, matching the flat grouped design.
+class _OptionEditPage extends StatelessWidget {
+  const _OptionEditPage({
+    required this.revision,
+    required this.title,
+    required this.body,
+  });
+
+  final ValueListenable<int> revision;
+  final String Function() title;
+  final Widget Function(BuildContext pageContext) body;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<int>(
+      valueListenable: revision,
+      builder: (context, _, _) => Scaffold(
+        appBar: AppBar(
+          title: Text(
+            title(),
+            style: const TextStyle(fontFamily: 'JetBrainsMono', fontSize: 16),
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppTheme.actionViolet,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () => Navigator.of(context).maybePop(),
+                child: Text(MaterialLocalizations.of(context).okButtonLabel),
+              ),
+            ),
+          ],
+        ),
+        body: SafeArea(
+          child: Form(
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
+              children: [body(context)],
+            ),
+          ),
+        ),
       ),
     );
   }
