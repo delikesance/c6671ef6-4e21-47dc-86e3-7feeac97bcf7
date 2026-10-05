@@ -149,11 +149,17 @@ class StudioCommand {
     required this.id,
     required this.name,
     this.trigger = '',
+    this.card = const {},
   });
 
   final String id;
   final String name;
   final String trigger;
+
+  /// La commande sous la forme que la carte de liste de l'app attend
+  /// (`type`, `folder`, `data.{options, actions, legacy*}`), à partir des champs
+  /// d'affichage de la liste du Manager.
+  final Map<String, dynamic> card;
 }
 
 class StudioWorkflowSummary {
@@ -450,10 +456,34 @@ class StudioApi {
           id: id,
           name: _string(map, const ['name']) ?? id,
           trigger: _string(map, const ['trigger']) ?? '',
+          card: _listCard(id, map),
         ),
       );
     }
     return commands;
+  }
+
+  static Map<String, dynamic> _listCard(String id, Map<String, dynamic> m) {
+    int count(String key) => (m[key] as num?)?.toInt() ?? 0;
+    return {
+      'id': id,
+      'name': _string(m, const ['name']) ?? id,
+      'description': _string(m, const ['description']) ?? '',
+      'type': _string(m, const ['type']) ?? 'chatInput',
+      'folder': _string(m, const ['folder']) ?? '',
+      'data': {
+        // La carte ne compte que : seules les longueurs comptent.
+        'options': List.filled(count('option_count'), 0),
+        'actions': List.filled(count('action_count'), 0),
+        if (count('subcommand_count') > 0)
+          'subcommandWorkflows': {
+            for (var i = 0; i < count('subcommand_count'); i++) '$i': 0,
+          },
+        'legacyModeEnabled': m['legacy_mode'] == true,
+        'legacyLocalOnly': m['legacy_local'] == true,
+        'legacyAliases': m['legacy_aliases'] is List ? m['legacy_aliases'] : [],
+      },
+    };
   }
 
   /// `GET /api/v2/bots/{b}/commands/{c}`.

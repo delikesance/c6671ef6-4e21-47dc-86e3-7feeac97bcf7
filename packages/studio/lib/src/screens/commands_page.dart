@@ -190,94 +190,15 @@ class _CommandsPageState extends State<CommandsPage> {
                 ),
               ),
             for (final command in shown) ...[
-              _CommandCard(
-                command: command,
-                onTap: () => setState(() => _editing = command),
+              CommandListCard(
+                command: command.card.isEmpty
+                    ? {'id': command.id, 'name': command.name}
+                    : command.card,
+                onOpen: () => setState(() => _editing = command),
               ),
               const SizedBox(height: 12),
             ],
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CommandCard extends StatelessWidget {
-  const _CommandCard({required this.command, required this.onTap});
-
-  final StudioCommand command;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    const family = StudioColors.actionSoft;
-    return Material(
-      color: StudioColors.card,
-      shape: RoundedRectangleBorder(
-        side: const BorderSide(color: StudioColors.clusterBorder),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: family.withValues(alpha: 0.14),
-                  border: Border.all(color: family.withValues(alpha: 0.32)),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const AppIcon.fromMaterial(
-                  Icons.terminal_rounded,
-                  size: 20,
-                  color: family,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      command.name,
-                      style: const TextStyle(
-                        fontFamily: StudioTheme.monoFamily,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    if (command.trigger.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: StudioColors.selected,
-                          borderRadius: BorderRadius.circular(11),
-                        ),
-                        child: Text(
-                          command.trigger,
-                          style: const TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w600,
-                            color: StudioColors.muted,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

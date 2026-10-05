@@ -83,6 +83,25 @@ void main() {
         StudioApi(baseUrl: 'https://api.test', client: c)
           ..accessToken = ({bool force = false}) async => 'tok';
 
+    test('la liste porte de quoi dessiner la carte de l\'app', () async {
+      final a = api(
+        MockClient(
+          (r) async => http.Response(
+            '{"commands":[{"id":"c1","name":"ban","trigger":"/ban","type":"chatInput","folder":"mod","option_count":2,"action_count":3,"legacy_mode":true,"legacy_aliases":["b"]}]}',
+            200,
+          ),
+        ),
+      );
+      final list = await a.listCommands('1');
+      final card = list.single.card;
+      expect(card['folder'], 'mod');
+      final data = card['data'] as Map;
+      expect((data['options'] as List).length, 2);
+      expect((data['actions'] as List).length, 3);
+      expect(data['legacyModeEnabled'], true);
+      expect(data['legacyAliases'], ['b']);
+    });
+
     test('get lit la commande et la révision', () async {
       final a = api(
         MockClient((r) async {
