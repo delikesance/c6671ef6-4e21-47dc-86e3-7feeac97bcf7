@@ -29,6 +29,7 @@ class CopilotPage extends StatefulWidget {
 class _CopilotPageState extends State<CopilotPage> {
   late final CopilotTools _tools = CopilotTools(widget.api);
   final _prompt = TextEditingController();
+  final _search = TextEditingController();
   final _scroll = ScrollController();
   final _rng = Random();
 
@@ -51,6 +52,7 @@ class _CopilotPageState extends State<CopilotPage> {
   @override
   void dispose() {
     _prompt.dispose();
+    _search.dispose();
     _scroll.dispose();
     super.dispose();
   }
@@ -343,17 +345,76 @@ class _CopilotPageState extends State<CopilotPage> {
 
   // ── Affichage ─────────────────────────────────────────────────────────────
 
-  String get _balance {
+  String? get _credits {
     final raw = _wallet?['available'] ?? _wallet?['balance'];
-    if (raw is! num) return '';
-    final value = raw.toDouble();
-    if (value >= 1e6) return '${(value / 1e6).toStringAsFixed(1)} M crédits';
-    if (value >= 1e3) return '${(value / 1e3).toStringAsFixed(0)} k crédits';
-    return '${value.toStringAsFixed(0)} crédits';
+    return raw == null
+        ? null
+        : formatAiCredits(
+            raw,
+            locale: Localizations.localeOf(context).toString(),
+          );
   }
+
+  List<CopilotChatSummary> get _summaries => [
+    for (final c in _history)
+      CopilotChatSummary(
+        id: '${c['id']}',
+        title: '${c['title'] ?? context.tr.copilot_new_discussion}',
+      ),
+  ];
 
   @override
   Widget build(BuildContext context) {
+    final wide = MediaQuery.sizeOf(context).width >= 1100;
+    final chat = _chatColumn();
+    if (!wide) return chat;
+    final scheme = Theme.of(context).colorScheme;
+    BoxDecoration side(bool left) => BoxDecoration(
+      border: Border(
+        left: left ? BorderSide(color: scheme.outlineVariant) : BorderSide.none,
+        right: left
+            ? BorderSide.none
+            : BorderSide(color: scheme.outlineVariant),
+      ),
+    );
+    return Row(
+      children: [
+        Container(
+          width: 280,
+          decoration: side(false),
+          child: CopilotDiscussionsPane(
+            search: _search,
+            history: _summaries,
+            selectedId: _chat == null ? null : _id,
+            busy: _busy,
+            hasMore: false,
+            onOpen: (id) => unawaited(_open(id)),
+            onSearch: _loadSide,
+            onLoadMore: () {},
+          ),
+        ),
+        Expanded(child: chat),
+        Container(
+          width: 300,
+          decoration: side(true),
+          child: CopilotSidePanel(
+            available: _credits,
+            consumedInDiscussion: _chat == null
+                ? null
+                : formatAiCredits(
+                    _chat?['consumed_tokens'],
+                    locale: Localizations.localeOf(context).toString(),
+                  ),
+            onOpenCredits: () {},
+            botLabel: widget.bot.name,
+            tools: {for (final t in CopilotTools.names) _toolLabel(t)},
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _chatColumn() {
     final messages = [
       for (final m
           in ((_chat?['messages'] as List?) ?? const []).whereType<Map>())
@@ -366,9 +427,69 @@ class _CopilotPageState extends State<CopilotPage> {
           m,
     ];
     final approvals = _actions.where(_needsApproval).toList();
+    final wide = MediaQuery.sizeOf(context).width >= 1100;
     return Column(
       children: [
-        _header(),
+        CopilotContextHeader(
+          botName: widget.bot.name,
+          title: _chat?['title'] as String?,
+          cloudRunning: widget.bot.stateKnown ? widget.bot.running : null,
+        ),
+        if (wide && _chat != null)
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: TextButton.icon(
+                onPressed: _busy ? null : () => _delete(_id),
+                icon: const AppIcon.fromMaterial(
+                  Icons.delete_outline,
+                  size: 16,
+                ),
+                label: const Text('Supprimer la discussion'),
+              ),
+            ),
+          ),
+        if (!wide)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Row(
+              children: [
+                if (_credits != null)
+                  Expanded(
+                    child: CopilotWalletStrip(
+                      available: _credits!,
+                      onOpenCredits: () {},
+                    ),
+                  )
+                else
+                  const Spacer(),
+                PopupMenuButton<String>(
+                  tooltip: context.tr.copilot_history_section_title,
+                  icon: const AppIcon.fromMaterial(Icons.history_rounded),
+                  onSelected: (id) => switch (id) {
+                    '__new__' => _newChat(),
+                    '__delete__' => _delete(_id),
+                    _ => _open(id),
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: '__new__',
+                      child: Text(context.tr.copilot_new_discussion),
+                    ),
+                    if (_chat != null)
+                      const PopupMenuItem(
+                        value: '__delete__',
+                        child: Text('Supprimer cette discussion'),
+                      ),
+                    if (_history.isNotEmpty) const PopupMenuDivider(),
+                    for (final c in _summaries.take(20))
+                      PopupMenuItem(value: c.id, child: Text(c.title)),
+                  ],
+                ),
+              ],
+            ),
+          ),
         Expanded(
           child: ListView(
             controller: _scroll,
@@ -384,8 +505,18 @@ class _CopilotPageState extends State<CopilotPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (visible.isEmpty && approvals.isEmpty) _welcome(),
-                    for (final m in visible) _bubble(m),
+                    if (visible.isEmpty && approvals.isEmpty)
+                      CopilotWelcome(
+                        ready: !_busy,
+                        history: _summaries,
+                        onSuggestion: (prompt) => _prompt.text = prompt,
+                        onOpen: _open,
+                      ),
+                    for (final m in visible)
+                      CopilotMessageBubble(
+                        content: '${m['content']}',
+                        user: m['role'] == 'user',
+                      ),
                     for (final a in approvals) _approvalCard(a),
                     if (_busy)
                       const Padding(
@@ -411,163 +542,14 @@ class _CopilotPageState extends State<CopilotPage> {
             ],
           ),
         ),
-        _composer(),
-      ],
-    );
-  }
-
-  Widget _header() {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        pagePadding(context),
-        12,
-        pagePadding(context),
-        4,
-      ),
-      child: Row(
-        children: [
-          const AppIcon.fromMaterial(
-            Icons.auto_awesome_outlined,
-            color: StudioColors.actionSoft,
-          ),
-          const SizedBox(width: 8),
-          const Text(
-            'Copilote IA',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(width: 12),
-          if (_balance.isNotEmpty)
-            Flexible(
-              child: Text(
-                _balance,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 12.5,
-                  color: StudioColors.muted,
-                ),
-              ),
-            ),
-          const Spacer(),
-          PopupMenuButton<String>(
-            tooltip: 'Discussions',
-            icon: const AppIcon.fromMaterial(Icons.history_rounded),
-            onSelected: (id) => id == '__new__' ? _newChat() : _open(id),
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: '__new__',
-                child: Text('Nouvelle discussion'),
-              ),
-              if (_history.isNotEmpty) const PopupMenuDivider(),
-              for (final c in _history.take(20))
-                PopupMenuItem(
-                  value: '${c['id']}',
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          '${c['title'] ?? 'Discussion'}',
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      IconButton(
-                        tooltip: 'Supprimer',
-                        iconSize: 16,
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          _delete('${c['id']}');
-                        },
-                        icon: const AppIcon.fromMaterial(Icons.delete_outline),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-          IconButton(
-            tooltip: 'Nouvelle discussion',
-            onPressed: _busy ? null : _newChat,
-            icon: const AppIcon.fromMaterial(Icons.chat_bubble_outline),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _welcome() => Padding(
-    padding: const EdgeInsets.only(top: 40),
-    child: Column(
-      children: [
-        const AppIcon.fromMaterial(
-          Icons.auto_awesome_outlined,
-          size: 40,
-          color: StudioColors.actionSoft,
-        ),
-        const SizedBox(height: 12),
-        Text(
-          'Que voulez-vous construire pour ${widget.bot.name} ?',
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'Décrivez une commande, un workflow ou une variable. Le Copilote lit votre bot, propose les changements et ne modifie rien sans votre accord.',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: StudioColors.muted, height: 1.5),
-        ),
-        const SizedBox(height: 16),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          alignment: WrapAlignment.center,
-          children: [
-            for (final s in const [
-              'Crée une commande /ping qui répond « pong ».',
-              'Ajoute un message de bienvenue quand un membre arrive.',
-              'Quelles commandes a mon bot ?',
-            ])
-              ActionChip(
-                label: Text(s),
-                onPressed: _busy
-                    ? null
-                    : () {
-                        _prompt.text = s;
-                        _send();
-                      },
-              ),
-          ],
+        CopilotComposer(
+          controller: _prompt,
+          enabled: !_busy,
+          canSend: !_busy,
+          availableCredits: _credits,
+          onSend: _send,
         ),
       ],
-    ),
-  );
-
-  Widget _bubble(Map<String, dynamic> m) {
-    final user = m['role'] == 'user';
-    return Align(
-      alignment: user ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 6),
-        padding: const EdgeInsets.all(14),
-        constraints: const BoxConstraints(maxWidth: 680),
-        decoration: BoxDecoration(
-          color: user
-              ? StudioColors.action.withValues(alpha: 0.18)
-              : StudioColors.card,
-          border: Border.all(
-            color: user
-                ? StudioColors.action.withValues(alpha: 0.4)
-                : StudioColors.clusterBorder,
-          ),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        // Les réponses du Copilote sont du Markdown : même rendu que dans l'app
-        // (listes, code, liens). Ce que tape l'utilisateur reste du texte brut.
-        child: user
-            ? SelectableText(
-                '${m['content']}',
-                style: const TextStyle(height: 1.5),
-              )
-            : CopilotMarkdown(content: '${m['content']}'),
-      ),
     );
   }
 
@@ -647,56 +629,5 @@ class _CopilotPageState extends State<CopilotPage> {
     );
   }
 
-  String _toolLabel(String name) => switch (name) {
-    'local_create_command' => 'créer une commande',
-    'local_update_command_execution' => 'modifier les actions d\'une commande',
-    'local_create_workflow' => 'créer un workflow',
-    'local_update_workflow' => 'modifier un workflow',
-    'local_set_variable' => 'définir une variable',
-    'remote_start_bot' => 'démarrer le bot',
-    'remote_stop_bot' => 'arrêter le bot',
-    _ => name,
-  };
-
-  Widget _composer() {
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          pagePadding(context),
-          8,
-          pagePadding(context),
-          12,
-        ),
-        child: PageContent(
-          maxWidth: 820,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _prompt,
-                  minLines: 1,
-                  maxLines: 5,
-                  enabled: !_busy,
-                  textInputAction: TextInputAction.send,
-                  onSubmitted: (_) => _send(),
-                  decoration: const InputDecoration(
-                    hintText: 'Décrivez ce que vous voulez…',
-                    isDense: true,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              IconButton.filled(
-                tooltip: 'Envoyer',
-                onPressed: _busy ? null : () => _send(),
-                icon: const AppIcon.fromMaterial(Icons.arrow_upward),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  String _toolLabel(String name) => copilotToolLabel(context, name);
 }
