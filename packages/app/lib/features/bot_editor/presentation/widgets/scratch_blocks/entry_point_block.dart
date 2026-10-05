@@ -337,9 +337,6 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
     // Anatomie alignée sur les autres blocs : pastille Événements, surtitre,
     // titre complet, résumé mono des déclencheurs, menu de débordement.
     const family = BlockFamily.events;
-    final settingsLabel = (cmdName != null && cmdName.isNotEmpty)
-        ? '${context.tr.edit_shell_command_settings} ($prefix$cmdName)'
-        : context.tr.edit_shell_command_settings;
 
     return ScratchBlock(
       color: family.color,
@@ -351,35 +348,18 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
       collapsed: _collapsed,
       onToggleCollapse: () => setState(() => _collapsed = !_collapsed),
       badge: ScratchBlockBadge(label: _typeBadgeLabel(), color: family.color),
-      trailing: widget.onOpenSettings == null
-          ? null
-          : PopupMenuButton<String>(
-              icon: AppIcon.fromMaterial(
-                Icons.more_vert,
-                color: colorScheme.onSurfaceVariant,
-                size: 20,
-              ),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              tooltip: MaterialLocalizations.of(context).showMenuTooltip,
-              onSelected: (_) => widget.onOpenSettings?.call(),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 'settings',
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const AppIcon.fromMaterial(Icons.tune_rounded, size: 18),
-                      const SizedBox(width: 12),
-                      Text(settingsLabel),
-                    ],
-                  ),
-                ),
-              ],
-            ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // ── Command settings: a visible entry, not a hidden overflow menu ──
+          if (widget.onOpenSettings != null) ...[
+            _CommandSettingsEntry(
+              title: context.tr.edit_shell_command_settings,
+              subtitle: context.tr.edit_shell_command_settings_desc,
+              onTap: widget.onOpenSettings!,
+            ),
+            const SizedBox(height: 16),
+          ],
           // ── Entry point type selector (Slash, Prefix, User, Message) ──
           Text(
             context.tr.scratch_entry_point_listen,
@@ -960,4 +940,83 @@ class WorkflowEventItem {
   final String event;
   final String label;
   final String description;
+}
+
+/// Prominent, labelled entry to the command settings (name, description,
+/// permissions…), replacing the unlabeled "⋮" overflow menu people missed.
+class _CommandSettingsEntry extends StatelessWidget {
+  const _CommandSettingsEntry({
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final String title, subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    return Material(
+      color: AppTheme.actionViolet.withValues(alpha: .1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(color: AppTheme.actionViolet.withValues(alpha: .4)),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppTheme.actionViolet.withValues(alpha: .2),
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: const Center(
+                  child: AppIcon.fromMaterial(
+                    Icons.tune_rounded,
+                    size: 22,
+                    color: AppTheme.actionVioletSoft,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: muted),
+                    ),
+                  ],
+                ),
+              ),
+              const AppIcon.fromMaterial(
+                Icons.chevron_right_rounded,
+                size: 22,
+                color: AppTheme.actionVioletSoft,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

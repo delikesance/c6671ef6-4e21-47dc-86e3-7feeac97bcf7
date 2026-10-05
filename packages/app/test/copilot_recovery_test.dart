@@ -238,7 +238,7 @@ void main() {
       );
       await _settle(tester);
 
-      expect(find.textContaining('AI credits used'), findsOneWidget);
+      expect(find.textContaining('credits left'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }

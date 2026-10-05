@@ -310,13 +310,113 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: colorScheme.outlineVariant),
+        color: AppTheme.actionViolet.withValues(alpha: .08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppTheme.actionViolet.withValues(alpha: .22)),
       ),
-      child: Text(
-        _rulesHintText(),
-        style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 1),
+            child: AppIcon.fromMaterial(
+              Icons.info_outline_rounded,
+              size: 18,
+              color: AppTheme.actionVioletSoft,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              _rulesHintText(),
+              style: TextStyle(
+                fontSize: 12,
+                height: 1.5,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionLabel(String text) => Padding(
+    padding: const EdgeInsets.only(bottom: 2),
+    child: Text(
+      text,
+      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
+    ),
+  );
+
+  Widget _tileGrid(List<Widget> tiles) => LayoutBuilder(
+    builder: (context, constraints) {
+      final width = (constraints.maxWidth - 10) / 2;
+      return Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: [
+          for (final tile in tiles) SizedBox(width: width, child: tile),
+        ],
+      );
+    },
+  );
+
+  /// Large, toggleable pill instead of a tiny checkbox: easier to hit on mobile.
+  Widget _checkTile(String label, bool value, ValueChanged<bool> onChanged) {
+    return Material(
+      color: value
+          ? AppTheme.actionViolet.withValues(alpha: .12)
+          : AppTheme.homeContainerLowest,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(
+          color: value
+              ? AppTheme.actionViolet.withValues(alpha: .5)
+              : AppTheme.homeCardBorder,
+        ),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => onChanged(!value),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 120),
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: value ? AppTheme.actionViolet : Colors.transparent,
+                    borderRadius: BorderRadius.circular(6),
+                    border: value
+                        ? null
+                        : Border.all(
+                            color: AppTheme.homeGhostBorder,
+                            width: 1.5,
+                          ),
+                  ),
+                  child: value
+                      ? const Icon(Icons.check, size: 14, color: Colors.white)
+                      : null,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: value ? FontWeight.w700 : FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -566,15 +666,20 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
         .map((item) => item.label)
         .toList(growable: false);
 
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.homeCard,
+        border: Border.all(color: AppTheme.homeCardBorder),
+        borderRadius: BorderRadius.circular(22),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               context.tr.command_info_title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 4),
             Text(
@@ -760,241 +865,238 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                       ),
                     ],
                     const SizedBox(height: 12),
-                    SwitchListTile.adaptive(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(context.tr.local_command_title),
-                      subtitle: Text(
-                        _awaitedPresetEnabled
-                            ? context.tr.local_command_awaited_desc
-                            : context.tr.local_command_desc,
+                    Material(
+                      clipBehavior: Clip.antiAlias,
+                      color: AppTheme.homeContainerLowest,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: const BorderSide(color: AppTheme.homeCardBorder),
                       ),
-                      value: widget.localOnlyCommand,
-                      onChanged: _awaitedPresetEnabled || widget.isLegacyCommand
-                          ? null
-                          : widget.onLocalOnlyCommandChanged,
+                      child: SwitchListTile.adaptive(
+                        contentPadding: const EdgeInsets.fromLTRB(16, 4, 12, 4),
+                        title: Text(context.tr.local_command_title),
+                        subtitle: Text(
+                          _awaitedPresetEnabled
+                              ? context.tr.local_command_awaited_desc
+                              : context.tr.local_command_desc,
+                        ),
+                        value: widget.localOnlyCommand,
+                        onChanged:
+                            _awaitedPresetEnabled || widget.isLegacyCommand
+                            ? null
+                            : widget.onLocalOnlyCommandChanged,
+                      ),
                     ),
                     if (!widget.isLegacyCommand) ...[
                       const SizedBox(height: 8),
-                      Text(
-                        context.tr.command_integration_label,
-                        style: TextStyle(fontSize: 12, color: AppTheme.grey),
-                      ),
+                      _sectionLabel(context.tr.command_integration_label),
                       const SizedBox(height: 8),
-                      Wrap(
-                        alignment: WrapAlignment.start,
-                        spacing: 20,
-                        runSpacing: 8,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Checkbox(
-                                value: widget.integrationTypes.contains(
-                                  ApplicationIntegrationType.guildInstall,
-                                ),
-                                onChanged: (value) {
-                                  final newTypes =
-                                      List<ApplicationIntegrationType>.from(
-                                        widget.integrationTypes,
-                                      );
-                                  if (value == true) {
-                                    newTypes.add(
-                                      ApplicationIntegrationType.guildInstall,
-                                    );
-                                  } else {
-                                    newTypes.remove(
-                                      ApplicationIntegrationType.guildInstall,
-                                    );
-                                  }
-                                  widget.onIntegrationTypesChanged(newTypes);
-                                },
-                              ),
-                              Text(context.tr.command_integration_guild),
-                            ],
+                      _tileGrid([
+                        _checkTile(
+                          context.tr.command_integration_guild,
+                          widget.integrationTypes.contains(
+                            ApplicationIntegrationType.guildInstall,
                           ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Checkbox(
-                                value: widget.integrationTypes.contains(
-                                  ApplicationIntegrationType.userInstall,
-                                ),
-                                onChanged: (value) {
-                                  final newTypes =
-                                      List<ApplicationIntegrationType>.from(
-                                        widget.integrationTypes,
-                                      );
-                                  if (value == true) {
-                                    newTypes.add(
-                                      ApplicationIntegrationType.userInstall,
-                                    );
-                                  } else {
-                                    newTypes.remove(
-                                      ApplicationIntegrationType.userInstall,
-                                    );
-                                  }
-                                  widget.onIntegrationTypesChanged(newTypes);
-                                },
-                              ),
-                              Text(context.tr.command_integration_user),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        context.tr.command_scope_label,
-                        style: TextStyle(fontSize: 12, color: AppTheme.grey),
-                      ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        alignment: WrapAlignment.start,
-                        spacing: 20,
-                        runSpacing: 8,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Checkbox(
-                                value: widget.contexts.contains(
-                                  InteractionContextType.guild,
-                                ),
-                                onChanged: (value) {
-                                  final newContexts =
-                                      List<InteractionContextType>.from(
-                                        widget.contexts,
-                                      );
-                                  if (value == true) {
-                                    newContexts.add(
-                                      InteractionContextType.guild,
-                                    );
-                                  } else {
-                                    newContexts.remove(
-                                      InteractionContextType.guild,
-                                    );
-                                  }
-                                  widget.onContextsChanged(newContexts);
-                                },
-                              ),
-                              Text(context.tr.command_context_guild),
-                            ],
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Checkbox(
-                                value: widget.contexts.contains(
-                                  InteractionContextType.botDm,
-                                ),
-                                onChanged: (value) {
-                                  final newContexts =
-                                      List<InteractionContextType>.from(
-                                        widget.contexts,
-                                      );
-                                  if (value == true) {
-                                    newContexts.add(
-                                      InteractionContextType.botDm,
-                                    );
-                                  } else {
-                                    newContexts.remove(
-                                      InteractionContextType.botDm,
-                                    );
-                                  }
-                                  widget.onContextsChanged(newContexts);
-                                },
-                              ),
-                              Text(context.tr.command_context_bot_dm),
-                            ],
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Checkbox(
-                                value: widget.contexts.contains(
-                                  InteractionContextType.privateChannel,
-                                ),
-                                onChanged: (value) {
-                                  final newContexts =
-                                      List<InteractionContextType>.from(
-                                        widget.contexts,
-                                      );
-                                  if (value == true) {
-                                    newContexts.add(
-                                      InteractionContextType.privateChannel,
-                                    );
-                                  } else {
-                                    newContexts.remove(
-                                      InteractionContextType.privateChannel,
-                                    );
-                                  }
-                                  widget.onContextsChanged(newContexts);
-                                },
-                              ),
-                              Text(context.tr.command_context_group_dm),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        context.tr.command_permissions_label,
-                        style: TextStyle(fontSize: 12, color: AppTheme.grey),
-                      ),
-                      const SizedBox(height: 8),
-                      ExpansionTile(
-                        tilePadding: const EdgeInsets.symmetric(horizontal: 8),
-                        childrenPadding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
-                        title: Text(context.tr.command_permissions_title),
-                        subtitle: Text(
-                          _selectedPermissionOffsets.isEmpty
-                              ? context.tr.command_permissions_none
-                              : context.tr.command_permissions_count(
-                                  _selectedPermissionOffsets.length,
-                                ),
-                          style: const TextStyle(fontSize: 12),
+                          (value) {
+                            final newTypes =
+                                List<ApplicationIntegrationType>.from(
+                                  widget.integrationTypes,
+                                );
+                            if (value) {
+                              newTypes.add(
+                                ApplicationIntegrationType.guildInstall,
+                              );
+                            } else {
+                              newTypes.remove(
+                                ApplicationIntegrationType.guildInstall,
+                              );
+                            }
+                            widget.onIntegrationTypesChanged(newTypes);
+                          },
                         ),
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: selectedNames
-                                  .map((name) => Chip(label: Text(name)))
-                                  .toList(),
+                        _checkTile(
+                          context.tr.command_integration_user,
+                          widget.integrationTypes.contains(
+                            ApplicationIntegrationType.userInstall,
+                          ),
+                          (value) {
+                            final newTypes =
+                                List<ApplicationIntegrationType>.from(
+                                  widget.integrationTypes,
+                                );
+                            if (value) {
+                              newTypes.add(
+                                ApplicationIntegrationType.userInstall,
+                              );
+                            } else {
+                              newTypes.remove(
+                                ApplicationIntegrationType.userInstall,
+                              );
+                            }
+                            widget.onIntegrationTypesChanged(newTypes);
+                          },
+                        ),
+                      ]),
+                      const SizedBox(height: 16),
+                      _sectionLabel(context.tr.command_scope_label),
+                      const SizedBox(height: 8),
+                      _tileGrid([
+                        _checkTile(
+                          context.tr.command_context_guild,
+                          widget.contexts.contains(
+                            InteractionContextType.guild,
+                          ),
+                          (value) {
+                            final newContexts =
+                                List<InteractionContextType>.from(
+                                  widget.contexts,
+                                );
+                            if (value) {
+                              newContexts.add(InteractionContextType.guild);
+                            } else {
+                              newContexts.remove(InteractionContextType.guild);
+                            }
+                            widget.onContextsChanged(newContexts);
+                          },
+                        ),
+                        _checkTile(
+                          context.tr.command_context_bot_dm,
+                          widget.contexts.contains(
+                            InteractionContextType.botDm,
+                          ),
+                          (value) {
+                            final newContexts =
+                                List<InteractionContextType>.from(
+                                  widget.contexts,
+                                );
+                            if (value) {
+                              newContexts.add(InteractionContextType.botDm);
+                            } else {
+                              newContexts.remove(InteractionContextType.botDm);
+                            }
+                            widget.onContextsChanged(newContexts);
+                          },
+                        ),
+                        _checkTile(
+                          context.tr.command_context_group_dm,
+                          widget.contexts.contains(
+                            InteractionContextType.privateChannel,
+                          ),
+                          (value) {
+                            final newContexts =
+                                List<InteractionContextType>.from(
+                                  widget.contexts,
+                                );
+                            if (value) {
+                              newContexts.add(
+                                InteractionContextType.privateChannel,
+                              );
+                            } else {
+                              newContexts.remove(
+                                InteractionContextType.privateChannel,
+                              );
+                            }
+                            widget.onContextsChanged(newContexts);
+                          },
+                        ),
+                      ]),
+                      const SizedBox(height: 16),
+                      _sectionLabel(context.tr.command_permissions_label),
+                      const SizedBox(height: 8),
+                      Material(
+                        clipBehavior: Clip.antiAlias,
+                        color: AppTheme.homeContainerLowest,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          side: const BorderSide(
+                            color: AppTheme.homeCardBorder,
+                          ),
+                        ),
+                        child: ExpansionTile(
+                          shape: const Border(),
+                          collapsedShape: const Border(),
+                          leading: Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: AppTheme.actionViolet.withValues(
+                                alpha: .14,
+                              ),
+                              borderRadius: BorderRadius.circular(11),
+                            ),
+                            child: const Center(
+                              child: AppIcon.fromMaterial(
+                                Icons.shield_outlined,
+                                size: 19,
+                                color: AppTheme.actionVioletSoft,
+                              ),
                             ),
                           ),
-                          if (selectedNames.isNotEmpty)
-                            const SizedBox(height: 8),
-                          ..._permissionItems.map((item) {
-                            final isSelected = _selectedPermissionOffsets
-                                .contains(item.offset);
-                            return CheckboxListTile(
-                              contentPadding: EdgeInsets.zero,
-                              dense: true,
-                              value: isSelected,
-                              title: Text(item.label),
-                              subtitle: Text(
-                                'Bit ${item.offset}',
-                                style: const TextStyle(fontSize: 11),
-                              ),
-                              onChanged: (checked) {
-                                _togglePermission(item.offset, checked == true);
-                              },
-                              controlAffinity: ListTileControlAffinity.leading,
-                            );
-                          }),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              OutlinedButton.icon(
-                                onPressed: _clearPermissions,
-                                icon: const AppIcon.fromMaterial(Icons.clear),
-                                label: Text(context.tr.common_clear),
-                              ),
-                            ],
+                          tilePadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
                           ),
-                        ],
+                          childrenPadding: const EdgeInsets.fromLTRB(
+                            8,
+                            4,
+                            8,
+                            8,
+                          ),
+                          title: Text(context.tr.command_permissions_title),
+                          subtitle: Text(
+                            _selectedPermissionOffsets.isEmpty
+                                ? context.tr.command_permissions_none
+                                : context.tr.command_permissions_count(
+                                    _selectedPermissionOffsets.length,
+                                  ),
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          children: [
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: selectedNames
+                                    .map((name) => Chip(label: Text(name)))
+                                    .toList(),
+                              ),
+                            ),
+                            if (selectedNames.isNotEmpty)
+                              const SizedBox(height: 8),
+                            ..._permissionItems.map((item) {
+                              final isSelected = _selectedPermissionOffsets
+                                  .contains(item.offset);
+                              return CheckboxListTile(
+                                contentPadding: EdgeInsets.zero,
+                                dense: true,
+                                value: isSelected,
+                                title: Text(item.label),
+                                subtitle: Text(
+                                  'Bit ${item.offset}',
+                                  style: const TextStyle(fontSize: 11),
+                                ),
+                                onChanged: (checked) {
+                                  _togglePermission(
+                                    item.offset,
+                                    checked == true,
+                                  );
+                                },
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                              );
+                            }),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                OutlinedButton.icon(
+                                  onPressed: _clearPermissions,
+                                  icon: const AppIcon.fromMaterial(Icons.clear),
+                                  label: Text(context.tr.common_clear),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 8),
                       TextFormField(

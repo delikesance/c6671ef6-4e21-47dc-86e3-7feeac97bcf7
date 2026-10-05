@@ -225,6 +225,25 @@ class CopilotCodePreview extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (bdfd && errors.isEmpty) ...[
+                  AppIcon(
+                    Reicon.outline.tickCircle,
+                    size: 14,
+                    color: AppTheme.statusOnline,
+                  ),
+                  const SizedBox(width: 5),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Text(
+                      validLabel,
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.statusOnline,
+                      ),
+                    ),
+                  ),
+                ],
                 if (added > 0)
                   Text(
                     '+$added',
@@ -359,7 +378,7 @@ class CopilotCodePreview extends StatelessWidget {
   }
 
   Widget _diagnosticsStrip(List<BdfdCompileDiagnostic> errors) {
-    if (!bdfd) return const SizedBox.shrink();
+    if (!bdfd || errors.isEmpty) return const SizedBox.shrink();
     final bad = errors.isNotEmpty;
     final color = bad ? AppTheme.statusErrorText : AppTheme.statusOnline;
     final first = bad ? errors.first : null;
