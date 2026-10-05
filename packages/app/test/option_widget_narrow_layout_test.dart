@@ -41,10 +41,11 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('option1'));
+    await tester.tap(find.text('option1').last);
     await tester.pumpAndSettle();
 
-    expect(find.byType(DropdownButtonFormField<CommandOptionType>), findsOne);
+    // Type chips (one per allowed type) replace the old dropdown.
+    expect(find.text('Pièce jointe'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

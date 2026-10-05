@@ -278,8 +278,9 @@ void main() {
       );
       await tester.tap(find.byTooltip('Command settings'));
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('target'));
-      await tester.tap(find.text('target'));
+      // The live preview repeats the name; the list row is the last match.
+      await tester.ensureVisible(find.text('target').last);
+      await tester.tap(find.text('target').last);
       await tester.pumpAndSettle();
       final description = find.byWidgetPredicate(
         (widget) =>

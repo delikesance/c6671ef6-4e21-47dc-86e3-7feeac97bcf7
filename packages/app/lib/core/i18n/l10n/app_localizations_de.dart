@@ -11283,4 +11283,37 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get modules_desc_guilds => 'Server, auf denen der Bot ist';
+
+  @override
+  String get option_section_identity => 'Identität';
+
+  @override
+  String get option_section_type => 'Werttyp';
+
+  @override
+  String get option_section_behavior => 'Verhalten';
+
+  @override
+  String get option_translations => 'Übersetzungen';
+
+  @override
+  String get option_delete_action => 'Option löschen';
+
+  @override
+  String get option_preview_title => 'Vorschau in Discord';
+
+  @override
+  String get option_preview_legend =>
+      'Lila unterstrichen: erforderlich · grau: optional';
+
+  @override
+  String option_choices_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Auswahlen',
+      one: '1 Auswahl',
+    );
+    return '$_temp0';
+  }
 }

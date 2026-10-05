@@ -12926,5 +12926,14 @@
   "modules_desc_scheduler": "Runs a workflow every X minutes",
   "modules_desc_webhooks": "HTTP calls routed to a workflow",
   "modules_desc_team": "Collaborators and team chat",
-  "modules_desc_guilds": "Servers where the bot is present"
+  "modules_desc_guilds": "Servers where the bot is present",
+  "option_section_identity": "Identity",
+  "option_section_type": "Value type",
+  "option_section_behavior": "Behavior",
+  "option_translations": "Translations",
+  "option_delete_action": "Delete option",
+  "option_preview_title": "Preview in Discord",
+  "option_preview_legend": "Purple underline: required · grey: optional",
+  "option_choices_count": "{count, plural, =1{1 choice} other{{count} choices}}",
+  "@option_choices_count": {"placeholders": {"count": {"type": "int"}}}
 }
