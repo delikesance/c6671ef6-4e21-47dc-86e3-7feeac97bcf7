@@ -186,7 +186,10 @@ class StudioApi {
 
   // ── Authentification Discord ──────────────────────────────────────────────
 
-  Future<String> startDiscordAuthorization({
+  /// Renvoie l'URL Discord ET l'état que le SERVEUR y a placé : il signe le sien
+  /// et ignore celui qu'on lui envoie. C'est cet état-là qui revient au retour
+  /// OAuth, donc c'est lui qu'il faut mémoriser pour le comparer.
+  Future<({String url, String state})> startDiscordAuthorization({
     required String redirectUri,
     required String state,
   }) async {
@@ -207,7 +210,11 @@ class StudioApi {
         'Bot Creator Server did not return an authorization URL.',
       );
     }
-    return url;
+    final serverState =
+        _string(json, const ['state']) ??
+        Uri.tryParse(url)?.queryParameters['state'] ??
+        state;
+    return (url: url, state: serverState);
   }
 
   Future<StudioSession> completeDiscordAuthorization({
