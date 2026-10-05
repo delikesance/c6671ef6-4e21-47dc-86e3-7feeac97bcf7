@@ -1,0 +1,4 @@
+# Le contexte ne contient que ce que l'image copie.
+**
+!build/web
+!nginx
