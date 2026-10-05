@@ -103,7 +103,14 @@ class _OverviewPageState extends State<OverviewPage> {
                     ),
                   ),
                 ),
-                StatusPill(running: _bot.running),
+                StatusPill(
+                  variant: _bot.running
+                      ? StatusPillVariant.online
+                      : StatusPillVariant.stopped,
+                  label: _bot.running
+                      ? context.l10n.statusOnline
+                      : context.l10n.statusStopped,
+                ),
                 _bot.running
                     ? OutlinedButton(
                         onPressed: _busy ? null : _toggle,

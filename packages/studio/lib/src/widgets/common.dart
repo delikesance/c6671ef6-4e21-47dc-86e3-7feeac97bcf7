@@ -46,45 +46,6 @@ class CountChip extends StatelessWidget {
   );
 }
 
-class StatusPill extends StatelessWidget {
-  const StatusPill({super.key, required this.running});
-
-  final bool running;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = running ? StudioColors.online : StudioColors.muted;
-    return Container(
-      height: 26,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-        borderRadius: BorderRadius.circular(13),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 7,
-            height: 7,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            running ? context.l10n.statusOnline : context.l10n.statusStopped,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// Message centré pour une section pas encore portée sur le web.
 class ComingSoon extends StatelessWidget {
   const ComingSoon({super.key, required this.title});
@@ -177,4 +138,24 @@ class BlockChip extends StatelessWidget {
       ),
     ),
   );
+}
+
+class StudioLogo extends StatelessWidget {
+  const StudioLogo({super.key, this.size = 44});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(size * 0.32),
+      child: Image.asset(
+        'assets/logo.png',
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        semanticLabel: 'Bot Creator',
+      ),
+    );
+  }
 }

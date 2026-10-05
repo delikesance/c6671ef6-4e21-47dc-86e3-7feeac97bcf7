@@ -17,6 +17,7 @@ dependencies:
   reicon_flutter: ^1.0.1
   bot_creator_shared: any
   flutter_highlight: ^0.7.0
+  google_fonts: ^6.2.1
   highlight: ^0.7.0
   flutter_colorpicker: ^1.1.0
   http: ^1.6.0
@@ -28,6 +29,12 @@ dev_dependencies:
 
 flutter:
   generate: true
+  assets:
+    # google_fonts retrouve les polices embarquées par leur nom de fichier dans
+    # l'AssetManifest (cf. pubspec de l'app) : on les liste aussi comme assets.
+    - assets/fonts/inter/
+    - assets/fonts/jetbrainsmono/
+
   # Polices partagées (Inter + JetBrains Mono). Hors du paquet, elles se
   # référencent en `packages/bot_creator_ui/<famille>` (cf. [UiFonts]).
   fonts:

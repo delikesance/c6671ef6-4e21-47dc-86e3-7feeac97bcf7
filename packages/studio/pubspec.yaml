@@ -15,6 +15,7 @@ dependencies:
   intl: any
   bot_creator_shared: any
   bot_creator_ui: any
+  google_fonts: ^6.2.1
   http: ^1.6.0
   shared_preferences: ^2.5.5
   web: ^1.1.0

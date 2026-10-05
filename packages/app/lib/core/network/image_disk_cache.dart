@@ -21,6 +21,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart' show AvatarImageSource;
 import 'package:flutter/widgets.dart'
     show FileImage, ImageProvider, NetworkImage;
 import 'package:path/path.dart' as p;
@@ -31,7 +32,7 @@ import 'package:path_provider/path_provider.dart';
 /// Les dépendances (dossier de cache, téléchargement) sont injectables : la
 /// sémantique du cache — et notamment l'absence de requête réseau au second
 /// appel — est ainsi testable sans toucher au disque réel ni au réseau.
-class ImageDiskCache {
+class ImageDiskCache implements AvatarImageSource {
   ImageDiskCache({
     Future<Directory?> Function()? cacheDirResolver,
     Future<Uint8List?> Function(String url)? fetcher,
@@ -94,6 +95,7 @@ class ImageDiskCache {
   /// Provider d'image pour [url] : mémoire → disque → réseau.
   ///
   /// Ne lève jamais : en dernier recours c'est un `NetworkImage` qui est rendu.
+  @override
   Future<ImageProvider> providerFor(String url) {
     final known = _providers[url];
     if (known != null) return Future<ImageProvider>.value(known);
