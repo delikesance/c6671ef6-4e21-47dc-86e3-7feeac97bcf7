@@ -2693,6 +2693,30 @@ class MainApiClient implements RemoteRuntimeClient {
     retryOnFailure: false,
     logBody: false,
   );
+  // Shared library of tested, AI-generated commands (see the copilot's library_* tools).
+  Future<Map<String, dynamic>> searchAILibrary(
+    String query, {
+    String? mode,
+    int? limit,
+  }) => _get(
+    '/gateway/ai/library/search',
+    query: {'q': query, 'mode': mode, 'limit': limit?.toString()},
+  );
+  Future<Map<String, dynamic>> getAILibraryEntry(String id) =>
+      _get('/gateway/ai/library/${Uri.encodeComponent(id)}');
+  Future<Map<String, dynamic>> markAILibraryUsed(String id) => _post(
+    '/gateway/ai/library/${Uri.encodeComponent(id)}/use',
+    const {},
+    retryOnFailure: false,
+    logBody: false,
+  );
+  Future<bool> getAILibraryContribution() async =>
+      (await _get('/gateway/ai/library/contribution'))['enabled'] == true;
+  Future<bool> setAILibraryContribution(bool enabled) async =>
+      (await _put('/gateway/ai/library/contribution', {
+        'enabled': enabled,
+      }))['enabled'] ==
+      true;
   Future<Map<String, dynamic>> getAILedger({int offset = 0, String? source}) =>
       _get(
         '/gateway/ai/ledger',

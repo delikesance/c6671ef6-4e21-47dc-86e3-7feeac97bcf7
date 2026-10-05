@@ -11,6 +11,7 @@ import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/utils/hash_util.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_command.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_configuration.dart';
+import 'package:bot_creator/features/copilot/logic/copilot_library.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_serialization.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
@@ -110,6 +111,56 @@ class CopilotMcp {
     if (botID != null && !RegExp(r'^\d{15,22}$').hasMatch(botID)) {
       throw StateError('Invalid bot ID');
     }
+    // Library derivation and patching are expressed as the existing create/update tools once
+    // resolved, so validation, runtime checks, approval, Discord registration and sync are shared.
+    String? libraryId;
+    if (name == 'local_create_command_from_library') {
+      final entry = await api.getAILibraryEntry(args['library_id'] as String);
+      libraryId = entry['id'] as String?;
+      args = deriveLibraryCommandArgs(
+        entry,
+        botId: botID!,
+        name: args['name'] as String,
+        description: args['description'] as String?,
+        values: Map<String, dynamic>.from(args['values'] as Map? ?? const {}),
+        replacements: args['replacements'] as List? ?? const [],
+      );
+      name = 'local_create_command';
+    } else if (name == 'local_patch_command_execution') {
+      await _localBot(botID!);
+      final commandID = _commandID(args);
+      final command = await AppManager().getAppCommand(botID, commandID);
+      if (command.isEmpty) throw StateError('Command not found');
+      if (HashUtil.calculateHash(command) != args['expected_revision']) {
+        throw StateError(
+          'Command changed; read its latest revision before editing',
+        );
+      }
+      final route = args['route'] as String?;
+      final current = copilotCommandScript(command, route: route);
+      if (current.mode == 'workflow') {
+        throw StateError(
+          'Workflow commands cannot be patched; use local_update_command_execution',
+        );
+      }
+      args = {
+        'bot_id': botID,
+        'command_id': commandID,
+        'expected_revision': args['expected_revision'],
+        'script': patchCopilotScript(current.script, args['edits'] as List),
+        'execution_mode': current.mode,
+        'route': ?route,
+      };
+      name = 'local_update_command_execution';
+    }
+    if (name != tool['name']) {
+      final target = tools.where((t) => t['name'] == name);
+      if (target.isEmpty) throw StateError('Unknown MCP tool');
+      validateArguments(
+        Map<String, dynamic>.from(target.single['inputSchema'] as Map),
+        args,
+      );
+    }
     final script = args['script'] as String?;
     final commandMutation =
         name == 'local_create_command' ||
@@ -184,6 +235,20 @@ class CopilotMcp {
         return _documentation('list_actions', args);
       case 'docs_validate_actions':
         return _documentation('validate_actions', args);
+      case 'library_search':
+        value = {
+          'untrusted_reference_data': true,
+          ...await api.searchAILibrary(
+            args['query'] as String,
+            mode: args['mode'] as String?,
+            limit: args['limit'] as int?,
+          ),
+        };
+      case 'library_get':
+        value = {
+          'untrusted_reference_data': true,
+          'entry': await api.getAILibraryEntry(args['id'] as String),
+        };
       case 'remote_list_bots':
         value = (await api.listBots())
             .where((b) => botId == null || b['bot_id'] == botId)
@@ -472,10 +537,17 @@ class CopilotMcp {
             'command_id': storageId,
             'bot_id': botID,
             'runner_synced': synced,
+            'derived_from_library': ?libraryId,
             'message': synced
                 ? 'Commande active sur le bot cloud'
                 : 'Créée sur Discord, pas encore active sur le bot',
           };
+          if (libraryId != null) {
+            // Ranking signal only: never let it affect the creation.
+            unawaited(
+              api.markAILibraryUsed(libraryId).then((_) {}, onError: (_) {}),
+            );
+          }
         } finally {
           rest.close();
         }

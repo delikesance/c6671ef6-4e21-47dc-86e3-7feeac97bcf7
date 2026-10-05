@@ -10283,6 +10283,28 @@ class AppLocalizationsJa extends AppLocalizations {
   String get copilot_tool_update_command => 'コマンドを更新';
 
   @override
+  String get copilot_tool_library_search => 'コマンドライブラリを検索';
+
+  @override
+  String get copilot_tool_create_from_library => 'ライブラリのコマンドから作成';
+
+  @override
+  String get copilot_tool_patch_command => 'コマンドのスクリプトを編集';
+
+  @override
+  String get copilot_library_title => 'コマンドライブラリ';
+
+  @override
+  String get copilot_library_contribute => 'テスト済みのコマンドを共有する';
+
+  @override
+  String get copilot_library_hint =>
+      'アシスタントが作成し、テストに合格したコマンドは、共有ライブラリに追加され、全員がより速く安く回答を得られるようになります。Discord ID、機密情報、あなたの身元は事前に取り除かれます。いつでもオフにでき、アカウントを削除すると提供分も削除されます。';
+
+  @override
+  String get copilot_action_library => 'コマンドライブラリ';
+
+  @override
   String get copilot_tool_read_docs => 'ドキュメントを参照';
 
   @override

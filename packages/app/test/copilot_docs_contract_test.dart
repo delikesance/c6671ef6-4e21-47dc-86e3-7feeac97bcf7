@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bot_creator/features/copilot/logic/copilot_catalog.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 // Contract with the documentation MCP served by vitrine (/api/mcp) and relayed
@@ -37,17 +38,47 @@ void main() {
     }
   });
 
-  test('tools.json matches the manager copilot_tools.json', () {
+  test('every tool is compatible with the manager copilot_tools.json', () {
+    // The manager lives next to this repository's bot-creator folder; a checkout without it skips.
     final manager = File(
-      '../../../manager/internal/services/copilot_tools.json',
+      '../../../bot-creator-manager/internal/services/copilot_tools.json',
     );
     if (!manager.existsSync()) return;
-    Map<String, dynamic> byName(List<dynamic> list) => {
-      for (final t in list) (t as Map)['name'] as String: t,
+    final server = {
+      for (final t in jsonDecode(manager.readAsStringSync()) as List)
+        (t as Map)['name'] as String: t,
     };
-    expect(
-      byName(jsonDecode(manager.readAsStringSync()) as List),
-      byName(tools),
-    );
+    // The app negotiates per tool (copilotToolCompatible): a tool it ships must be understood by the
+    // manager with the same name, approval flag and schema, or it is silently dropped at runtime.
+    for (final tool in tools) {
+      final remote = server[tool['name']];
+      expect(
+        remote,
+        isNotNull,
+        reason: '${tool['name']} is missing on the manager',
+      );
+      expect(
+        copilotToolCompatible(tool, remote as Map),
+        isTrue,
+        reason: '${tool['name']} would be dropped by the negotiation',
+      );
+    }
+    for (final name in const [
+      'library_search',
+      'library_get',
+      'local_create_command_from_library',
+      'local_patch_command_execution',
+    ]) {
+      expect(
+        server.containsKey(name),
+        isTrue,
+        reason: '$name missing on the manager',
+      );
+      expect(
+        tools.any((t) => t['name'] == name),
+        isTrue,
+        reason: '$name missing in the app',
+      );
+    }
   });
 }
