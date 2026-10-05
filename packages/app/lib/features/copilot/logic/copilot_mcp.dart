@@ -349,6 +349,15 @@ class CopilotMcp {
         validation['configuration_source'] = semanticTarget == null
             ? 'standalone_official'
             : 'saved_bot_configuration';
+        // A clean pass needs no boilerplate: it is re-sent on every following turn.
+        if (validation['valid'] == true &&
+            (validation['diagnostics'] as List).isEmpty) {
+          validation
+            ..remove('bdfdBackend')
+            ..remove('configuration_source')
+            ..remove('message')
+            ..remove('diagnostics');
+        }
         return {
           'content': [
             {'type': 'text', 'text': jsonEncode(validation)},
