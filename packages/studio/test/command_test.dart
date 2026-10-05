@@ -158,6 +158,53 @@ void main() {
       },
     );
 
+    test(
+      'ressources Discord : serveurs, émojis (lecture, création, suppression)',
+      () async {
+        final calls = <String>[];
+        final a = api(
+          MockClient((r) async {
+            calls.add('${r.method} ${r.url.path}');
+            if (r.url.path.endsWith('/guilds')) {
+              return http.Response(
+                '{"guilds":[{"id":"1","name":"S","icon_url":"","owner":true}]}',
+                200,
+              );
+            }
+            if (r.method == 'POST') {
+              return http.Response(
+                '{"emoji":{"id":"9","name":"wave","animated":false}}',
+                200,
+              );
+            }
+            return http.Response(
+              '{"emojis":[{"id":"9","name":"wave","animated":false}]}',
+              200,
+            );
+          }),
+        );
+        expect((await a.listDiscordGuilds('b')).single['name'], 'S');
+        expect((await a.listAppEmojis('b')).single['id'], '9');
+        expect(
+          (await a.createAppEmoji(
+            'b',
+            'wave',
+            'data:image/png;base64,AA',
+          ))['name'],
+          'wave',
+        );
+        await a.deleteAppEmoji('b', '9');
+        await a.leaveDiscordGuild('b', '1');
+        expect(calls, [
+          'GET /api/v2/bots/b/discord/guilds',
+          'GET /api/v2/bots/b/discord/emojis',
+          'POST /api/v2/bots/b/discord/emojis',
+          'DELETE /api/v2/bots/b/discord/emojis/9',
+          'DELETE /api/v2/bots/b/discord/guilds/1',
+        ]);
+      },
+    );
+
     test('get lit la commande et la révision', () async {
       final a = api(
         MockClient((r) async {

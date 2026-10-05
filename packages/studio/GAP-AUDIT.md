@@ -53,6 +53,10 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
 - **Accueil et variables globales** : la carte de bot de l'app (`HomeBotCard`, sans la ligne des serveurs que le Studio
   ne connaît pas) et les lignes de variables globales.
 
+- **Serveurs et émojis** : les pages de l'app (liste alphabétique, quitter un serveur ; émojis d'application : liste,
+  téléversement, renommage, suppression), via les routes `discord/guilds` et `discord/emojis` du Manager. Le jeton du
+  bot reste sur le serveur.
+
 Reste à faire : éditeur d'image,
 versions de configuration du bot, planificateur, webhooks entrants, émojis, serveurs, marketplace, conteneurs,
 documentation intégrée. Le détail ci-dessous est l'audit initial.

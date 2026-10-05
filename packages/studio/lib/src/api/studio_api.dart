@@ -802,6 +802,66 @@ class StudioApi {
     '/api/v2/bots/${Uri.encodeComponent(botId)}/scheduled-triggers/${Uri.encodeComponent(triggerId)}',
   );
 
+  // ── Ressources Discord du bot (jeton gardé par le Manager) ────────────────
+
+  Future<List<Map<String, dynamic>>> listDiscordGuilds(String botId) async {
+    final json = await _send(
+      'GET',
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/discord/guilds',
+    );
+    final raw = json['guilds'];
+    return raw is List
+        ? [for (final g in raw.whereType<Map>()) Map<String, dynamic>.from(g)]
+        : const [];
+  }
+
+  Future<void> leaveDiscordGuild(String botId, String guildId) => _send(
+    'DELETE',
+    '/api/v2/bots/${Uri.encodeComponent(botId)}/discord/guilds/${Uri.encodeComponent(guildId)}',
+  );
+
+  Future<List<Map<String, dynamic>>> listAppEmojis(String botId) async {
+    final json = await _send(
+      'GET',
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/discord/emojis',
+    );
+    final raw = json['emojis'];
+    return raw is List
+        ? [for (final e in raw.whereType<Map>()) Map<String, dynamic>.from(e)]
+        : const [];
+  }
+
+  Future<Map<String, dynamic>> createAppEmoji(
+    String botId,
+    String name,
+    String imageDataUri,
+  ) async {
+    final json = await _send(
+      'POST',
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/discord/emojis',
+      body: {'name': name, 'image': imageDataUri},
+    );
+    return Map<String, dynamic>.from(json['emoji'] as Map);
+  }
+
+  Future<Map<String, dynamic>> renameAppEmoji(
+    String botId,
+    String emojiId,
+    String name,
+  ) async {
+    final json = await _send(
+      'PATCH',
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/discord/emojis/${Uri.encodeComponent(emojiId)}',
+      body: {'name': name},
+    );
+    return Map<String, dynamic>.from(json['emoji'] as Map);
+  }
+
+  Future<void> deleteAppEmoji(String botId, String emojiId) => _send(
+    'DELETE',
+    '/api/v2/bots/${Uri.encodeComponent(botId)}/discord/emojis/${Uri.encodeComponent(emojiId)}',
+  );
+
   // ── Webhooks entrants (secret en écriture seule) ──────────────────────────
 
   Future<List<Map<String, dynamic>>> listInboundWebhooks(String botId) async {
