@@ -288,7 +288,12 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
           : RefreshIndicator(
               onRefresh: _refresh,
               child: ListView(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  16,
+                  16,
+                  16 + MediaQuery.paddingOf(context).bottom,
+                ),
                 children: [
                   if (_commerce != null)
                     OutlinedButton(

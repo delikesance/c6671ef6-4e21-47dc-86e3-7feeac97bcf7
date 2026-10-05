@@ -2,6 +2,21 @@ import 'package:flutter/widgets.dart';
 
 import '../models/variable_suggestion.dart';
 
+/// Un diagnostic de script (BDFD) affiché sous le champ.
+class EditorDiagnostic {
+  const EditorDiagnostic({
+    required this.message,
+    this.isError = true,
+    this.line,
+    this.column,
+  });
+
+  final String message;
+  final bool isError;
+  final int? line;
+  final int? column;
+}
+
 /// Ce que les composants d'édition partagés (blocs, Blueprint, formulaires
 /// d'action) demandent à l'application qui les héberge.
 ///
@@ -44,6 +59,10 @@ abstract class EditorHost {
     required List<VariableSuggestion> variableSuggestions,
   }) async => null;
 
+  /// Diagnostics d'un script BDFD (vide quand l'hôte n'a pas de compilateur).
+  List<EditorDiagnostic> bdfdDiagnostics(String source, String backend) =>
+      const [];
+
   bool get supportsBdfdEditor => false;
   bool get supportsImageEditor => false;
 }
@@ -54,15 +73,51 @@ class EditorHostScope extends InheritedWidget {
 
   final EditorHost host;
 
-  static EditorHost of(BuildContext context) {
-    final scope = context.dependOnInheritedWidgetOfExactType<EditorHostScope>();
-    assert(scope != null, 'EditorHostScope manquant au-dessus de ce widget.');
-    return scope!.host;
-  }
+  /// Hôte de repli quand aucun [EditorHostScope] n'est monté (tests de
+  /// widgets isolés, aperçus). L'app de production monte toujours un scope.
+  static EditorHost fallback = const _DetachedEditorHost();
+
+  static EditorHost of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<EditorHostScope>()?.host ??
+      fallback;
+
+  /// Comme [of] sans s'abonner : à utiliser depuis `initState` ou un callback.
+  static EditorHost read(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<EditorHostScope>()?.host ??
+      fallback;
 
   static EditorHost? maybeOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<EditorHostScope>()?.host;
 
   @override
   bool updateShouldNotify(EditorHostScope oldWidget) => host != oldWidget.host;
+}
+
+/// Hôte sans données ni éditeurs externes.
+class _DetachedEditorHost extends EditorHost {
+  const _DetachedEditorHost();
+
+  @override
+  Future<List<Map<String, dynamic>>> scopedVariableDefinitions(
+    String botId,
+  ) async => const [];
+
+  @override
+  Future<Map<String, dynamic>> globalVariables(String botId) async => const {};
+
+  @override
+  Future<List<Map<String, dynamic>>> workflows(String botId) async => const [];
+
+  @override
+  Future<List<Map<String, dynamic>>> appCommands(String botId) async =>
+      const [];
+
+  @override
+  Future<void> manageGlobalVariables(
+    BuildContext context,
+    String botId,
+  ) async {}
+
+  @override
+  Future<void> manageWorkflows(BuildContext context, String botId) async {}
 }

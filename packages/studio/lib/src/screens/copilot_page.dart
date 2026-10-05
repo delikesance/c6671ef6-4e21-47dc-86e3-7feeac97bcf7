@@ -9,7 +9,6 @@ import '../api/studio_api.dart';
 import '../copilot/copilot_tools.dart';
 import '../layout.dart';
 import '../theme.dart';
-import '../widgets/common.dart';
 
 /// Onglet « Copilote IA » d'un bot : discussion avec l'assistant qui lit et
 /// modifie les commandes, workflows et variables du bot.

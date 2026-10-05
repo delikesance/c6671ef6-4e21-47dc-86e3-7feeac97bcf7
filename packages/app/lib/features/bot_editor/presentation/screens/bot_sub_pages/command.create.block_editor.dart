@@ -101,9 +101,18 @@ extension _CommandBlockEditor on _CommandCreatePageState {
       EntryPointBlock(
         entryPointType: entryPointType,
         commandName: _commandName,
-        commandType: _commandType,
+        commandType: switch (_commandType) {
+          ApplicationCommandType.user => EntryCommandType.user,
+          ApplicationCommandType.message => EntryCommandType.message,
+          _ => EntryCommandType.chatInput,
+        },
         canEditCommandType: !_isEditingExistingCommand || _isLocalOnlyCommand,
-        onCommandTypeChanged: (value) => _applyStateUpdate(() {
+        onCommandTypeChanged: (entryType) => _applyStateUpdate(() {
+          final value = switch (entryType) {
+            EntryCommandType.chatInput => ApplicationCommandType.chatInput,
+            EntryCommandType.user => ApplicationCommandType.user,
+            EntryCommandType.message => ApplicationCommandType.message,
+          };
           _persistActiveSubcommandWorkflow();
           _commandType = value;
           if (!_supportsSimpleMode) {

@@ -16,6 +16,10 @@ dependencies:
   flutter_svg: ^2.3.0
   reicon_flutter: ^1.0.1
   bot_creator_shared: any
+  flutter_highlight: ^0.7.0
+  highlight: ^0.7.0
+  flutter_colorpicker: ^1.1.0
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:
