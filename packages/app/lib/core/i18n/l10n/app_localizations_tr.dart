@@ -11241,4 +11241,17 @@ class AppLocalizationsTr extends AppLocalizations {
   String option_choices_count(int count) {
     return '$count seçenek';
   }
+
+  @override
+  String get ai_credits_packs_title => 'Kredi satın al';
+
+  @override
+  String get ai_credits_pack_credited => 'Krediler hesabınıza eklendi.';
+
+  @override
+  String get ai_credits_pack_failed =>
+      'Satın alma tamamlanamadı. Ücretlendirildiyseniz krediler otomatik olarak eklenecek.';
+
+  @override
+  String get ai_credits_pack_pending => 'Satın alma onay bekliyor…';
 }

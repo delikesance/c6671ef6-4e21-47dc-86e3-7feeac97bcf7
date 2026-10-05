@@ -91,6 +91,15 @@ class CommerceCatalog {
       throw const FormatException('Unsupported commerce catalog');
     }
     published = json['published'] == true;
+    final rawGrants = json['grants'];
+    grants = rawGrants is Map
+        ? rawGrants.map(
+            (key, value) => MapEntry(
+              key.toString(),
+              value is Map ? Map<String, dynamic>.from(value) : const {},
+            ),
+          )
+        : const {};
     defaultLocale = doc['default_locale'] as String;
     offers = (doc['offers'] as List)
         .map(
@@ -105,6 +114,24 @@ class CommerceCatalog {
     }
   }
   late final bool published;
+
+  /// Ce que chaque offre octroie, calcule par le serveur (`grants[offerId]`).
+  /// Vide quand le serveur est plus ancien : le client ne devine rien.
+  late final Map<String, Map<String, dynamic>> grants;
+
+  /// Credits IA donnes une seule fois par un pack, en tokens ; 0 si inconnu.
+  int aiCreditsOnce(String offerId) =>
+      (grants[offerId]?['ai_credits_once'] as num?)?.toInt() ?? 0;
+
+  /// Packs de credits IA achetables sur [platform] (`ios` / `android`).
+  List<CommerceOffer> aiPacks(String platform, DateTime now) => offers
+      .where(
+        (offer) =>
+            offer.kind == 'ai_pack' &&
+            offer.visible(now, const <String>{}) &&
+            offer.nativeBinding(platform) != null,
+      )
+      .toList();
   late final String defaultLocale;
   late final List<CommerceOffer> offers;
 

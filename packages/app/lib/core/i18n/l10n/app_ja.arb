@@ -11052,5 +11052,9 @@
   "option_delete_action": "オプションを削除",
   "option_preview_title": "Discordでのプレビュー",
   "option_preview_legend": "紫の下線：必須 · グレー：任意",
-  "option_choices_count": "{count}件の選択肢"
+  "option_choices_count": "{count}件の選択肢",
+  "ai_credits_packs_title": "クレジットを購入",
+  "ai_credits_pack_credited": "クレジットをアカウントに追加しました。",
+  "ai_credits_pack_failed": "購入を完了できませんでした。請求された場合は、クレジットが自動的に追加されます。",
+  "ai_credits_pack_pending": "購入の確認待ちです…"
 }

@@ -11339,4 +11339,18 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get ai_credits_packs_title => 'Guthaben kaufen';
+
+  @override
+  String get ai_credits_pack_credited =>
+      'Guthaben wurde Ihrem Konto gutgeschrieben.';
+
+  @override
+  String get ai_credits_pack_failed =>
+      'Der Kauf konnte nicht abgeschlossen werden. Falls Ihnen etwas berechnet wurde, wird das Guthaben automatisch gutgeschrieben.';
+
+  @override
+  String get ai_credits_pack_pending => 'Kauf wartet auf Bestätigung…';
 }

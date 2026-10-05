@@ -11317,4 +11317,17 @@ class AppLocalizationsPt extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get ai_credits_packs_title => 'Comprar créditos';
+
+  @override
+  String get ai_credits_pack_credited => 'Créditos adicionados à sua conta.';
+
+  @override
+  String get ai_credits_pack_failed =>
+      'Não foi possível concluir a compra. Se você foi cobrado, os créditos serão adicionados automaticamente.';
+
+  @override
+  String get ai_credits_pack_pending => 'Compra aguardando confirmação…';
 }

@@ -12942,5 +12942,9 @@
   "option_preview_title": "Preview in Discord",
   "option_preview_legend": "Purple underline: required · grey: optional",
   "option_choices_count": "{count, plural, =1{1 choice} other{{count} choices}}",
-  "@option_choices_count": {"placeholders": {"count": {"type": "int"}}}
+  "@option_choices_count": {"placeholders": {"count": {"type": "int"}}},
+  "ai_credits_packs_title": "Buy credits",
+  "ai_credits_pack_credited": "Credits added to your account.",
+  "ai_credits_pack_failed": "The purchase could not be completed. If you were charged, the credits will be added automatically.",
+  "ai_credits_pack_pending": "Purchase pending confirmation…"
 }

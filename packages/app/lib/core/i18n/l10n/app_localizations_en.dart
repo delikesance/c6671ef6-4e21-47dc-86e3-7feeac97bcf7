@@ -11188,4 +11188,17 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get ai_credits_packs_title => 'Buy credits';
+
+  @override
+  String get ai_credits_pack_credited => 'Credits added to your account.';
+
+  @override
+  String get ai_credits_pack_failed =>
+      'The purchase could not be completed. If you were charged, the credits will be added automatically.';
+
+  @override
+  String get ai_credits_pack_pending => 'Purchase pending confirmation…';
 }

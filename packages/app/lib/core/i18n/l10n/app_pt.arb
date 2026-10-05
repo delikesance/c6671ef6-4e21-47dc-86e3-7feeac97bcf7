@@ -10998,5 +10998,9 @@
   "option_delete_action": "Excluir opção",
   "option_preview_title": "Prévia no Discord",
   "option_preview_legend": "Sublinhado roxo: obrigatório · cinza: opcional",
-  "option_choices_count": "{count, plural, =1{1 escolha} other{{count} escolhas}}"
+  "option_choices_count": "{count, plural, =1{1 escolha} other{{count} escolhas}}",
+  "ai_credits_packs_title": "Comprar créditos",
+  "ai_credits_pack_credited": "Créditos adicionados à sua conta.",
+  "ai_credits_pack_failed": "Não foi possível concluir a compra. Se você foi cobrado, os créditos serão adicionados automaticamente.",
+  "ai_credits_pack_pending": "Compra aguardando confirmação…"
 }
