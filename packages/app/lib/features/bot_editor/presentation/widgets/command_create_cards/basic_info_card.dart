@@ -400,7 +400,11 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                           ),
                   ),
                   child: value
-                      ? const Icon(Icons.check, size: 14, color: Colors.white)
+                      ? const AppIcon.fromMaterial(
+                          Icons.check,
+                          size: 14,
+                          color: Colors.white,
+                        )
                       : null,
                 ),
                 const SizedBox(width: 10),
