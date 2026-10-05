@@ -447,53 +447,36 @@ class OptionWidgetState extends State<OptionWidget> {
                           },
                         ),
                         const SizedBox(height: 8),
-                        _tile(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 4,
-                            ),
-                            child: Row(
-                              children: <Widget>[
-                                Text(context.tr.common_type),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: DropdownButtonHideUnderline(
-                                    child: DropdownButton<CommandOptionType>(
-                                      isExpanded: true,
-                                      alignment: AlignmentDirectional.centerEnd,
-                                      value: option.type,
-                                      onChanged: (CommandOptionType? newValue) {
-                                        if (newValue == null) {
-                                          return;
-                                        }
-                                        setState(() {
-                                          option.type = newValue;
-                                          _normalizeForType(option);
-                                          _updateWidget();
-                                        });
-                                      },
-                                      items: allowedTypes
-                                          .map(
-                                            (CommandOptionType type) =>
-                                                DropdownMenuItem<
-                                                  CommandOptionType
-                                                >(
-                                                  value: type,
-                                                  child: Text(
-                                                    _typeLabel(type),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ),
-                                          )
-                                          .toList(growable: false),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                        DropdownButtonFormField<CommandOptionType>(
+                          key: ValueKey('option_type_${option.type}'),
+                          initialValue: option.type,
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            labelText: context.tr.common_type,
+                            border: const OutlineInputBorder(),
                           ),
+                          onChanged: (CommandOptionType? newValue) {
+                            if (newValue == null) {
+                              return;
+                            }
+                            setState(() {
+                              option.type = newValue;
+                              _normalizeForType(option);
+                              _updateWidget();
+                            });
+                          },
+                          items: allowedTypes
+                              .map(
+                                (CommandOptionType type) =>
+                                    DropdownMenuItem<CommandOptionType>(
+                                      value: type,
+                                      child: Text(
+                                        _typeLabel(type),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                              )
+                              .toList(growable: false),
                         ),
                         const SizedBox(height: 8),
                         if (!_isHierarchyType(option.type))
@@ -1644,7 +1627,12 @@ class OptionWidgetState extends State<OptionWidget> {
                                 children: <Widget>[
                                   const AppIcon.fromMaterial(Icons.add),
                                   const SizedBox(width: 8),
-                                  Text(context.tr.option_add_choice),
+                                  Flexible(
+                                    child: Text(
+                                      context.tr.option_add_choice,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -1715,7 +1703,12 @@ class OptionWidgetState extends State<OptionWidget> {
                 children: <Widget>[
                   const AppIcon.fromMaterial(Icons.add),
                   const SizedBox(width: 8),
-                  Text(context.tr.common_add_option),
+                  Flexible(
+                    child: Text(
+                      context.tr.common_add_option,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ],
               ),
             ),
