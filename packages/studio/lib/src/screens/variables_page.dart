@@ -345,25 +345,38 @@ class _VariablesPageState extends State<VariablesPage> {
                   style: TextStyle(fontSize: 12, color: StudioColors.muted),
                 ),
                 const SizedBox(height: 12),
-                if (defs.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Center(
-                      child: Text(
-                        'Aucune définition.',
-                        style: TextStyle(color: StudioColors.muted),
-                      ),
+                ScopedVariablesList(
+                  embedded: true,
+                  definitions: [
+                    for (final d in defs)
+                      {
+                        'key': d.key,
+                        'scope': d.scope,
+                        'valueType': d.valueType,
+                        'defaultValue': d.defaultValue,
+                      },
+                  ],
+                  knownScopes: const [
+                    'guild',
+                    'user',
+                    'channel',
+                    'guildMember',
+                    'message',
+                  ],
+                  searchQuery: '',
+                  onAdd: () => _editScoped(),
+                  onEdit: (definition) => _editScoped(
+                    existing: defs.firstWhere(
+                      (d) =>
+                          d.key == definition['key'] &&
+                          d.scope == definition['scope'],
                     ),
                   ),
-                for (final d in defs)
-                  _VarRow(
-                    name: d.key,
-                    value:
-                        '${d.scope} · ${d.valueType}'
-                        '${d.defaultValue == null ? '' : ' · défaut : ${formatVariableValue(d.defaultValue)}'}',
-                    onEdit: () => _editScoped(existing: d),
-                    onDelete: () => _removeScoped(d),
+                  onDeclare: (_) {},
+                  onDelete: (key, scope) => _removeScoped(
+                    defs.firstWhere((d) => d.key == key && d.scope == scope),
                   ),
+                ),
               ],
             ),
           ),
