@@ -415,7 +415,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
     final code = draft.jsScript;
     return ScratchBlock(
       color: AppTheme.warning,
-      icon: Icons.javascript_outlined,
+      icon: Icons.javascript,
       title: 'JavaScript',
       required: true,
       child: Padding(
