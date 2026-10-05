@@ -5,6 +5,7 @@ import '../l10n_ext.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 import '../layout.dart';
+import '../commands/command_draft.dart';
 import 'command_editor_page.dart';
 
 /// Onglet « Commandes » de l'éditeur de bot.
@@ -24,12 +25,35 @@ class _CommandsPageState extends State<CommandsPage> {
   );
   String _query = '';
   StudioCommand? _editing;
+  CommandDraft? _creating;
+
+  Future<void> _create() async {
+    final draft = await showDialog<CommandDraft>(
+      context: context,
+      builder: (context) => const _NewCommandDialog(),
+    );
+    if (draft != null && mounted) setState(() => _creating = draft);
+  }
 
   void _refresh() =>
       setState(() => _future = widget.api.listCommands(widget.bot.id));
 
   @override
   Widget build(BuildContext context) {
+    final creating = _creating;
+    if (creating != null) {
+      return CommandEditorPage(
+        key: ValueKey(creating.id),
+        api: widget.api,
+        bot: widget.bot,
+        command: StudioCommand(id: creating.id, name: creating.name),
+        newDraft: creating,
+        onClose: (reload) {
+          setState(() => _creating = null);
+          if (reload) _refresh();
+        },
+      );
+    }
     final editing = _editing;
     if (editing != null) {
       return CommandEditorPage(
@@ -82,6 +106,19 @@ class _CommandsPageState extends State<CommandsPage> {
                           color: StudioColors.muted,
                         ),
                       ),
+                    ),
+                  const Spacer(),
+                  if (MediaQuery.sizeOf(context).width < 480)
+                    IconButton.filled(
+                      tooltip: 'Nouvelle commande',
+                      onPressed: _create,
+                      icon: const Icon(Icons.add_rounded, size: 18),
+                    )
+                  else
+                    FilledButton.icon(
+                      onPressed: _create,
+                      icon: const Icon(Icons.add_rounded, size: 18),
+                      label: const Text('Nouvelle commande'),
                     ),
                 ],
               ),
@@ -233,6 +270,107 @@ class _CommandCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Nom, description et déclencheur d'une nouvelle commande ; les blocs se
+/// construisent ensuite dans l'éditeur.
+class _NewCommandDialog extends StatefulWidget {
+  const _NewCommandDialog();
+
+  @override
+  State<_NewCommandDialog> createState() => _NewCommandDialogState();
+}
+
+class _NewCommandDialogState extends State<_NewCommandDialog> {
+  final _name = TextEditingController();
+  final _description = TextEditingController();
+  String _trigger = 'slash';
+  String? _error;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _description.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final draft = CommandDraft.blank(
+      name: _name.text.trim(),
+      description: _description.text.trim(),
+      triggerType: _trigger,
+    );
+    final problem = draft.validate();
+    if (problem != null) {
+      setState(() => _error = problem);
+      return;
+    }
+    Navigator.of(context).pop(draft);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Text('Nouvelle commande'),
+      content: SizedBox(
+        width: 420,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: _name,
+              autofocus: true,
+              decoration: const InputDecoration(
+                labelText: 'Nom',
+                hintText: 'ping',
+                prefixIcon: Icon(Icons.tag, size: 18),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _description,
+              maxLength: 100,
+              decoration: const InputDecoration(
+                labelText: 'Description',
+                prefixIcon: Icon(Icons.short_text, size: 18),
+              ),
+            ),
+            const SizedBox(height: 4),
+            DropdownButtonFormField<String>(
+              initialValue: _trigger,
+              decoration: const InputDecoration(labelText: 'Déclencheur'),
+              items: const [
+                DropdownMenuItem(value: 'slash', child: Text('Commande slash')),
+                DropdownMenuItem(value: 'prefix', child: Text('Message texte')),
+                DropdownMenuItem(
+                  value: 'hybrid',
+                  child: Text('Slash + message texte'),
+                ),
+              ],
+              onChanged: (v) => setState(() => _trigger = v ?? 'slash'),
+            ),
+            if (_error != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Text(
+                  _error!,
+                  style: const TextStyle(color: StudioColors.errorText),
+                ),
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Annuler'),
+        ),
+        FilledButton(onPressed: _submit, child: const Text('Créer')),
+      ],
     );
   }
 }

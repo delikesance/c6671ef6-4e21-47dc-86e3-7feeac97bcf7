@@ -1,17 +1,45 @@
 import 'dart:convert';
 
+import 'action_list.dart';
+
 /// Copie de travail d'une commande. Le JSON d'origine est conservé ENTIER et
 /// seuls les champs édités changent : le serveur réécrit ce que nous envoyons,
 /// donc jeter un champ que le Studio ne comprend pas le perdrait pour de bon
 /// (c'est la raison pour laquelle l'app transporte aussi `raw` tel quel).
-class CommandDraft {
+class CommandDraft implements ActionListHost {
   CommandDraft(Map<String, dynamic> raw, {this.revision})
     : _raw = _deepCopy(raw),
       _original = jsonEncode(raw);
 
+  /// Une commande slash vide, prête à être enregistrée. Elle est marquée « modifiée »
+  /// d'emblée : tant qu'elle n'est pas enregistrée, le serveur ne la connaît pas.
+  factory CommandDraft.blank({
+    required String name,
+    required String description,
+    String triggerType = 'slash',
+  }) {
+    final draft = CommandDraft({
+      'id': newStorageId(),
+      'name': name,
+      'description': description,
+      'type': 'chatInput',
+      'data': {
+        'commandType': 'chatInput',
+        'triggerType': triggerType,
+        'executionMode': 'workflow',
+        'actions': <dynamic>[],
+        'options': <dynamic>[],
+      },
+    });
+    draft.markNew();
+    return draft;
+  }
+
   final Map<String, dynamic> _raw;
-  final String _original;
+  String _original;
   String? revision;
+
+  void markNew() => _original = '';
 
   static Map<String, dynamic> _deepCopy(Map<String, dynamic> m) =>
       jsonDecode(jsonEncode(m)) as Map<String, dynamic>;
@@ -42,6 +70,7 @@ class CommandDraft {
   /// `workflow` | `bdfd_script` | `javascript`.
   String get executionMode => '${_data['executionMode'] ?? 'workflow'}';
 
+  @override
   List<Map<String, dynamic>> get actions {
     final raw = _data['actions'];
     if (raw is! List) return const [];
@@ -68,6 +97,16 @@ class CommandDraft {
 
   bool get dirty => jsonEncode(_raw) != _original;
 
+  @override
+  void addAction(Map<String, dynamic> action) => _actionList.add(action);
+
+  @override
+  void replaceAction(int index, Map<String, dynamic> action) {
+    final list = _actionList;
+    if (index >= 0 && index < list.length) list[index] = action;
+  }
+
+  @override
   void moveAction(int index, int delta) {
     final list = _actionList;
     final target = index + delta;
@@ -77,12 +116,14 @@ class CommandDraft {
     list.insert(target, item);
   }
 
+  @override
   void removeAction(int index) {
     final list = _actionList;
     if (index >= 0 && index < list.length) list.removeAt(index);
   }
 
   /// Active/désactive un bloc (`enabled`, vrai par défaut).
+  @override
   void toggleAction(int index) {
     final list = _actionList;
     if (index < 0 || index >= list.length || list[index] is! Map) return;
