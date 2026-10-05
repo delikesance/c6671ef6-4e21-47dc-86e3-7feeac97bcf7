@@ -61,6 +61,12 @@ jobs:
         run: dart run tool/l10n_sync.dart --check
         working-directory: packages/studio
 
+      # Le design et les éditeurs viennent de packages/ui (partagé avec l'app) : une
+      # erreur dedans casserait aussi le Studio.
+      - name: Analyze shared UI package
+        run: flutter analyze --fatal-infos
+        working-directory: packages/ui
+
       - name: Analyze
         run: flutter analyze --fatal-infos
         working-directory: packages/studio

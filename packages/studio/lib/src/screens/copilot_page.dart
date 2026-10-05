@@ -559,10 +559,14 @@ class _CopilotPageState extends State<CopilotPage> {
           ),
           borderRadius: BorderRadius.circular(16),
         ),
-        child: SelectableText(
-          '${m['content']}',
-          style: const TextStyle(height: 1.5),
-        ),
+        // Les réponses du Copilote sont du Markdown : même rendu que dans l'app
+        // (listes, code, liens). Ce que tape l'utilisateur reste du texte brut.
+        child: user
+            ? SelectableText(
+                '${m['content']}',
+                style: const TextStyle(height: 1.5),
+              )
+            : CopilotMarkdown(content: '${m['content']}'),
       ),
     );
   }

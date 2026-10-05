@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart' show CopilotMarkdown;
 import 'dart:convert';
 import 'dart:io';
 import 'package:bot_creator/core/widgets/app_icon.dart';
@@ -21,10 +21,11 @@ import 'package:bot_creator/features/subscriptions/presentation/ai_credits_page.
 import 'package:bot_creator/features/subscriptions/logic/ai_credit_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+
+export 'package:bot_creator_ui/bot_creator_ui.dart' show CopilotMarkdown;
 
 class CopilotPage extends StatefulWidget {
   const CopilotPage({
@@ -2877,57 +2878,6 @@ class _CopilotPageState extends State<CopilotPage> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class CopilotMarkdown extends StatelessWidget {
-  const CopilotMarkdown({super.key, required this.content});
-  final String content;
-  @override
-  Widget build(BuildContext context) => SelectionArea(
-    child: MarkdownBody(
-      data: content,
-      selectable: false,
-      styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-        blockSpacing: 7,
-        listIndent: 18,
-        p: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.4),
-      ),
-      onTapLink: (text, href, title) {
-        final uri = Uri.tryParse(href ?? '');
-        if (uri != null && ['https', 'http'].contains(uri.scheme)) {
-          unawaited(openAppLink(context, uri));
-        }
-      },
-      builders: {'pre': _CodeBuilder(context.tr.copilot_copy_code)},
-    ),
-  );
-}
-
-class _CodeBuilder extends MarkdownElementBuilder {
-  _CodeBuilder(this.copyTooltip);
-  final String copyTooltip;
-
-  @override
-  Widget? visitElementAfter(element, TextStyle? preferredStyle) {
-    final code = element.textContent;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Text(
-            code,
-            style: preferredStyle?.copyWith(fontFamily: 'monospace'),
-          ),
-        ),
-        IconButton(
-          tooltip: copyTooltip,
-          icon: AppIcon(Reicon.outline.copy, size: 18),
-          onPressed: () => Clipboard.setData(ClipboardData(text: code)),
-        ),
-      ],
     );
   }
 }
