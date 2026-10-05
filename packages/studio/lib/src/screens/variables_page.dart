@@ -316,15 +316,17 @@ class _VariablesPageState extends State<VariablesPage> {
                       ),
                     ),
                   ),
-                for (final k in keys)
-                  _VarRow(
+                for (final k in keys) ...[
+                  GlobalVariableRow(
                     name: k,
-                    value: formatVariableValue(globals[k]),
+                    value: globals[k],
                     onEdit: () => _edit(key: k, value: globals[k]),
                     onDelete: () => _run(
                       () => widget.api.removeGlobalVariable(widget.bot.id, k),
                     ),
                   ),
+                  const SizedBox(height: 8),
+                ],
                 const SizedBox(height: 28),
                 Row(
                   children: [
@@ -382,73 +384,6 @@ class _VariablesPageState extends State<VariablesPage> {
           ),
         );
       },
-    );
-  }
-}
-
-class _VarRow extends StatelessWidget {
-  const _VarRow({
-    required this.name,
-    required this.value,
-    this.onEdit,
-    this.onDelete,
-  });
-
-  final String name;
-  final String value;
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
-      decoration: BoxDecoration(
-        color: StudioColors.card,
-        border: Border.all(color: StudioColors.clusterBorder),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: Text(
-              name,
-              style: const TextStyle(
-                fontFamily: StudioTheme.monoFamily,
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              value,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontFamily: StudioTheme.monoFamily,
-                fontSize: 12.5,
-                color: StudioColors.muted,
-              ),
-            ),
-          ),
-          if (onEdit != null)
-            IconButton(
-              tooltip: 'Modifier',
-              onPressed: onEdit,
-              icon: const AppIcon.fromMaterial(Icons.edit_outlined, size: 18),
-            ),
-          if (onDelete != null)
-            IconButton(
-              tooltip: 'Supprimer',
-              onPressed: onDelete,
-              icon: const AppIcon.fromMaterial(Icons.delete_outline, size: 18),
-            ),
-        ],
-      ),
     );
   }
 }
