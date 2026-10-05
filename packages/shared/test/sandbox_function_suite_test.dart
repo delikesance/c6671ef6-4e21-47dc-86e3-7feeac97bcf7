@@ -52,6 +52,20 @@ void main() {
     );
     expect(evaluateSandboxContract(result)['passed'], false);
   });
+  test('contracts treat an integer embed color and its hex form as equal', () {
+    final result = <String, dynamic>{
+      'success': true,
+      'color': '#5865F2',
+      'n': 5793266,
+    };
+    bool passes(Map<String, dynamic> expected) =>
+        evaluateSandboxContract(result, expectedValues: expected)['passed']
+            as bool;
+    expect(passes({'/color': 5793266}), true);
+    expect(passes({'/n': '#5865f2'}), true);
+    expect(passes({'/color': 5793267}), false);
+    expect(passes({'/color': '#5865F2'}), true);
+  });
   test(
     'contracts accept pointers without the leading slash and explain misses',
     () {
