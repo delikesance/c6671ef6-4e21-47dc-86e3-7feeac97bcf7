@@ -168,7 +168,18 @@ class StudioWorkflowSummary {
     this.type = 'general',
     this.executionMode = 'workflow',
     this.actionCount = 0,
+    this.folder = '',
+    this.entryPoint = 'main',
+    this.argumentCount = 0,
+    this.event = '',
   });
+
+  final String folder;
+  final String entryPoint;
+  final int argumentCount;
+
+  /// Événement Discord déclencheur (workflow d'événement).
+  final String event;
 
   final String name;
 
@@ -755,6 +766,10 @@ class StudioApi {
             type: '${item['workflow_type'] ?? 'general'}',
             executionMode: '${item['execution_mode'] ?? 'workflow'}',
             actionCount: (item['action_count'] as num?)?.toInt() ?? 0,
+            folder: '${item['folder'] ?? ''}',
+            entryPoint: '${item['entry_point'] ?? 'main'}',
+            argumentCount: (item['argument_count'] as num?)?.toInt() ?? 0,
+            event: '${item['event'] ?? ''}',
           ),
     ];
   }

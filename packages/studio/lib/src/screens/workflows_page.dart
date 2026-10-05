@@ -119,6 +119,41 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
     );
   }
 
+  Widget _row(StudioWorkflowSummary w) {
+    final isEvent = w.type == 'event';
+    final eventLabel = EventCatalog.getEvents()
+        .where((e) => e.event == w.event)
+        .map((e) => e.label)
+        .firstWhere((_) => true, orElse: () => w.event);
+    final tr = context.tr;
+    return ModuleRowCard(
+      family: BlockFamily.events,
+      icon: isEvent
+          ? Icons.notifications_active_outlined
+          : Icons.account_tree_outlined,
+      title: w.name,
+      titleMono: true,
+      summary: isEvent
+          ? tr.workflows_event_subtitle(w.actionCount, eventLabel)
+          : tr.workflows_subtitle(
+              w.actionCount,
+              w.entryPoint,
+              '${w.argumentCount}',
+            ),
+      chips: [
+        ModuleChip(
+          isEvent
+              ? tr.workflows_type_badge_event
+              : tr.workflows_type_badge_general,
+        ),
+        if (w.executionMode != 'workflow')
+          ModuleChip(_modeLabel(w.executionMode)),
+        if (w.folder.isNotEmpty) ModuleChip(w.folder),
+      ],
+      onTap: () => setState(() => _editing = w.name),
+    );
+  }
+
   Widget _body(
     AsyncSnapshot<List<StudioWorkflowSummary>> snapshot,
     List<StudioWorkflowSummary> items,
@@ -147,56 +182,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (final w in items) ...[
-              Material(
-                color: StudioColors.card,
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(color: StudioColors.clusterBorder),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () => setState(() => _editing = w.name),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        const AppIcon.fromMaterial(
-                          Icons.account_tree_outlined,
-                          color: StudioColors.actionSoft,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                w.name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Wrap(
-                                spacing: 6,
-                                children: [
-                                  BlockChip(
-                                    w.type == 'event' ? 'Événement' : 'Général',
-                                  ),
-                                  BlockChip(_modeLabel(w.executionMode)),
-                                  BlockChip('${w.actionCount} bloc(s)'),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-            ],
+            for (final w in items) ...[_row(w), const SizedBox(height: 12)],
           ],
         ),
       ),
