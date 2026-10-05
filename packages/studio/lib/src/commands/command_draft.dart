@@ -72,6 +72,11 @@ class CommandDraft implements ActionListHost {
     _data['commandType'] = value;
   }
 
+  String get bdfdScript => '${_data['bdfdScriptContent'] ?? ''}';
+  set bdfdScript(String value) => _data['bdfdScriptContent'] = value;
+
+  String get bdfdBackend => '${_data['bdfdBackend'] ?? 'native-v1'}';
+
   String get jsScript => '${_data['jsScriptContent'] ?? ''}';
   set jsScript(String value) => _data['jsScriptContent'] = value;
 
