@@ -61,7 +61,10 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
   commandes). Le Studio applique un modèle par ses routes de commandes, de workflows et de variables (avec la même
   fenêtre de conflits). La publication d'un modèle reste dans l'app.
 
-Reste à faire : éditeur d'image,
+- **Éditeur d'image** : l'éditeur de canevas de l'app (opérations, aperçu), le sélecteur de fichiers rendant les octets
+  de l'image (utilisable sur le web). **Carte de bot** : la ligne « actif sur N serveurs » est lue au Manager.
+
+Reste à faire :
 versions de configuration du bot, planificateur, webhooks entrants, émojis, serveurs, marketplace, conteneurs,
 documentation intégrée. Le détail ci-dessous est l'audit initial.
 
