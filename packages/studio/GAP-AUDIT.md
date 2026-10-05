@@ -31,8 +31,10 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
 - **Documentation** : le hub et les articles natifs de l'app (onglet Docs). Les pages sont lues sur bot-creator.fr :
   le site doit autoriser l'origine du Studio (CORS), sinon la page propose de l'ouvrir dans le navigateur.
 
+- **Métadonnées et options de commande** : le bloc Métadonnées de l'app (nom, description, dossier, paramètres avancés,
+  éditeur d'options complet).
+
 Reste à faire : éditeurs BDFD / JavaScript et bac à sable (le Studio affiche les scripts tels quels), éditeur d'image,
-bloc Métadonnées et options de commande de l'app (le Studio a encore son propre bloc et son dialogue d'options),
 versions de configuration du bot, planificateur, webhooks entrants, émojis, serveurs, marketplace, conteneurs,
 documentation intégrée. Le détail ci-dessous est l'audit initial.
 

@@ -1,4 +1,5 @@
 import 'package:bot_creator_ui/bot_creator_ui.dart';
+import 'package:bot_creator_ui/discord.dart' as dc;
 import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
@@ -6,7 +7,7 @@ import '../commands/command_draft.dart';
 import '../editor/studio_editor_host.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
-import '../widgets/options_editor.dart';
+import '../commands/options_validation.dart';
 
 /// Éditeur d'une commande : métadonnées, point de départ, blocs d'actions.
 ///
@@ -45,8 +46,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
   bool _changed = false;
   String? _formError;
   List<VariableSuggestion> _suggestions = buildVariableSuggestions();
-  final _name = TextEditingController();
-  final _description = TextEditingController();
+  final _folder = TextEditingController();
 
   @override
   void initState() {
@@ -55,8 +55,6 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
     final fresh = widget.newDraft;
     if (fresh != null) {
       _draft = fresh;
-      _name.text = fresh.name;
-      _description.text = fresh.description;
       _isNew = true;
     } else {
       _load();
@@ -65,8 +63,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
 
   @override
   void dispose() {
-    _name.dispose();
-    _description.dispose();
+    _folder.dispose();
     super.dispose();
   }
 
@@ -98,8 +95,6 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
       );
       if (!mounted) return;
       final draft = CommandDraft(detail.raw, revision: detail.revision);
-      _name.text = draft.name;
-      _description.text = draft.description;
       setState(() => _draft = draft);
     } catch (e) {
       if (mounted) setState(() => _loadError = e);
@@ -147,11 +142,6 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
     } finally {
       if (mounted) setState(() => _saving = false);
     }
-  }
-
-  Future<void> _editOptions(CommandDraft draft) async {
-    final result = await showOptionsDialog(context, draft.options);
-    if (result != null && mounted) setState(() => draft.options = result);
   }
 
   Future<void> _history() async {
@@ -417,53 +407,83 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
   }
 
   Widget _metadataBlock(CommandDraft draft) {
-    return ScratchBlock(
-      color: AppTheme.info,
-      icon: Icons.info_outline,
-      title: 'Métadonnées',
-      required: true,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-        child: Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            SizedBox(
-              width: 220,
-              child: TextField(
-                controller: _name,
-                onChanged: (v) => setState(() => draft.name = v),
-                decoration: const InputDecoration(
-                  labelText: 'Nom',
-                  prefixIcon: AppIcon.fromMaterial(Icons.tag, size: 18),
-                ),
-              ),
-            ),
-            ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 280, maxWidth: 560),
-              child: TextField(
-                controller: _description,
-                maxLength: 100,
-                onChanged: (v) => setState(() => draft.description = v),
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  prefixIcon: AppIcon.fromMaterial(Icons.short_text, size: 18),
-                ),
-              ),
-            ),
-            ActionChip(
-              avatar: const AppIcon.fromMaterial(Icons.tune_rounded, size: 14),
-              label: Text(
-                draft.optionCount == 0
-                    ? 'Options'
-                    : 'Options (${draft.optionCount})',
-              ),
-              onPressed: () => _editOptions(draft),
-            ),
-          ],
-        ),
+    dc.ApplicationCommandType type() => switch (draft.commandType) {
+      'user' => dc.ApplicationCommandType.user,
+      'message' => dc.ApplicationCommandType.message,
+      _ => dc.ApplicationCommandType.chatInput,
+    };
+    return MetadataBlock(
+      commandName: draft.name,
+      commandDescription: draft.description,
+      commandType: type(),
+      isLegacyCommand: draft.legacyMode,
+      localOnlyCommand: draft.legacyMode,
+      canEditCommandType: _isNew,
+      showDescriptionField: !draft.legacyMode,
+      integrationTypes: [
+        for (final t in draft.integrationTypes)
+          t == 'userInstall'
+              ? dc.ApplicationIntegrationType.userInstall
+              : dc.ApplicationIntegrationType.guildInstall,
+      ],
+      contexts: [
+        for (final c in draft.contexts)
+          switch (c) {
+            'botDm' => dc.InteractionContextType.botDm,
+            'privateChannel' => dc.InteractionContextType.privateChannel,
+            _ => dc.InteractionContextType.guild,
+          },
+      ],
+      onNameChanged: (v) => setState(() => draft.name = v),
+      onDescriptionChanged: (v) => setState(() => draft.description = v),
+      onCommandTypeChanged: (t) => setState(
+        () => draft.commandType = switch (t) {
+          dc.ApplicationCommandType.user => 'user',
+          dc.ApplicationCommandType.message => 'message',
+          _ => 'chatInput',
+        },
       ),
+      onLegacyCommandChanged: (v) => setState(() => draft.legacyMode = v),
+      onLocalOnlyCommandChanged: (_) {},
+      onIntegrationTypesChanged: (types) => setState(
+        () => draft.integrationTypes = [
+          for (final t in types)
+            t == dc.ApplicationIntegrationType.userInstall
+                ? 'userInstall'
+                : 'guildInstall',
+        ],
+      ),
+      onContextsChanged: (contexts) => setState(
+        () => draft.contexts = [
+          for (final c in contexts)
+            if (c == dc.InteractionContextType.botDm)
+              'botDm'
+            else if (c == dc.InteractionContextType.privateChannel)
+              'privateChannel'
+            else
+              'guild',
+        ],
+      ),
+      defaultMemberPermissions: draft.defaultMemberPermissions,
+      onDefaultMemberPermissionsChanged: (v) =>
+          setState(() => draft.defaultMemberPermissions = v),
+      nameValidator: (value) {
+        final name = (value ?? '').trim();
+        if (name.isEmpty) return context.tr.validation_command_name_required;
+        final issue = draft.legacyMode
+            ? validatePrefixCommandNameFormat(name)
+            : validateCommandName(type(), name);
+        return discordCommandValidationMessage(context, issue, maxLength: 32);
+      },
+      legacyAliases: draft.legacyAliases,
+      onLegacyAliasesChanged: (v) => setState(() => draft.legacyAliases = v),
+      options: dc.deserializeCommandOptions(draft.options),
+      onOptionsChanged: (list) =>
+          setState(() => draft.options = dc.serializeCommandOptions(list)),
+      botIdForConfig: widget.bot.id,
+      variableSuggestions: _suggestions,
+      onFolderChanged: (v) => setState(() => draft.folder = v),
+      folderController: _folder,
     );
   }
 

@@ -33,6 +33,14 @@ que les deux interfaces se ressemblent et se comportent pareil.
 4. Les icônes passent par `AppIcon.fromMaterial(Icons.xxx)`, avec l'icône déclarée dans `reicon_material_map.dart`
    (le test `app_icon_test.dart` de l'app contrôle l'app, le Studio et ce paquet).
 
+## Types Discord web-safe
+
+nyxx importe `dart:ffi` et ne compile pas pour le web. `package:bot_creator_ui/discord.dart` en recopie les types
+dont les éditeurs ont besoin (`CommandOptionBuilder`, `CommandOptionType`, `Locale`…) sous les mêmes noms. L'app garde
+les vrais types et convertit à la frontière (`widgets/nyxx_bridge.dart`) : `OptionWidget`, `BasicInfoCard` et
+`MetadataBlock` y sont de fines enveloppes qui gardent leur ancienne signature. Les règles de validation Discord et la
+sérialisation des options existent donc en deux exemplaires (app : nyxx, paquet : web-safe) ; à modifier ensemble.
+
 ## Branchements propres à l'hôte
 
 Quelques composants délèguent à l'hôte par un point d'accroche statique, posé au démarrage : `AvatarImageSource`

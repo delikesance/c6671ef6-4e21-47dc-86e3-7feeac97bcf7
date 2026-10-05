@@ -86,6 +86,39 @@ class CommandDraft implements ActionListHost {
     if (value) commandType = 'chatInput';
   }
 
+  /// `guildInstall` | `userInstall`.
+  List<String> get integrationTypes {
+    final raw = _raw['integrationTypes'];
+    return raw is List ? [for (final e in raw) '$e'] : const ['guildInstall'];
+  }
+
+  set integrationTypes(List<String> value) => _raw['integrationTypes'] = value;
+
+  /// `guild` | `botDm` | `privateChannel`.
+  List<String> get contexts {
+    final raw = _raw['contexts'];
+    return raw is List
+        ? [for (final e in raw) '$e']
+        : const ['guild', 'botDm', 'privateChannel'];
+  }
+
+  set contexts(List<String> value) => _raw['contexts'] = value;
+
+  String get defaultMemberPermissions =>
+      '${_data['defaultMemberPermissions'] ?? ''}';
+  set defaultMemberPermissions(String value) =>
+      _data['defaultMemberPermissions'] = value.trim();
+
+  String get folder => '${_raw['folder'] ?? ''}';
+  set folder(String value) {
+    final v = value.trim();
+    if (v.isEmpty) {
+      _raw.remove('folder');
+    } else {
+      _raw['folder'] = v;
+    }
+  }
+
   String get legacyPrefixOverride => '${_data['legacyPrefixOverride'] ?? ''}';
   set legacyPrefixOverride(String value) =>
       _data['legacyPrefixOverride'] = value.trim();

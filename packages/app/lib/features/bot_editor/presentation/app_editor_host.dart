@@ -7,6 +7,8 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/global.variables.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/image_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflows.page.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/js_editor_page.dart';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -117,6 +119,30 @@ class AppEditorHost extends EditorHost {
     MaterialPageRoute<String>(
       builder: (_) =>
           BdfdEditorPage(initialCode: initialCode, bdfdBackend: backend),
+    ),
+  );
+
+  @override
+  Future<bool> isJavascriptBot(String botId) async =>
+      isJavascriptRuntimeEngine(await getBotRuntimeEngine(botId));
+
+  @override
+  bool get supportsJavascriptEditor => true;
+
+  @override
+  Future<String?> editJavascript(
+    BuildContext context, {
+    required String initialCode,
+    required String title,
+    required List<Object> snippets,
+  }) => Navigator.push<String>(
+    context,
+    MaterialPageRoute<String>(
+      builder: (_) => JsEditorPage(
+        initialCode: initialCode,
+        title: title,
+        snippets: snippets.cast<ScriptEditorSnippet>(),
+      ),
     ),
   );
 
