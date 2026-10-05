@@ -18523,6 +18523,48 @@ abstract class AppLocalizations {
   /// **'Update command'**
   String get copilot_tool_update_command;
 
+  /// No description provided for @copilot_tool_library_search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search the command library'**
+  String get copilot_tool_library_search;
+
+  /// No description provided for @copilot_tool_create_from_library.
+  ///
+  /// In en, this message translates to:
+  /// **'Create from a library command'**
+  String get copilot_tool_create_from_library;
+
+  /// No description provided for @copilot_tool_patch_command.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit command script'**
+  String get copilot_tool_patch_command;
+
+  /// No description provided for @copilot_library_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Command library'**
+  String get copilot_library_title;
+
+  /// No description provided for @copilot_library_contribute.
+  ///
+  /// In en, this message translates to:
+  /// **'Share my tested commands'**
+  String get copilot_library_contribute;
+
+  /// No description provided for @copilot_library_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Commands the assistant creates for you and that pass their test can be added to a shared library that helps everyone get answers faster and cheaper. Discord IDs, secrets and your identity are removed first. You can turn this off at any time; deleting your account removes your contributions.'**
+  String get copilot_library_hint;
+
+  /// No description provided for @copilot_action_library.
+  ///
+  /// In en, this message translates to:
+  /// **'Command library'**
+  String get copilot_action_library;
+
   /// No description provided for @copilot_tool_read_docs.
   ///
   /// In en, this message translates to:

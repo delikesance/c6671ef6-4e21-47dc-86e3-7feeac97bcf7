@@ -1040,6 +1040,20 @@ class _CopilotPageState extends State<CopilotPage> {
                         : context.tr.copilot_this_device,
                   ),
                   if (args['name'] != null) Text('/${args['name']}'),
+                  if (fn['name'] == 'local_create_command_from_library') ...[
+                    Text(
+                      _copy(
+                        'Basée sur la commande « ${args['library_id']} » de la bibliothèque',
+                        'Based on library command "${args['library_id']}"',
+                      ),
+                    ),
+                    for (final value
+                        in (args['values'] as Map? ?? const {}).entries)
+                      Text('${value.key} → ${value.value}'),
+                    ..._editLines(args['replacements']),
+                  ],
+                  if (fn['name'] == 'local_patch_command_execution')
+                    ..._editLines(args['edits']),
                   if (args['option_name'] != null)
                     Text(
                       '${_copy('Argument', 'Argument')} : ${args['option_name']}',
@@ -1180,12 +1194,36 @@ class _CopilotPageState extends State<CopilotPage> {
     }
   }
 
+  /// The exact substitutions a patch or a derivation will apply, shown as a small diff.
+  List<Widget> _editLines(Object? edits) {
+    String clip(Object? value) {
+      final text = (value ?? '').toString();
+      return text.length > 200 ? '${text.substring(0, 200)}…' : text;
+    }
+
+    return [
+      if (edits is List)
+        for (final edit in edits.whereType<Map>())
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              '− ${clip(edit['find'])}\n+ ${clip(edit['replace'])}',
+              style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+            ),
+          ),
+    ];
+  }
+
   String _label(String name) => switch (name) {
     'remote_start_bot' ||
     'local_start_bot' => context.tr.copilot_tool_start_bot,
     'remote_stop_bot' || 'local_stop_bot' => context.tr.copilot_tool_stop_bot,
     'local_create_command' => context.tr.copilot_tool_create_command,
     'local_update_command_execution' => context.tr.copilot_tool_update_command,
+    'library_search' || 'library_get' => context.tr.copilot_tool_library_search,
+    'local_create_command_from_library' =>
+      context.tr.copilot_tool_create_from_library,
+    'local_patch_command_execution' => context.tr.copilot_tool_patch_command,
     'local_update_command_options' => context.tr.copilot_tool_options,
     'local_update_command_settings' => context.tr.copilot_tool_settings,
     'local_create_workflow' => context.tr.copilot_tool_create_workflow,
@@ -1386,6 +1424,10 @@ class _CopilotPageState extends State<CopilotPage> {
                 value: 'wallet',
                 child: Text(context.tr.copilot_action_credits),
               ),
+              PopupMenuItem(
+                value: 'library',
+                child: Text(context.tr.copilot_action_library),
+              ),
               if (_mcp?.desktop == true &&
                   MediaQuery.sizeOf(context).width < _wideBreakpoint)
                 PopupMenuItem(
@@ -1542,9 +1584,61 @@ class _CopilotPageState extends State<CopilotPage> {
         );
       case 'mcp':
         await _connection();
+      case 'library':
+        await _libraryDialog();
       default:
         await _menu(choice);
     }
+  }
+
+  /// Opt-out of the shared command library: tested commands this account's assistant creates may
+  /// be added to it (scrubbed of IDs and secrets) unless the account turns this off.
+  Future<void> _libraryDialog() async {
+    final api = _api;
+    if (api == null) return;
+    bool enabled;
+    try {
+      enabled = await api.getAILibraryContribution();
+    } catch (error) {
+      if (mounted) setState(() => _error = _describe(error));
+      return;
+    }
+    if (!mounted) return;
+    var value = enabled;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setLocal) => AlertDialog(
+          title: Text(context.tr.copilot_library_title),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(context.tr.copilot_library_hint),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(context.tr.copilot_library_contribute),
+                value: value,
+                onChanged: (next) async {
+                  try {
+                    final saved = await api.setAILibraryContribution(next);
+                    setLocal(() => value = saved);
+                  } catch (error) {
+                    if (mounted) setState(() => _error = _describe(error));
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(context.tr.copilot_close),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   String _credits(Object? value) => formatAiCredits(

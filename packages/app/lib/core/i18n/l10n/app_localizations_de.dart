@@ -10902,6 +10902,29 @@ class AppLocalizationsDe extends AppLocalizations {
   String get copilot_tool_update_command => 'Befehl aktualisieren';
 
   @override
+  String get copilot_tool_library_search => 'Befehlsbibliothek durchsuchen';
+
+  @override
+  String get copilot_tool_create_from_library =>
+      'Aus Bibliotheksbefehl erstellen';
+
+  @override
+  String get copilot_tool_patch_command => 'Befehlsskript bearbeiten';
+
+  @override
+  String get copilot_library_title => 'Befehlsbibliothek';
+
+  @override
+  String get copilot_library_contribute => 'Meine getesteten Befehle teilen';
+
+  @override
+  String get copilot_library_hint =>
+      'Befehle, die der Assistent für Sie erstellt und die ihren Test bestehen, können in eine gemeinsame Bibliothek aufgenommen werden, die allen schnellere und günstigere Antworten ermöglicht. Discord-IDs, Geheimnisse und Ihre Identität werden zuvor entfernt. Sie können dies jederzeit ausschalten; das Löschen Ihres Kontos entfernt Ihre Beiträge.';
+
+  @override
+  String get copilot_action_library => 'Befehlsbibliothek';
+
+  @override
   String get copilot_tool_read_docs => 'Dokumentation lesen';
 
   @override

@@ -10753,6 +10753,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get copilot_tool_update_command => 'Update command';
 
   @override
+  String get copilot_tool_library_search => 'Search the command library';
+
+  @override
+  String get copilot_tool_create_from_library =>
+      'Create from a library command';
+
+  @override
+  String get copilot_tool_patch_command => 'Edit command script';
+
+  @override
+  String get copilot_library_title => 'Command library';
+
+  @override
+  String get copilot_library_contribute => 'Share my tested commands';
+
+  @override
+  String get copilot_library_hint =>
+      'Commands the assistant creates for you and that pass their test can be added to a shared library that helps everyone get answers faster and cheaper. Discord IDs, secrets and your identity are removed first. You can turn this off at any time; deleting your account removes your contributions.';
+
+  @override
+  String get copilot_action_library => 'Command library';
+
+  @override
   String get copilot_tool_read_docs => 'Read documentation';
 
   @override

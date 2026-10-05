@@ -10810,6 +10810,29 @@ class AppLocalizationsTr extends AppLocalizations {
   String get copilot_tool_update_command => 'Komutu güncelle';
 
   @override
+  String get copilot_tool_library_search => 'Komut kitaplığında ara';
+
+  @override
+  String get copilot_tool_create_from_library =>
+      'Kitaplıktaki komuttan oluştur';
+
+  @override
+  String get copilot_tool_patch_command => 'Komut betiğini düzenle';
+
+  @override
+  String get copilot_library_title => 'Komut kitaplığı';
+
+  @override
+  String get copilot_library_contribute => 'Test edilmiş komutlarımı paylaş';
+
+  @override
+  String get copilot_library_hint =>
+      'Asistanın sizin için oluşturduğu ve testi geçen komutlar, herkesin daha hızlı ve daha ucuz yanıt almasına yardımcı olan ortak bir kitaplığa eklenebilir. Discord kimlikleri, gizli bilgiler ve kimliğiniz önceden kaldırılır. Bunu istediğiniz zaman kapatabilirsiniz; hesabınızı silmek katkılarınızı da siler.';
+
+  @override
+  String get copilot_action_library => 'Komut kitaplığı';
+
+  @override
   String get copilot_tool_read_docs => 'Belgeleri oku';
 
   @override
