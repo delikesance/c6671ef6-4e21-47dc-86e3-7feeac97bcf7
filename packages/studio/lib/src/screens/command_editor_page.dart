@@ -6,6 +6,7 @@ import '../commands/command_draft.dart';
 import '../theme.dart';
 import '../widgets/actions_editor.dart';
 import '../widgets/common.dart';
+import '../widgets/options_editor.dart';
 
 /// Éditeur d'une commande : métadonnées, point de départ, blocs d'actions.
 ///
@@ -89,7 +90,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
 
   Future<void> _save() async {
     final draft = _draft!;
-    final problem = draft.validate();
+    final problem = draft.validate() ?? validateOptions(draft.options);
     if (problem != null) {
       setState(() => _formError = problem);
       return;
@@ -127,6 +128,89 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
       if (mounted) setState(() => _formError = '$e');
     } finally {
       if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  Future<void> _editOptions(CommandDraft draft) async {
+    final result = await showOptionsDialog(context, draft.options);
+    if (result != null && mounted) setState(() => draft.options = result);
+  }
+
+  Future<void> _history() async {
+    final draft = _draft!;
+    try {
+      final versions = await widget.api.commandHistory(
+        widget.bot.id,
+        widget.command.id,
+      );
+      if (!mounted) return;
+      final picked = await showDialog<StudioCommandVersion>(
+        context: context,
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text('Versions précédentes'),
+          content: SizedBox(
+            width: 420,
+            child: versions.isEmpty
+                ? const Text(
+                    'Aucune version journalisée : l\'historique commence à la prochaine écriture.',
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (final v in versions)
+                        ListTile(
+                          dense: true,
+                          title: Text(
+                            v.createdAt == null
+                                ? v.historyId
+                                : v.createdAt!
+                                      .toLocal()
+                                      .toString()
+                                      .split('.')
+                                      .first,
+                          ),
+                          subtitle: Text('${v.sizeBytes} octets'),
+                          trailing: const Icon(Icons.restore_rounded, size: 18),
+                          onTap: () => Navigator.of(context).pop(v),
+                        ),
+                    ],
+                  ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Fermer'),
+            ),
+          ],
+        ),
+      );
+      if (picked == null || !mounted) return;
+      setState(() => _saving = true);
+      await widget.api.restoreCommandVersion(
+        widget.bot.id,
+        widget.command.id,
+        picked.historyId,
+        revision: draft.revision,
+      );
+      if (!mounted) return;
+      _changed = true;
+      setState(() => _saving = false);
+      await _load();
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Version restaurée.')));
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _saving = false;
+          _formError = e is StudioApiException ? e.message : '$e';
+        });
+      }
     }
   }
 
@@ -199,6 +283,12 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
                 ),
               ),
               if (draft != null) ...[
+                if (!_isNew)
+                  IconButton(
+                    tooltip: 'Historique',
+                    onPressed: _saving ? null : _history,
+                    icon: const Icon(Icons.history_rounded, size: 20),
+                  ),
                 IconButton(
                   tooltip: 'Supprimer la commande',
                   onPressed: _saving ? null : _delete,
@@ -355,12 +445,18 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
           runSpacing: 8,
           children: [
             BlockChip('Construite en : $mode'),
-            if (draft.optionCount > 0)
-              BlockChip(
-                draft.optionCount == 1
-                    ? '1 option'
-                    : '${draft.optionCount} options',
-              ),
+            BlockChip(
+              draft.optionCount == 0
+                  ? 'Aucune option'
+                  : draft.optionCount == 1
+                  ? '1 option'
+                  : '${draft.optionCount} options',
+            ),
+            ActionChip(
+              avatar: const Icon(Icons.tune_rounded, size: 14),
+              label: const Text('Options'),
+              onPressed: () => _editOptions(draft),
+            ),
           ],
         ),
       ),

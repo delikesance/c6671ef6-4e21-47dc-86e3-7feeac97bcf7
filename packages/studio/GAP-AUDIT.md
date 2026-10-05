@@ -13,8 +13,10 @@
   (pas de défilement mot à mot dans le navigateur).
 - **Variables à portée** : création, modification et suppression des définitions.
 
+- **Options (arguments)** de commande (texte, nombre, utilisateur, salon, rôle…) et **historique avec retour arrière**.
+
 Reste à faire : canvas Blueprint (vue graphe), éditeurs BDFD / JavaScript et bac à sable, Components V2 et modales,
-options (arguments) de commande, versions de configuration et retour arrière, planificateur, webhooks entrants,
+versions de configuration du bot, planificateur, webhooks entrants,
 émojis, serveurs, marketplace, conteneurs, documentation intégrée. Le détail ci-dessous est l'audit initial.
 
 

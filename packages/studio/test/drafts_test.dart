@@ -3,9 +3,11 @@ import 'package:bot_creator_studio/src/commands/action_list.dart';
 import 'package:bot_creator_studio/src/commands/command_draft.dart';
 import 'package:bot_creator_studio/src/commands/workflow_draft.dart';
 import 'package:bot_creator_studio/src/widgets/actions_editor.dart';
+import 'package:bot_creator_studio/src/widgets/options_editor.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  optionsTests();
   group('CommandDraft', () {
     test('une commande neuve est à enregistrer et valide', () {
       final d = CommandDraft.blank(name: 'ping', description: 'Répond pong');
@@ -114,5 +116,74 @@ void main() {
     expect(events.map((e) => e.kind), ['delta', 'delta', 'completed']);
     expect(events.map((e) => e.id), [1, 2, 3]);
     expect(events.take(2).map((e) => e.payload['text']).join(), 'Bonjour');
+  });
+}
+
+void optionsTests() {
+  group('options de commande', () {
+    test('options valides', () {
+      expect(
+        validateOptions([
+          {
+            'type': 'user',
+            'name': 'cible',
+            'description': 'Qui',
+            'required': true,
+          },
+          {'type': 'string', 'name': 'raison', 'description': 'Pourquoi'},
+        ]),
+        isNull,
+      );
+    });
+    test('nom invalide, doublon, ordre et description', () {
+      expect(
+        validateOptions([
+          {'name': 'Cible', 'description': 'x'},
+        ]),
+        isNotNull,
+      );
+      expect(
+        validateOptions([
+          {'name': 'a', 'description': 'x'},
+          {'name': 'a', 'description': 'y'},
+        ]),
+        isNotNull,
+      );
+      expect(
+        validateOptions([
+          {'name': 'a', 'description': 'x'},
+          {'name': 'b', 'description': 'y', 'required': true},
+        ]),
+        contains('obligatoires'),
+      );
+      expect(
+        validateOptions([
+          {'name': 'a', 'description': ''},
+        ]),
+        isNotNull,
+      );
+    });
+    test(
+      'les options sont écrites dans data.options sans toucher au reste',
+      () {
+        final d = CommandDraft({
+          'id': 'c',
+          'name': 'ban',
+          'description': 'x',
+          'data': {'actions': [], 'keep': 1},
+        });
+        d.options = [
+          {
+            'type': 'user',
+            'name': 'cible',
+            'description': 'Qui',
+            'required': true,
+          },
+        ];
+        expect(d.optionCount, 1);
+        expect(d.toRaw()['data']['keep'], 1);
+        expect(d.dirty, isTrue);
+      },
+    );
   });
 }
