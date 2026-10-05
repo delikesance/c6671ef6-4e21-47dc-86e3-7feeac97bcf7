@@ -194,3 +194,25 @@ class RailBadge extends StatelessWidget {
     );
   }
 }
+
+/// Logo du Studio : la même icône que l'application (assets/logo.png, dérivée de
+/// packages/app/assets/icon/icon.png).
+class StudioLogo extends StatelessWidget {
+  const StudioLogo({super.key, this.size = 44});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(size * 0.32),
+      child: Image.asset(
+        'assets/logo.png',
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        semanticLabel: 'Bot Creator',
+      ),
+    );
+  }
+}

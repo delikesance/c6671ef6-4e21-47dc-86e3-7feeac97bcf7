@@ -125,7 +125,7 @@ class _StudioShellState extends State<StudioShell> {
   ];
 
   Widget _homeRail() => StudioRail(
-    badge: const RailBadge(text: 'BC', color: StudioColors.action),
+    badge: const StudioLogo(),
     itemHeight: 64,
     selectedId: _homeSection,
     onSelect: (id) => setState(() => _homeSection = id),
