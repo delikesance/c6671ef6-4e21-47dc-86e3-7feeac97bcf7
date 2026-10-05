@@ -31,6 +31,46 @@ Future<void> _storeSession({bool expired = false}) async {
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
+  test(
+    'l\'état OAuth à mémoriser est celui du serveur, pas celui envoyé',
+    () async {
+      final api = StudioApi(
+        baseUrl: 'https://api.test',
+        client: MockClient(
+          (_) async => http.Response(
+            '{"authorization_url":"https://discord.com/oauth2/authorize?state=srv.signed",'
+            '"state":"srv.signed"}',
+            200,
+          ),
+        ),
+      );
+      final start = await api.startDiscordAuthorization(
+        redirectUri: 'https://studio.test/',
+        state: 'client-state',
+      );
+      expect(start.state, 'srv.signed');
+      expect(start.url, contains('discord.com'));
+    },
+  );
+
+  test(
+    'sans champ state, on lit celui de l\'URL ; à défaut, le nôtre',
+    () async {
+      StudioApi withBody(String body) => StudioApi(
+        baseUrl: 'https://api.test',
+        client: MockClient((_) async => http.Response(body, 200)),
+      );
+      final fromUrl = await withBody(
+        '{"url":"https://discord.com/x?state=from-url"}',
+      ).startDiscordAuthorization(redirectUri: 'r', state: 'mine');
+      expect(fromUrl.state, 'from-url');
+      final fallback = await withBody(
+        '{"url":"https://discord.com/x"}',
+      ).startDiscordAuthorization(redirectUri: 'r', state: 'mine');
+      expect(fallback.state, 'mine');
+    },
+  );
+
   test('aucune feature premium sans compte premium', () {
     for (final f in StudioFeature.values.where((f) => f.isPremium)) {
       expect(f.isAvailableFor(StudioPlan.free), isFalse);

@@ -90,13 +90,13 @@ class AuthController extends ChangeNotifier {
 
   Future<void> signIn() async {
     try {
-      final state = _randomState();
-      platform.writeOAuthState(state);
-      final url = await api.startDiscordAuthorization(
+      final start = await api.startDiscordAuthorization(
         redirectUri: redirectUri,
-        state: state,
+        state: _randomState(),
       );
-      platform.redirectTo(url);
+      // L'état à retrouver au retour est celui du serveur, pas le nôtre.
+      platform.writeOAuthState(start.state);
+      platform.redirectTo(start.url);
     } on StudioApiException catch (e) {
       _signedOut(e.message);
     } catch (e) {
