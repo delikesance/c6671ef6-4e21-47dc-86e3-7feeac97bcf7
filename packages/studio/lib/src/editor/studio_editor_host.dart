@@ -49,6 +49,21 @@ class StudioEditorHost extends EditorHost {
   ];
 
   @override
+  bool get supportsBdfdEditor => true;
+
+  @override
+  Future<String?> editBdfdScript(
+    BuildContext context, {
+    required String initialCode,
+    required String backend,
+  }) => Navigator.of(context).push<String>(
+    MaterialPageRoute<String>(
+      builder: (_) =>
+          BdfdEditorPage(initialCode: initialCode, bdfdBackend: backend),
+    ),
+  );
+
+  @override
   bool get supportsJavascriptEditor => true;
 
   @override

@@ -39,7 +39,11 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
 - **Éditeur JavaScript** : l'éditeur de script de l'app (coloration, autocomplétion discord.js, signatures, diagnostics,
   réglages de la palette) pour les commandes en JavaScript et l'autocomplétion des options.
 
-Reste à faire : éditeur BDFD (le compilateur BDFD n'est pas compilable pour le web ; le Studio affiche le script tel quel), éditeur d'image,
+- **Éditeur BDFD** : l'éditeur de l'app (coloration, autocomplétion, signatures). Les diagnostics du compilateur BDFD
+  viennent de l'hôte (`BdfdEditorHooks`) : le moteur ne se compile pas pour le web, donc le Studio n'en affiche pas
+  pour l'instant.
+
+Reste à faire : éditeur d'image,
 versions de configuration du bot, planificateur, webhooks entrants, émojis, serveurs, marketplace, conteneurs,
 documentation intégrée. Le détail ci-dessous est l'audit initial.
 

@@ -391,17 +391,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
                       const SizedBox(height: 8),
                       _entryBlock(draft),
                       const SizedBox(height: 12),
-                      if (draft.executionMode == 'javascript')
-                        _scriptCard(draft)
-                      else
-                        const Text(
-                          "Cette commande est écrite en BDFD : l'éditeur BDFD se trouve dans l'app. Le Studio la conserve telle quelle.",
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            color: StudioColors.muted,
-                            height: 1.5,
-                          ),
-                        ),
+                      _scriptCard(draft),
                     ],
                   ),
           ),
@@ -412,11 +402,12 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
 
   /// Script JavaScript de la commande : aperçu et éditeur plein écran de l'app.
   Widget _scriptCard(CommandDraft draft) {
-    final code = draft.jsScript;
+    final bdfd = draft.executionMode == 'bdfd_script';
+    final code = bdfd ? draft.bdfdScript : draft.jsScript;
     return ScratchBlock(
       color: AppTheme.warning,
-      icon: Icons.javascript,
-      title: 'JavaScript',
+      icon: bdfd ? Icons.code : Icons.javascript,
+      title: bdfd ? 'BDFD' : 'JavaScript',
       required: true,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -455,7 +446,11 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
                   ),
                 );
                 if (result != null && mounted) {
-                  setState(() => draft.jsScript = result);
+                  setState(
+                    () => bdfd
+                        ? draft.bdfdScript = result
+                        : draft.jsScript = result,
+                  );
                 }
               },
               icon: const AppIcon.fromMaterial(Icons.edit_note, size: 18),
@@ -577,7 +572,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
       onLegacyResponseTargetChanged: (value) =>
           setState(() => draft.legacyResponseTarget = value),
       executionMode: draft.executionMode,
-      showBdfdMode: false,
+      showBdfdMode: true,
       showJavascriptMode: true,
       onExecutionModeChanged: (mode) =>
           setState(() => draft.executionMode = mode),
