@@ -177,7 +177,22 @@ bool _sameJsonValue(dynamic left, dynamic right) {
   if (right == sandboxIsoTimestampMatcher && left is String) {
     return DateTime.tryParse(left)?.isUtc == true;
   }
+  // Embed colors are reported as '#RRGGBB' but models often assert the integer form (or vice versa).
+  final leftColor = _hexColorValue(left), rightColor = _hexColorValue(right);
+  if (leftColor != null &&
+      rightColor != null &&
+      (left is String) != (right is String)) {
+    return leftColor == rightColor;
+  }
   return left == right;
+}
+
+int? _hexColorValue(dynamic value) {
+  if (value is int) return value >= 0 && value <= 0xFFFFFF ? value : null;
+  if (value is String && RegExp(r'^#[0-9a-fA-F]{6}$').hasMatch(value)) {
+    return int.parse(value.substring(1), radix: 16);
+  }
+  return null;
 }
 
 /// Expected value matching any UTC ISO-8601 timestamp, for clock-dependent
