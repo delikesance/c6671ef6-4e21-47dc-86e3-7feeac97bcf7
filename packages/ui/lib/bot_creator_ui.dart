@@ -123,3 +123,5 @@ export 'src/editor/lists/guilds_body.dart';
 export 'src/editor/lists/marketplace_controller.dart';
 export 'src/editor/lists/marketplace_detail_view.dart';
 export 'src/editor/lists/marketplace_view.dart';
+export 'src/editor/forms/image_editor_page.dart';
+export 'src/editor/forms/canvas_preview_widget.dart';

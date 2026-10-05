@@ -29,6 +29,10 @@ class _BotsPageState extends State<BotsPage> {
   bool _loading = true;
   final Set<String> _busy = {};
   final Map<String, StudioBotRuntime> _runtimes = {};
+  // Nombre de serveurs par bot : lu une fois par ouverture de la page (un appel
+  // Discord par bot, jamais à chaque relecture). Absent = inconnu, ligne masquée.
+  final Map<String, int> _guildCounts = {};
+  final Set<String> _guildRequested = {};
   Timer? _poll;
   Timer? _debounce;
   Timer? _reconnect;
@@ -88,6 +92,20 @@ class _BotsPageState extends State<BotsPage> {
     super.dispose();
   }
 
+  void _loadGuildCounts(List<StudioBot> bots) {
+    for (final bot in bots) {
+      if (!_guildRequested.add(bot.id)) continue;
+      widget.api
+          .listDiscordGuilds(bot.id)
+          .then((guilds) {
+            if (mounted) setState(() => _guildCounts[bot.id] = guilds.length);
+          })
+          .catchError((_) {
+            // Pas d'accès Discord pour ce bot : la ligne reste masquée.
+          });
+    }
+  }
+
   Future<void> _load({bool silent = false}) async {
     if (!silent) setState(() => _loading = true);
     try {
@@ -116,6 +134,7 @@ class _BotsPageState extends State<BotsPage> {
         _error = null;
         _loading = false;
       });
+      _loadGuildCounts(bots);
     } catch (e) {
       if (!mounted || silent) return;
       setState(() {
@@ -245,6 +264,7 @@ class _BotsPageState extends State<BotsPage> {
                               child: BotCard(
                                 bot: bot,
                                 runtime: _runtimes[bot.id],
+                                guildCount: _guildCounts[bot.id],
                                 busy: _busy.contains(bot.id),
                                 onToggle: () => _toggle(bot),
                                 onManage: () => widget.onOpenBot(bot),
@@ -319,6 +339,7 @@ class BotCard extends StatelessWidget {
     super.key,
     required this.bot,
     required this.runtime,
+    this.guildCount,
     required this.busy,
     required this.onToggle,
     required this.onManage,
@@ -326,6 +347,9 @@ class BotCard extends StatelessWidget {
 
   final StudioBot bot;
   final StudioBotRuntime? runtime;
+
+  /// Serveurs du bot, quand le Manager a pu les lire (sinon la ligne est masquée).
+  final int? guildCount;
   final bool busy;
   final VoidCallback onToggle;
   final VoidCallback onManage;
@@ -340,8 +364,8 @@ class BotCard extends StatelessWidget {
       name: bot.name,
       id: bot.id,
       avatar: null,
-      guildCount: 0,
-      showServers: false,
+      guildCount: guildCount ?? 0,
+      showServers: guildCount != null,
       isRunning: bot.running,
       canToggle: !busy,
       isTogglingThisBot: busy,

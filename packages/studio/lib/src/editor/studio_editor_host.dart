@@ -66,6 +66,23 @@ class StudioEditorHost extends EditorHost {
   );
 
   @override
+  bool get supportsImageEditor => true;
+
+  @override
+  Future<List<Map<String, dynamic>>?> editImageOperations(
+    BuildContext context, {
+    required List<Map<String, dynamic>> operations,
+    required List<VariableSuggestion> variableSuggestions,
+  }) => Navigator.of(context).push<List<Map<String, dynamic>>>(
+    MaterialPageRoute<List<Map<String, dynamic>>>(
+      builder: (_) => ImageEditorPage(
+        operations: operations,
+        variableSuggestions: variableSuggestions,
+      ),
+    ),
+  );
+
+  @override
   bool get supportsJavascriptEditor => true;
 
   @override
