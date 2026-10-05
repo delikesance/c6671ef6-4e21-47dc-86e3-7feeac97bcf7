@@ -135,7 +135,7 @@ void main() {
     await tester.tap(find.text('ban'));
     await _settle(tester);
     expect(find.text('Métadonnées'), findsOneWidget);
-    expect(find.text('Bannir un utilisateur'), findsOneWidget);
+    expect(find.text('Point de départ (Déclencheur)'), findsOneWidget);
     expect(tester.takeException(), isNull);
 
     // Retour à la liste, puis la page Modules.

@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:bot_creator_studio/src/api/studio_api.dart';
-import 'package:bot_creator_studio/src/commands/action_catalog.dart';
 import 'package:bot_creator_studio/src/commands/command_draft.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -76,62 +75,6 @@ void main() {
       expect(d.validate(), contains('description'));
       d.description = 'x' * 101;
       expect(d.validate(), contains('100'));
-    });
-  });
-
-  group('résumé de bloc', () {
-    test('httpRequest, variable, si, texte, repli', () {
-      expect(
-        summarizeAction({
-          'type': 'httpRequest',
-          'key': 'r',
-          'payload': {'url': 'https://a.b', 'method': 'post'},
-        }),
-        'r ← POST https://a.b',
-      );
-      expect(summarizeAction({'type': 'httpRequest', 'payload': {}}), isNull);
-      expect(
-        summarizeAction({
-          'type': 'setGlobalVariable',
-          'payload': {'key': 'score', 'value': '3'},
-        }),
-        'score ← 3',
-      );
-      expect(
-        summarizeAction({
-          'type': 'ifBlock',
-          'payload': {
-            'condition.variable': '((s))',
-            'condition.operator': '>',
-            'condition.value': '9',
-          },
-        }),
-        '((s)) > 9',
-      );
-      expect(
-        summarizeAction({
-          'type': 'respondWithMessage',
-          'payload': {'content': 'Bonjour\nmonde'},
-        }),
-        'Bonjour monde',
-      );
-      expect(
-        summarizeAction({
-          'type': 'banUser',
-          'payload': {'userId': '1', 'thenActions': []},
-        }),
-        'userId: 1',
-      );
-      expect(
-        summarizeAction({'type': 'stop', 'key': 'fin', 'payload': {}}),
-        'fin',
-      );
-    });
-
-    test('catalogue : libellé français, type inconnu toléré', () {
-      expect(infoFor('banUser').label, 'Bannir un utilisateur');
-      expect(infoFor('banUser').category, ActionCategory.moderation);
-      expect(infoFor('typeFutur').label, 'typeFutur');
     });
   });
 

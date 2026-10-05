@@ -51,3 +51,5 @@ export 'src/l10n/app_locale.dart';
 export 'src/editor/logic/workflow_call.dart';
 export 'src/editor/logic/embed_normalization.dart';
 export 'src/editor/pages/action_sequence_editor.dart';
+export 'src/editor/logic/variable_suggestions.dart';
+export 'src/editor/logic/workflow_events.dart';
