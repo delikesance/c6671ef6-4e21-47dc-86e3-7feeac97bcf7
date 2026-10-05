@@ -456,31 +456,39 @@ class OptionWidgetState extends State<OptionWidget> {
                             child: Row(
                               children: <Widget>[
                                 Text(context.tr.common_type),
-                                const Spacer(),
-                                DropdownButtonHideUnderline(
-                                  child: DropdownButton<CommandOptionType>(
-                                    value: option.type,
-                                    onChanged: (CommandOptionType? newValue) {
-                                      if (newValue == null) {
-                                        return;
-                                      }
-                                      setState(() {
-                                        option.type = newValue;
-                                        _normalizeForType(option);
-                                        _updateWidget();
-                                      });
-                                    },
-                                    items: allowedTypes
-                                        .map(
-                                          (CommandOptionType type) =>
-                                              DropdownMenuItem<
-                                                CommandOptionType
-                                              >(
-                                                value: type,
-                                                child: Text(_typeLabel(type)),
-                                              ),
-                                        )
-                                        .toList(growable: false),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButton<CommandOptionType>(
+                                      isExpanded: true,
+                                      alignment: AlignmentDirectional.centerEnd,
+                                      value: option.type,
+                                      onChanged: (CommandOptionType? newValue) {
+                                        if (newValue == null) {
+                                          return;
+                                        }
+                                        setState(() {
+                                          option.type = newValue;
+                                          _normalizeForType(option);
+                                          _updateWidget();
+                                        });
+                                      },
+                                      items: allowedTypes
+                                          .map(
+                                            (CommandOptionType type) =>
+                                                DropdownMenuItem<
+                                                  CommandOptionType
+                                                >(
+                                                  value: type,
+                                                  child: Text(
+                                                    _typeLabel(type),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                          )
+                                          .toList(growable: false),
+                                    ),
                                   ),
                                 ),
                               ],
