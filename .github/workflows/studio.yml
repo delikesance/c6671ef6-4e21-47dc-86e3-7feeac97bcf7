@@ -155,6 +155,9 @@ jobs:
 
           # Le moteur WebAssembly doit avoir le bon type MIME.
           headers /main.dart.wasm | grep -qi '^content-type: application/wasm'
+          # Le chargeur du build wasm est un module ES : un MIME non
+          # JavaScript fait échouer le démarrage de l'app dans le navigateur.
+          headers /main.dart.mjs | grep -qi '^content-type: text/javascript'
 
       - name: Stop smoke container
         if: always()
