@@ -155,3 +155,63 @@ class StudioSchedulerController extends SchedulerController {
     ),
   );
 }
+
+/// Webhooks entrants du Studio : le secret n'est jamais relu (le Manager ne le
+/// renvoie pas) ; un secret laissé vide est conservé, ou généré par le serveur
+/// à la création et montré une seule fois.
+class StudioInboundWebhooksController extends InboundWebhooksController {
+  const StudioInboundWebhooksController({
+    required this.api,
+    required this.botId,
+    required this.available,
+  });
+
+  final StudioApi api;
+  final String botId;
+  final bool available;
+
+  @override
+  Future<List<Map<String, dynamic>>> webhooks() =>
+      api.listInboundWebhooks(botId);
+
+  @override
+  Future<List<Map<String, dynamic>>> workflows() async => [
+    for (final w in await api.listWorkflows(botId))
+      {'name': w.name, 'workflowType': w.type},
+  ];
+
+  @override
+  Future<String?> save({
+    required String path,
+    required String workflowName,
+    required String? secret,
+    required bool enabled,
+    String? webhookId,
+  }) => api.saveInboundWebhook(botId, webhookId ?? newStorageId(), {
+    'path': path,
+    'workflowName': workflowName,
+    'enabled': enabled,
+    'secret': ?secret,
+  });
+
+  @override
+  Future<void> delete(String webhookId) =>
+      api.deleteInboundWebhook(botId, webhookId);
+
+  @override
+  bool get secretReadable => false;
+
+  @override
+  bool get hasCapability => available;
+
+  @override
+  Widget? upsell(
+    BuildContext context,
+    Future<void> Function() reload,
+  ) => const Padding(
+    padding: EdgeInsets.only(top: 12),
+    child: Text(
+      "Les webhooks entrants sont réservés aux comptes Premium. L'abonnement se gère dans l'app.",
+    ),
+  );
+}

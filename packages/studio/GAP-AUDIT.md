@@ -46,6 +46,10 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
 - **Planificateur** : l'écran de l'app (déclencheurs, activation, limite du forfait), via les routes
   `scheduled-triggers` du Manager.
 
+- **Webhooks entrants** : l'écran de l'app, via les routes `inbound-webhooks` du Manager. Le secret y est en écriture
+  seule : jamais relu ; laissé vide il est conservé, ou généré par le serveur à la création et montré une seule fois
+  (donc pas de « copier le secret » ni d'URL complète dans le Studio).
+
 Reste à faire : éditeur d'image,
 versions de configuration du bot, planificateur, webhooks entrants, émojis, serveurs, marketplace, conteneurs,
 documentation intégrée. Le détail ci-dessous est l'audit initial.

@@ -8,7 +8,6 @@ import '../l10n_ext.dart';
 import '../layout.dart';
 import '../locale_controller.dart';
 import '../editor/studio_editor_host.dart';
-import '../premium/premium_gate.dart';
 import '../premium/studio_feature.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
@@ -316,10 +315,13 @@ class _StudioShellState extends State<StudioShell> {
           ),
         );
       case 'hooks':
-        return _premiumSection(
-          context.l10n.navHooks,
-          StudioFeature.inboundWebhooks,
-          plan,
+        return InboundWebhooksView(
+          key: ValueKey('hooks-${bot.id}'),
+          controller: StudioInboundWebhooksController(
+            api: api,
+            botId: bot.id,
+            available: StudioFeature.inboundWebhooks.isAvailableFor(plan),
+          ),
         );
       default:
         return ComingSoon(title: _titleOf(section));
@@ -331,32 +333,6 @@ class _StudioShellState extends State<StudioShell> {
       if (e?.id == id) return e!.label;
     }
     return context.l10n.navSettings;
-  }
-
-  Widget _premiumSection(String title, StudioFeature feature, StudioPlan plan) {
-    return Padding(
-      padding: pageInsets(context),
-      child: PageContent(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 12),
-            PremiumGate(
-              feature: feature,
-              plan: plan,
-              child: Text(
-                context.l10n.comingSoonShort,
-                style: const TextStyle(color: StudioColors.muted),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
