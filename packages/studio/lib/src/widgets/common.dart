@@ -4,23 +4,6 @@ import 'package:flutter/material.dart';
 import '../l10n_ext.dart';
 import '../theme.dart';
 
-/// Contenu centré, 1200 px max (comme `PageContent` de l'app en mode large).
-class PageContent extends StatelessWidget {
-  const PageContent({super.key, required this.child, this.maxWidth = 1200});
-
-  final Widget child;
-  final double maxWidth;
-
-  @override
-  Widget build(BuildContext context) => Align(
-    alignment: Alignment.topCenter,
-    child: ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: maxWidth),
-      child: child,
-    ),
-  );
-}
-
 class Overline extends StatelessWidget {
   const Overline(this.text, {super.key});
 

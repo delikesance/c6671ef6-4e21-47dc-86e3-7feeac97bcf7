@@ -1,4 +1,6 @@
+import 'package:bot_creator/core/bdfd_editor/bdfd_validation.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor_page.dart';
@@ -93,6 +95,17 @@ class AppEditorHost extends EditorHost {
 
   @override
   bool get supportsBdfdEditor => true;
+
+  @override
+  List<EditorDiagnostic> bdfdDiagnostics(String source, String backend) => [
+    for (final d in bdfdDiagnosticsFor(source, backend: backend))
+      EditorDiagnostic(
+        message: d.message,
+        isError: d.severity == BdfdCompileDiagnosticSeverity.error,
+        line: d.line,
+        column: d.column,
+      ),
+  ];
 
   @override
   Future<String?> editBdfdScript(

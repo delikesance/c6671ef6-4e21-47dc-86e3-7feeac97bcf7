@@ -37,8 +37,9 @@ void main(List<String> args) {
 
   for (final locale in _locales) {
     final app = _read('$_appDir/app_$locale.arb');
-    if (app.isEmpty)
+    if (app.isEmpty) {
       _fail('ARB de l\'app introuvable : $_appDir/app_$locale.arb');
+    }
     final path = '$_studioDir/app_$locale.arb';
     final current = _read(path);
     final next = <String, dynamic>{'@@locale': locale};

@@ -270,7 +270,12 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
         return SingleChildScrollView(
           controller: scrollController,
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+          padding: EdgeInsets.fromLTRB(
+            24,
+            12,
+            24,
+            32 + MediaQuery.paddingOf(context).bottom,
+          ),
           child: Column(
             children: [
               // Drag handle

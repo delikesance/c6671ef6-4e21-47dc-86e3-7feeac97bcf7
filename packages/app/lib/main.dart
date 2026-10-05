@@ -11,6 +11,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:bot_creator/features/bot_editor/presentation/app_editor_host.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart' show EditorHostScope;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nyxx/nyxx.dart' hide Locale, Builder;
 import 'package:bot_creator/features/home/presentation/home_page.dart';
@@ -724,11 +726,14 @@ class _MyAppState extends State<MyApp> {
       navigatorObservers: [PosthogObserver(), DesktopTitleBarNotifier.instance],
       builder: (context, child) {
         final content = child ?? const SizedBox.shrink();
-        return AppTextScale(
-          factor: themeProvider.appearance.textScale,
-          child: ResponsiveHelper.isDesktopPlatform()
-              ? DesktopAppShell(child: content)
-              : content,
+        return EditorHostScope(
+          host: const AppEditorHost(),
+          child: AppTextScale(
+            factor: themeProvider.appearance.textScale,
+            child: ResponsiveHelper.isDesktopPlatform()
+                ? DesktopAppShell(child: content)
+                : content,
+          ),
         );
       },
       onGenerateTitle: (context) => context.tr.app_title,
