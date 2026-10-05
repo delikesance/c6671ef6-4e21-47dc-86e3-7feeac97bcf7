@@ -802,6 +802,40 @@ class StudioApi {
     '/api/v2/bots/${Uri.encodeComponent(botId)}/scheduled-triggers/${Uri.encodeComponent(triggerId)}',
   );
 
+  // ── Marketplace ───────────────────────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> listMarketplace() async {
+    final json = await _send('GET', '/marketplace');
+    final raw = json['data'];
+    return raw is List
+        ? [for (final t in raw.whereType<Map>()) Map<String, dynamic>.from(t)]
+        : const [];
+  }
+
+  Future<Map<String, dynamic>> getMarketplaceTemplate(String id) =>
+      _send('GET', '/marketplace/${Uri.encodeComponent(id)}');
+
+  Future<void> rateMarketplaceTemplate(String id, double rating) => _send(
+    'POST',
+    '/marketplace/${Uri.encodeComponent(id)}/rate',
+    body: {'rating': rating},
+  );
+
+  Future<void> deleteMarketplaceTemplate(String id) =>
+      _send('DELETE', '/marketplace/${Uri.encodeComponent(id)}');
+
+  /// Compte un téléchargement (l'application des blocs, elle, se fait par les
+  /// routes de commandes, de workflows et de variables).
+  Future<void> countMarketplaceDownload(
+    String id,
+    String botId,
+    Map<String, String> variables,
+  ) => _send(
+    'POST',
+    '/marketplace/${Uri.encodeComponent(id)}/apply',
+    body: {'botId': botId, 'variables': variables},
+  );
+
   // ── Ressources Discord du bot (jeton gardé par le Manager) ────────────────
 
   Future<List<Map<String, dynamic>>> listDiscordGuilds(String botId) async {

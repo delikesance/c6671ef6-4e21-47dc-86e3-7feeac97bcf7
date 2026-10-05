@@ -120,3 +120,6 @@ export 'src/widgets/home_bot_card.dart';
 export 'src/widgets/duration_formatter.dart';
 export 'src/editor/lists/emojis_view.dart';
 export 'src/editor/lists/guilds_body.dart';
+export 'src/editor/lists/marketplace_controller.dart';
+export 'src/editor/lists/marketplace_detail_view.dart';
+export 'src/editor/lists/marketplace_view.dart';

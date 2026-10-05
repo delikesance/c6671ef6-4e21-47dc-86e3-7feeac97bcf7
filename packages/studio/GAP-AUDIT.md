@@ -57,6 +57,10 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
   téléversement, renommage, suppression), via les routes `discord/guilds` et `discord/emojis` du Manager. Le jeton du
   bot reste sur le serveur.
 
+- **Marketplace** : le catalogue et la fiche d'un modèle de l'app (recherche, catégories, note, variables, aperçu des
+  commandes). Le Studio applique un modèle par ses routes de commandes, de workflows et de variables (avec la même
+  fenêtre de conflits). La publication d'un modèle reste dans l'app.
+
 Reste à faire : éditeur d'image,
 versions de configuration du bot, planificateur, webhooks entrants, émojis, serveurs, marketplace, conteneurs,
 documentation intégrée. Le détail ci-dessous est l'audit initial.
