@@ -18,6 +18,7 @@ import 'package:bot_creator/features/bot_editor/presentation/app_editor_host.dar
 import 'package:bot_creator_ui/bot_creator_ui.dart'
     show
         AvatarImageSource,
+        CopilotMarkdown,
         DocumentationWebViewHost,
         EditorHostScope,
         ExternalLinkOpener,
@@ -204,6 +205,7 @@ Future<void> main(List<String> args) async {
       await AppDiagnostics.initialize();
       AvatarImageSource.defaultSource = ImageDiskCache.instance;
       ExternalLinkOpener.current = openExternalUrl;
+      CopilotMarkdown.linkOpener = openAppLink;
       DocumentationWebViewHost.builder = (url) =>
           WebDocumentationView(initialUrl: url);
       UiDiagnostics.onInfo = (message) =>

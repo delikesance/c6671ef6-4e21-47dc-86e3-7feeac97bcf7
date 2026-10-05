@@ -79,3 +79,6 @@ export 'src/docs/documentation_urls.dart';
 export 'src/docs/documentation_web_view_host.dart';
 export 'src/docs/native_documentation_view.dart';
 export 'src/utils/external_link.dart';
+export 'src/copilot/copilot_activity.dart';
+export 'src/copilot/copilot_markdown.dart';
+export 'src/copilot/copilot_section.dart';
