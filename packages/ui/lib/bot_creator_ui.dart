@@ -95,3 +95,5 @@ export 'src/copilot/ai_credit_format.dart';
 export 'src/editor/lists/command_list_card.dart';
 export 'src/editor/lists/command_folder_header.dart';
 export 'src/editor/logic/command_folder_tree.dart';
+export 'src/editor/lists/scoped_variables_list.dart';
+export 'src/editor/logic/scoped_variable_orphans.dart';

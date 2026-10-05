@@ -28,6 +28,8 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
   Blocs / Blueprint.
 - **Components V2 et modales** : les éditeurs de l'app (via `ActionCard`).
 - **Navigation et accueil** : `EditorRail`, `FlatNavRail` / `FlatNavBar`, `StatusPill`, boutons et avatars de la home.
+- **Liste des commandes et variables à portée** : la carte de commande de l'app (compteurs, dossier, alias) et la liste
+  groupée par portée des variables.
 - **Documentation** : le hub et les articles natifs de l'app (onglet Docs). Les pages sont lues sur bot-creator.fr :
   le site doit autoriser l'origine du Studio (CORS), sinon la page propose de l'ouvrir dans le navigateur.
 
