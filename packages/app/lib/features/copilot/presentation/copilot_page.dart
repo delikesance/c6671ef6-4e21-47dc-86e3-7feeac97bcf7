@@ -1562,23 +1562,24 @@ class _CopilotPageState extends State<CopilotPage> {
       child: Row(
         children: [
           Container(
-            width: 32,
-            height: 32,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
-              color: colors.primaryContainer.withValues(alpha: .55),
-              borderRadius: BorderRadius.circular(10),
+              color: AppTheme.homeCard,
+              border: Border.all(color: AppTheme.homeCardBorder),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Center(
               child: AppIcon(
                 bot == null || bot.isEmpty
                     ? Reicon.outline.magicStar
                     : Reicon.outline.cpu,
-                color: colors.primary,
-                size: 18,
+                color: AppTheme.actionVioletSoft,
+                size: 24,
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1587,11 +1588,11 @@ class _CopilotPageState extends State<CopilotPage> {
                   name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Text(
                   _chat?['title'] as String? ??
                       context.tr.copilot_new_discussion,
@@ -1605,35 +1606,54 @@ class _CopilotPageState extends State<CopilotPage> {
             ),
           ),
           if (bot != null && bot.isNotEmpty)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-              decoration: BoxDecoration(
-                color: colors.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AppIcon(
-                    location == 'local'
-                        ? Reicon.outline.devices
-                        : Reicon.outline.cloud,
-                    size: 12,
-                    color: colors.onSurfaceVariant,
+            Builder(
+              builder: (_) {
+                final live = location != 'local' && _cloudRunning == true;
+                final tint = live
+                    ? AppTheme.statusOnline
+                    : colors.onSurfaceVariant;
+                return Container(
+                  margin: const EdgeInsets.only(left: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
                   ),
-                  const SizedBox(width: 5),
-                  Text(
-                    location == 'local'
-                        ? context.tr.copilot_location_local
-                        : _cloudRunning == false
-                        ? '${context.tr.copilot_location_remote} · ${_copy('arrêté', 'stopped')}'
-                        : _cloudRunning == true
-                        ? '${context.tr.copilot_location_remote} · ${_copy('actif', 'running')}'
-                        : context.tr.copilot_location_remote,
-                    style: Theme.of(context).textTheme.labelSmall,
+                  decoration: BoxDecoration(
+                    color: tint.withValues(alpha: live ? .1 : .08),
+                    border: Border.all(
+                      color: tint.withValues(alpha: live ? .25 : .18),
+                    ),
+                    borderRadius: BorderRadius.circular(999),
                   ),
-                ],
-              ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 7,
+                        height: 7,
+                        decoration: BoxDecoration(
+                          color: tint,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 7),
+                      Text(
+                        location == 'local'
+                            ? context.tr.copilot_location_local
+                            : _cloudRunning == false
+                            ? '${context.tr.copilot_location_remote} · ${_copy('arrêté', 'stopped')}'
+                            : _cloudRunning == true
+                            ? '${context.tr.copilot_location_remote} · ${_copy('actif', 'running')}'
+                            : context.tr.copilot_location_remote,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: tint,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
         ],
       ),
@@ -2104,17 +2124,18 @@ class _CopilotPageState extends State<CopilotPage> {
                   children: [
                     AppIcon(
                       Reicon.outline.coin,
-                      size: 12,
-                      color: colors.onSurfaceVariant,
+                      size: 14,
+                      color: AppTheme.actionVioletSoft,
                     ),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 7),
                     Text(
                       _copy(
-                        '${_credits(tokens)} crédits IA',
-                        '${_credits(tokens)} AI credits',
+                        '${_credits(tokens)} crédits',
+                        '${_credits(tokens)} credits',
                       ),
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: colors.onSurfaceVariant,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -2140,24 +2161,36 @@ class _CopilotPageState extends State<CopilotPage> {
       ),
       child: Column(
         children: [
-          if (_chat != null)
+          if (_wallet != null)
             Padding(
-              padding: const EdgeInsets.only(bottom: 9),
+              padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),
               child: Row(
                 children: [
                   AppIcon(
                     Reicon.outline.coin,
-                    size: 12,
-                    color: colors.onSurfaceVariant,
+                    size: 14,
+                    color: AppTheme.actionVioletSoft,
                   ),
-                  const SizedBox(width: 5),
+                  const SizedBox(width: 7),
                   Flexible(
-                    child: Text(
-                      context.tr.copilot_credits_in_discussion(
-                        _credits(_chat?['consumed_tokens']),
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: _credits(_wallet!['available']),
+                            style: TextStyle(
+                              color: colors.onSurface,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          TextSpan(
+                            text: _copy(' crédits restants', ' credits left'),
+                          ),
+                        ],
                       ),
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: colors.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -2165,11 +2198,11 @@ class _CopilotPageState extends State<CopilotPage> {
               ),
             ),
           Container(
-            padding: const EdgeInsets.fromLTRB(14, 4, 6, 4),
+            padding: const EdgeInsets.fromLTRB(18, 4, 6, 4),
             decoration: BoxDecoration(
-              color: colors.surfaceContainerLow,
-              border: Border.all(color: colors.outlineVariant),
-              borderRadius: BorderRadius.circular(18),
+              color: AppTheme.homeCard,
+              border: Border.all(color: AppTheme.homeClusterBorder),
+              borderRadius: BorderRadius.circular(22),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -2197,8 +2230,11 @@ class _CopilotPageState extends State<CopilotPage> {
                 ),
                 IconButton.filled(
                   style: IconButton.styleFrom(
-                    minimumSize: const Size(40, 40),
-                    fixedSize: const Size(40, 40),
+                    backgroundColor: AppTheme.actionViolet,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: AppTheme.homeGhostBorder,
+                    minimumSize: const Size(44, 44),
+                    fixedSize: const Size(44, 44),
                     padding: EdgeInsets.zero,
                   ),
                   tooltip: retryPending

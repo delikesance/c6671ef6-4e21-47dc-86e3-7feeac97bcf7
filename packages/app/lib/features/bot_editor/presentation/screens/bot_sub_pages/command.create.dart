@@ -1465,15 +1465,20 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   Widget _buildCommandOptionsCard() {
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.homeCard,
+        border: Border.all(color: AppTheme.homeCardBorder),
+        borderRadius: BorderRadius.circular(22),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               context.tr.command_options_title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 4),
             Text(
