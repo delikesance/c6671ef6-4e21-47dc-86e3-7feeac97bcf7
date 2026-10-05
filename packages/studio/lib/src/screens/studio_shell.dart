@@ -162,7 +162,7 @@ class _StudioShellState extends State<StudioShell> {
       case 'settings':
         return _SettingsPage(auth: widget.auth);
       case 'docs':
-        return ComingSoon(title: context.l10n.navDocs);
+        return const DocumentationHubPage(embedded: true);
       default:
         return BotsPage(
           api: widget.auth.api,

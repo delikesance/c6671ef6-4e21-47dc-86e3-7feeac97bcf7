@@ -16,6 +16,10 @@ que les deux interfaces se ressemblent et se comportent pareil.
 | `lib/src/editor/forms` | `ActionCard` (formulaires d'actions), champs avec variables, embeds, permissions |
 | `lib/src/editor/components_v2` | éditeurs Components V2 et modales |
 | `lib/src/editor/pages` | `ActionSequenceEditor` (palette + blocs/Blueprint), `ActionsBuilderPage` |
+| `lib/src/editor/lists` | widgets de listes et de pages d'éditeur (modules, groupes de réglages, barre de page) |
+| `lib/src/editor/widgets` | `EditorSidebar` / `EditorRail` (navigation d'un bot) |
+| `lib/src/code` | thème et réglages des éditeurs de code, coloration BDFD / JavaScript |
+| `lib/src/docs` | documentation intégrée : hub, articles Markdown natifs, dépôt de contenu |
 | `lib/src/editor/host` | `EditorHost` : ce que le paquet demande à l'application |
 
 ## Ajouter ou modifier un composant
@@ -28,6 +32,12 @@ que les deux interfaces se ressemblent et se comportent pareil.
    dossier). Les outils de l'app (`packages/app/tools`) et le Studio (`tool/l10n_sync.dart`) lisent ces fichiers.
 4. Les icônes passent par `AppIcon.fromMaterial(Icons.xxx)`, avec l'icône déclarée dans `reicon_material_map.dart`
    (le test `app_icon_test.dart` de l'app contrôle l'app, le Studio et ce paquet).
+
+## Branchements propres à l'hôte
+
+Quelques composants délèguent à l'hôte par un point d'accroche statique, posé au démarrage : `AvatarImageSource`
+(cache d'images), `ExternalLinkOpener` (ouvrir un lien), `DocumentationWebViewHost` (page web de la doc),
+`UiDiagnostics` (traces). L'app les règle dans `main()` ; le Studio garde les valeurs par défaut.
 
 ## Les deux hôtes
 
