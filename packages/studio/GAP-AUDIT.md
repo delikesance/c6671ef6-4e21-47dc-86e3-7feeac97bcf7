@@ -60,10 +60,11 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
 - **Marketplace** : le catalogue et la fiche d'un modèle de l'app (recherche, catégories, note, variables, aperçu des
   commandes). Le Studio applique un modèle par ses routes de commandes, de workflows et de variables (avec la même
   fenêtre de conflits). La publication (assistant en trois étapes) est aussi celle de l'app : le Studio lit les commandes et workflows
-  complets du bot, une lecture par entrée (les intents ne sont pas encore transmis).
+  complets du bot, une lecture par entrée (intents compris, lus au Manager).
 
 - **Éditeur d'image** : l'éditeur de canevas de l'app (opérations, aperçu), le sélecteur de fichiers rendant les octets
-  de l'image (utilisable sur le web). **Carte de bot** : la ligne « actif sur N serveurs » est lue au Manager.
+  de l'image (utilisable sur le web). **Carte de bot** : la ligne « actif sur N serveurs » et ses pastilles d'avatars (`GuildAvatarStack`, la même présentation que
+  l'app) sont lues au Manager.
 
 Reste à faire :
 versions de configuration du bot, planificateur, webhooks entrants, émojis, serveurs, marketplace, conteneurs,

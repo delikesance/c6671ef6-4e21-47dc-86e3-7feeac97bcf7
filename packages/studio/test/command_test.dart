@@ -218,6 +218,21 @@ void main() {
       expect(calls, ['GET /marketplace', 'POST /marketplace/t1/apply']);
     });
 
+    test(
+      'intents du bot : seules les valeurs booléennes sont gardées',
+      () async {
+        final a = api(
+          MockClient(
+            (r) async => http.Response(
+              '{"intents":{"guilds":true,"members":false,"x":"y"}}',
+              200,
+            ),
+          ),
+        );
+        expect(await a.botIntents('b'), {'guilds': true, 'members': false});
+      },
+    );
+
     test('get lit la commande et la révision', () async {
       final a = api(
         MockClient((r) async {

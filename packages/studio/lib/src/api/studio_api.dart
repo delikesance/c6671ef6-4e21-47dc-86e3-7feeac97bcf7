@@ -844,6 +844,20 @@ class StudioApi {
     body: {'botId': botId, 'variables': variables},
   );
 
+  Future<Map<String, bool>> botIntents(String botId) async {
+    final json = await _send(
+      'GET',
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/intents',
+    );
+    final raw = json['intents'];
+    return raw is Map
+        ? {
+            for (final e in raw.entries)
+              if (e.value is bool) '${e.key}': e.value as bool,
+          }
+        : const {};
+  }
+
   // ── Ressources Discord du bot (jeton gardé par le Manager) ────────────────
 
   Future<List<Map<String, dynamic>>> listDiscordGuilds(String botId) async {

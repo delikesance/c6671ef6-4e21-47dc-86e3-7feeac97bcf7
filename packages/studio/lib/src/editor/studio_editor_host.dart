@@ -297,7 +297,10 @@ class StudioMarketplaceController extends MarketplaceController {
     return TemplatePublishSource(
       commands: commands,
       workflows: workflows,
-      appData: {'globalVariables': await api.globalVariables(botId)},
+      appData: {
+        'globalVariables': await api.globalVariables(botId),
+        'intents': await api.botIntents(botId),
+      },
     );
   }
 
