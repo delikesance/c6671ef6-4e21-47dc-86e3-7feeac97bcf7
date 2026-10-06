@@ -72,7 +72,7 @@ class _CreateBotPageState extends State<CreateBotPage> {
       builder: (ctx) => AlertDialog(
         title: Row(
           children: [
-            Icon(
+            AppIcon.fromMaterial(
               Icons.smart_toy_rounded,
               color: Theme.of(ctx).colorScheme.primary,
             ),
@@ -88,7 +88,10 @@ class _CreateBotPageState extends State<CreateBotPage> {
           ),
           FilledButton.icon(
             onPressed: () => Navigator.pop(ctx, true),
-            icon: const Icon(Icons.add_circle_outline_rounded, size: 18),
+            icon: const AppIcon.fromMaterial(
+              Icons.add_circle_outline_rounded,
+              size: 18,
+            ),
             label: Text(tr.app_create_sample_confirm),
           ),
         ],

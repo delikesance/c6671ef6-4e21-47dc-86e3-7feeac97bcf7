@@ -282,12 +282,12 @@ class _Stats extends StatelessWidget {
         value: commandCount == null ? '–' : '$commandCount',
       ),
       _StatTile(
-        icon: Icons.memory_rounded,
+        icon: Icons.memory,
         label: l.overviewEngine,
         value: bot.isJavascript ? 'JavaScript' : 'Dart',
       ),
       _StatTile(
-        icon: Icons.tag_rounded,
+        icon: Icons.tag,
         label: 'ID',
         value: bot.id,
         mono: true,
@@ -348,7 +348,11 @@ class _StatTile extends StatelessWidget {
               color: StudioColors.action.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, size: 20, color: StudioColors.actionSoft),
+            child: AppIcon.fromMaterial(
+              icon,
+              size: 20,
+              color: StudioColors.actionSoft,
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(

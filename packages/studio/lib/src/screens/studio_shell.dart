@@ -124,12 +124,12 @@ class _StudioShellState extends State<StudioShell> {
       );
     }
     return Scaffold(
-      body: Row(
-        // Étirée : sinon la page défilante reçoit une hauteur libre, se réduit à
-        // son contenu et la `Row` la centre verticalement au milieu de l'écran.
+      // Barre de navigation en haut (pas de rail latéral) : les libellés ont la
+      // place de leur texte et la page prend toute la largeur.
+      body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (bot == null) _homeRail() else _editorRail(bot),
+          if (bot == null) _homeTopBar() else _editorTopBar(bot),
           Expanded(child: body),
         ],
       ),
@@ -150,11 +150,8 @@ class _StudioShellState extends State<StudioShell> {
     _NavEntry('settings', context.l10n.navSettings, Icons.settings_outlined),
   ];
 
-  Widget _homeRail() => FlatNavRail(
-    leading: const Padding(
-      padding: EdgeInsets.only(top: 16, bottom: 8),
-      child: StudioLogo(),
-    ),
+  Widget _homeTopBar() => FlatNavTopBar(
+    leading: const StudioLogo(size: 38),
     items: _navItems(
       _homeItems(context),
       _homeSection,
@@ -241,7 +238,7 @@ class _StudioShellState extends State<StudioShell> {
     return out;
   }
 
-  Widget _editorRail(StudioBot bot) {
+  Widget _editorTopBar(StudioBot bot) {
     final l = context.l10n;
     // Sections du rail de l'app : les séparateurs deviennent des sections.
     final sections = <EditorSidebarSection>[];
@@ -259,9 +256,10 @@ class _StudioShellState extends State<StudioShell> {
     if (current.isNotEmpty) {
       sections.add(EditorSidebarSection(title: '', items: current));
     }
-    return EditorRail(
+    return EditorTopBar(
       appName: bot.name,
       botId: bot.id,
+      avatarUrl: bot.avatarUrl,
       sections: sections,
       activeItemId: _editorSection,
       showBackButton: true,
@@ -445,6 +443,7 @@ class _SettingsPage extends StatelessWidget {
                 const SizedBox(height: 16),
                 OutlinedButton.icon(
                   onPressed: auth.signOut,
+                  style: dangerOutlinedButtonStyle(),
                   icon: const AppIcon.fromMaterial(Icons.logout, size: 16),
                   label: Text(l.accountSignOut),
                 ),
