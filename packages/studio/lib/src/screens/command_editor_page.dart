@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:bot_creator_ui/discord.dart' as dc;
 import 'package:flutter/material.dart';
@@ -6,6 +8,7 @@ import '../api/studio_api.dart';
 import '../commands/command_draft.dart';
 import '../editor/studio_command_history_host.dart';
 import '../editor/studio_editor_host.dart';
+import '../editor/studio_sandbox_host.dart';
 import '../l10n_ext.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
@@ -162,6 +165,48 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
     await _load();
   }
 
+  /// Teste le BROUILLON (enregistré ou non) dans le bac à sable : les écrans sont
+  /// ceux de l'app, la simulation tourne sur le runner du bot. Les variables
+  /// à portée du bot servent de définitions, comme dans l'app.
+  Future<void> _openSandbox() async {
+    final draft = _draft!;
+    var definitions = const <Map<String, dynamic>>[];
+    try {
+      definitions = [
+        for (final d in await widget.api.scopedDefinitions(widget.bot.id))
+          {
+            'key': d.key,
+            'scope': d.scope,
+            'defaultValue': d.defaultValue,
+            'value_type': d.valueType,
+          },
+      ];
+    } catch (_) {
+      // Sans définitions la simulation reste possible : seules les variables à
+      // portée du bot n'auront pas leur valeur par défaut.
+    }
+    if (!mounted) return;
+    final bdfd = draft.executionMode == 'bdfd_script';
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => CommandSandboxPage(
+          host: StudioSandboxHost(widget.api, botId: widget.bot.id),
+          script: bdfd ? draft.bdfdScript : null,
+          // Copie profonde : la simulation ne doit jamais toucher le brouillon.
+          actions: bdfd
+              ? null
+              : [
+                  for (final a in jsonDecode(jsonEncode(draft.actions)) as List)
+                    Map<String, dynamic>.from(a as Map),
+                ],
+          options: draft.options,
+          definitions: definitions,
+          bdfdBackend: draft.bdfdBackend,
+        ),
+      ),
+    );
+  }
+
   Future<void> _delete() async {
     if (_isNew) {
       widget.onClose(_changed);
@@ -310,6 +355,25 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
                     _formError!,
                     style: const TextStyle(color: StudioColors.errorText),
                   ),
+                ),
+              ),
+            ),
+          // Les commandes JavaScript n'ont pas de simulation (comme dans l'app).
+          // Une ligne sous l'en-tête plutôt qu'une icône de plus dans celui-ci :
+          // avec l'historique, la suppression et « Enregistrer », il déborde sur
+          // un téléphone.
+          if (visual || draft.executionMode == 'bdfd_script')
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: TextButton.icon(
+                  onPressed: _saving ? null : _openSandbox,
+                  icon: const AppIcon.fromMaterial(
+                    Icons.science_outlined,
+                    size: 18,
+                  ),
+                  label: Text(context.tr.sandbox_test_tooltip),
                 ),
               ),
             ),

@@ -11245,6 +11245,24 @@ class AppLocalizationsEn extends AppLocalizations {
       'Replays are unavailable right now. Start the bot, then try again.';
 
   @override
+  String get sandbox_unavailable =>
+      'The simulation server is unavailable right now. Start the bot, then try again.';
+
+  @override
+  String get sandbox_too_large =>
+      'This command is too large to be tested on the server (limit 256 KB).';
+
+  @override
+  String get sandbox_timeout => 'The simulation took too long and was stopped.';
+
+  @override
+  String get sandbox_busy =>
+      'The simulation server is busy. Try again in a moment.';
+
+  @override
+  String get sandbox_test_tooltip => 'Test in sandbox';
+
+  @override
   String get debug_replay_native_start => 'Call';
 
   @override

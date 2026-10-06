@@ -11375,6 +11375,25 @@ class AppLocalizationsPt extends AppLocalizations {
       'Os replays estão indisponíveis no momento. Inicie o bot e tente novamente.';
 
   @override
+  String get sandbox_unavailable =>
+      'O servidor de simulação está indisponível no momento. Inicie o bot e tente novamente.';
+
+  @override
+  String get sandbox_too_large =>
+      'Este comando é grande demais para ser testado no servidor (limite de 256 KB).';
+
+  @override
+  String get sandbox_timeout =>
+      'A simulação demorou demais e foi interrompida.';
+
+  @override
+  String get sandbox_busy =>
+      'O servidor de simulação está ocupado. Tente novamente em instantes.';
+
+  @override
+  String get sandbox_test_tooltip => 'Testar no sandbox';
+
+  @override
   String get debug_replay_native_start => 'Chamada';
 
   @override

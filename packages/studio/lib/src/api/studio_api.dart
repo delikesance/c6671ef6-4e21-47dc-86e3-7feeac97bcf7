@@ -1390,6 +1390,36 @@ class StudioApi {
     return json['capturing'] == true;
   }
 
+  // ── Bac à sable de commandes ─────────────────────────────────────────────
+  //
+  // Le moteur de simulation est du Dart natif (nyxx, isolats) : un navigateur ne
+  // peut pas le faire tourner. Le Manager relaie donc vers le runner du bot
+  // (`/gateway/bots/{id}/sandbox/*`), qui l'exécute sur les seules fixtures de la
+  // demande. Pas une fonction premium : l'app l'offre à tous.
+
+  /// Exécute une demande de simulation (le corps que prend `testCommandInSandbox`)
+  /// et rend le résultat du moteur tel quel. Le runner borne le corps (256 Kio) et
+  /// la durée ; ses refus portent un `code` (`payload_too_large`,
+  /// `sandbox_timeout`, `sandbox_busy`, `invalid_request`).
+  Future<Map<String, dynamic>> sandboxCommandWire(
+    String botId,
+    Map<String, dynamic> request,
+  ) => _send(
+    'POST',
+    '/gateway/bots/${Uri.encodeComponent(botId)}/sandbox/command',
+    body: request,
+    // Le runner coupe à 5 s : on laisse la marge d'un aller-retour.
+    timeout: const Duration(seconds: 25),
+  );
+
+  /// Les cas de régression du laboratoire de fonctions (`count`, `cases`).
+  Future<Map<String, dynamic>> sandboxFunctionsWire(String botId) => _send(
+    'GET',
+    '/gateway/bots/${Uri.encodeComponent(botId)}/sandbox/functions',
+    // Le catalogue pèse quelques centaines de Kio.
+    timeout: const Duration(seconds: 30),
+  );
+
   // ── Applications hébergées (conteneurs clé en main) ──────────────────────
   //
   // Mêmes routes que `MainApiClient` : le jeton de session Discord du Studio
