@@ -176,3 +176,4 @@ export 'src/subscriptions/subscriptions_hub_page.dart';
 export 'src/subscriptions/subscription_page.dart';
 export 'src/subscriptions/ai_credits_host.dart';
 export 'src/subscriptions/ai_credits_page.dart';
+export 'src/bot_home/bot_home_kit.dart';
