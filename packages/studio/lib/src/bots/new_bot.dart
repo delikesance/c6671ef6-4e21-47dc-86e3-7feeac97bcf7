@@ -14,7 +14,10 @@ String? botIdFromToken(String token) {
 }
 
 /// Commande `/ping` d'exemple, identique à celle que crée l'app.
-Map<String, dynamic> samplePingCommand({DateTime? now}) {
+Map<String, dynamic> samplePingCommand({
+  DateTime? now,
+  bool javascript = false,
+}) {
   final at = (now ?? DateTime.now()).toUtc();
   final stamp = at.toIso8601String();
   return {
@@ -28,9 +31,9 @@ Map<String, dynamic> samplePingCommand({DateTime? now}) {
       'version': 1,
       'commandType': 'chatInput',
       'editorMode': 'advanced',
-      'executionMode': 'workflow',
+      'executionMode': javascript ? 'javascript' : 'workflow',
       'bdfdScriptContent': '',
-      'jsScriptContent': '',
+      'jsScriptContent': javascript ? 'await interaction.reply("Pong!");' : '',
       'legacyModeEnabled': false,
       'legacyLocalOnly': false,
       'legacyPrefixOverride': '',
@@ -62,7 +65,12 @@ Map<String, dynamic> samplePingCommand({DateTime? now}) {
 Map<String, dynamic> newBotConfig({
   required String username,
   bool withSamplePing = true,
+
+  /// Bot JavaScript (`runtimeEngine`) : le moteur est choisi à la création,
+  /// comme dans l'app, et décide des modes d'écriture proposés ensuite.
+  bool javascript = false,
 }) => {
+  'runtimeEngine': javascript ? 'javascript' : 'dart',
   'prefix': '!',
   'builtInLegacyHelpEnabled': true,
   'inboundWebhooks': false,
@@ -79,5 +87,5 @@ Map<String, dynamic> newBotConfig({
   'inboundWebhookEndpoints': <dynamic>[],
   'statuses': <dynamic>[],
   'presenceStatus': 'online',
-  'commands': [if (withSamplePing) samplePingCommand()],
+  'commands': [if (withSamplePing) samplePingCommand(javascript: javascript)],
 };
