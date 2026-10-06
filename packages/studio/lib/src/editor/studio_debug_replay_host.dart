@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../api/studio_api.dart';
 import '../auth/studio_session.dart';
 import '../l10n_ext.dart';
+import '../premium/premium_gate.dart';
 import '../premium/studio_feature.dart';
 import '../theme.dart';
 
@@ -28,28 +29,34 @@ class StudioDebugReplayHost extends DebugReplayHost {
   /// Le Studio n'a aucun moyen d'achat : il dit où l'abonnement s'active (même
   /// mention que les autres fonctions premium).
   @override
-  Widget buildUpgradeAction(BuildContext context) => Row(
+  Widget buildUpgradeAction(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      const Padding(
-        padding: EdgeInsets.only(top: 1),
-        child: AppIcon.fromMaterial(
-          Icons.lock_outline_rounded,
-          size: 16,
-          color: StudioColors.muted,
-        ),
-      ),
-      const SizedBox(width: 8),
-      Expanded(
-        child: Text(
-          context.l10n.premiumHint,
-          style: const TextStyle(
-            fontSize: 12,
-            height: 1.5,
-            color: StudioColors.muted,
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 1),
+            child: AppIcon.fromMaterial(
+              Icons.lock_outline_rounded,
+              size: 16,
+              color: StudioColors.muted,
+            ),
           ),
-        ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              context.l10n.premiumHint,
+              style: const TextStyle(
+                fontSize: 12,
+                height: 1.5,
+                color: StudioColors.muted,
+              ),
+            ),
+          ),
+        ],
       ),
+      const PremiumViewPlansButton(),
     ],
   );
 

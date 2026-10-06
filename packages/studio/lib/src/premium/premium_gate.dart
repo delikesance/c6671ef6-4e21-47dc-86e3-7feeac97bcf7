@@ -2,6 +2,7 @@ import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../auth/studio_session.dart';
+import '../editor/studio_subscriptions_host.dart';
 import '../l10n_ext.dart';
 import '../theme.dart';
 import 'studio_feature.dart';
@@ -104,7 +105,33 @@ class PremiumLockedCard extends StatelessWidget {
               ),
             ],
           ),
+          const PremiumViewPlansButton(),
         ],
+      ),
+    );
+  }
+}
+
+/// « Voir les offres » : ouvre le hub des abonnements de l'app (formule,
+/// plafonds, offres), en lecture seule — le Studio n'a aucun achat. Absent hors
+/// de la coque, où il n'y a pas de hub à ouvrir.
+class PremiumViewPlansButton extends StatelessWidget {
+  const PremiumViewPlansButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    if (StudioSubscriptionsScope.maybeOf(context) == null) {
+      return const SizedBox.shrink();
+    }
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: TextButton.icon(
+        onPressed: () => openStudioSubscriptions(context),
+        icon: const AppIcon.fromMaterial(
+          Icons.workspace_premium_rounded,
+          size: 16,
+        ),
+        label: Text(context.tr.plan_limit_view_offers),
       ),
     );
   }

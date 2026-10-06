@@ -16,9 +16,13 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('l\'écran des abonnements ne rend pas le catalogue serveur', () {
-    final source = File(
+    // L'écran est celui de `bot_creator_ui` (partagé avec le Studio) ; l'app en
+    // garde l'enveloppe et l'hôte (où vit l'enregistrement des SKUs).
+    final source = [
+      '../ui/lib/src/subscriptions/subscriptions_hub_page.dart',
       'lib/features/subscriptions/presentation/subscriptions_hub_page.dart',
-    ).readAsStringSync();
+      'lib/features/subscriptions/presentation/app_subscriptions_host.dart',
+    ].map((path) => File(path).readAsStringSync()).join('\n');
 
     for (final forbidden in <String>[
       'plans_catalog',

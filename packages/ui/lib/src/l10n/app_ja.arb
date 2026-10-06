@@ -11139,5 +11139,10 @@
     }
   },
   "debug_replay_native_events_omitted": "{count} 件のイベントを省略",
-  "debug_replay_native_value_truncated": "値を省略"
+  "debug_replay_native_value_truncated": "値を省略",
+  "subscriptions_hub_bots_max": "最大 {count} 個のボット",
+  "subscriptions_hub_ai_credits_roulette": "AI クレジットとルーレット",
+  "ai_credits_reserved": "{credits} クレジットを現在使用中",
+  "ai_credits_when_today": "今日 {time}",
+  "ai_credits_when_yesterday": "昨日 {time}"
 }

@@ -3,7 +3,7 @@ import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.da
 import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
 import 'package:bot_creator/features/subscriptions/presentation/widgets/premium_locked_hint.dart';
 import 'package:bot_creator/main.dart';
-import 'package:bot_creator_ui/bot_creator_ui.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart' hide SubscriptionPage;
 import 'package:flutter/material.dart';
 
 /// Webhooks entrants d'un bot : l'écran vit dans `bot_creator_ui` (partagé avec

@@ -5,6 +5,7 @@ import '../api/studio_api.dart';
 import '../auth/studio_session.dart';
 import '../dashboard/command_stats.dart';
 import '../l10n_ext.dart';
+import '../premium/premium_gate.dart';
 import '../premium/studio_feature.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
@@ -302,6 +303,7 @@ class _AnalyticsLocked extends StatelessWidget {
             ),
           ],
         ),
+        const PremiumViewPlansButton(),
       ],
     ),
   );

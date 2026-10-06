@@ -25,6 +25,7 @@ que les deux interfaces se ressemblent et se comportent pareil.
 | `lib/src/team` | écran « Équipe et tchat » d'un bot (`TeamChatPage` + `TeamChatHost`), modèles d'équipe (`BotPermissions`, `BotCollaborator`, `TeamChatMessage`) et événements temps réel (`TeamChatEvent`) |
 | `lib/src/debug_replay` | écran « Rejeu du débogueur » d'un bot (`DebugReplayPage` + `DebugReplayHost`, détail `DebugReplayDetailPage`) et modèles d'exécutions capturées (`DebugReplayRecord`, `DebugActionFrame`, `DebugReplaySnapshot`) |
 | `lib/src/containers` | applications hébergées (« bots clé en main ») : liste, détail + console de logs, déploiement et identifiants de registre (`ContainerListPage`, `ContainerDetailPage`, `ContainerDeployPage`, `RegistryCredentialsPage` + `HostedContainersHost`), carte d'accueil `HomeTurnkeyContainerCard`, parcours d'invitation du bot (`TurnkeyBotInviteService`) et modèles (`ContainerInfo`, `HostedAppEligibility`, `RegistryCredential`, schéma d'environnement des modèles). Publicités, achat natif, bots locaux et assistant IA sont des capacités de l'hôte (faux par défaut : l'écran masque l'action) |
+| `lib/src/subscriptions` | abonnements, facturation et crédits IA : hub (`SubscriptionsHubPage`), offres (`SubscriptionPage`), carte des réglages (`SubscriptionsSettingsCard`) + `SubscriptionsHost`, crédits IA (`AICreditsPage` + `AiCreditsHost`), refus de formule (`PlanLimitDialog`, `PlanLimitBlock`), catalogue commercial (`CommerceCatalog`) et avantages Premium. Acheter, restaurer, gérer, roulette, publicités et packs sont des capacités de l'hôte (faux par défaut : l'écran masque l'action et dit « disponible sur mobile seulement ») |
 | `lib/src/docs` | documentation intégrée : hub, articles Markdown natifs, dépôt de contenu |
 | `lib/src/editor/host` | `EditorHost` : ce que le paquet demande à l'application |
 
@@ -63,6 +64,11 @@ Quelques composants délèguent à l'hôte par un point d'accroche statique, pos
 - **Applications hébergées** : `AppHostedContainersHost` (`packages/app/lib/features/containers/presentation/app_hosted_containers_host.dart` :
   `MainApiClient`, publicités récompensées, achat natif, bots locaux) et `StudioHostedContainersHost`
   (`packages/studio/lib/src/editor/studio_hosted_containers_host.dart` : `StudioApi`, canal temps réel `EventSocket`, sans pub ni achat).
+- **Abonnements et crédits IA** : `AppSubscriptionsHost` / `AppAiCreditsHost`
+  (`packages/app/lib/features/subscriptions/presentation/app_subscriptions_host.dart` : services de facturation natifs,
+  `MainApiClient`, publicités récompensées, packs de boutique) et `StudioSubscriptionsHost` / `StudioAiCreditsHost`
+  (`packages/studio/lib/src/editor/studio_subscriptions_host.dart` : `StudioApi`, lecture seule — le Manager n'a aucune
+  route de paiement web, seulement les webhooks et la vérification de reçus des boutiques).
 
 L'app garde, à ses anciens chemins, des fichiers qui réexportent le paquet : ses imports n'ont pas changé.
 

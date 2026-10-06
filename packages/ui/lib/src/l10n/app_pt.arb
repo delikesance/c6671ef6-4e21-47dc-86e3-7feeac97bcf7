@@ -11085,5 +11085,10 @@
     }
   },
   "debug_replay_native_events_omitted": "{count} eventos omitidos",
-  "debug_replay_native_value_truncated": "Valor truncado"
+  "debug_replay_native_value_truncated": "Valor truncado",
+  "subscriptions_hub_bots_max": "máx. {count} bots",
+  "subscriptions_hub_ai_credits_roulette": "Créditos de IA e roleta",
+  "ai_credits_reserved": "{credits} créditos em uso neste momento",
+  "ai_credits_when_today": "Hoje, {time}",
+  "ai_credits_when_yesterday": "Ontem, {time}"
 }

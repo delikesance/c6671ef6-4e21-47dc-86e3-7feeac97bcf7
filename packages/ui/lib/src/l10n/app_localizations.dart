@@ -19482,6 +19482,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Value truncated'**
   String get debug_replay_native_value_truncated;
+
+  /// No description provided for @subscriptions_hub_bots_max.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} bots max'**
+  String subscriptions_hub_bots_max(int count);
+
+  /// No description provided for @subscriptions_hub_ai_credits_roulette.
+  ///
+  /// In en, this message translates to:
+  /// **'AI credits and roulette'**
+  String get subscriptions_hub_ai_credits_roulette;
+
+  /// No description provided for @ai_credits_reserved.
+  ///
+  /// In en, this message translates to:
+  /// **'{credits} credits being used right now'**
+  String ai_credits_reserved(String credits);
+
+  /// No description provided for @ai_credits_when_today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today, {time}'**
+  String ai_credits_when_today(String time);
+
+  /// No description provided for @ai_credits_when_yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday, {time}'**
+  String ai_credits_when_yesterday(String time);
 }
 
 class _AppLocalizationsDelegate

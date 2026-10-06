@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
 import '../copilot/copilot_tools.dart';
+import '../editor/studio_subscriptions_host.dart';
 import '../l10n_ext.dart';
 import '../layout.dart';
 import '../theme.dart';
@@ -408,7 +409,7 @@ class _CopilotPageState extends State<CopilotPage> {
                     _chat?['consumed_tokens'],
                     locale: Localizations.localeOf(context).toString(),
                   ),
-            onOpenCredits: () {},
+            onOpenCredits: () => openStudioAiCredits(context, widget.api),
             botLabel: widget.bot.name,
             tools: {for (final t in CopilotTools.names) _toolLabel(t)},
           ),
@@ -462,7 +463,8 @@ class _CopilotPageState extends State<CopilotPage> {
                   Expanded(
                     child: CopilotWalletStrip(
                       available: _credits!,
-                      onOpenCredits: () {},
+                      onOpenCredits: () =>
+                          openStudioAiCredits(context, widget.api),
                     ),
                   )
                 else

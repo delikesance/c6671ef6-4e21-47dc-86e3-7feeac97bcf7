@@ -13037,5 +13037,38 @@
     "description": "{count} events omitted"
   },
   "debug_replay_native_events_omitted": "{count} events omitted",
-  "debug_replay_native_value_truncated": "Value truncated"
+  "debug_replay_native_value_truncated": "Value truncated",
+  "subscriptions_hub_bots_max": "{count} bots max",
+  "@subscriptions_hub_bots_max": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "subscriptions_hub_ai_credits_roulette": "AI credits and roulette",
+  "ai_credits_reserved": "{credits} credits being used right now",
+  "@ai_credits_reserved": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "ai_credits_when_today": "Today, {time}",
+  "@ai_credits_when_today": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "ai_credits_when_yesterday": "Yesterday, {time}",
+  "@ai_credits_when_yesterday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  }
 }
