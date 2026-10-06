@@ -1,4 +1,4 @@
-import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/documentation/documentation_hub_page.dart';
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:bot_creator/features/documentation/documentation_repository.dart';

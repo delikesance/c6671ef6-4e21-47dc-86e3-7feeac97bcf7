@@ -1,5 +1,5 @@
 // Variables are described by who they are for, never by the raw scope name or by "globale / scopée".
-import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scoped_variables_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

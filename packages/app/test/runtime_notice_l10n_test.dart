@@ -18,7 +18,7 @@
 //
 // NON-VACUITÉ : faire rendre à `resolveRuntimeNotice` la valeur anglaise pour
 // toutes les langues (le bug d'origine) fait échouer le test.
-import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/runtime_notice.dart';
 import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_test/flutter_test.dart';
@@ -61,72 +61,72 @@ void main() {
     RuntimeNoticeMessage(RuntimeNotice.runnerEmbeddedDesync),
   ];
 
+  test('chaque raison de démarrage existe dans les SIX langues, et aucune ne '
+      'reçoit le texte d\'une autre', () async {
+    final l10n = await loadAll();
+    final anglais = <RuntimeNotice, String>{};
+
+    for (final message in raisons) {
+      final en = resolveRuntimeNotice(l10n['en']!, message);
+      expect(
+        en.trim(),
+        isNotEmpty,
+        reason: 'anglais vide pour ${message.notice}',
+      );
+      anglais[message.notice] = en;
+
+      // Le bug d'origine, exactement : ces quatre langues affichaient l'anglais.
+      for (final locale in <String>['de', 'ja', 'pt', 'tr']) {
+        final text = resolveRuntimeNotice(l10n[locale]!, message);
+        expect(
+          text.trim(),
+          isNotEmpty,
+          reason: '$locale vide pour ${message.notice}',
+        );
+        expect(
+          text,
+          isNot(en),
+          reason: '$locale reçoit l\'anglais pour ${message.notice}',
+        );
+      }
+    }
+
+    // Chaque raison a son PROPRE texte : deux raisons qui partagent une phrase
+    // rendraient le message inutile (l'utilisateur ne saurait pas quoi faire).
+    final parTexte = <String, RuntimeNotice>{};
+    for (final entry in anglais.entries) {
+      final deja = parTexte[entry.value];
+      expect(
+        deja,
+        isNull,
+        reason: '${entry.key} et $deja partagent le même message anglais',
+      );
+      parTexte[entry.value] = entry.key;
+    }
+  });
+
   test(
-    'chaque raison de démarrage existe dans les SIX langues, et aucune ne '
-    'reçoit le texte d\'une autre',
+    'les valeurs intercalées apparaissent dans le message affiché',
     () async {
       final l10n = await loadAll();
-      final anglais = <RuntimeNotice, String>{};
-
-      for (final message in raisons) {
-        final en = resolveRuntimeNotice(l10n['en']!, message);
-        expect(
-          en.trim(),
-          isNotEmpty,
-          reason: 'anglais vide pour ${message.notice}',
+      for (final locale in locales) {
+        final status = resolveRuntimeNotice(
+          l10n[locale]!,
+          const RuntimeNoticeMessage(
+            RuntimeNotice.startupInProgress,
+            status: 'QUEUED',
+            error: 'discord_unreachable',
+          ),
         );
-        anglais[message.notice] = en;
-
-        // Le bug d'origine, exactement : ces quatre langues affichaient l'anglais.
-        for (final locale in <String>['de', 'ja', 'pt', 'tr']) {
-          final text = resolveRuntimeNotice(l10n[locale]!, message);
-          expect(
-            text.trim(),
-            isNotEmpty,
-            reason: '$locale vide pour ${message.notice}',
-          );
-          expect(
-            text,
-            isNot(en),
-            reason: '$locale reçoit l\'anglais pour ${message.notice}',
-          );
-        }
-      }
-
-      // Chaque raison a son PROPRE texte : deux raisons qui partagent une phrase
-      // rendraient le message inutile (l'utilisateur ne saurait pas quoi faire).
-      final parTexte = <String, RuntimeNotice>{};
-      for (final entry in anglais.entries) {
-        final deja = parTexte[entry.value];
+        expect(status, contains('QUEUED'), reason: '$locale perd le statut');
         expect(
-          deja,
-          isNull,
-          reason: '${entry.key} et $deja partagent le même message anglais',
+          status,
+          contains('discord_unreachable'),
+          reason: '$locale perd l\'erreur initiale',
         );
-        parTexte[entry.value] = entry.key;
       }
     },
   );
-
-  test('les valeurs intercalées apparaissent dans le message affiché', () async {
-    final l10n = await loadAll();
-    for (final locale in locales) {
-      final status = resolveRuntimeNotice(
-        l10n[locale]!,
-        const RuntimeNoticeMessage(
-          RuntimeNotice.startupInProgress,
-          status: 'QUEUED',
-          error: 'discord_unreachable',
-        ),
-      );
-      expect(status, contains('QUEUED'), reason: '$locale perd le statut');
-      expect(
-        status,
-        contains('discord_unreachable'),
-        reason: '$locale perd l\'erreur initiale',
-      );
-    }
-  });
 
   test(
     'une erreur BRUTE du runner n\'est pas déguisée en phrase traduite',

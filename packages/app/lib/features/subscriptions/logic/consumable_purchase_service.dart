@@ -7,6 +7,7 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/features/subscriptions/logic/app_account_token.dart';
 import 'package:bot_creator/features/subscriptions/logic/commerce_catalog.dart';
 import 'package:bot_creator/features/subscriptions/logic/shared_purchase_stream.dart';
+import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -103,13 +104,31 @@ class ConsumablePurchaseService {
   }) async {
     if (!Platform.isAndroid && !Platform.isIOS) return const [];
     catalog ??= await loadCommerceCatalog();
-    if (catalog == null) return const [];
+    if (catalog == null) {
+      debugPrint('[Packs] aucun catalogue publie (ou pas de session)');
+      return const [];
+    }
     final offers = catalog.aiPacks(_platform, DateTime.now());
-    if (offers.isEmpty) return const [];
+    if (offers.isEmpty) {
+      debugPrint(
+        '[Packs] catalogue publie sans pack ai_pack pour $_platform '
+        '(${catalog.offers.length} offres)',
+      );
+      return const [];
+    }
     final ids = {for (final o in offers) o.nativeBinding(_platform)!.productId};
     await rememberProducts(ids);
-    if (!await InAppPurchase.instance.isAvailable()) return const [];
+    if (!await InAppPurchase.instance.isAvailable()) {
+      debugPrint('[Packs] le store n\'est pas disponible (Play Billing)');
+      return const [];
+    }
     final response = await InAppPurchase.instance.queryProductDetails(ids);
+    debugPrint(
+      '[Packs] demandes=$ids trouves='
+      '${response.productDetails.map((p) => p.id).toList()} '
+      'introuvables=${response.notFoundIDs} '
+      'erreur=${response.error?.code}: ${response.error?.message}',
+    );
     final byId = {for (final p in response.productDetails) p.id: p};
     final packs = <ConsumablePack>[];
     for (final offer in offers) {

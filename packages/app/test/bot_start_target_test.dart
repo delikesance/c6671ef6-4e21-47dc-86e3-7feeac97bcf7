@@ -14,8 +14,8 @@
 //     passée ;
 //   * les quatre raisons sont DISTINCTES : deux causes différentes ne peuvent pas
 //     partager une phrase, sinon le diagnostic est faux.
-import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
-import 'package:bot_creator/core/i18n/l10n/app_localizations_fr.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator_ui/src/l10n/app_localizations_fr.dart';
 import 'package:bot_creator/features/home/logic/bot_start_target.dart';
 import 'package:bot_creator/features/home/presentation/widgets/bot_start_target_dialog.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +65,10 @@ void main() {
       expect(choices.options.map((o) => o.target), <BotStartTarget>[
         BotStartTarget.local,
       ]);
-      expect(choices.serverUnavailableReason, _tr.bot_start_server_reason_no_account);
+      expect(
+        choices.serverUnavailableReason,
+        _tr.bot_start_server_reason_no_account,
+      );
     });
 
     test('plus de minutes et pas de formule : le serveur disparaît', () {
@@ -86,15 +89,18 @@ void main() {
       expect(_choix(premium: true, freeMinutesBalance: 0).offersServer, isTrue);
     });
 
-    test('formule PREMIUM mais cloud coupé par le serveur : refus expliqué', () {
-      final choices = _choix(premium: true, cloudDisabledByServer: true);
+    test(
+      'formule PREMIUM mais cloud coupé par le serveur : refus expliqué',
+      () {
+        final choices = _choix(premium: true, cloudDisabledByServer: true);
 
-      expect(choices.offersServer, isFalse);
-      expect(
-        choices.serverUnavailableReason,
-        _tr.bot_start_server_reason_cloud_disabled,
-      );
-    });
+        expect(choices.offersServer, isFalse);
+        expect(
+          choices.serverUnavailableReason,
+          _tr.bot_start_server_reason_cloud_disabled,
+        );
+      },
+    );
 
     test('plateforme sans accès au manager (web) : refus expliqué', () {
       final choices = _choix(supportsManagerRuntime: false);
@@ -106,16 +112,19 @@ void main() {
       );
     });
 
-    test('l\'option locale est toujours là, même quand tout le reste manque', () {
-      final choices = _choix(
-        supportsManagerRuntime: false,
-        hasValidSession: false,
-        freeMinutesBalance: 0,
-      );
+    test(
+      'l\'option locale est toujours là, même quand tout le reste manque',
+      () {
+        final choices = _choix(
+          supportsManagerRuntime: false,
+          hasValidSession: false,
+          freeMinutesBalance: 0,
+        );
 
-      expect(choices.options, hasLength(1));
-      expect(choices.options.first.target, BotStartTarget.local);
-    });
+        expect(choices.options, hasLength(1));
+        expect(choices.options.first.target, BotStartTarget.local);
+      },
+    );
 
     test('les quatre raisons sont distinctes', () {
       final raisons = <String>{
@@ -128,7 +137,8 @@ void main() {
       expect(
         raisons,
         hasLength(4),
-        reason: 'deux causes différentes ne peuvent pas partager la même phrase',
+        reason:
+            'deux causes différentes ne peuvent pas partager la même phrase',
       );
       for (final raison in raisons) {
         expect(raison, isNotEmpty);
@@ -170,39 +180,41 @@ void main() {
       expect(choisi, BotStartTarget.server);
     });
 
-    testWidgets('n\'affiche pas le serveur quand il est impossible, mais dit pourquoi', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        _hote(
-          Builder(
-            builder: (context) => TextButton(
-              onPressed: () => showBotStartTargetDialog(
-                context,
-                botName: 'Bot-Creator',
-                choices: _choix(freeMinutesBalance: 0),
+    testWidgets(
+      'n\'affiche pas le serveur quand il est impossible, mais dit pourquoi',
+      (tester) async {
+        await tester.pumpWidget(
+          _hote(
+            Builder(
+              builder: (context) => TextButton(
+                onPressed: () => showBotStartTargetDialog(
+                  context,
+                  botName: 'Bot-Creator',
+                  choices: _choix(freeMinutesBalance: 0),
+                ),
+                child: const Text('ouvrir'),
               ),
-              child: const Text('ouvrir'),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.tap(find.text('ouvrir'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('ouvrir'));
+        await tester.pumpAndSettle();
 
-      expect(find.text(_tr.bot_start_local_title), findsOneWidget);
-      expect(
-        find.text(_tr.bot_start_server_title),
-        findsNothing,
-        reason: 'une option impossible n\'est pas proposée',
-      );
-      expect(
-        find.text(_tr.bot_start_server_reason_no_minutes),
-        findsOneWidget,
-        reason: 'sans sa raison, l\'utilisateur chercherait où l\'option est passée',
-      );
-    });
+        expect(find.text(_tr.bot_start_local_title), findsOneWidget);
+        expect(
+          find.text(_tr.bot_start_server_title),
+          findsNothing,
+          reason: 'une option impossible n\'est pas proposée',
+        );
+        expect(
+          find.text(_tr.bot_start_server_reason_no_minutes),
+          findsOneWidget,
+          reason:
+              'sans sa raison, l\'utilisateur chercherait où l\'option est passée',
+        );
+      },
+    );
 
     testWidgets('annuler ne démarre rien', (tester) async {
       var rendu = false;

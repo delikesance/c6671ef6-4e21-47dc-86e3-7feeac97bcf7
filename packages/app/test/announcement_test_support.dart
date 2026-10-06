@@ -16,8 +16,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
-import 'package:bot_creator/core/i18n/l10n/app_localizations_fr.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator_ui/src/l10n/app_localizations_fr.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/secure/secure_storage_service.dart';
@@ -155,7 +155,10 @@ void useValidSession() {
 /// À passer à `setUpAll`.
 Future<void> setUpAnnouncementHarness() async {
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-      .setMockMethodCallHandler(_secureStorageChannel, _handleSecureStorageCall);
+      .setMockMethodCallHandler(
+        _secureStorageChannel,
+        _handleSecureStorageCall,
+      );
   // Préchauffage : la création du singleton touche le disque (dossiers du
   // coffre), ce qui n'est possible qu'ICI, hors de la zone « fake async » dans
   // laquelle tournent les `testWidgets`.

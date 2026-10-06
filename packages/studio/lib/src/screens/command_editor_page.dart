@@ -12,6 +12,7 @@ import '../editor/studio_sandbox_host.dart';
 import '../l10n_ext.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
+import '../widgets/script_card.dart';
 import '../commands/options_validation.dart';
 
 /// Éditeur d'une commande : métadonnées, point de départ, blocs d'actions.
@@ -409,69 +410,17 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
     );
   }
 
-  /// Script JavaScript de la commande : aperçu et éditeur plein écran de l'app.
+  /// Script JavaScript ou BDFD de la commande.
   Widget _scriptCard(CommandDraft draft) {
     final bdfd = draft.executionMode == 'bdfd_script';
-    final code = bdfd ? draft.bdfdScript : draft.jsScript;
-    return ScratchBlock(
-      color: AppTheme.warning,
-      icon: bdfd ? Icons.code : Icons.javascript,
-      title: bdfd ? 'BDFD' : 'JavaScript',
-      required: true,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              constraints: const BoxConstraints(minHeight: 80),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppTheme.codeSurfaceVariant,
-                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                border: Border.all(color: AppTheme.grey),
-              ),
-              child: Text(
-                code.trim().isEmpty ? '// …' : code,
-                maxLines: 12,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontFamily: 'JetBrainsMono',
-                  fontSize: 12,
-                  color: Colors.white70,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            FilledButton.icon(
-              onPressed: () async {
-                final result = await Navigator.of(context).push<String>(
-                  MaterialPageRoute<String>(
-                    builder: (_) => EditorHostScope(
-                      host: StudioEditorHost(api: widget.api, bot: widget.bot),
-                      // Chaque langage a son éditeur (coloration, snippets,
-                      // diagnostics) : un script BDFD ne passe pas par celui
-                      // du JavaScript.
-                      child: bdfd
-                          ? BdfdEditorPage(initialCode: code, title: draft.name)
-                          : JsEditorPage(initialCode: code, title: draft.name),
-                    ),
-                  ),
-                );
-                if (result != null && mounted) {
-                  setState(
-                    () => bdfd
-                        ? draft.bdfdScript = result
-                        : draft.jsScript = result,
-                  );
-                }
-              },
-              icon: const AppIcon.fromMaterial(Icons.edit_note, size: 18),
-              label: Text(context.l10n.scriptEdit),
-            ),
-          ],
-        ),
+    return ScriptCard(
+      api: widget.api,
+      bot: widget.bot,
+      title: draft.name,
+      code: bdfd ? draft.bdfdScript : draft.jsScript,
+      bdfd: bdfd,
+      onChanged: (code) => setState(
+        () => bdfd ? draft.bdfdScript = code : draft.jsScript = code,
       ),
     );
   }
