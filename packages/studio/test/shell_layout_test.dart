@@ -301,4 +301,50 @@ void main() {
       await _dispose(tester);
     });
   }
+
+  // Navigation du haut (plus de rail latéral qui tronque les libellés).
+  testWidgets('grand écran : onglets en barre du haut, libellés entiers', (
+    tester,
+  ) async {
+    await _pumpApp(tester, const Size(1912, 920));
+    final labels = [
+      'Accueil',
+      'Bots Clé en main',
+      'Documentation',
+      'Paramètres',
+    ];
+    final tops = <double>[];
+    final lefts = <double>[];
+    for (final label in labels) {
+      final finder = find.text(label);
+      expect(finder, findsOneWidget, reason: label);
+      tops.add(tester.getTopLeft(finder).dy);
+      lefts.add(tester.getTopLeft(finder).dx);
+      // Le texte n'est plus tronqué : sa largeur est celle du libellé entier.
+      expect(tester.widget<Text>(finder).maxLines, 1);
+      expect(tester.widget<Text>(finder).softWrap, isFalse);
+    }
+    // Une seule rangée en haut de la fenêtre, dans l'ordre de gauche à droite.
+    expect(tops.every((t) => t < 60), isTrue, reason: '$tops');
+    expect(tops.toSet().length, 1, reason: 'même ligne : $tops');
+    expect([...lefts]..sort(), lefts);
+    await _dispose(tester);
+  });
+
+  testWidgets('grand écran : dans un bot, la barre du haut porte les onglets', (
+    tester,
+  ) async {
+    await _pumpApp(tester, const Size(1912, 920));
+    await tester.tap(find.text('Gérer'));
+    await _settle(tester);
+    for (final label in ['Commandes', 'Copilote IA', 'Modules', 'Paramètres']) {
+      expect(
+        tester.getTopLeft(find.text(label)).dy,
+        lessThan(60),
+        reason: label,
+      );
+    }
+    expect(find.byTooltip('Retour'), findsWidgets);
+    await _dispose(tester);
+  });
 }
