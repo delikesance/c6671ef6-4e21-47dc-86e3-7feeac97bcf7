@@ -1378,6 +1378,149 @@ class StudioApi {
     return json['capturing'] == true;
   }
 
+  // ── Applications hébergées (conteneurs clé en main) ──────────────────────
+  //
+  // Mêmes routes que `MainApiClient` : le jeton de session Discord du Studio
+  // porte `containers:read|write|deploy` (portée accordée à toute connexion
+  // Discord, comme dans l'app). Le décodage des modèles est celui de
+  // `bot_creator_ui` (voir `StudioHostedContainersHost`).
+
+  /// `GET /containers` : `{containers: [...]}`.
+  Future<Map<String, dynamic>> containersWire() => _send('GET', '/containers');
+
+  /// `GET /containers/eligibility`.
+  Future<Map<String, dynamic>> containerEligibilityWire() =>
+      _send('GET', '/containers/eligibility');
+
+  /// `GET /containers/{id}/status`.
+  Future<Map<String, dynamic>> containerStatusWire(String id) =>
+      _send('GET', '/containers/${Uri.encodeComponent(id)}/status');
+
+  /// `GET /containers/{id}/logs?tail=` : le tampon texte (`logs`).
+  Future<String> containerLogs(String id, {int tail = 200}) async {
+    final json = await _send(
+      'GET',
+      '/containers/${Uri.encodeComponent(id)}/logs?tail=$tail',
+    );
+    return json['logs']?.toString() ?? '';
+  }
+
+  Future<void> startContainer(String id) => _send(
+    'POST',
+    '/containers/${Uri.encodeComponent(id)}/start',
+    body: const <String, dynamic>{},
+  );
+
+  Future<void> stopContainer(String id) => _send(
+    'POST',
+    '/containers/${Uri.encodeComponent(id)}/stop',
+    body: const <String, dynamic>{},
+  );
+
+  Future<void> deleteContainer(String id) =>
+      _send('DELETE', '/containers/${Uri.encodeComponent(id)}');
+
+  /// `PATCH /containers/{id}/ttl` : ajoute [minutes] d'hébergement.
+  Future<void> extendContainerTtl(String id, int minutes) => _send(
+    'PATCH',
+    '/containers/${Uri.encodeComponent(id)}/ttl',
+    body: {'ttl_minutes': minutes},
+  );
+
+  /// `POST /containers/{id}/discord-identity` : `bot_id`, `invite_url`…
+  Future<Map<String, dynamic>> containerDiscordIdentityWire(String id) => _send(
+    'POST',
+    '/containers/${Uri.encodeComponent(id)}/discord-identity',
+    body: const <String, dynamic>{},
+  );
+
+  /// Validation technique du token Discord d'un bot clé en main (route
+  /// publique : le jeton Discord n'est jamais stocké ici).
+  Future<void> validateTurnkeyDiscordToken(String botToken) => _send(
+    'POST',
+    '/gateway/turnkey/validate-token',
+    body: {'bot_token': botToken.trim()},
+    auth: false,
+  );
+
+  /// `POST /containers/deploy`. AUCUN REJEU sur transport : chaque appel crée un
+  /// conteneur facturé (le seul renvoi est celui d'un 401 jamais traité).
+  Future<Map<String, dynamic>> deployContainerWire({
+    required String image,
+    required int cpuMillis,
+    required int memoryMb,
+    required int storageGb,
+    required Map<String, String> env,
+  }) => _send(
+    'POST',
+    '/containers/deploy',
+    body: {
+      'image': image,
+      'cpu_millis': cpuMillis,
+      'memory_mb': memoryMb,
+      'storage_gb': storageGb,
+      'env': env,
+    },
+    timeout: const Duration(seconds: 45),
+  );
+
+  /// `GET /gateway/turnkey/templates?locale=` : le catalogue de modèles
+  /// (`templates`), public.
+  Future<List<Map<String, dynamic>>> turnkeyTemplatesWire(String locale) async {
+    final json = await _send(
+      'GET',
+      '/gateway/turnkey/templates?locale=${Uri.encodeQueryComponent(locale)}',
+      auth: false,
+    );
+    final raw = json['templates'];
+    return [
+      if (raw is List)
+        for (final item in raw.whereType<Map>())
+          Map<String, dynamic>.from(item),
+    ];
+  }
+
+  /// `GET /registry-credentials` : `{credentials: [...]}`. Le mot de passe n'est
+  /// jamais renvoyé par le serveur.
+  Future<Map<String, dynamic>> registryCredentialsWire() =>
+      _send('GET', '/registry-credentials');
+
+  Future<Map<String, dynamic>> createRegistryCredentialWire({
+    required String label,
+    required String registryHost,
+    required String username,
+    required String password,
+  }) => _send(
+    'POST',
+    '/registry-credentials',
+    body: {
+      'label': label,
+      'registry_host': registryHost,
+      'username': username,
+      'password': password,
+    },
+  );
+
+  Future<Map<String, dynamic>> updateRegistryCredentialWire(
+    String id, {
+    required String label,
+    required String registryHost,
+    required String username,
+    String? password,
+  }) => _send(
+    'PATCH',
+    '/registry-credentials/${Uri.encodeComponent(id)}',
+    body: {
+      'label': label,
+      'registry_host': registryHost,
+      'username': username,
+      'password': ?password,
+    },
+  );
+
+  Future<void> deleteRegistryCredential(String id) =>
+      _send('DELETE', '/registry-credentials/${Uri.encodeComponent(id)}');
+
   // ── Transport ─────────────────────────────────────────────────────────────
 
   Future<Map<String, dynamic>> _send(

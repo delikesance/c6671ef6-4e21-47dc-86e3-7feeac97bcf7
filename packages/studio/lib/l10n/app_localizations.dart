@@ -118,6 +118,12 @@ abstract class StudioLocalizations {
   /// **'Documentation'**
   String get navDocs;
 
+  /// No description provided for @navHosting.
+  ///
+  /// In en, this message translates to:
+  /// **'Turnkey Bots'**
+  String get navHosting;
+
   /// No description provided for @navSettings.
   ///
   /// In en, this message translates to:

@@ -15,6 +15,9 @@ class StudioLocalizationsPt extends StudioLocalizations {
   String get navDocs => 'Documentacao';
 
   @override
+  String get navHosting => 'Bots Prontos para Uso';
+
+  @override
   String get navSettings => 'Definições';
 
   @override

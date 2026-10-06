@@ -1,35 +1,36 @@
-import 'package:bot_creator/core/i18n/i18n.dart';
-import 'package:bot_creator/core/network/main_api_client.dart';
-import 'package:bot_creator/core/platform/run_platform.dart';
-import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
-import 'package:bot_creator/features/subscriptions/presentation/hosted_app_subscription_page.dart';
-import 'package:bot_creator/features/subscriptions/presentation/subscriptions_hub_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'package:bot_creator/core/widgets/app_icon.dart';
+import '../l10n/app_localizations.dart';
+import '../l10n/tr_extension.dart';
+import '../widgets/app_icon.dart';
+import 'hosted_containers_host.dart';
+import 'hosted_models.dart';
 
 /// Premium upsell shown when free users hit the hosted-app container limit.
 class HostedAppPremiumUpsell extends StatelessWidget {
   const HostedAppPremiumUpsell({
     super.key,
+    required this.host,
     this.compact = false,
     this.eligibility,
   });
 
+  final HostedContainersHost host;
   final bool compact;
   final HostedAppEligibility? eligibility;
 
   bool get _hasHostedAppSubscription => eligibility?.premium == true;
 
   bool get _canShowPurchase =>
-      SubscriptionService.supportsNativeBilling && !_hasHostedAppSubscription;
+      host.upsellMode == HostedUpsellMode.purchase &&
+      !_hasHostedAppSubscription;
 
   /// Le desktop n'a AUCUNE boutique native : il n'y a donc pas d'achat à
   /// proposer, mais les FORMULES restent consultables. L'écran desktop y renvoie
   /// explicitement au lieu de disparaître — et ne propose jamais de publicité,
   /// qui n'existe pas sur cette plateforme.
-  bool get _isDesktop => isDesktopRunPlatform;
+  bool get _isDesktop => host.upsellMode == HostedUpsellMode.plans;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +39,7 @@ class HostedAppPremiumUpsell extends StatelessWidget {
     if (_isDesktop) {
       if (compact) {
         return OutlinedButton.icon(
-          onPressed: () => SubscriptionsHubPage.open(context),
+          onPressed: () => host.openPlans(context),
           icon: const AppIcon.fromMaterial(
             Icons.workspace_premium_outlined,
             color: Colors.teal,
@@ -79,7 +80,7 @@ class HostedAppPremiumUpsell extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               FilledButton.icon(
-                onPressed: () => SubscriptionsHubPage.open(context),
+                onPressed: () => host.openPlans(context),
                 icon: const AppIcon.fromMaterial(
                   Icons.workspace_premium_outlined,
                 ),
@@ -97,7 +98,7 @@ class HostedAppPremiumUpsell extends StatelessWidget {
 
     if (compact) {
       return FilledButton.tonalIcon(
-        onPressed: () => HostedAppSubscriptionPage.show(context),
+        onPressed: () => host.openSubscription(context),
         icon: const AppIcon.fromMaterial(
           Icons.storage_rounded,
           color: Colors.teal,
@@ -139,7 +140,7 @@ class HostedAppPremiumUpsell extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             FilledButton.icon(
-              onPressed: () => HostedAppSubscriptionPage.show(context),
+              onPressed: () => host.openSubscription(context),
               icon: const AppIcon.fromMaterial(Icons.storage_rounded),
               label: Text(tr.container_hosted_premium_view_btn),
             ),
@@ -157,6 +158,7 @@ class HostedAppFreeHostingBanner extends StatelessWidget {
     required this.eligibility,
     required this.claimingAd,
     required this.onWatchAd,
+    this.canWatchAds = true,
     this.showTopUpHint = false,
     this.expiresAt,
   });
@@ -164,6 +166,10 @@ class HostedAppFreeHostingBanner extends StatelessWidget {
   final HostedAppEligibility eligibility;
   final bool claimingAd;
   final VoidCallback? onWatchAd;
+
+  /// L'appareil diffuse-t-il des publicités récompensées ? Faux (poste de
+  /// travail, Studio) : le temps d'hébergement vient du solde serveur.
+  final bool canWatchAds;
   final bool showTopUpHint;
   final DateTime? expiresAt;
 
@@ -185,7 +191,7 @@ class HostedAppFreeHostingBanner extends StatelessWidget {
   /// pour gagner du temps ». Le temps d'hébergement y vient du SOLDE SERVEUR
   /// (`hosting_minutes_balance`), qui contient déjà les minutes gagnées par pub
   /// sur mobile — on l'affiche tel quel, et on ne propose jamais de pub.
-  bool get _offersRewardedAds => !isDesktopRunPlatform;
+  bool get _offersRewardedAds => canWatchAds;
 
   bool get _showsAdButton => _offersRewardedAds && onWatchAd != null;
 

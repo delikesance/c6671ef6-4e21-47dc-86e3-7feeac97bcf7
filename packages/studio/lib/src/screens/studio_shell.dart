@@ -9,6 +9,7 @@ import '../layout.dart';
 import '../locale_controller.dart';
 import '../editor/studio_debug_replay_host.dart';
 import '../editor/studio_editor_host.dart';
+import '../editor/studio_hosted_containers_host.dart';
 import '../editor/studio_team_chat_host.dart';
 import '../premium/studio_feature.dart';
 import '../theme.dart';
@@ -40,6 +41,12 @@ class StudioShell extends StatefulWidget {
 
 class _StudioShellState extends State<StudioShell> {
   final _beginner = BeginnerMode();
+
+  /// Les applications hébergées : un seul hôte pour la vie de la coque (il garde
+  /// l'état du serveur lu une fois — hébergement cloud coupé ou non).
+  late final StudioHostedContainersHost _hosted = StudioHostedContainersHost(
+    widget.auth.api,
+  );
   StudioBot? _bot;
   String _homeSection = 'home';
   String _editorSection = 'overview';
@@ -127,6 +134,7 @@ class _StudioShellState extends State<StudioShell> {
 
   List<_NavEntry> _homeItems(BuildContext context) => [
     _NavEntry('home', context.l10n.navHome, Icons.home_outlined),
+    _NavEntry('hosting', context.l10n.navHosting, Icons.storage_rounded),
     _NavEntry('docs', context.l10n.navDocs, Icons.menu_book_outlined),
     _NavEntry('settings', context.l10n.navSettings, Icons.settings_outlined),
   ];
@@ -165,6 +173,8 @@ class _StudioShellState extends State<StudioShell> {
         return _SettingsPage(auth: widget.auth);
       case 'docs':
         return const DocumentationHubPage(embedded: true);
+      case 'hosting':
+        return ContainerListPage(host: _hosted);
       default:
         return BotsPage(
           api: widget.auth.api,

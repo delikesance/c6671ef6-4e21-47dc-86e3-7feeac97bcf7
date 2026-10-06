@@ -62,6 +62,7 @@
   "navGuilds": "guilds_tab",
   "navHome": "home_tab",
   "navHooks": "subscription_feature_webhooks_title",
+  "navHosting": "container_list_title",
   "navReplay": "debug_replay_title",
   "navSched": "scheduler_tab_short",
   "navSettings": "settings_tab",

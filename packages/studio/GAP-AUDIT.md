@@ -61,6 +61,44 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
   dans `bot_creator_ui`), jusqu'à ce que le bot réponde. Les modèles (`DebugReplayRecord`, `DebugActionFrame`) sont dans
   le paquet ; l'app les ré-exporte depuis `bot.dart`. Les textes qui étaient en dur dans l'écran (« action(s) », « il y a
   … », statuts BDFD en français/anglais seulement) sont maintenant des clés `debug_replay_*` en 6 langues.
+- **Applications hébergées (« bots clé en main »)** : nouvelle entrée « Bots Clé en main » de l'accueil (rail large et
+  barre du bas du téléphone, libellé `container_list_title` de l'app). Ce sont les écrans de l'app, déplacés dans
+  `bot_creator_ui` (`lib/src/containers`) derrière `HostedContainersHost` : liste (`ContainerListPage`), détail avec
+  console de logs, arrêt / démarrage / suppression confirmés, invitation du bot et ajout de temps
+  (`ContainerDetailPage`), déploiement (`ContainerDeployPage` : modèles, token Discord validé, variables du schéma du
+  modèle, blocages quota / minutes / formule / hébergement coupé) et identifiants de registre privé
+  (`RegistryCredentialsPage`, atteignable depuis la liste dans le Studio ; l'app ne l'expose pas). Les modèles
+  (`ContainerInfo`, `HostedAppEligibility`, `RegistryCredential`…), le schéma d'environnement et le parcours
+  d'invitation (`TurnkeyBotInviteService`) sont dans le paquet ; l'app les ré-exporte et garde ses anciennes signatures
+  (`ContainerDetailPage(client:)`, `HomeContainerLogsPage(client:)`…). Le Studio fournit `StudioHostedContainersHost`
+  (`GET /containers`, `/containers/eligibility`, `/containers/{id}/status|logs`, `POST …/start|stop|discord-identity`,
+  `DELETE /containers/{id}`, `PATCH …/ttl`, `POST /containers/deploy`, `POST /gateway/turnkey/validate-token`,
+  `GET /gateway/turnkey/templates?locale=`, `/registry-credentials` CRUD).
+  - **Portées du jeton** : aucune modification du Manager. La connexion Discord est la même pour l'app et le Studio
+    (`/auth/discord/exchange`) et `discordUserSelfServiceScopes` porte déjà `containers:read|write|deploy` ; un test Go
+    (`TestDiscordUserSelfServiceScopesCoverHostedContainers`) fige ce contrat.
+  - **Publicités** : `claim-ad` suit une publicité AdMob, uniquement mobile. L'hôte annonce `canWatchAds` faux : ni bouton
+    « Pub +N min » ni appel, exactement comme sur le poste de travail de l'app ; le temps d'hébergement vient du solde
+    serveur (`hosting_minutes_balance`, minutes déjà gagnées sur mobile) et la carte le montre. L'appel `claim-ad` n'est
+    donc pas implémenté dans `StudioApi`.
+  - **Achat et formules** : pas de boutique dans le navigateur (`upsellMode` aucun) : les cartes d'offre, le bouton
+    « Voir les offres » et le FAB d'achat sont masqués ; atteindre la limite gratuite affiche le message
+    `container_list_free_limit_reached` ; le déploiement bloqué par la formule dit pourquoi, sans action. La formule se
+    gère depuis l'app. `premium_cloud_enabled: false` (lu une fois dans `GET /gateway/runtime`) donne l'explication
+    « hébergement cloud coupé » comme dans l'app.
+  - **Console** : comme dans l'app, la console de la page de détail lit `GET /containers/{id}/logs?tail=200` à cadence
+    adaptative (`PollCadence`) ; l'app n'utilise pas le WebSocket `…/console` (shell interactif). Le Studio ne le
+    pourrait d'ailleurs pas aujourd'hui : l'authentification par sous-protocole `bc.bearer` n'est acceptée que pour les
+    chemins statiques de `webSocketBearerPaths` (le chemin porte un `{id}`) et `consoleUpgrader` ne répond pas le
+    sous-protocole. Statut en temps réel : `container.updated` du canal `/gateway/bots/events` (`EventSocket`), le
+    sondage de 30 s restant le filet de sécurité.
+  - **Stockage** : les identifiants de registre ne vivent que côté serveur (liste + CRUD, mot de passe jamais relu ni
+    affiché) ; rien dans `localStorage`. Pas de bot local dans le Studio : le sélecteur « utiliser un de mes bots » est
+    omis (le token se colle, il n'est envoyé qu'au Manager). L'assistant IA sur un conteneur (`container:<id>`) n'est
+    pas proposé (l'hôte n'annonce pas `canOpenCopilot`).
+  - **Non partagé** : `HostedAppSubscriptionPage` (achat natif de la formule d'hébergement, boutique de l'app) et le
+    catalogue de formules ; la carte d'accueil `HomeTurnkeyContainerCard` est dans le paquet mais l'accueil du Studio
+    liste les conteneurs dans leur propre entrée.
 - **Bac à sable de commande et fonctions du bac à sable — NON partagés** (`CommandSandboxPage`,
   `SandboxFunctionsPage`) : ils exécutent le moteur de commandes (BDFD natif, actions) **dans l'application**
   (`testCommandInSandbox` de `bot_creator_shared/sandbox/command_sandbox.dart`, qui importe nyxx, `dart:io`,

@@ -2,6 +2,7 @@
   "@@locale": "ja",
   "navHome": "ホーム",
   "navDocs": "ドキュメント",
+  "navHosting": "ターンキーBot",
   "navSettings": "設定",
   "navBack": "戻る",
   "navCommands": "コマンド",

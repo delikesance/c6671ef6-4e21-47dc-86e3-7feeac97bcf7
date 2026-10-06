@@ -2,6 +2,7 @@
   "@@locale": "en",
   "navHome": "Home",
   "navDocs": "Documentation",
+  "navHosting": "Turnkey Bots",
   "navSettings": "Settings",
   "navBack": "Back",
   "navCommands": "Commands",
