@@ -11344,4 +11344,81 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get ai_credits_pack_pending => 'Compra aguardando confirmação…';
+
+  @override
+  String debug_replay_summary(int count, int ms) {
+    return '$count ação(ões) • $ms ms';
+  }
+
+  @override
+  String debug_replay_ago_seconds(int count) {
+    return 'há $count s';
+  }
+
+  @override
+  String debug_replay_ago_minutes(int count) {
+    return 'há $count min';
+  }
+
+  @override
+  String debug_replay_ago_hours(int count) {
+    return 'há $count h';
+  }
+
+  @override
+  String debug_replay_ago_days(int count) {
+    return 'há $count d';
+  }
+
+  @override
+  String get debug_replay_unavailable =>
+      'Os replays estão indisponíveis no momento. Inicie o bot e tente novamente.';
+
+  @override
+  String get debug_replay_native_start => 'Chamada';
+
+  @override
+  String get debug_replay_native_returned => 'Retornou';
+
+  @override
+  String get debug_replay_native_literal => 'Mantido literalmente';
+
+  @override
+  String get debug_replay_native_selected => 'Ramo escolhido';
+
+  @override
+  String get debug_replay_native_none => 'Nenhum ramo';
+
+  @override
+  String get debug_replay_native_handled => 'Erro capturado';
+
+  @override
+  String get debug_replay_native_error => 'Erro';
+
+  @override
+  String get debug_replay_native_timeout => 'Tempo esgotado';
+
+  @override
+  String get debug_replay_native_stop => 'Parado';
+
+  @override
+  String get debug_replay_native_truncated => 'Rastro truncado';
+
+  @override
+  String debug_replay_native_branch(int n) {
+    return 'Ramo $n';
+  }
+
+  @override
+  String debug_replay_native_script_depth(String depth) {
+    return 'Profundidade do script $depth';
+  }
+
+  @override
+  String debug_replay_native_events_omitted(String count) {
+    return '$count eventos omitidos';
+  }
+
+  @override
+  String get debug_replay_native_value_truncated => 'Valor truncado';
 }

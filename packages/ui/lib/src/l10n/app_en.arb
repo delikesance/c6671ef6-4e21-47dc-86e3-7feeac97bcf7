@@ -12950,5 +12950,92 @@
   "ai_credits_packs_title": "Buy credits",
   "ai_credits_pack_credited": "Credits added to your account.",
   "ai_credits_pack_failed": "The purchase could not be completed. If you were charged, the credits will be added automatically.",
-  "ai_credits_pack_pending": "Purchase pending confirmation…"
+  "ai_credits_pack_pending": "Purchase pending confirmation…",
+  "@debug_replay_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "ms": {
+        "type": "int"
+      }
+    },
+    "description": "{count} action(s) • {ms} ms"
+  },
+  "debug_replay_summary": "{count} action(s) • {ms} ms",
+  "@debug_replay_ago_seconds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count}s ago"
+  },
+  "debug_replay_ago_seconds": "{count}s ago",
+  "@debug_replay_ago_minutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count}m ago"
+  },
+  "debug_replay_ago_minutes": "{count}m ago",
+  "@debug_replay_ago_hours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count}h ago"
+  },
+  "debug_replay_ago_hours": "{count}h ago",
+  "@debug_replay_ago_days": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count}d ago"
+  },
+  "debug_replay_ago_days": "{count}d ago",
+  "debug_replay_unavailable": "Replays are unavailable right now. Start the bot, then try again.",
+  "debug_replay_native_start": "Call",
+  "debug_replay_native_returned": "Returned",
+  "debug_replay_native_literal": "Preserved literally",
+  "debug_replay_native_selected": "Selected branch",
+  "debug_replay_native_none": "No branch",
+  "debug_replay_native_handled": "Error caught",
+  "debug_replay_native_error": "Error",
+  "debug_replay_native_timeout": "Timed out",
+  "debug_replay_native_stop": "Stopped",
+  "debug_replay_native_truncated": "Trace truncated",
+  "@debug_replay_native_branch": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    },
+    "description": "Branch {n}"
+  },
+  "debug_replay_native_branch": "Branch {n}",
+  "@debug_replay_native_script_depth": {
+    "placeholders": {
+      "depth": {
+        "type": "String"
+      }
+    },
+    "description": "Script depth {depth}"
+  },
+  "debug_replay_native_script_depth": "Script depth {depth}",
+  "@debug_replay_native_events_omitted": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    },
+    "description": "{count} events omitted"
+  },
+  "debug_replay_native_events_omitted": "{count} events omitted",
+  "debug_replay_native_value_truncated": "Value truncated"
 }

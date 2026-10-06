@@ -11060,5 +11060,84 @@
   "ai_credits_packs_title": "クレジットを購入",
   "ai_credits_pack_credited": "クレジットをアカウントに追加しました。",
   "ai_credits_pack_failed": "購入を完了できませんでした。請求された場合は、クレジットが自動的に追加されます。",
-  "ai_credits_pack_pending": "購入の確認待ちです…"
+  "ai_credits_pack_pending": "購入の確認待ちです…",
+  "@debug_replay_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_summary": "{count} 件のアクション • {ms} ms",
+  "@debug_replay_ago_seconds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_ago_seconds": "{count}秒前",
+  "@debug_replay_ago_minutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_ago_minutes": "{count}分前",
+  "@debug_replay_ago_hours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_ago_hours": "{count}時間前",
+  "@debug_replay_ago_days": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_ago_days": "{count}日前",
+  "debug_replay_unavailable": "リプレイは現在利用できません。ボットを起動してからもう一度お試しください。",
+  "debug_replay_native_start": "呼び出し",
+  "debug_replay_native_returned": "戻り値",
+  "debug_replay_native_literal": "そのまま保持",
+  "debug_replay_native_selected": "選択された分岐",
+  "debug_replay_native_none": "分岐なし",
+  "debug_replay_native_handled": "エラーを捕捉",
+  "debug_replay_native_error": "エラー",
+  "debug_replay_native_timeout": "タイムアウト",
+  "debug_replay_native_stop": "停止",
+  "debug_replay_native_truncated": "トレース省略",
+  "@debug_replay_native_branch": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_native_branch": "分岐 {n}",
+  "@debug_replay_native_script_depth": {
+    "placeholders": {
+      "depth": {
+        "type": "String"
+      }
+    }
+  },
+  "debug_replay_native_script_depth": "スクリプトの深さ {depth}",
+  "@debug_replay_native_events_omitted": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "debug_replay_native_events_omitted": "{count} 件のイベントを省略",
+  "debug_replay_native_value_truncated": "値を省略"
 }

@@ -11366,4 +11366,81 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get ai_credits_pack_pending => 'Kauf wartet auf Bestätigung…';
+
+  @override
+  String debug_replay_summary(int count, int ms) {
+    return '$count Aktion(en) • $ms ms';
+  }
+
+  @override
+  String debug_replay_ago_seconds(int count) {
+    return 'vor $count s';
+  }
+
+  @override
+  String debug_replay_ago_minutes(int count) {
+    return 'vor $count Min.';
+  }
+
+  @override
+  String debug_replay_ago_hours(int count) {
+    return 'vor $count Std.';
+  }
+
+  @override
+  String debug_replay_ago_days(int count) {
+    return 'vor $count T.';
+  }
+
+  @override
+  String get debug_replay_unavailable =>
+      'Die Replays sind derzeit nicht verfügbar. Starten Sie den Bot und versuchen Sie es erneut.';
+
+  @override
+  String get debug_replay_native_start => 'Aufruf';
+
+  @override
+  String get debug_replay_native_returned => 'Zurückgegeben';
+
+  @override
+  String get debug_replay_native_literal => 'Unverändert beibehalten';
+
+  @override
+  String get debug_replay_native_selected => 'Zweig gewählt';
+
+  @override
+  String get debug_replay_native_none => 'Kein Zweig';
+
+  @override
+  String get debug_replay_native_handled => 'Fehler abgefangen';
+
+  @override
+  String get debug_replay_native_error => 'Fehler';
+
+  @override
+  String get debug_replay_native_timeout => 'Zeitüberschreitung';
+
+  @override
+  String get debug_replay_native_stop => 'Angehalten';
+
+  @override
+  String get debug_replay_native_truncated => 'Trace gekürzt';
+
+  @override
+  String debug_replay_native_branch(int n) {
+    return 'Zweig $n';
+  }
+
+  @override
+  String debug_replay_native_script_depth(String depth) {
+    return 'Skripttiefe $depth';
+  }
+
+  @override
+  String debug_replay_native_events_omitted(String count) {
+    return '$count Ereignisse ausgelassen';
+  }
+
+  @override
+  String get debug_replay_native_value_truncated => 'Wert gekürzt';
 }

@@ -19362,6 +19362,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Purchase pending confirmation…'**
   String get ai_credits_pack_pending;
+
+  /// {count} action(s) • {ms} ms
+  ///
+  /// In en, this message translates to:
+  /// **'{count} action(s) • {ms} ms'**
+  String debug_replay_summary(int count, int ms);
+
+  /// {count}s ago
+  ///
+  /// In en, this message translates to:
+  /// **'{count}s ago'**
+  String debug_replay_ago_seconds(int count);
+
+  /// {count}m ago
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m ago'**
+  String debug_replay_ago_minutes(int count);
+
+  /// {count}h ago
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h ago'**
+  String debug_replay_ago_hours(int count);
+
+  /// {count}d ago
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d ago'**
+  String debug_replay_ago_days(int count);
+
+  /// No description provided for @debug_replay_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Replays are unavailable right now. Start the bot, then try again.'**
+  String get debug_replay_unavailable;
+
+  /// No description provided for @debug_replay_native_start.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get debug_replay_native_start;
+
+  /// No description provided for @debug_replay_native_returned.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned'**
+  String get debug_replay_native_returned;
+
+  /// No description provided for @debug_replay_native_literal.
+  ///
+  /// In en, this message translates to:
+  /// **'Preserved literally'**
+  String get debug_replay_native_literal;
+
+  /// No description provided for @debug_replay_native_selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected branch'**
+  String get debug_replay_native_selected;
+
+  /// No description provided for @debug_replay_native_none.
+  ///
+  /// In en, this message translates to:
+  /// **'No branch'**
+  String get debug_replay_native_none;
+
+  /// No description provided for @debug_replay_native_handled.
+  ///
+  /// In en, this message translates to:
+  /// **'Error caught'**
+  String get debug_replay_native_handled;
+
+  /// No description provided for @debug_replay_native_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get debug_replay_native_error;
+
+  /// No description provided for @debug_replay_native_timeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Timed out'**
+  String get debug_replay_native_timeout;
+
+  /// No description provided for @debug_replay_native_stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped'**
+  String get debug_replay_native_stop;
+
+  /// No description provided for @debug_replay_native_truncated.
+  ///
+  /// In en, this message translates to:
+  /// **'Trace truncated'**
+  String get debug_replay_native_truncated;
+
+  /// Branch {n}
+  ///
+  /// In en, this message translates to:
+  /// **'Branch {n}'**
+  String debug_replay_native_branch(int n);
+
+  /// Script depth {depth}
+  ///
+  /// In en, this message translates to:
+  /// **'Script depth {depth}'**
+  String debug_replay_native_script_depth(String depth);
+
+  /// {count} events omitted
+  ///
+  /// In en, this message translates to:
+  /// **'{count} events omitted'**
+  String debug_replay_native_events_omitted(String count);
+
+  /// No description provided for @debug_replay_native_value_truncated.
+  ///
+  /// In en, this message translates to:
+  /// **'Value truncated'**
+  String get debug_replay_native_value_truncated;
 }
 
 class _AppLocalizationsDelegate

@@ -54,6 +54,9 @@ class StudioLocalizationsPt extends StudioLocalizations {
   String get navDashboard => 'Painel';
 
   @override
+  String get navReplay => 'Replay do Depurador';
+
+  @override
   String get navModules => 'Modules';
 
   @override
@@ -112,6 +115,10 @@ class StudioLocalizationsPt extends StudioLocalizations {
 
   @override
   String get modulesDescDashboard => 'Command usage over 24 h, 7 d, 30 d';
+
+  @override
+  String get modulesDescReplay =>
+      'Replays passo a passo das execuções de comandos';
 
   @override
   String get modulesDescCopilot => 'Assistant to build your commands';
@@ -341,6 +348,13 @@ class StudioLocalizationsPt extends StudioLocalizations {
   @override
   String get featureHooksDesc =>
       'Crie endpoints de webhook seguros e direcione chamadas para fluxos de trabalho.';
+
+  @override
+  String get featureReplayTitle => 'Replay visual de depuração';
+
+  @override
+  String get featureReplayDesc =>
+      'Grave e reproduza ações de comando passo a passo para depuração.';
 
   @override
   String get commonSaved => 'Salvo';

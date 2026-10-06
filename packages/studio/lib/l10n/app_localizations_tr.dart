@@ -54,6 +54,9 @@ class StudioLocalizationsTr extends StudioLocalizations {
   String get navDashboard => 'Panel';
 
   @override
+  String get navReplay => 'Hata Ayıklayıcı Tekrarı';
+
+  @override
   String get navModules => 'Modules';
 
   @override
@@ -112,6 +115,9 @@ class StudioLocalizationsTr extends StudioLocalizations {
 
   @override
   String get modulesDescDashboard => 'Command usage over 24 h, 7 d, 30 d';
+
+  @override
+  String get modulesDescReplay => 'Komut çalıştırmalarının adım adım tekrarı';
 
   @override
   String get modulesDescCopilot => 'Assistant to build your commands';
@@ -339,6 +345,13 @@ class StudioLocalizationsTr extends StudioLocalizations {
   @override
   String get featureHooksDesc =>
       'Güvenli webhook uç noktaları oluşturun ve çağrıları iş akışlarına yönlendirin.';
+
+  @override
+  String get featureReplayTitle => 'Görsel hata ayıklama tekrarı';
+
+  @override
+  String get featureReplayDesc =>
+      'Hata ayıklama için komut eylemlerini adım adım kaydedin ve tekrar oynatın.';
 
   @override
   String get commonSaved => 'Kaydedildi';

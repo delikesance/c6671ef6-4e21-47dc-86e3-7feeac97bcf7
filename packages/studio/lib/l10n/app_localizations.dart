@@ -196,6 +196,12 @@ abstract class StudioLocalizations {
   /// **'Dashboard'**
   String get navDashboard;
 
+  /// No description provided for @navReplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Debugger Replay'**
+  String get navReplay;
+
   /// No description provided for @navModules.
   ///
   /// In en, this message translates to:
@@ -315,6 +321,12 @@ abstract class StudioLocalizations {
   /// In en, this message translates to:
   /// **'Command usage over 24 h, 7 d, 30 d'**
   String get modulesDescDashboard;
+
+  /// No description provided for @modulesDescReplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Step-by-step replays of command runs'**
+  String get modulesDescReplay;
 
   /// No description provided for @modulesDescCopilot.
   ///
@@ -717,6 +729,18 @@ abstract class StudioLocalizations {
   /// In en, this message translates to:
   /// **'Create secure webhook endpoints and route calls to workflows.'**
   String get featureHooksDesc;
+
+  /// No description provided for @featureReplayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Visual debug replay'**
+  String get featureReplayTitle;
+
+  /// No description provided for @featureReplayDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Record and replay command actions step by step for debugging.'**
+  String get featureReplayDesc;
 
   /// No description provided for @commonSaved.
   ///

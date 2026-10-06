@@ -54,6 +54,9 @@ class StudioLocalizationsFr extends StudioLocalizations {
   String get navDashboard => 'Tableau de bord';
 
   @override
+  String get navReplay => 'Replay Débogueur';
+
+  @override
   String get navModules => 'Modules';
 
   @override
@@ -113,6 +116,9 @@ class StudioLocalizationsFr extends StudioLocalizations {
 
   @override
   String get modulesDescDashboard => 'Usage des commandes sur 24 h, 7 j, 30 j';
+
+  @override
+  String get modulesDescReplay => 'Rejeu pas à pas des exécutions de commandes';
 
   @override
   String get modulesDescCopilot => 'Assistant pour créer vos commandes';
@@ -343,6 +349,13 @@ class StudioLocalizationsFr extends StudioLocalizations {
   @override
   String get featureHooksDesc =>
       'Crée des endpoints webhook sécurisés et route les appels vers les workflows.';
+
+  @override
+  String get featureReplayTitle => 'Replay visuel de debug';
+
+  @override
+  String get featureReplayDesc =>
+      'Enregistre et rejoue les actions de commande étape par étape.';
 
   @override
   String get commonSaved => 'Enregistré';

@@ -248,4 +248,20 @@ void main() {
     expect(tester.takeException(), isNull);
     await _dispose(tester);
   });
+
+  testWidgets('grand écran : le rejeu du débogueur est un onglet du bot, '
+      'verrouillé sur un compte gratuit', (tester) async {
+    final fr = await AppLocalizations.delegate.load(const Locale('fr'));
+    // Rail haut : les entrées du bas sont construites paresseusement.
+    await _pumpApp(tester, const Size(1280, 1600));
+    await tester.tap(find.text('Gérer'));
+    await _settle(tester);
+
+    await tester.tap(find.text(fr.debug_replay_title));
+    await _settle(tester);
+    expect(find.text(fr.debug_replay_premium_title), findsOneWidget);
+    expect(find.text(fr.debug_replay_start_capture), findsNothing);
+    expect(tester.takeException(), isNull);
+    await _dispose(tester);
+  });
 }

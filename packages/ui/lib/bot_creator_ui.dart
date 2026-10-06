@@ -141,3 +141,7 @@ export 'src/utils/discord_avatar_url.dart';
 export 'src/team/team_models.dart';
 export 'src/team/team_chat_host.dart';
 export 'src/team/team_chat_page.dart';
+export 'src/utils/poll_cadence.dart';
+export 'src/debug_replay/debug_replay_models.dart';
+export 'src/debug_replay/debug_replay_host.dart';
+export 'src/debug_replay/debug_replay_page.dart';

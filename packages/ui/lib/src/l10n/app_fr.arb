@@ -11022,5 +11022,84 @@
   "ai_credits_packs_title": "Acheter des crédits",
   "ai_credits_pack_credited": "Crédits ajoutés à votre compte.",
   "ai_credits_pack_failed": "L’achat n’a pas pu aboutir. Si vous avez été débité, les crédits seront ajoutés automatiquement.",
-  "ai_credits_pack_pending": "Achat en attente de confirmation…"
+  "ai_credits_pack_pending": "Achat en attente de confirmation…",
+  "@debug_replay_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_summary": "{count} action(s) • {ms} ms",
+  "@debug_replay_ago_seconds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_ago_seconds": "il y a {count} s",
+  "@debug_replay_ago_minutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_ago_minutes": "il y a {count} min",
+  "@debug_replay_ago_hours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_ago_hours": "il y a {count} h",
+  "@debug_replay_ago_days": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_ago_days": "il y a {count} j",
+  "debug_replay_unavailable": "Les replays sont indisponibles pour le moment. Démarrez le bot, puis réessayez.",
+  "debug_replay_native_start": "Appel",
+  "debug_replay_native_returned": "Retour",
+  "debug_replay_native_literal": "Conservée telle quelle",
+  "debug_replay_native_selected": "Branche choisie",
+  "debug_replay_native_none": "Aucune branche",
+  "debug_replay_native_handled": "Erreur interceptée",
+  "debug_replay_native_error": "Erreur",
+  "debug_replay_native_timeout": "Délai dépassé",
+  "debug_replay_native_stop": "Arrêt",
+  "debug_replay_native_truncated": "Trace abrégée",
+  "@debug_replay_native_branch": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_native_branch": "Branche {n}",
+  "@debug_replay_native_script_depth": {
+    "placeholders": {
+      "depth": {
+        "type": "String"
+      }
+    }
+  },
+  "debug_replay_native_script_depth": "Profondeur du script {depth}",
+  "@debug_replay_native_events_omitted": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "debug_replay_native_events_omitted": "{count} événements omis",
+  "debug_replay_native_value_truncated": "Valeur abrégée"
 }
