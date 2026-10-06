@@ -578,14 +578,14 @@ class _AppEditPageState extends State<AppEditPage>
     return null;
   }
 
-  /// Rail de navigation desktop : le parent garde l'état (section active) et
-  /// reçoit les intentions.
+  /// Barre de navigation desktop (en haut) : le parent garde l'état (section
+  /// active) et reçoit les intentions.
   Widget _buildRail(
     BuildContext context,
     List<_AppPageEntry> entries,
     String activeId,
   ) {
-    return EditorRail(
+    return EditorTopBar(
       appName: widget.appName,
       botId: _botId,
       avatarUrl: _avatarUrl,
@@ -1001,7 +1001,8 @@ class _AppEditPageState extends State<AppEditPage>
       _loadedPageIds.add(entries[validIndex].id);
 
       return Scaffold(
-        body: Row(
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildRail(context, entries, activeId),
             Expanded(
