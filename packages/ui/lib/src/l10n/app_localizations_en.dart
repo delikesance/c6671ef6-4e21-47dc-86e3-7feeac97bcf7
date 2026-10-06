@@ -11214,4 +11214,81 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ai_credits_pack_pending => 'Purchase pending confirmation…';
+
+  @override
+  String debug_replay_summary(int count, int ms) {
+    return '$count action(s) • $ms ms';
+  }
+
+  @override
+  String debug_replay_ago_seconds(int count) {
+    return '${count}s ago';
+  }
+
+  @override
+  String debug_replay_ago_minutes(int count) {
+    return '${count}m ago';
+  }
+
+  @override
+  String debug_replay_ago_hours(int count) {
+    return '${count}h ago';
+  }
+
+  @override
+  String debug_replay_ago_days(int count) {
+    return '${count}d ago';
+  }
+
+  @override
+  String get debug_replay_unavailable =>
+      'Replays are unavailable right now. Start the bot, then try again.';
+
+  @override
+  String get debug_replay_native_start => 'Call';
+
+  @override
+  String get debug_replay_native_returned => 'Returned';
+
+  @override
+  String get debug_replay_native_literal => 'Preserved literally';
+
+  @override
+  String get debug_replay_native_selected => 'Selected branch';
+
+  @override
+  String get debug_replay_native_none => 'No branch';
+
+  @override
+  String get debug_replay_native_handled => 'Error caught';
+
+  @override
+  String get debug_replay_native_error => 'Error';
+
+  @override
+  String get debug_replay_native_timeout => 'Timed out';
+
+  @override
+  String get debug_replay_native_stop => 'Stopped';
+
+  @override
+  String get debug_replay_native_truncated => 'Trace truncated';
+
+  @override
+  String debug_replay_native_branch(int n) {
+    return 'Branch $n';
+  }
+
+  @override
+  String debug_replay_native_script_depth(String depth) {
+    return 'Script depth $depth';
+  }
+
+  @override
+  String debug_replay_native_events_omitted(String count) {
+    return '$count events omitted';
+  }
+
+  @override
+  String get debug_replay_native_value_truncated => 'Value truncated';
 }

@@ -10973,5 +10973,84 @@
   "ai_credits_packs_title": "Guthaben kaufen",
   "ai_credits_pack_credited": "Guthaben wurde Ihrem Konto gutgeschrieben.",
   "ai_credits_pack_failed": "Der Kauf konnte nicht abgeschlossen werden. Falls Ihnen etwas berechnet wurde, wird das Guthaben automatisch gutgeschrieben.",
-  "ai_credits_pack_pending": "Kauf wartet auf Bestätigung…"
+  "ai_credits_pack_pending": "Kauf wartet auf Bestätigung…",
+  "@debug_replay_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_summary": "{count} Aktion(en) • {ms} ms",
+  "@debug_replay_ago_seconds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_ago_seconds": "vor {count} s",
+  "@debug_replay_ago_minutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_ago_minutes": "vor {count} Min.",
+  "@debug_replay_ago_hours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_ago_hours": "vor {count} Std.",
+  "@debug_replay_ago_days": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_ago_days": "vor {count} T.",
+  "debug_replay_unavailable": "Die Replays sind derzeit nicht verfügbar. Starten Sie den Bot und versuchen Sie es erneut.",
+  "debug_replay_native_start": "Aufruf",
+  "debug_replay_native_returned": "Zurückgegeben",
+  "debug_replay_native_literal": "Unverändert beibehalten",
+  "debug_replay_native_selected": "Zweig gewählt",
+  "debug_replay_native_none": "Kein Zweig",
+  "debug_replay_native_handled": "Fehler abgefangen",
+  "debug_replay_native_error": "Fehler",
+  "debug_replay_native_timeout": "Zeitüberschreitung",
+  "debug_replay_native_stop": "Angehalten",
+  "debug_replay_native_truncated": "Trace gekürzt",
+  "@debug_replay_native_branch": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_native_branch": "Zweig {n}",
+  "@debug_replay_native_script_depth": {
+    "placeholders": {
+      "depth": {
+        "type": "String"
+      }
+    }
+  },
+  "debug_replay_native_script_depth": "Skripttiefe {depth}",
+  "@debug_replay_native_events_omitted": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "debug_replay_native_events_omitted": "{count} Ereignisse ausgelassen",
+  "debug_replay_native_value_truncated": "Wert gekürzt"
 }

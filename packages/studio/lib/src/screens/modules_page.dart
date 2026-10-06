@@ -68,6 +68,12 @@ List<(String, List<_Module>)> _groups(StudioLocalizations l) => [
         Icons.bar_chart_rounded,
       ),
       _Module(
+        'replay',
+        l.navReplay,
+        l.modulesDescReplay,
+        Icons.bug_report_outlined,
+      ),
+      _Module(
         'copilot',
         l.navCopilot,
         l.modulesDescCopilot,

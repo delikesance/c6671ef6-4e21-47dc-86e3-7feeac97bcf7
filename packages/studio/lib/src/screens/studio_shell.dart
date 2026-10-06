@@ -7,6 +7,7 @@ import '../auth/studio_session.dart';
 import '../l10n_ext.dart';
 import '../layout.dart';
 import '../locale_controller.dart';
+import '../editor/studio_debug_replay_host.dart';
 import '../editor/studio_editor_host.dart';
 import '../editor/studio_team_chat_host.dart';
 import '../premium/studio_feature.dart';
@@ -196,6 +197,7 @@ class _StudioShellState extends State<StudioShell> {
       _NavEntry('guilds', l.navGuilds, Icons.dns_outlined),
       null,
       _NavEntry('dash', l.navDashboard, Icons.bar_chart_rounded),
+      _NavEntry('replay', l.navReplay, Icons.bug_report_outlined),
     ];
   }
 
@@ -320,6 +322,12 @@ class _StudioShellState extends State<StudioShell> {
           ),
           // La barre de navigation du Studio est hors de la page.
           reserveNavBarClearance: false,
+        );
+      case 'replay':
+        return DebugReplayPage(
+          key: ValueKey('replay-${bot.id}'),
+          botId: bot.id,
+          host: StudioDebugReplayHost(api, plan: plan),
         );
       case 'guilds':
         return GuildsPage(

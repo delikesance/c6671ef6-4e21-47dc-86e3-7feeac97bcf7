@@ -48,6 +48,26 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
   n'a jamais (l'hôte rend `null`, l'écran les omet). L'ancienne page maison et ses clés de traduction `team*` sont
   supprimées. Le Manager ne renvoie ni `display_name` ni `is_owner` dans la liste des collaborateurs (seulement `role`) :
   l'app a le même comportement, non corrigé ici.
+- **Rejeu du débogueur** : nouvel onglet « Replay Débogueur » d'un bot (rail large, page « Modules » du téléphone, groupe
+  Outils ; masqué en mode débutant). C'est `DebugReplayPage` de l'app (liste des exécutions, capture on/off, effacement
+  confirmé, détail avec chronologie, lecture pas à pas, comparaison des variables avant/après, trace BDFD natif), montée
+  sur `StudioDebugReplayHost`, qui relaie vers le runner du bot par le Manager : `GET /gateway/bots/{id}/debug-replays
+  ?limit=30` (`{capturing, replays}`), `POST …/debug-replays/capture` (`{enabled}` → `{capturing}`), `POST …/clear`.
+  Fonction **premium** : `StudioFeature.debugReplay` (le Manager applique aussi la règle, `RequirePremiumEntitlement`).
+  Sur un compte gratuit l'écran affiche la même carte d'offre que l'app (`debug_replay_premium_*`) avec, à la place du
+  bouton d'achat, la mention « l'abonnement s'active depuis l'app » ; aucune requête n'est faite, la capture et le détail
+  sont fermés. Le Studio n'a aucune mémoire locale de rejeux : si le bot n'est pas lancé (le Manager répond 409/503),
+  l'écran le dit (`debug_replay_unavailable`) et continue d'interroger, à cadence adaptative (`PollCadence`, maintenant
+  dans `bot_creator_ui`), jusqu'à ce que le bot réponde. Les modèles (`DebugReplayRecord`, `DebugActionFrame`) sont dans
+  le paquet ; l'app les ré-exporte depuis `bot.dart`. Les textes qui étaient en dur dans l'écran (« action(s) », « il y a
+  … », statuts BDFD en français/anglais seulement) sont maintenant des clés `debug_replay_*` en 6 langues.
+- **Bac à sable de commande et fonctions du bac à sable — NON partagés** (`CommandSandboxPage`,
+  `SandboxFunctionsPage`) : ils exécutent le moteur de commandes (BDFD natif, actions) **dans l'application**
+  (`testCommandInSandbox` de `bot_creator_shared/sandbox/command_sandbox.dart`, qui importe nyxx, `dart:io`,
+  `dart:isolate`, `package:image`) et la liste des fonctions vient de `function_suite.dart`, qui dépend du même moteur.
+  Rien de cela ne compile pour le web, et le Manager n'expose aucune route d'exécution de test (aucune occurrence de
+  « sandbox » dans `internal/api`, ni route simulate/dry-run) : il faudrait une route serveur qui lance le moteur sur un
+  brouillon de commande, ce qui est un travail Manager/runner distinct, non entrepris ici.
 - **Traductions** : les écrans du Studio n'ont plus de texte français codé en dur. Ils réutilisent les clés de l'app
   (`context.tr`, 6 langues) quand le sens est identique, sinon des clés Studio (`context.l10n`, 6 langues) ; les
   validations, erreurs de connexion et refus de démarrage sont des types (`ValidationProblem`, `AuthIssue`,

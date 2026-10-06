@@ -10,6 +10,7 @@ que les deux interfaces se ressemblent et se comportent pareil.
 | `lib/src/theme` | `AppTheme`, apparences (`AppAppearanceConfig`), `ThemeProvider` (apparence persistée), échelle de texte, `BlockFamily`, `UiFonts` |
 | `lib/src/settings` | cartes de réglages partagées : `AppearanceSettingsSection` (`showModeSelector: false` sur le Studio, qui reste sombre) et `TextScaleSettingsSection` |
 | `lib/src/widgets` | `AppIcon` (Reicon), `PageContent`, `ResponsiveHelper` |
+| `lib/src/utils` | `PollCadence` (cadence de sondage adaptative), avatars Discord, liens externes |
 | `lib/src/l10n` | les traductions (ARB) de l'app **et** du Studio, `context.tr` |
 | `lib/src/editor/catalog` | `ActionItem`, paramètres et libellés des types d'actions |
 | `lib/src/editor/blocks` | blocs, canevas de blocs, palette d'actions, point d'entrée |
@@ -22,6 +23,7 @@ que les deux interfaces se ressemblent et se comportent pareil.
 | `lib/src/code` | thème et réglages des éditeurs de code, coloration BDFD / JavaScript |
 | `lib/src/history` | historique des versions : modale d'une commande (`CommandHistorySheet` + `CommandHistoryHost`) et écran de la configuration d'un bot (`BotConfigVersionsPage` + `BotConfigVersionsHost`) |
 | `lib/src/team` | écran « Équipe et tchat » d'un bot (`TeamChatPage` + `TeamChatHost`), modèles d'équipe (`BotPermissions`, `BotCollaborator`, `TeamChatMessage`) et événements temps réel (`TeamChatEvent`) |
+| `lib/src/debug_replay` | écran « Rejeu du débogueur » d'un bot (`DebugReplayPage` + `DebugReplayHost`, détail `DebugReplayDetailPage`) et modèles d'exécutions capturées (`DebugReplayRecord`, `DebugActionFrame`, `DebugReplaySnapshot`) |
 | `lib/src/docs` | documentation intégrée : hub, articles Markdown natifs, dépôt de contenu |
 | `lib/src/editor/host` | `EditorHost` : ce que le paquet demande à l'application |
 

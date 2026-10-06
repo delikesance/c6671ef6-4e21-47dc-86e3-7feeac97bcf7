@@ -1350,6 +1350,34 @@ class StudioApi {
         body: {'content': content},
       );
 
+  // ── Rejeu du débogueur (premium, relayé vers le runner du bot) ───────────
+
+  /// Les rejeux capturés du bot et l'état de la capture, tels que le runner les
+  /// rend (`capturing`, `replays`). Le Manager refuse hors formule premium.
+  Future<Map<String, dynamic>> debugReplaysWire(
+    String botId, {
+    int limit = 30,
+  }) => _send(
+    'GET',
+    '/gateway/bots/${Uri.encodeComponent(botId)}/debug-replays?limit=$limit',
+  );
+
+  Future<void> clearDebugReplays(String botId) => _send(
+    'POST',
+    '/gateway/bots/${Uri.encodeComponent(botId)}/debug-replays/clear',
+    body: const <String, dynamic>{},
+  );
+
+  /// Active ou coupe la capture ; rend l'état annoncé par le runner.
+  Future<bool> setDebugReplayCapturing(String botId, bool enabled) async {
+    final json = await _send(
+      'POST',
+      '/gateway/bots/${Uri.encodeComponent(botId)}/debug-replays/capture',
+      body: {'enabled': enabled},
+    );
+    return json['capturing'] == true;
+  }
+
   // ── Transport ─────────────────────────────────────────────────────────────
 
   Future<Map<String, dynamic>> _send(

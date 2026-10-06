@@ -54,6 +54,9 @@ class StudioLocalizationsJa extends StudioLocalizations {
   String get navDashboard => 'ダッシュボード';
 
   @override
+  String get navReplay => 'デバッガーリプレイ';
+
+  @override
   String get navModules => 'Modules';
 
   @override
@@ -112,6 +115,9 @@ class StudioLocalizationsJa extends StudioLocalizations {
 
   @override
   String get modulesDescDashboard => 'Command usage over 24 h, 7 d, 30 d';
+
+  @override
+  String get modulesDescReplay => 'コマンド実行をステップごとに再生';
 
   @override
   String get modulesDescCopilot => 'Assistant to build your commands';
@@ -336,6 +342,12 @@ class StudioLocalizationsJa extends StudioLocalizations {
 
   @override
   String get featureHooksDesc => '安全なWebhookエンドポイントを作成し、呼び出しをワークフローにルーティング。';
+
+  @override
+  String get featureReplayTitle => 'ビジュアルデバッグリプレイ';
+
+  @override
+  String get featureReplayDesc => 'デバッグ用にコマンドアクションをステップごとに記録・再生。';
 
   @override
   String get commonSaved => '保存済み';

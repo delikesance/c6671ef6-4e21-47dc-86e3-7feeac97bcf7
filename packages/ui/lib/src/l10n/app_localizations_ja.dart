@@ -10725,4 +10725,81 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get ai_credits_pack_pending => '購入の確認待ちです…';
+
+  @override
+  String debug_replay_summary(int count, int ms) {
+    return '$count 件のアクション • $ms ms';
+  }
+
+  @override
+  String debug_replay_ago_seconds(int count) {
+    return '$count秒前';
+  }
+
+  @override
+  String debug_replay_ago_minutes(int count) {
+    return '$count分前';
+  }
+
+  @override
+  String debug_replay_ago_hours(int count) {
+    return '$count時間前';
+  }
+
+  @override
+  String debug_replay_ago_days(int count) {
+    return '$count日前';
+  }
+
+  @override
+  String get debug_replay_unavailable =>
+      'リプレイは現在利用できません。ボットを起動してからもう一度お試しください。';
+
+  @override
+  String get debug_replay_native_start => '呼び出し';
+
+  @override
+  String get debug_replay_native_returned => '戻り値';
+
+  @override
+  String get debug_replay_native_literal => 'そのまま保持';
+
+  @override
+  String get debug_replay_native_selected => '選択された分岐';
+
+  @override
+  String get debug_replay_native_none => '分岐なし';
+
+  @override
+  String get debug_replay_native_handled => 'エラーを捕捉';
+
+  @override
+  String get debug_replay_native_error => 'エラー';
+
+  @override
+  String get debug_replay_native_timeout => 'タイムアウト';
+
+  @override
+  String get debug_replay_native_stop => '停止';
+
+  @override
+  String get debug_replay_native_truncated => 'トレース省略';
+
+  @override
+  String debug_replay_native_branch(int n) {
+    return '分岐 $n';
+  }
+
+  @override
+  String debug_replay_native_script_depth(String depth) {
+    return 'スクリプトの深さ $depth';
+  }
+
+  @override
+  String debug_replay_native_events_omitted(String count) {
+    return '$count 件のイベントを省略';
+  }
+
+  @override
+  String get debug_replay_native_value_truncated => '値を省略';
 }

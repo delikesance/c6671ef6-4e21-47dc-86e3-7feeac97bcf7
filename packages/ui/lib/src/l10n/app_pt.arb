@@ -11006,5 +11006,84 @@
   "ai_credits_packs_title": "Comprar créditos",
   "ai_credits_pack_credited": "Créditos adicionados à sua conta.",
   "ai_credits_pack_failed": "Não foi possível concluir a compra. Se você foi cobrado, os créditos serão adicionados automaticamente.",
-  "ai_credits_pack_pending": "Compra aguardando confirmação…"
+  "ai_credits_pack_pending": "Compra aguardando confirmação…",
+  "@debug_replay_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_summary": "{count} ação(ões) • {ms} ms",
+  "@debug_replay_ago_seconds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_ago_seconds": "há {count} s",
+  "@debug_replay_ago_minutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_ago_minutes": "há {count} min",
+  "@debug_replay_ago_hours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_ago_hours": "há {count} h",
+  "@debug_replay_ago_days": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_ago_days": "há {count} d",
+  "debug_replay_unavailable": "Os replays estão indisponíveis no momento. Inicie o bot e tente novamente.",
+  "debug_replay_native_start": "Chamada",
+  "debug_replay_native_returned": "Retornou",
+  "debug_replay_native_literal": "Mantido literalmente",
+  "debug_replay_native_selected": "Ramo escolhido",
+  "debug_replay_native_none": "Nenhum ramo",
+  "debug_replay_native_handled": "Erro capturado",
+  "debug_replay_native_error": "Erro",
+  "debug_replay_native_timeout": "Tempo esgotado",
+  "debug_replay_native_stop": "Parado",
+  "debug_replay_native_truncated": "Rastro truncado",
+  "@debug_replay_native_branch": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "debug_replay_native_branch": "Ramo {n}",
+  "@debug_replay_native_script_depth": {
+    "placeholders": {
+      "depth": {
+        "type": "String"
+      }
+    }
+  },
+  "debug_replay_native_script_depth": "Profundidade do script {depth}",
+  "@debug_replay_native_events_omitted": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "debug_replay_native_events_omitted": "{count} eventos omitidos",
+  "debug_replay_native_value_truncated": "Valor truncado"
 }

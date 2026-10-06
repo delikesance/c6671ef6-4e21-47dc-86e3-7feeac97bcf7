@@ -54,6 +54,9 @@ class StudioLocalizationsEn extends StudioLocalizations {
   String get navDashboard => 'Dashboard';
 
   @override
+  String get navReplay => 'Debugger Replay';
+
+  @override
   String get navModules => 'Modules';
 
   @override
@@ -113,6 +116,9 @@ class StudioLocalizationsEn extends StudioLocalizations {
 
   @override
   String get modulesDescDashboard => 'Command usage over 24 h, 7 d, 30 d';
+
+  @override
+  String get modulesDescReplay => 'Step-by-step replays of command runs';
 
   @override
   String get modulesDescCopilot => 'Assistant to build your commands';
@@ -341,6 +347,13 @@ class StudioLocalizationsEn extends StudioLocalizations {
   @override
   String get featureHooksDesc =>
       'Create secure webhook endpoints and route calls to workflows.';
+
+  @override
+  String get featureReplayTitle => 'Visual debug replay';
+
+  @override
+  String get featureReplayDesc =>
+      'Record and replay command actions step by step for debugging.';
 
   @override
   String get commonSaved => 'Saved';

@@ -11266,4 +11266,81 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get ai_credits_pack_pending => 'Satın alma onay bekliyor…';
+
+  @override
+  String debug_replay_summary(int count, int ms) {
+    return '$count eylem • $ms ms';
+  }
+
+  @override
+  String debug_replay_ago_seconds(int count) {
+    return '$count sn önce';
+  }
+
+  @override
+  String debug_replay_ago_minutes(int count) {
+    return '$count dk önce';
+  }
+
+  @override
+  String debug_replay_ago_hours(int count) {
+    return '$count sa önce';
+  }
+
+  @override
+  String debug_replay_ago_days(int count) {
+    return '$count g önce';
+  }
+
+  @override
+  String get debug_replay_unavailable =>
+      'Tekrarlar şu anda kullanılamıyor. Botu başlatın ve tekrar deneyin.';
+
+  @override
+  String get debug_replay_native_start => 'Çağrı';
+
+  @override
+  String get debug_replay_native_returned => 'Döndü';
+
+  @override
+  String get debug_replay_native_literal => 'Olduğu gibi korundu';
+
+  @override
+  String get debug_replay_native_selected => 'Seçilen dal';
+
+  @override
+  String get debug_replay_native_none => 'Dal yok';
+
+  @override
+  String get debug_replay_native_handled => 'Hata yakalandı';
+
+  @override
+  String get debug_replay_native_error => 'Hata';
+
+  @override
+  String get debug_replay_native_timeout => 'Zaman aşımı';
+
+  @override
+  String get debug_replay_native_stop => 'Durduruldu';
+
+  @override
+  String get debug_replay_native_truncated => 'İz kısaltıldı';
+
+  @override
+  String debug_replay_native_branch(int n) {
+    return 'Dal $n';
+  }
+
+  @override
+  String debug_replay_native_script_depth(String depth) {
+    return 'Betik derinliği $depth';
+  }
+
+  @override
+  String debug_replay_native_events_omitted(String count) {
+    return '$count olay atlandı';
+  }
+
+  @override
+  String get debug_replay_native_value_truncated => 'Değer kısaltıldı';
 }
