@@ -1,4 +1,4 @@
-import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 
 /// Ce qui empêche un démarrage, décrit SANS texte : la raison, et les valeurs à
 /// intercaler.
@@ -90,4 +90,3 @@ String resolveRuntimeNotice(
       return error;
   }
 }
-

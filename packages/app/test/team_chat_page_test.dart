@@ -27,7 +27,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bot_creator/core/i18n/i18n.dart';
-import 'package:bot_creator/core/i18n/l10n/app_localizations_fr.dart';
+import 'package:bot_creator_ui/src/l10n/app_localizations_fr.dart';
 import 'package:bot_creator/core/network/gateway_bot_events.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/storage/database.dart';

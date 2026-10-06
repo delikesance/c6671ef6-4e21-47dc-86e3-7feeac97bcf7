@@ -17,8 +17,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
-import 'package:bot_creator/core/i18n/l10n/app_localizations_fr.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator_ui/src/l10n/app_localizations_fr.dart';
 import 'package:bot_creator/features/app_update/logic/app_update_models.dart';
 import 'package:bot_creator/features/app_update/logic/app_update_service.dart';
 
