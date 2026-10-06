@@ -10,7 +10,7 @@ import '../theme.dart';
 import '../widgets/common.dart';
 import '../layout.dart';
 import 'bot_actions.dart';
-import 'create_bot_dialog.dart';
+import 'create_bot_page.dart';
 
 /// Accueil : « Mes bots » (équivalent de `HomePage` de l'app en mode large).
 class BotsPage extends StatefulWidget {
@@ -186,10 +186,8 @@ class _BotsPageState extends State<BotsPage> {
   }
 
   Future<void> _create() async {
-    final created = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => CreateBotDialog(api: widget.api),
+    final created = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => CreateBotPage(api: widget.api)),
     );
     if (created == true) await _load();
   }

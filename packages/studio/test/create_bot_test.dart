@@ -36,6 +36,15 @@ void main() {
     expect(newBotConfig(username: '').containsKey('username'), isFalse);
   });
 
+  test('config : le moteur est choisi à la création', () {
+    expect(newBotConfig(username: 'A')['runtimeEngine'], 'dart');
+    final js = newBotConfig(username: 'A', javascript: true);
+    expect(js['runtimeEngine'], 'javascript');
+    final data = ((js['commands'] as List).single as Map)['data'] as Map;
+    expect(data['executionMode'], 'javascript');
+    expect(data['jsScriptContent'], contains('Pong!'));
+  });
+
   test('validation : route publique, identité lue', () async {
     late http.Request seen;
     final api = _api(
