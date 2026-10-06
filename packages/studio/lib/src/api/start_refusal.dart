@@ -30,6 +30,17 @@ enum StartRefusal {
     noFreeTime => l.refusalNoFreeTimeBody,
   };
 
+  /// Le même refus dans la boîte de l'app (`PlanLimitDialog`, avec son bouton
+  /// « Voir les offres »). `null` : le manque de temps gratuit n'est pas un
+  /// quota de formule, il garde le texte propre au Studio.
+  PlanLimitBlock? get planLimit => switch (this) {
+    excludesOwnBots => PlanLimitBlock.planExcludesOwnBots,
+    botQuotaReached => PlanLimitBlock.planBotQuotaReached,
+    excludesTurnkey => PlanLimitBlock.planExcludesTurnkey,
+    turnkeyQuotaReached => PlanLimitBlock.planTurnkeyQuotaReached,
+    noFreeTime => null,
+  };
+
   static StartRefusal? fromError(Object error) {
     if (error is! StudioApiException) return null;
     final code = (error.code ?? '').toLowerCase();

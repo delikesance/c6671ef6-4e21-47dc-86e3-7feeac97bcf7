@@ -37,7 +37,10 @@ class _CreateBotDialogState extends State<CreateBotDialog> {
 
   String _message(Object e) {
     final refusal = StartRefusal.fromError(e);
-    if (refusal != null) return '${refusal.title}. ${refusal.body}';
+    if (refusal != null) {
+      return '${refusal.title(context.l10n, context.tr)}. '
+          '${refusal.body(context.l10n, context.tr)}';
+    }
     if (e is StudioApiException) {
       if (e.code == 'bot_sync_in_progress') {
         return context.l10n.createBotSyncBusy;

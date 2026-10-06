@@ -10802,4 +10802,27 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get debug_replay_native_value_truncated => '値を省略';
+
+  @override
+  String subscriptions_hub_bots_max(int count) {
+    return '最大 $count 個のボット';
+  }
+
+  @override
+  String get subscriptions_hub_ai_credits_roulette => 'AI クレジットとルーレット';
+
+  @override
+  String ai_credits_reserved(String credits) {
+    return '$credits クレジットを現在使用中';
+  }
+
+  @override
+  String ai_credits_when_today(String time) {
+    return '今日 $time';
+  }
+
+  @override
+  String ai_credits_when_yesterday(String time) {
+    return '昨日 $time';
+  }
 }

@@ -11052,5 +11052,10 @@
     }
   },
   "debug_replay_native_events_omitted": "{count} olay atlandı",
-  "debug_replay_native_value_truncated": "Değer kısaltıldı"
+  "debug_replay_native_value_truncated": "Değer kısaltıldı",
+  "subscriptions_hub_bots_max": "en fazla {count} bot",
+  "subscriptions_hub_ai_credits_roulette": "Yapay zeka kredileri ve çark",
+  "ai_credits_reserved": "{credits} kredi şu anda kullanılıyor",
+  "ai_credits_when_today": "Bugün, {time}",
+  "ai_credits_when_yesterday": "Dün, {time}"
 }

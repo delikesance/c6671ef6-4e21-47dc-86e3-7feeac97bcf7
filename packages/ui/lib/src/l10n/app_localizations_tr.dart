@@ -11343,4 +11343,28 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get debug_replay_native_value_truncated => 'Değer kısaltıldı';
+
+  @override
+  String subscriptions_hub_bots_max(int count) {
+    return 'en fazla $count bot';
+  }
+
+  @override
+  String get subscriptions_hub_ai_credits_roulette =>
+      'Yapay zeka kredileri ve çark';
+
+  @override
+  String ai_credits_reserved(String credits) {
+    return '$credits kredi şu anda kullanılıyor';
+  }
+
+  @override
+  String ai_credits_when_today(String time) {
+    return 'Bugün, $time';
+  }
+
+  @override
+  String ai_credits_when_yesterday(String time) {
+    return 'Dün, $time';
+  }
 }

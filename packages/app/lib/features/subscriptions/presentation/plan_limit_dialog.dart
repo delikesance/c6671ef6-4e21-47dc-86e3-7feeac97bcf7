@@ -1,21 +1,16 @@
-import 'package:flutter/material.dart';
-
-import 'package:bot_creator/core/i18n/extensions.dart';
+// Moved to package:bot_creator_ui (shared with Studio) : la boîte est
+// `PlanLimitDialog` du paquet. Ce fichier garde l'ancienne signature
+// (`PlanLimitDialog(block:)`, `showPlanLimitDialog(context, block)`) : l'app y
+// ajoute ce que SEUL son état local sait (compte ad-financé, plafond de bots) et
+// la traduction d'un refus serveur (`PlanLimitRefusal`, type du client réseau).
 import 'package:bot_creator/core/network/remote_runtime.dart'
     show PlanLimitRefusal;
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart' as ui;
+import 'package:flutter/material.dart';
 
-/// Ce que l'utilisateur a choisi devant un refus de la formule.
-enum PlanLimitAction {
-  /// L'écran s'est fermé sans décision.
-  dismissed,
-
-  /// Voir les offres (ouvrir le hub des abonnements).
-  viewOffers,
-
-  /// Continuer quand même : le bot dépassera la formule et tournera financé par pub.
-  continueAdFunded,
-}
+export 'package:bot_creator_ui/src/subscriptions/plan_limit_dialog.dart'
+    show PlanLimitAction;
 
 /// Explique qu'un démarrage est refusé par la formule du compte, ou qu'il sera
 /// financé par pub parce qu'il dépasse le quota.
@@ -48,56 +43,13 @@ class PlanLimitDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tr = context.tr;
     // Un compte premium ne regarde JAMAIS de publicité : au-delà de son quota, le
     // démarrage est refusé et la seule sortie est de changer de formule. Un compte
     // ad-financé, lui, peut dépasser son quota en gagnant du temps par une pub.
-    final adFunded =
-        block == PlanLimitBlock.planBotQuotaReached &&
-        !SubscriptionService.isSubscribed;
-    final (String title, String description) = switch (block) {
-      PlanLimitBlock.planExcludesOwnBots => (
-        tr.plan_limit_own_bots_title,
-        tr.plan_limit_own_bots_desc,
-      ),
-      PlanLimitBlock.planBotQuotaReached => (
-        tr.plan_limit_bot_quota_title,
-        adFunded
-            ? tr.plan_limit_bot_quota_ad_funded_desc(
-                SubscriptionService.activePlanMaxBots ?? 0,
-              )
-            : tr.plan_limit_bot_quota_desc,
-      ),
-      PlanLimitBlock.planExcludesTurnkey => (
-        tr.plan_limit_turnkey_title,
-        tr.plan_limit_turnkey_desc,
-      ),
-      PlanLimitBlock.planTurnkeyQuotaReached => (
-        tr.plan_limit_turnkey_quota_title,
-        tr.plan_limit_turnkey_quota_desc,
-      ),
-    };
-
-    return AlertDialog(
-      title: Text(title),
-      content: Text(description),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(PlanLimitAction.dismissed),
-          child: Text(tr.common_close),
-        ),
-        TextButton(
-          onPressed: () =>
-              Navigator.of(context).pop(PlanLimitAction.viewOffers),
-          child: Text(tr.plan_limit_view_offers),
-        ),
-        if (adFunded)
-          FilledButton(
-            onPressed: () =>
-                Navigator.of(context).pop(PlanLimitAction.continueAdFunded),
-            child: Text(tr.plan_limit_quota_continue_ad),
-          ),
-      ],
+    return ui.PlanLimitDialog(
+      block: block,
+      adFunded: !SubscriptionService.isSubscribed,
+      maxBots: SubscriptionService.activePlanMaxBots ?? 0,
     );
   }
 }
@@ -106,13 +58,13 @@ class PlanLimitDialog extends StatelessWidget {
 ///
 /// Renvoie l'action choisie : c'est à l'appelant d'ouvrir les offres ou de lancer
 /// le bot avec son propre contexte.
-Future<PlanLimitAction> showPlanLimitDialog(
+Future<ui.PlanLimitAction> showPlanLimitDialog(
   BuildContext context,
   PlanLimitBlock block,
 ) async {
-  final action = await showDialog<PlanLimitAction>(
+  final action = await showDialog<ui.PlanLimitAction>(
     context: context,
     builder: (_) => PlanLimitDialog(block: block),
   );
-  return action ?? PlanLimitAction.dismissed;
+  return action ?? ui.PlanLimitAction.dismissed;
 }

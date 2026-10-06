@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bot_creator_ui/bot_creator_ui.dart' hide StatusPill;
+import 'package:flutter/widgets.dart';
 
 import '../api/studio_api.dart';
 import '../platform/event_socket.dart';
@@ -31,8 +32,9 @@ EventSocket _webSocket({
 ///
 /// * pas de publicité récompensée (`canWatchAds` faux) — le temps d'hébergement
 ///   vient du solde serveur ;
-/// * pas d'achat ni de consultation des formules (`upsellMode` aucun) — la
-///   formule se gère depuis l'application ;
+/// * pas d'achat (aucun paiement web côté Manager) mais les FORMULES restent
+///   consultables (`upsellMode` = `plans`, comme sur poste de travail) : les
+///   cartes d'offre ouvrent le hub des abonnements en lecture seule ;
 /// * pas de bot local : le token Discord se colle à la main (il ne quitte jamais
 ///   le navigateur que vers le Manager) ;
 /// * pas d'assistant IA sur un conteneur.
@@ -41,10 +43,17 @@ EventSocket _webSocket({
 /// rien (ni `localStorage`, ni mémoire au-delà de la liste affichée), et le mot
 /// de passe n'est jamais relu.
 class StudioHostedContainersHost extends HostedContainersHost {
-  StudioHostedContainersHost(this.api, {TeamEventSocketFactory? socketFactory})
-    : _socketFactory = socketFactory ?? _webSocket;
+  StudioHostedContainersHost(
+    this.api, {
+    TeamEventSocketFactory? socketFactory,
+    this.subscriptions,
+  }) : _socketFactory = socketFactory ?? _webSocket;
 
   final StudioApi api;
+
+  /// Le hub des abonnements : sans lui (tests d'un écran isolé), aucune carte
+  /// d'offre ne renvoie vers les formules.
+  final SubscriptionsHost? subscriptions;
   final TeamEventSocketFactory _socketFactory;
 
   bool _cloudDisabled = false;
@@ -199,6 +208,16 @@ class StudioHostedContainersHost extends HostedContainersHost {
 
   @override
   bool get showsRegistryCredentials => true;
+
+  @override
+  HostedUpsellMode get upsellMode =>
+      subscriptions == null ? HostedUpsellMode.none : HostedUpsellMode.plans;
+
+  @override
+  void openPlans(BuildContext context) {
+    final host = subscriptions;
+    if (host != null) SubscriptionsHubPage.open(context, host);
+  }
 
   /// Le canal temps réel du Manager (`/gateway/bots/events`) : le jeton voyage
   /// dans le sous-protocole du WebSocket (un navigateur ne peut pas poser

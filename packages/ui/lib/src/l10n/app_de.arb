@@ -11052,5 +11052,10 @@
     }
   },
   "debug_replay_native_events_omitted": "{count} Ereignisse ausgelassen",
-  "debug_replay_native_value_truncated": "Wert gekürzt"
+  "debug_replay_native_value_truncated": "Wert gekürzt",
+  "subscriptions_hub_bots_max": "max. {count} Bots",
+  "subscriptions_hub_ai_credits_roulette": "KI-Credits und Glücksrad",
+  "ai_credits_reserved": "{credits} Credits werden gerade verwendet",
+  "ai_credits_when_today": "Heute, {time}",
+  "ai_credits_when_yesterday": "Gestern, {time}"
 }

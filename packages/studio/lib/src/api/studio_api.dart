@@ -1095,6 +1095,18 @@ class StudioApi {
 
   Future<Map<String, dynamic>> aiWallet() => _send('GET', '/gateway/ai/wallet');
 
+  /// `GET /gateway/ai/ledger?offset=` : l'historique des crédits IA
+  /// (`entries`, `has_more`), 50 lignes par page.
+  Future<Map<String, dynamic>> aiLedgerWire({int offset = 0}) =>
+      _send('GET', '/gateway/ai/ledger?offset=$offset');
+
+  // ── Abonnements (lecture seule) ───────────────────────────────────────────
+
+  /// `GET /gateway/commerce/catalog` : le catalogue d'offres publié (le Manager
+  /// n'a aucune route de paiement web : voir `StudioSubscriptionsHost`).
+  Future<Map<String, dynamic>> commerceCatalogWire() =>
+      _send('GET', '/gateway/commerce/catalog');
+
   Future<List<Map<String, dynamic>>> aiConversations({
     String? botId,
     int offset = 0,

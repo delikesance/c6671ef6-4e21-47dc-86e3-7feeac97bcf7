@@ -81,11 +81,12 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
     « Pub +N min » ni appel, exactement comme sur le poste de travail de l'app ; le temps d'hébergement vient du solde
     serveur (`hosting_minutes_balance`, minutes déjà gagnées sur mobile) et la carte le montre. L'appel `claim-ad` n'est
     donc pas implémenté dans `StudioApi`.
-  - **Achat et formules** : pas de boutique dans le navigateur (`upsellMode` aucun) : les cartes d'offre, le bouton
-    « Voir les offres » et le FAB d'achat sont masqués ; atteindre la limite gratuite affiche le message
-    `container_list_free_limit_reached` ; le déploiement bloqué par la formule dit pourquoi, sans action. La formule se
-    gère depuis l'app. `premium_cloud_enabled: false` (lu une fois dans `GET /gateway/runtime`) donne l'explication
-    « hébergement cloud coupé » comme dans l'app.
+  - **Achat et formules** : pas de boutique dans le navigateur, mais les FORMULES sont consultables : l'hôte annonce
+    `upsellMode` = `plans` (comme le poste de travail de l'app) et les cartes d'offre, le bouton « Voir les offres » du
+    déploiement bloqué et le blocage par la formule ouvrent le hub des abonnements (voir plus bas) ; l'achat natif
+    (`purchase`) reste absent. Atteindre la limite gratuite affiche le message `container_list_free_limit_reached`.
+    `premium_cloud_enabled: false` (lu une fois dans `GET /gateway/runtime`) donne l'explication « hébergement cloud
+    coupé » comme dans l'app.
   - **Console** : comme dans l'app, la console de la page de détail lit `GET /containers/{id}/logs?tail=200` à cadence
     adaptative (`PollCadence`) ; l'app n'utilise pas le WebSocket `…/console` (shell interactif). Le Studio ne le
     pourrait d'ailleurs pas aujourd'hui : l'authentification par sous-protocole `bc.bearer` n'est acceptée que pour les
@@ -99,6 +100,46 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
   - **Non partagé** : `HostedAppSubscriptionPage` (achat natif de la formule d'hébergement, boutique de l'app) et le
     catalogue de formules ; la carte d'accueil `HomeTurnkeyContainerCard` est dans le paquet mais l'accueil du Studio
     liste les conteneurs dans leur propre entrée.
+- **Abonnements, facturation et crédits IA (lecture seule)** : le hub (`SubscriptionsHubPage`), l'écran des offres
+  (`SubscriptionPage`), la carte « Abonnements et facturation » des réglages (`SubscriptionsSettingsCard`), les crédits
+  IA (`AICreditsPage` : solde, répartition, historique paginé par 50) et la boîte de refus de formule
+  (`PlanLimitDialog`) sont les écrans de l'app, déplacés dans `bot_creator_ui` (`lib/src/subscriptions`) derrière
+  `SubscriptionsHost` / `AiCreditsHost`. L'app garde ses anciennes signatures (`SubscriptionsHubPage.open(context)`,
+  `SubscriptionPage.show(context)`, `AICreditsPage(api:)`, `showPlanLimitDialog`) et ses gardes « disponible sur mobile
+  seulement » ; ses services statiques de facturation sont lus par `AppSubscriptionsHost` / `AppAiCreditsHost`. Les
+  modèles du catalogue commercial (`CommerceCatalog`), `PlanLimitBlock` et la liste des avantages Premium
+  (`premiumFeatureDefinitions`) sont dans le paquet.
+  - **Décision achat web : AUCUN paiement dans le navigateur, preuve côté Manager.** Les routes de facturation de
+    `internal/api/routes_billing.go` sont les webhooks des boutiques (`/billing/webhook/{kofi,admob,playstore,apple}`) et
+    la vérification de reçus (`POST /billing/verify`, `/billing/consumable/verify`, scope `billing:verify`) : elles
+    valident un achat DÉJÀ fait dans App Store / Google Play, aucune ne crée de session de paiement ni de portail. Les
+    seules intégrations de paiement par carte (`CmsCreateCheckout`, `CmsCreatePublishCheckout`) servent le CMS des
+    créateurs (produits et publication de modèles), pas les formules du compte. `/gateway/plans` ne liste que les
+    formules ayant un produit de boutique mappé. Aucune route n'a été ajoutée au Manager ; **écart signalé** : un
+    paiement web des formules (Stripe Checkout + portail client + webhook) devrait être conçu côté Manager d'abord.
+    `canPurchase`, la restauration et la gestion de l'abonnement sont donc faux : l'écran masque « S'abonner », « Gérer »,
+    « Restaurer » et les prix, et dit, avec la phrase de l'app pour les plateformes sans boutique
+    (`subscription_not_available_on_platform`), que les abonnements sont disponibles sur mobile.
+  - **Ce que le Studio lit** (`StudioSubscriptionsHost`, jeton Discord, mêmes portées que le reste) : formule, nom,
+    plafond de bots et échéance (`GET /gateway/runtime`), couverture d'hébergement (`GET /containers/eligibility` :
+    `premium`, `allow_turnkey`, `max_containers`, `hosting_expires_at` / `hosting_permanent`, même règle que l'app pour
+    allumer la carte), offres publiées (`GET /gateway/commerce/catalog`, ignoré tant qu'il n'est pas publié) ; crédits :
+    `GET /gateway/ai/wallet` et `GET /gateway/ai/ledger?offset=`. Un Manager injoignable laisse l'état précédent : le
+    Studio n'affirme jamais « gratuit » sur une lecture qui a échoué. Un abonnement de boutique n'y est pas dit « géré par
+    le serveur » (seul un octroi l'est) ; faute de reçu local, la cadence mensuelle / annuelle n'est pas connue.
+  - **Placement** : carte « Abonnements et facturation » dans les réglages (comme l'app) → hub → « Voir les offres » ;
+    bouton « Voir les offres » sous les verrous Premium (`PremiumLockedCard`, tableau de bord, rejeu du débogueur) ;
+    cartes d'offre des applications hébergées ; bouton « crédits » du Copilote → crédits IA ; refus de démarrage
+    (`bot_quota_reached`, `own_bots_not_allowed`, `turnkey_*`) → `PlanLimitDialog` de l'app avec « Voir les offres »,
+    jamais « continuer financé par pub » (pas de publicité dans le navigateur). Le refus « plus de temps gratuit »
+    garde son texte Studio. Correction au passage : le message d'erreur du dialogue de création de bot imprimait la
+    fonction `title` au lieu du texte.
+  - **Non partagé et pourquoi** : `HostedAppSubscriptionPage` (feuille d'achat natif de la formule d'hébergement : que des
+    prix de boutique et des boutons d'achat, rien à lire — le hub n'y mène que si `canPurchase`) ; roulette, publicités
+    récompensées et packs de crédits (boutique / AdMob : `rewardsPlatform` nul, `loadPacks` vide) ; le lien « ouvrir la
+    conversation » d'une ligne de l'historique (le Copilote du Studio n'ouvre pas une discussion par son identifiant) ;
+    l'entrée « Crédits IA » du hub n'apparaît, comme dans l'app, que si une offre `rewarded_ai` est publiée (le Studio y
+    accède aussi par le Copilote).
 - **Bac à sable de commande et fonctions du bac à sable — NON partagés** (`CommandSandboxPage`,
   `SandboxFunctionsPage`) : ils exécutent le moteur de commandes (BDFD natif, actions) **dans l'application**
   (`testCommandInSandbox` de `bot_creator_shared/sandbox/command_sandbox.dart`, qui importe nyxx, `dart:io`,
@@ -216,7 +257,7 @@ Routes déjà là : `commands/sync`, `workflows/sync` et `delete` (pas de GET : 
 | Musique (Lavalink), historique pubs | absent |
 | Conteneurs (bots hébergés), marketplace | absent (routes existantes) |
 | Bots (liste, création, démarrage, arrêt), équipe, connexion Discord | présent |
-| Abonnements | lecture seule du plan, par choix |
+| Abonnements, facturation, crédits IA | partagé (hub, offres, crédits, refus de formule), lecture seule : aucun paiement web côté Manager |
 
 ## 4. Priorités proposées
 

@@ -102,7 +102,7 @@ class ConsumablePurchaseService {
     CommerceCatalog? catalog,
   }) async {
     if (!Platform.isAndroid && !Platform.isIOS) return const [];
-    catalog ??= await CommerceCatalog.load();
+    catalog ??= await loadCommerceCatalog();
     if (catalog == null) return const [];
     final offers = catalog.aiPacks(_platform, DateTime.now());
     if (offers.isEmpty) return const [];

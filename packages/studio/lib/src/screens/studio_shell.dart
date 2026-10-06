@@ -10,6 +10,7 @@ import '../locale_controller.dart';
 import '../editor/studio_debug_replay_host.dart';
 import '../editor/studio_editor_host.dart';
 import '../editor/studio_hosted_containers_host.dart';
+import '../editor/studio_subscriptions_host.dart';
 import '../editor/studio_team_chat_host.dart';
 import '../premium/studio_feature.dart';
 import '../theme.dart';
@@ -44,8 +45,12 @@ class _StudioShellState extends State<StudioShell> {
 
   /// Les applications hébergées : un seul hôte pour la vie de la coque (il garde
   /// l'état du serveur lu une fois — hébergement cloud coupé ou non).
+  late final StudioSubscriptionsHost _subscriptions = StudioSubscriptionsHost(
+    widget.auth.api,
+  );
   late final StudioHostedContainersHost _hosted = StudioHostedContainersHost(
     widget.auth.api,
+    subscriptions: _subscriptions,
   );
   StudioBot? _bot;
   String _homeSection = 'home';
@@ -80,7 +85,12 @@ class _StudioShellState extends State<StudioShell> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => StudioSubscriptionsScope(
+    host: _subscriptions,
+    child: _buildShell(context),
+  );
+
+  Widget _buildShell(BuildContext context) {
     final bot = _bot;
     final compact = isCompact(context);
     final body = bot == null ? _homeBody() : _editorBody(bot, compact);
@@ -441,6 +451,7 @@ class _SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final name = auth.session?.username;
+    final subscriptions = StudioSubscriptionsScope.maybeOf(context);
     return SingleChildScrollView(
       padding: pageInsets(context, top: 24),
       child: PageContent(
@@ -479,6 +490,15 @@ class _SettingsPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
+            // L'entrée « Abonnements et facturation » de l'app (même carte, même
+            // hub) : formule, plafonds, couverture d'hébergement, crédits IA.
+            if (subscriptions != null)
+              SubscriptionsSettingsCard(
+                host: subscriptions,
+                onOpen: (context) =>
+                    SubscriptionsHubPage.open(context, subscriptions),
+              ),
+            if (subscriptions != null) const SizedBox(height: 16),
             _Card(
               title: l.settingsLanguage,
               children: const [_LanguagePicker()],
