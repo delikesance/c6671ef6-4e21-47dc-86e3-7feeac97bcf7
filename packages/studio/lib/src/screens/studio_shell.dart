@@ -136,6 +136,18 @@ class _StudioShellState extends State<StudioShell> {
     );
   }
 
+  /// Ouvre un onglet du bot depuis l'accueil (« Voir tout », « Créer un
+  /// workflow ») : les workflows vivent derrière « Modules ».
+  void _openSection(String id) => setState(() {
+    if (id == 'flows') {
+      _editorSection = 'modules';
+      _module = 'flows';
+    } else {
+      _editorSection = id;
+      _module = null;
+    }
+  });
+
   void _leaveBot() => setState(() {
     _bot = null;
     _module = null;
@@ -308,7 +320,12 @@ class _StudioShellState extends State<StudioShell> {
           userName: widget.auth.session?.username,
         );
       case 'overview':
-        return OverviewPage(key: ValueKey(bot.id), api: api, bot: bot);
+        return OverviewPage(
+          key: ValueKey(bot.id),
+          api: api,
+          bot: bot,
+          onOpenSection: _openSection,
+        );
       case 'copilot':
         return CopilotPage(key: ValueKey(bot.id), api: api, bot: bot);
       case 'flows':
