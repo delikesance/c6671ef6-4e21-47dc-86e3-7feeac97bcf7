@@ -313,6 +313,7 @@ class _NewCommandDialogState extends State<_NewCommandDialog> {
             ),
             const SizedBox(height: 4),
             DropdownButtonFormField<String>(
+              isExpanded: true,
               initialValue: _trigger,
               decoration: InputDecoration(
                 labelText: context.tr.scratch_trigger_tab,
@@ -320,15 +321,27 @@ class _NewCommandDialogState extends State<_NewCommandDialog> {
               items: [
                 DropdownMenuItem(
                   value: 'slash',
-                  child: Text(context.tr.edit_shell_type_slash),
+                  child: Text(
+                    context.tr.edit_shell_type_slash,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 DropdownMenuItem(
                   value: 'prefix',
-                  child: Text(context.tr.scratch_entry_message),
+                  child: Text(
+                    context.tr.scratch_entry_message,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 DropdownMenuItem(
                   value: 'hybrid',
-                  child: Text(context.l10n.commandTriggerHybrid),
+                  child: Text(
+                    context.l10n.commandTriggerHybrid,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
               onChanged: (v) => setState(() => _trigger = v ?? 'slash'),
