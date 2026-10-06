@@ -63,6 +63,7 @@ export 'src/editor/lists/settings_group_widgets.dart';
 export 'src/editor/lists/modules_list.dart';
 export 'src/diagnostics/ui_diagnostics.dart';
 export 'src/widgets/home_ui.dart';
+export 'src/bots/bot_create_setup.dart';
 export 'src/widgets/avatar_image_source.dart';
 export 'src/editor/widgets/editor_sidebar.dart';
 export 'src/code/bdfd_syntax_controller.dart';
