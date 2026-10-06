@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
-import 'package:bot_creator/features/bot_management/presentation/create_page.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart' show BotCreateSetup;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
