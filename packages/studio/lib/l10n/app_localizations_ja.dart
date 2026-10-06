@@ -15,6 +15,9 @@ class StudioLocalizationsJa extends StudioLocalizations {
   String get navDocs => 'ドキュメント';
 
   @override
+  String get navHosting => 'ターンキーBot';
+
+  @override
   String get navSettings => '設定';
 
   @override

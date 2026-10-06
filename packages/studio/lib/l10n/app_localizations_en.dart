@@ -15,6 +15,9 @@ class StudioLocalizationsEn extends StudioLocalizations {
   String get navDocs => 'Documentation';
 
   @override
+  String get navHosting => 'Turnkey Bots';
+
+  @override
   String get navSettings => 'Settings';
 
   @override

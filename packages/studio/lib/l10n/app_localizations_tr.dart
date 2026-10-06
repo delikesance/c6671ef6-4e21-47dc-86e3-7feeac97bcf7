@@ -15,6 +15,9 @@ class StudioLocalizationsTr extends StudioLocalizations {
   String get navDocs => 'Dokumantasyon';
 
   @override
+  String get navHosting => 'Hazır Botlar';
+
+  @override
   String get navSettings => 'Ayarlar';
 
   @override

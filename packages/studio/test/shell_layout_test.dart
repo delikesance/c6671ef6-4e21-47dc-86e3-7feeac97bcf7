@@ -119,6 +119,22 @@ void main() {
   const phone = Size(390, 844);
   const desktop = Size(1280, 800);
 
+  for (final size in [const Size(390, 844), const Size(1280, 800)]) {
+    testWidgets(
+      'applications hébergées : entrée de l\'accueil (${size.width.toInt()} px), écran de l\'app',
+      (tester) async {
+        await _pumpApp(tester, size);
+        // Le libellé et l'écran sont ceux de l'app (« Bots Clé en main »).
+        await tester.tap(find.text('Bots Clé en main'));
+        await _settle(tester);
+        expect(find.byType(ContainerListPage), findsOneWidget);
+        expect(find.text('Aucun bot clé en main'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await _dispose(tester);
+      },
+    );
+  }
+
   testWidgets('téléphone : barre du bas, pas de rail, aucun débordement', (
     tester,
   ) async {

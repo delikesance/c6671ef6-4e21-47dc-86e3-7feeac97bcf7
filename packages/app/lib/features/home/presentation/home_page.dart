@@ -44,6 +44,7 @@ import 'package:bot_creator/features/bot_management/presentation/create_page.dar
 import 'package:bot_creator/features/containers/logic/turnkey_bot_invite.dart';
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
 import 'package:bot_creator/features/containers/presentation/home_turnkey_container_card.dart';
+import 'package:bot_creator/features/copilot/presentation/copilot_page.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
@@ -3544,6 +3545,16 @@ class HomePageState extends State<HomePage>
         onDetail: () => _openTurnkeyContainerDetail(container),
         onInvite: () => _inviteTurnkeyBot(container),
         inviteBusy: _inviteContainerIdInAction == container.id,
+        onCopilot: () => Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (_) => CopilotPage(
+              botId: 'container:${container.id}',
+              botName: turnkeyContainerTitle(container, context.tr),
+              location: 'remote',
+            ),
+          ),
+        ),
       );
 
   /// Range les cartes d'une section : une colonne en compact, la grille à deux
