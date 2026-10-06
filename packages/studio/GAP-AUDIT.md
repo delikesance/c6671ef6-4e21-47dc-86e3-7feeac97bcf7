@@ -29,6 +29,10 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
   conflit 409 traité comme tel, suppression) remplace la boîte de dialogue maison ; le Studio fournit seulement
   `StudioCommandHistoryHost` (routes v2 du Manager). Même chose pour la carte « Éditeur de code » des réglages
   (`CodeEditorSettingsCard`).
+- **Traductions** : les écrans du Studio n'ont plus de texte français codé en dur. Ils réutilisent les clés de l'app
+  (`context.tr`, 6 langues) quand le sens est identique, sinon des clés Studio (`context.l10n`, 6 langues) ; les
+  validations, erreurs de connexion et refus de démarrage sont des types (`ValidationProblem`, `AuthIssue`,
+  `StartRefusal`) traduits à l'affichage. Les retours d'outils envoyés au modèle du Copilote restent en français.
 - **Éditeur de blocs** : `ActionSequenceEditor`, assemblé comme l'éditeur de commandes de l'app : palette d'actions par
   catégorie (recherche, glisser-déposer), blocs `ActionBlock` avec les formulaires d'action de l'app (`ActionCard`,
   ≈60 types), point d'entrée `EntryPointBlock` / `WorkflowEntryPointBlock`, suggestions de variables du moteur.

@@ -9,6 +9,10 @@ import 'studio_session.dart';
 
 enum AuthStatus { loading, signedOut, signedIn, error }
 
+/// Motif d'un retour à la connexion que le Studio explique lui-même : l'écran
+/// de connexion le traduit, le contrôleur ne porte aucun texte.
+enum AuthIssue { sessionExpired, discordRefused, invalidResponse }
+
 /// Porte d'entrée du Studio : AUCUN écran de travail n'est montré tant que
 /// [status] n'est pas [AuthStatus.signedIn], c'est-à-dire tant que le serveur
 /// n'a pas validé la session Discord. Un jeton stocké mais refusé (révoqué,
@@ -24,7 +28,14 @@ class AuthController extends ChangeNotifier {
   final SessionStore _store;
 
   AuthStatus status = AuthStatus.loading;
+
+  /// Message brut du serveur (ou de l'exception), quand [issue] n'en dit pas plus.
   String? errorMessage;
+
+  /// Motif connu, à traduire à l'affichage ; [issueDetail] le complète
+  /// (code d'erreur OAuth renvoyé par Discord).
+  AuthIssue? issue;
+  String? issueDetail;
   StudioSession? session;
   StudioPlan plan = StudioPlan.free;
 
@@ -48,10 +59,13 @@ class AuthController extends ChangeNotifier {
         platform.clearOAuthState();
         platform.cleanCallbackUrl();
         if (oauthError.isNotEmpty) {
-          return _signedOut('Connexion Discord refusée ($oauthError).');
+          return _signedOut(
+            issue: AuthIssue.discordRefused,
+            detail: oauthError,
+          );
         }
         if (expected == null || expected != returnedState) {
-          return _signedOut('Réponse de connexion invalide. Réessayez.');
+          return _signedOut(issue: AuthIssue.invalidResponse);
         }
         session = await api.completeDiscordAuthorization(
           code: code,
@@ -69,12 +83,10 @@ class AuthController extends ChangeNotifier {
       }
       await _validate();
     } on StudioApiException catch (e) {
-      if (e.isUnauthorized) {
-        return _signedOut('Session expirée. Reconnectez-vous.');
-      }
+      if (e.isUnauthorized) return _signedOut(issue: AuthIssue.sessionExpired);
       _fail(e.message);
     } on FormatException catch (e) {
-      _signedOut(e.message);
+      _signedOut(message: e.message);
     } catch (e) {
       _fail('$e');
     }
@@ -85,6 +97,8 @@ class AuthController extends ChangeNotifier {
     plan = await api.fetchPlan();
     status = AuthStatus.signedIn;
     errorMessage = null;
+    issue = null;
+    issueDetail = null;
     notifyListeners();
   }
 
@@ -98,9 +112,9 @@ class AuthController extends ChangeNotifier {
       platform.writeOAuthState(start.state);
       platform.redirectTo(start.url);
     } on StudioApiException catch (e) {
-      _signedOut(e.message);
+      _signedOut(message: e.message);
     } catch (e) {
-      _signedOut('$e');
+      _signedOut(message: '$e');
     }
   }
 
@@ -117,7 +131,7 @@ class AuthController extends ChangeNotifier {
     if (force || session!.expiresSoon) {
       await _refresh();
       if (session == null) {
-        _signedOut('Session expirée. Reconnectez-vous.');
+        _signedOut(issue: AuthIssue.sessionExpired);
         return null;
       }
     }
@@ -152,15 +166,19 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  void _signedOut([String? message]) {
+  void _signedOut({String? message, AuthIssue? issue, String? detail}) {
     status = AuthStatus.signedOut;
     errorMessage = message;
+    this.issue = issue;
+    issueDetail = detail;
     notifyListeners();
   }
 
   void _fail(String message) {
     status = AuthStatus.error;
     errorMessage = message;
+    issue = null;
+    issueDetail = null;
     notifyListeners();
   }
 
@@ -168,6 +186,8 @@ class AuthController extends ChangeNotifier {
   Future<void> retry() async {
     status = AuthStatus.loading;
     errorMessage = null;
+    issue = null;
+    issueDetail = null;
     notifyListeners();
     await init();
   }

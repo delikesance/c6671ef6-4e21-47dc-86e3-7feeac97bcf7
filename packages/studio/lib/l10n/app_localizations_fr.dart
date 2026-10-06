@@ -383,4 +383,209 @@ class StudioLocalizationsFr extends StudioLocalizations {
   @override
   String get featureHooksDesc =>
       'Crée des endpoints webhook sécurisés et route les appels vers les workflows.';
+
+  @override
+  String get commonSaved => 'Enregistré';
+
+  @override
+  String get commonAdd => 'Ajouter';
+
+  @override
+  String get deleteIrreversible => 'Cette action est définitive.';
+
+  @override
+  String deleteNamedTitle(String name) {
+    return 'Supprimer « $name » ?';
+  }
+
+  @override
+  String get commandNew => 'Nouvelle commande';
+
+  @override
+  String get commandSaved => 'Commande enregistrée.';
+
+  @override
+  String get commandChangedElsewhere =>
+      'Ce bot a été modifié ailleurs (app ou autre session). Rechargez la commande avant d\'enregistrer.';
+
+  @override
+  String get scriptEdit => 'Modifier le script';
+
+  @override
+  String get commandTriggerHybrid => 'Slash + message texte';
+
+  @override
+  String get workflowNew => 'Nouveau workflow';
+
+  @override
+  String get workflowsEmpty =>
+      'Aucun workflow. Créez-en un pour réutiliser une suite d\'actions ou réagir à un événement.';
+
+  @override
+  String get workflowSaved => 'Workflow enregistré.';
+
+  @override
+  String get workflowDeleteBody =>
+      'Les commandes qui appellent ce workflow ne trouveront plus rien à exécuter.';
+
+  @override
+  String get workflowTypeGeneral => 'Général (appelé par une commande)';
+
+  @override
+  String get workflowCategory => 'Catégorie';
+
+  @override
+  String workflowScriptNotice(String mode) {
+    return 'Ce workflow est écrit en $mode : le Studio ne modifie que les workflows visuels. Il reste enregistré tel quel.';
+  }
+
+  @override
+  String get variablesGlobalSubtitle => 'Données mémorisées pour tout le bot.';
+
+  @override
+  String get variablesScopedHint =>
+      'Une définition donne la valeur par défaut ; chaque serveur, salon ou membre garde ensuite sa propre valeur.';
+
+  @override
+  String get variableScopedRemoveNote =>
+      'La définition est retirée ; les valeurs déjà mémorisées ne sont pas effacées.';
+
+  @override
+  String get copilotNoCredits =>
+      'Crédits IA insuffisants. Rechargez-les depuis l\'app mobile.';
+
+  @override
+  String get copilotChatTooLong =>
+      'Cette discussion est trop longue : démarrez-en une nouvelle.';
+
+  @override
+  String get copilotUnavailable =>
+      'Le Copilote est indisponible pour le moment.';
+
+  @override
+  String get copilotGenerationFailed => 'La génération a échoué.';
+
+  @override
+  String get copilotDeleteChat => 'Supprimer la discussion';
+
+  @override
+  String copilotWants(String tool) {
+    return 'Le Copilote veut : $tool';
+  }
+
+  @override
+  String get dashboardRuns => 'Exécutions';
+
+  @override
+  String get dashboardSinceStart => 'Depuis le début';
+
+  @override
+  String get dashboardLatencyP50P95 => 'Latence P50 / P95';
+
+  @override
+  String get dashboardActivity => 'Activité';
+
+  @override
+  String get dashboardLanguages => 'Langues';
+
+  @override
+  String get dashboardNoRuns => 'Aucune exécution sur cette période.';
+
+  @override
+  String get dashboardNoActivity => 'Aucune activité sur cette période.';
+
+  @override
+  String get dashboardOneExecution => '1 exécution';
+
+  @override
+  String dashboardAgoDays(int days) {
+    return 'il y a $days j';
+  }
+
+  @override
+  String dashboardAgoHours(int hours) {
+    return 'il y a $hours h';
+  }
+
+  @override
+  String dashboardErrorRateOf(String rate) {
+    return '$rate % d\'erreurs';
+  }
+
+  @override
+  String dashboardLatencyPercentiles(int p50, int p95) {
+    return 'P50 $p50 ms · P95 $p95 ms';
+  }
+
+  @override
+  String get dashboardLatencyNone => 'latence —';
+
+  @override
+  String get botStopFailed => 'Impossible d\'arrêter le bot';
+
+  @override
+  String get botStartFailed => 'Impossible de lancer le bot';
+
+  @override
+  String get refusalNoFreeTimeTitle => 'Temps d\'hébergement épuisé';
+
+  @override
+  String get refusalNoFreeTimeBody =>
+      'Ce bot n\'a plus de temps d\'hébergement gratuit. Regardez une publicité depuis l\'application mobile pour en gagner, ou passez Premium. Le Studio ne propose ni publicité ni achat.';
+
+  @override
+  String get authSessionExpired => 'Session expirée. Reconnectez-vous.';
+
+  @override
+  String authDiscordRefused(String reason) {
+    return 'Connexion Discord refusée ($reason).';
+  }
+
+  @override
+  String get authInvalidResponse => 'Réponse de connexion invalide. Réessayez.';
+
+  @override
+  String get validationCommandNameFormat =>
+      'Nom invalide : minuscules, chiffres, « - » et « _ » uniquement, sans espace.';
+
+  @override
+  String validationDescriptionTooLong(int max) {
+    return 'La description fait $max caractères au maximum.';
+  }
+
+  @override
+  String get validationWorkflowNameRequired => 'Le nom du workflow est requis.';
+
+  @override
+  String validationWorkflowNameTooLong(int max) {
+    return 'Le nom fait $max caractères au maximum.';
+  }
+
+  @override
+  String validationWorkflowTooManyBlocks(int max) {
+    return '$max blocs au maximum par workflow.';
+  }
+
+  @override
+  String validationOptionNameInvalid(String name) {
+    return 'Option « $name » : minuscules, chiffres, « - » et « _ », 32 caractères au plus.';
+  }
+
+  @override
+  String validationOptionDescription(String name) {
+    return 'Option « $name » : description requise (100 caractères au plus).';
+  }
+
+  @override
+  String validationOptionRequiredOrder(String name) {
+    return 'Les options obligatoires doivent précéder les facultatives (« $name »).';
+  }
+
+  @override
+  String get schedulerPremiumOnly =>
+      'Le planificateur est réservé aux comptes Premium. L\'abonnement se gère dans l\'app.';
+
+  @override
+  String get webhooksPremiumOnly =>
+      'Les webhooks entrants sont réservés aux comptes Premium. L\'abonnement se gère dans l\'app.';
 }

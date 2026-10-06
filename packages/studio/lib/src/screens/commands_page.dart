@@ -129,7 +129,7 @@ class _CommandsPageState extends State<CommandsPage> {
                   ),
                   if (MediaQuery.sizeOf(context).width < 480)
                     IconButton.filled(
-                      tooltip: 'Nouvelle commande',
+                      tooltip: context.l10n.commandNew,
                       onPressed: _create,
                       icon: const AppIcon.fromMaterial(
                         Icons.add_rounded,
@@ -143,7 +143,7 @@ class _CommandsPageState extends State<CommandsPage> {
                         Icons.add_rounded,
                         size: 18,
                       ),
-                      label: const Text('Nouvelle commande'),
+                      label: Text(context.l10n.commandNew),
                     ),
                 ],
               ),
@@ -273,7 +273,7 @@ class _NewCommandDialogState extends State<_NewCommandDialog> {
     );
     final problem = draft.validate();
     if (problem != null) {
-      setState(() => _error = problem);
+      setState(() => _error = problem.text(context));
       return;
     }
     Navigator.of(context).pop(draft);
@@ -283,7 +283,7 @@ class _NewCommandDialogState extends State<_NewCommandDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: const Text('Nouvelle commande'),
+      title: Text(context.l10n.commandNew),
       content: SizedBox(
         width: 420,
         child: Column(
@@ -293,31 +293,42 @@ class _NewCommandDialogState extends State<_NewCommandDialog> {
             TextField(
               controller: _name,
               autofocus: true,
-              decoration: const InputDecoration(
-                labelText: 'Nom',
+              decoration: InputDecoration(
+                labelText: context.tr.common_name,
                 hintText: 'ping',
-                prefixIcon: AppIcon.fromMaterial(Icons.tag, size: 18),
+                prefixIcon: const AppIcon.fromMaterial(Icons.tag, size: 18),
               ),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _description,
               maxLength: 100,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                prefixIcon: AppIcon.fromMaterial(Icons.short_text, size: 18),
+              decoration: InputDecoration(
+                labelText: context.tr.common_description,
+                prefixIcon: const AppIcon.fromMaterial(
+                  Icons.short_text,
+                  size: 18,
+                ),
               ),
             ),
             const SizedBox(height: 4),
             DropdownButtonFormField<String>(
               initialValue: _trigger,
-              decoration: const InputDecoration(labelText: 'Déclencheur'),
-              items: const [
-                DropdownMenuItem(value: 'slash', child: Text('Commande slash')),
-                DropdownMenuItem(value: 'prefix', child: Text('Message texte')),
+              decoration: InputDecoration(
+                labelText: context.tr.scratch_trigger_tab,
+              ),
+              items: [
+                DropdownMenuItem(
+                  value: 'slash',
+                  child: Text(context.tr.edit_shell_type_slash),
+                ),
+                DropdownMenuItem(
+                  value: 'prefix',
+                  child: Text(context.tr.scratch_entry_message),
+                ),
                 DropdownMenuItem(
                   value: 'hybrid',
-                  child: Text('Slash + message texte'),
+                  child: Text(context.l10n.commandTriggerHybrid),
                 ),
               ],
               onChanged: (v) => setState(() => _trigger = v ?? 'slash'),
@@ -336,9 +347,9 @@ class _NewCommandDialogState extends State<_NewCommandDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Annuler'),
+          child: Text(context.tr.common_cancel),
         ),
-        FilledButton(onPressed: _submit, child: const Text('Créer')),
+        FilledButton(onPressed: _submit, child: Text(context.tr.create)),
       ],
     );
   }

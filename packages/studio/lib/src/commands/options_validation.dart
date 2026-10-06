@@ -1,22 +1,31 @@
-/// Erreur lisible sur une liste d'options, ou `null` si Discord l'acceptera.
-String? validateOptions(List<Map<String, dynamic>> options) {
-  if (options.length > 25) return '25 options au maximum.';
+import 'validation_problem.dart';
+
+/// Refus sur une liste d'options, ou `null` si Discord l'acceptera.
+ValidationProblem? validateOptions(List<Map<String, dynamic>> options) {
+  if (options.length > 25) {
+    return const ValidationProblem(ValidationKind.optionsTooMany, max: 25);
+  }
   final seen = <String>{};
   var optionalSeen = false;
   for (final o in options) {
     final name = '${o['name'] ?? ''}'.trim();
     if (!RegExp(r'^[-_\p{L}\p{N}]{1,32}$', unicode: true).hasMatch(name) ||
         name != name.toLowerCase()) {
-      return 'Option « $name » : minuscules, chiffres, « - » et « _ », 32 caractères au plus.';
+      return ValidationProblem(ValidationKind.optionNameInvalid, name: name);
     }
-    if (!seen.add(name)) return 'Option « $name » en double.';
+    if (!seen.add(name)) {
+      return ValidationProblem(ValidationKind.optionDuplicate, name: name);
+    }
     final d = '${o['description'] ?? ''}'.trim();
     if (d.isEmpty || d.length > 100) {
-      return 'Option « $name » : description requise (100 caractères au plus).';
+      return ValidationProblem(
+        ValidationKind.optionDescriptionInvalid,
+        name: name,
+      );
     }
     final required = o['required'] == true;
     if (required && optionalSeen) {
-      return 'Les options obligatoires doivent précéder les facultatives (« $name »).';
+      return ValidationProblem(ValidationKind.optionRequiredOrder, name: name);
     }
     if (!required) optionalSeen = true;
   }

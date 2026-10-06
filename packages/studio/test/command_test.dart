@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bot_creator_studio/src/api/studio_api.dart';
 import 'package:bot_creator_studio/src/commands/command_draft.dart';
+import 'package:bot_creator_studio/src/commands/validation_problem.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -69,12 +70,17 @@ void main() {
       final d = CommandDraft(_command());
       expect(d.validate(), isNull);
       d.name = 'Ban Membre';
-      expect(d.validate(), contains('Nom invalide'));
+      expect(d.validate()?.kind, ValidationKind.commandNameInvalid);
+      expect(d.validate()!.inLanguage('fr'), contains('Nom invalide'));
       d.name = 'ban';
       d.description = '';
-      expect(d.validate(), contains('description'));
+      expect(d.validate()?.kind, ValidationKind.descriptionRequired);
+      expect(d.validate()!.inLanguage('fr'), contains('description'));
       d.description = 'x' * 101;
-      expect(d.validate(), contains('100'));
+      expect(d.validate()?.kind, ValidationKind.descriptionTooLong);
+      expect(d.validate()!.inLanguage('fr'), contains('100'));
+      // Même refus, autre langue : le texte vient des traductions.
+      expect(d.validate()!.inLanguage('en'), contains('100'));
     });
   });
 

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'action_list.dart';
+import 'validation_problem.dart';
 
 /// Copie de travail d'une commande. Le JSON d'origine est conservé ENTIER et
 /// seuls les champs édités changent : le serveur réécrit ce que nous envoyons,
@@ -218,20 +219,32 @@ class CommandDraft implements ActionListHost {
     map['enabled'] = !(map['enabled'] != false);
   }
 
-  /// Message d'erreur lisible, ou `null` si la commande peut être enregistrée.
-  String? validate() {
+  /// Refus de validation, ou `null` si la commande peut être enregistrée.
+  ValidationProblem? validate() {
     final n = name.trim();
-    if (n.isEmpty) return 'Le nom de la commande est requis.';
-    if (n.length > 32) return 'Le nom fait 32 caractères au maximum.';
+    if (n.isEmpty) {
+      return const ValidationProblem(ValidationKind.commandNameRequired);
+    }
+    if (n.length > 32) {
+      return const ValidationProblem(
+        ValidationKind.commandNameTooLong,
+        max: 32,
+      );
+    }
     if (commandType == 'chatInput' && triggerType != 'prefix') {
       if (!RegExp(r'^[-_\p{L}\p{N}]{1,32}$', unicode: true).hasMatch(n) ||
           n != n.toLowerCase()) {
-        return 'Nom invalide : minuscules, chiffres, « - » et « _ » uniquement, sans espace.';
+        return const ValidationProblem(ValidationKind.commandNameInvalid);
       }
       final d = description.trim();
-      if (d.isEmpty) return 'La description est requise.';
+      if (d.isEmpty) {
+        return const ValidationProblem(ValidationKind.descriptionRequired);
+      }
       if (d.length > 100) {
-        return 'La description fait 100 caractères au maximum.';
+        return const ValidationProblem(
+          ValidationKind.descriptionTooLong,
+          max: 100,
+        );
       }
     }
     return null;

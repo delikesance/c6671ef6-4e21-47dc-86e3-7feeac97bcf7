@@ -1,7 +1,10 @@
+import 'package:bot_creator_studio/l10n/app_localizations.dart';
 import 'package:bot_creator_studio/l10n/app_localizations_fr.dart';
 import 'package:bot_creator_studio/src/api/start_refusal.dart';
 import 'package:bot_creator_studio/src/api/studio_api.dart';
 import 'package:bot_creator_studio/src/screens/bots_page.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -79,6 +82,24 @@ void main() {
       StartRefusal.turnkeyQuotaReached,
     );
     expect(StartRefusal.fromError(e('boom')), isNull);
+  });
+
+  test('refus : titres et textes traduits dans chaque langue', () {
+    for (final code in ['de', 'en', 'fr', 'ja', 'pt', 'tr']) {
+      final locale = Locale(code);
+      final l = lookupStudioLocalizations(locale);
+      final tr = lookupAppLocalizations(locale);
+      for (final refusal in StartRefusal.values) {
+        expect(refusal.title(l, tr), isNotEmpty, reason: '$code/$refusal');
+        expect(refusal.body(l, tr), isNotEmpty, reason: '$code/$refusal');
+      }
+    }
+    final fr = lookupStudioLocalizations(const Locale('fr'));
+    final trFr = lookupAppLocalizations(const Locale('fr'));
+    expect(
+      StartRefusal.botQuotaReached.title(fr, trFr),
+      'Limite de bots en marche atteinte',
+    );
   });
 
   test('stop : POST /stop', () async {

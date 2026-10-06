@@ -383,4 +383,212 @@ class StudioLocalizationsDe extends StudioLocalizations {
   @override
   String get featureHooksDesc =>
       'Erstellen Sie sichere Webhook-Endpunkte und leiten Sie Aufrufe an Workflows weiter.';
+
+  @override
+  String get commonSaved => 'Gespeichert';
+
+  @override
+  String get commonAdd => 'Hinzufügen';
+
+  @override
+  String get deleteIrreversible => 'Diese Aktion ist endgültig.';
+
+  @override
+  String deleteNamedTitle(String name) {
+    return '„$name“ löschen?';
+  }
+
+  @override
+  String get commandNew => 'Neuer Befehl';
+
+  @override
+  String get commandSaved => 'Befehl gespeichert.';
+
+  @override
+  String get commandChangedElsewhere =>
+      'Dieser Bot wurde an anderer Stelle geändert (App oder andere Sitzung). Laden Sie den Befehl neu, bevor Sie speichern.';
+
+  @override
+  String get scriptEdit => 'Skript bearbeiten';
+
+  @override
+  String get commandTriggerHybrid => 'Slash + Textnachricht';
+
+  @override
+  String get workflowNew => 'Neuer Workflow';
+
+  @override
+  String get workflowsEmpty =>
+      'Keine Workflows. Erstellen Sie einen, um eine Abfolge von Aktionen wiederzuverwenden oder auf ein Ereignis zu reagieren.';
+
+  @override
+  String get workflowSaved => 'Workflow gespeichert.';
+
+  @override
+  String get workflowDeleteBody =>
+      'Befehle, die diesen Workflow aufrufen, finden nichts mehr zum Ausführen.';
+
+  @override
+  String get workflowTypeGeneral => 'Allgemein (von einem Befehl aufgerufen)';
+
+  @override
+  String get workflowCategory => 'Kategorie';
+
+  @override
+  String workflowScriptNotice(String mode) {
+    return 'Dieser Workflow ist in $mode geschrieben: Studio bearbeitet nur visuelle Workflows. Er bleibt unverändert gespeichert.';
+  }
+
+  @override
+  String get variablesGlobalSubtitle =>
+      'Für den gesamten Bot gespeicherte Daten.';
+
+  @override
+  String get variablesScopedHint =>
+      'Eine Definition legt den Standardwert fest; jeder Server, Kanal oder jedes Mitglied behält danach seinen eigenen Wert.';
+
+  @override
+  String get variableScopedRemoveNote =>
+      'Die Definition wird entfernt; bereits gespeicherte Werte werden nicht gelöscht.';
+
+  @override
+  String get copilotNoCredits =>
+      'Nicht genügend KI-Credits. Laden Sie sie in der mobilen App auf.';
+
+  @override
+  String get copilotChatTooLong =>
+      'Diese Unterhaltung ist zu lang: Starten Sie eine neue.';
+
+  @override
+  String get copilotUnavailable => 'Der Copilot ist im Moment nicht verfügbar.';
+
+  @override
+  String get copilotGenerationFailed => 'Die Generierung ist fehlgeschlagen.';
+
+  @override
+  String get copilotDeleteChat => 'Unterhaltung löschen';
+
+  @override
+  String copilotWants(String tool) {
+    return 'Der Copilot möchte: $tool';
+  }
+
+  @override
+  String get dashboardRuns => 'Ausführungen';
+
+  @override
+  String get dashboardSinceStart => 'Seit Beginn';
+
+  @override
+  String get dashboardLatencyP50P95 => 'Latenz P50 / P95';
+
+  @override
+  String get dashboardActivity => 'Aktivität';
+
+  @override
+  String get dashboardLanguages => 'Sprachen';
+
+  @override
+  String get dashboardNoRuns => 'Keine Ausführungen in diesem Zeitraum.';
+
+  @override
+  String get dashboardNoActivity => 'Keine Aktivität in diesem Zeitraum.';
+
+  @override
+  String get dashboardOneExecution => '1 Ausführung';
+
+  @override
+  String dashboardAgoDays(int days) {
+    return 'vor $days T.';
+  }
+
+  @override
+  String dashboardAgoHours(int hours) {
+    return 'vor $hours Std.';
+  }
+
+  @override
+  String dashboardErrorRateOf(String rate) {
+    return '$rate % Fehler';
+  }
+
+  @override
+  String dashboardLatencyPercentiles(int p50, int p95) {
+    return 'P50 $p50 ms · P95 $p95 ms';
+  }
+
+  @override
+  String get dashboardLatencyNone => 'Latenz —';
+
+  @override
+  String get botStopFailed => 'Der Bot konnte nicht gestoppt werden';
+
+  @override
+  String get botStartFailed => 'Der Bot konnte nicht gestartet werden';
+
+  @override
+  String get refusalNoFreeTimeTitle => 'Hosting-Zeit aufgebraucht';
+
+  @override
+  String get refusalNoFreeTimeBody =>
+      'Dieser Bot hat keine kostenlose Hosting-Zeit mehr. Sehen Sie sich in der mobilen App eine Werbung an, um welche zu erhalten, oder wechseln Sie zu Premium. Studio bietet weder Werbung noch Käufe an.';
+
+  @override
+  String get authSessionExpired =>
+      'Sitzung abgelaufen. Bitte melden Sie sich erneut an.';
+
+  @override
+  String authDiscordRefused(String reason) {
+    return 'Discord-Anmeldung abgelehnt ($reason).';
+  }
+
+  @override
+  String get authInvalidResponse =>
+      'Ungültige Anmeldeantwort. Bitte versuchen Sie es erneut.';
+
+  @override
+  String get validationCommandNameFormat =>
+      'Ungültiger Name: nur Kleinbuchstaben, Ziffern, „-“ und „_“, keine Leerzeichen.';
+
+  @override
+  String validationDescriptionTooLong(int max) {
+    return 'Die Beschreibung darf höchstens $max Zeichen lang sein.';
+  }
+
+  @override
+  String get validationWorkflowNameRequired =>
+      'Der Workflow-Name ist erforderlich.';
+
+  @override
+  String validationWorkflowNameTooLong(int max) {
+    return 'Der Name darf höchstens $max Zeichen lang sein.';
+  }
+
+  @override
+  String validationWorkflowTooManyBlocks(int max) {
+    return 'Höchstens $max Blöcke pro Workflow.';
+  }
+
+  @override
+  String validationOptionNameInvalid(String name) {
+    return 'Option „$name“: Kleinbuchstaben, Ziffern, „-“ und „_“, höchstens 32 Zeichen.';
+  }
+
+  @override
+  String validationOptionDescription(String name) {
+    return 'Option „$name“: Beschreibung erforderlich (höchstens 100 Zeichen).';
+  }
+
+  @override
+  String validationOptionRequiredOrder(String name) {
+    return 'Erforderliche Optionen müssen vor optionalen stehen („$name“).';
+  }
+
+  @override
+  String get schedulerPremiumOnly =>
+      'Der Planer ist Premium-Konten vorbehalten. Das Abonnement wird in der App verwaltet.';
+
+  @override
+  String get webhooksPremiumOnly =>
+      'Eingehende Webhooks sind Premium-Konten vorbehalten. Das Abonnement wird in der App verwaltet.';
 }

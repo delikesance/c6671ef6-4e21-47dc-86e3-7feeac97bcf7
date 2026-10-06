@@ -1,34 +1,34 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
+
+import '../l10n_ext.dart';
 import 'studio_api.dart';
 
 /// Pourquoi le serveur a refusé de lancer un bot. Même table que
 /// `planLimitRefusalFromError` de l'app : le CODE applicatif fait foi, la
-/// phrase n'est qu'un repli pour les serveurs plus anciens.
+/// phrase n'est qu'un repli pour les serveurs plus anciens. Les textes sont
+/// ceux de l'app (`plan_limit_*`), dans la langue de l'écran.
 enum StartRefusal {
-  excludesOwnBots(
-    'Bots perso non inclus dans votre formule',
-    "Votre formule donne accès aux bots clé en main uniquement. Passez à une formule qui inclut les bots perso pour démarrer celui-ci.",
-  ),
-  botQuotaReached(
-    'Limite de bots en marche atteinte',
-    "Votre formule limite le nombre de bots en marche en même temps. Arrêtez un bot, ou passez à une formule supérieure.",
-  ),
-  excludesTurnkey(
-    'Bots clé en main non inclus dans votre formule',
-    "Votre formule ne donne pas accès aux bots clé en main ni aux applications hébergées. Choisissez une formule qui les inclut.",
-  ),
-  turnkeyQuotaReached(
-    'Limite de bots clé en main atteinte',
-    "Votre formule limite le nombre de bots clé en main en marche en même temps. Arrêtez-en un, ou passez à une formule supérieure.",
-  ),
-  noFreeTime(
-    "Temps d'hébergement épuisé",
-    "Ce bot n'a plus de temps d'hébergement gratuit. Regardez une publicité depuis l'application mobile pour en gagner, ou passez Premium. Le Studio ne propose ni publicité ni achat.",
-  );
+  excludesOwnBots,
+  botQuotaReached,
+  excludesTurnkey,
+  turnkeyQuotaReached,
+  noFreeTime;
 
-  const StartRefusal(this.title, this.body);
+  String title(StudioLocalizations l, AppLocalizations tr) => switch (this) {
+    excludesOwnBots => tr.plan_limit_own_bots_title,
+    botQuotaReached => tr.plan_limit_bot_quota_title,
+    excludesTurnkey => tr.plan_limit_turnkey_title,
+    turnkeyQuotaReached => tr.plan_limit_turnkey_quota_title,
+    noFreeTime => l.refusalNoFreeTimeTitle,
+  };
 
-  final String title;
-  final String body;
+  String body(StudioLocalizations l, AppLocalizations tr) => switch (this) {
+    excludesOwnBots => tr.plan_limit_own_bots_desc,
+    botQuotaReached => tr.plan_limit_bot_quota_desc,
+    excludesTurnkey => tr.plan_limit_turnkey_desc,
+    turnkeyQuotaReached => tr.plan_limit_turnkey_quota_desc,
+    noFreeTime => l.refusalNoFreeTimeBody,
+  };
 
   static StartRefusal? fromError(Object error) {
     if (error is! StudioApiException) return null;
