@@ -29,6 +29,7 @@ class _BotsPageState extends State<BotsPage> {
   bool _loading = true;
   final Set<String> _busy = {};
   final Map<String, StudioBotRuntime> _runtimes = {};
+  DateTime _runtimesAt = DateTime.now();
   // Nombre de serveurs par bot : lu une fois par ouverture de la page (un appel
   // Discord par bot, jamais à chaque relecture). Absent = inconnu, ligne masquée.
   final Map<String, List<GuildStackItem>> _guilds = {};
@@ -153,6 +154,7 @@ class _BotsPageState extends State<BotsPage> {
         _runtimes
           ..clear()
           ..addAll(runtimes);
+        _runtimesAt = DateTime.now();
         _error = null;
         _loading = false;
       });
@@ -286,6 +288,7 @@ class _BotsPageState extends State<BotsPage> {
                               child: BotCard(
                                 bot: bot,
                                 runtime: _runtimes[bot.id],
+                                runtimeAt: _runtimesAt,
                                 guildCount: _guildCounts[bot.id],
                                 guilds: _guilds[bot.id] ?? const [],
                                 busy: _busy.contains(bot.id),
@@ -308,27 +311,34 @@ class _BotsPageState extends State<BotsPage> {
 
 /// Texte de la case « hébergement » (`HostingCardCopy` de l'app). `null` =
 /// pas de case.
-({String label, String value, String detail})? hostingCopy(
+///
+/// [deadline] : l'instant où le temps tombe à zéro, quand un décompte a un sens
+/// (bot en marche). C'est l'échéance du serveur si elle existe, sinon le solde
+/// compté à partir de [now] : une durée qui s'écoule, jamais une date affichée.
+({String label, String value, String detail, DateTime? deadline})? hostingCopy(
   StudioLocalizations l,
   StudioBot bot,
   StudioBotRuntime? runtime, {
   DateTime? now,
 }) {
   if (runtime == null) return null;
+  final at = now ?? DateTime.now();
   if (runtime.premiumFunded) {
     return (
       label: l.hostingIncludedTitle,
       value: l.hostingIncludedValue,
       detail: '',
+      deadline: null,
     );
   }
   if (bot.running) {
     if (runtime.sessionExpiresAt != null) {
-      final left = runtime.sessionExpiresAt!.difference(now ?? DateTime.now());
+      final left = runtime.sessionExpiresAt!.difference(at);
       return (
         label: l.hostingRemainingTitle,
         value: left.isNegative ? l.hostingExpired : _duration(l, left),
         detail: l.hostingSessionActiveOnline,
+        deadline: runtime.sessionExpiresAt,
       );
     }
     final minutes = runtime.freeMinutes;
@@ -338,6 +348,7 @@ class _BotsPageState extends State<BotsPage> {
           ? l.hostingSessionActive
           : _duration(l, Duration(minutes: minutes)),
       detail: l.hostingSessionActiveOnline,
+      deadline: minutes == null ? null : at.add(Duration(minutes: minutes)),
     );
   }
   final minutes = runtime.freeMinutes;
@@ -347,6 +358,7 @@ class _BotsPageState extends State<BotsPage> {
         ? l.hostingReserve(_duration(l, Duration(minutes: minutes)))
         : l.hostingReserveAvailable,
     detail: l.hostingPreservedDetail,
+    deadline: null,
   );
 }
 
@@ -362,6 +374,7 @@ class BotCard extends StatelessWidget {
     super.key,
     required this.bot,
     required this.runtime,
+    this.runtimeAt,
     this.guildCount,
     this.guilds = const [],
     required this.busy,
@@ -372,6 +385,9 @@ class BotCard extends StatelessWidget {
   final StudioBot bot;
   final StudioBotRuntime? runtime;
 
+  /// Instant où [runtime] a été lu : le décompte part de là.
+  final DateTime? runtimeAt;
+
   /// Serveurs du bot, quand le Manager a pu les lire (sinon la ligne est masquée).
   final int? guildCount;
   final List<GuildStackItem> guilds;
@@ -381,14 +397,14 @@ class BotCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hosting = hostingCopy(context.l10n, bot, runtime);
+    final hosting = hostingCopy(context.l10n, bot, runtime, now: runtimeAt);
     // La carte de l'app. Le Studio ne connaît pas les serveurs du bot (pas de
     // ligne « actif sur N serveurs ») et calcule lui-même la boîte d'hébergement
     // (session, réserve) ; ni achat ni temps à ajouter ici.
     return HomeBotCard(
       name: bot.name,
       id: bot.id,
-      avatar: null,
+      avatar: bot.avatarUrl,
       guildCount: guildCount ?? 0,
       showServers: guildCount != null,
       serverAvatars: guildCount == null
@@ -402,6 +418,7 @@ class BotCard extends StatelessWidget {
       onToggle: onToggle,
       onAddTime: null,
       onLogs: null,
+      hostingDeadline: hosting?.deadline,
       showPremiumLabels: false,
       freeMinutes: runtime?.freeMinutes ?? 0,
       hostingOverride: hosting == null

@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../auth/studio_session.dart';
-import '../dashboard/command_stats.dart';
 
 class StudioApiException implements Exception {
   const StudioApiException(this.message, {this.statusCode, this.code});
@@ -41,11 +40,16 @@ class StudioBot {
     required this.name,
     this.running = false,
     this.stateKnown = true,
+    this.avatarUrl,
   });
 
   final String id;
   final String name;
   final bool running;
+
+  /// Image du bot sur Discord, quand le Manager la connaît ; `null` : la carte
+  /// affiche l'icône de repli.
+  final String? avatarUrl;
 
   /// `false` quand la liste n'a donné aucun état : il faut alors interroger
   /// `/status` bot par bot.
@@ -56,7 +60,19 @@ class StudioBot {
     name: name,
     running: running ?? this.running,
     stateKnown: stateKnown ?? this.stateKnown,
+    avatarUrl: avatarUrl,
   );
+}
+
+/// URL de l'avatar d'un bot : une URL déjà complète est gardée, un condensat est
+/// résolu sur le CDN Discord (comme `discordBotAvatarUrl` de l'app). Sans
+/// condensat, ou sans identifiant pour le résoudre : `null`.
+String? botAvatarUrl(String botId, String? avatar) {
+  final value = (avatar ?? '').trim();
+  if (value.isEmpty) return null;
+  if (value.startsWith('http://') || value.startsWith('https://')) return value;
+  if (botId.isEmpty) return null;
+  return 'https://cdn.discordapp.com/avatars/$botId/$value.png?size=128';
 }
 
 /// Ce que le serveur rend pour `GET /gateway/bots/{id}/runtime`.
@@ -352,6 +368,14 @@ class StudioApi {
       final runtimeState = _string(map, const ['runtime_state'])?.toLowerCase();
       final desired = _string(map, const ['desired_state'])?.toUpperCase();
       final known = runtimeState != null || desired != null;
+      // L'avatar vit dans la configuration du bot (`avatar_hash` / `avatar`),
+      // comme dans la liste de l'app ; une clé de premier niveau prime.
+      final config = map['config'] is Map
+          ? Map<String, dynamic>.from(map['config'] as Map)
+          : null;
+      final avatar =
+          _string(map, const ['avatar_url', 'avatar_hash', 'avatar']) ??
+          _string(config, const ['avatar_url', 'avatar_hash', 'avatar']);
       bots.add(
         StudioBot(
           id: id,
@@ -363,6 +387,7 @@ class StudioApi {
                   runtimeState != 'stopped' &&
                   runtimeState != 'error'),
           stateKnown: known,
+          avatarUrl: botAvatarUrl(id, avatar),
         ),
       );
     }
@@ -708,15 +733,6 @@ class StudioApi {
     ];
   }
 
-  /// Usage des commandes sur les [hours] dernières heures.
-  Future<CommandStats> commandStats(String botId, int hours) async {
-    final json = await _send(
-      'GET',
-      '/gateway/bots/${Uri.encodeComponent(botId)}/command-stats?hours=$hours',
-    );
-    return CommandStats.fromJson(json);
-  }
-
   /// URL du canal temps réel (`ws(s)://…/gateway/bots/events`).
   String get eventsUrl =>
       '${baseUrl.replaceFirst(RegExp(r'^http'), 'ws')}/gateway/bots/events';
@@ -870,33 +886,48 @@ class StudioApi {
     ];
   }
 
-  // ── Déclencheurs planifiés ────────────────────────────────────────────────
-
-  Future<List<Map<String, dynamic>>> listScheduledTriggers(String botId) async {
+  Future<StudioWorkflowDetail> getWorkflow(String botId, String name) async {
     final json = await _send(
       'GET',
-      '/api/v2/bots/${Uri.encodeComponent(botId)}/scheduled-triggers',
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/workflows/${Uri.encodeComponent(name)}',
     );
-    final raw = json['triggers'];
-    return raw is List
-        ? [for (final t in raw.whereType<Map>()) Map<String, dynamic>.from(t)]
-        : const [];
+    final workflow = json['workflow'];
+    if (workflow is! Map) {
+      throw const StudioApiException('Unexpected workflow response.');
+    }
+    return StudioWorkflowDetail(
+      raw: Map<String, dynamic>.from(workflow),
+      revision: _string(json, const ['revision']),
+    );
   }
 
-  Future<void> saveScheduledTrigger(
+  /// Crée ou remplace un workflow (la clé de fusion est son nom).
+  Future<void> saveWorkflow(
     String botId,
-    String triggerId,
-    Map<String, dynamic> trigger,
-  ) => _send(
-    'PUT',
-    '/api/v2/bots/${Uri.encodeComponent(botId)}/scheduled-triggers/${Uri.encodeComponent(triggerId)}',
-    body: trigger,
-  );
+    String botName,
+    Map<String, dynamic> workflow,
+  ) async {
+    final name = '${workflow['name'] ?? ''}'.trim();
+    await _send(
+      'POST',
+      '/gateway/bots/${Uri.encodeComponent(botId)}/workflows/sync',
+      body: {
+        'botId': botId,
+        'botName': botName,
+        'workflowName': name,
+        'workflow': workflow,
+      },
+      timeout: const Duration(seconds: 60),
+    );
+  }
 
-  Future<void> deleteScheduledTrigger(String botId, String triggerId) => _send(
-    'DELETE',
-    '/api/v2/bots/${Uri.encodeComponent(botId)}/scheduled-triggers/${Uri.encodeComponent(triggerId)}',
-  );
+  Future<void> deleteWorkflow(String botId, String botName, String name) =>
+      _send(
+        'POST',
+        '/gateway/bots/${Uri.encodeComponent(botId)}/workflows/delete',
+        body: {'botId': botId, 'botName': botName, 'workflowName': name},
+        timeout: const Duration(seconds: 60),
+      );
 
   // ── Marketplace ───────────────────────────────────────────────────────────
 
@@ -1013,83 +1044,6 @@ class StudioApi {
     'DELETE',
     '/api/v2/bots/${Uri.encodeComponent(botId)}/discord/emojis/${Uri.encodeComponent(emojiId)}',
   );
-
-  // ── Webhooks entrants (secret en écriture seule) ──────────────────────────
-
-  Future<List<Map<String, dynamic>>> listInboundWebhooks(String botId) async {
-    final json = await _send(
-      'GET',
-      '/api/v2/bots/${Uri.encodeComponent(botId)}/inbound-webhooks',
-    );
-    final raw = json['webhooks'];
-    return raw is List
-        ? [for (final w in raw.whereType<Map>()) Map<String, dynamic>.from(w)]
-        : const [];
-  }
-
-  /// Enregistre un webhook ; rend le secret généré par le serveur, le cas
-  /// échéant (il n'est montré qu'une fois).
-  Future<String?> saveInboundWebhook(
-    String botId,
-    String webhookId,
-    Map<String, dynamic> webhook,
-  ) async {
-    final json = await _send(
-      'PUT',
-      '/api/v2/bots/${Uri.encodeComponent(botId)}/inbound-webhooks/${Uri.encodeComponent(webhookId)}',
-      body: webhook,
-    );
-    final generated = json['generated_secret'];
-    return generated is String && generated.isNotEmpty ? generated : null;
-  }
-
-  Future<void> deleteInboundWebhook(String botId, String webhookId) => _send(
-    'DELETE',
-    '/api/v2/bots/${Uri.encodeComponent(botId)}/inbound-webhooks/${Uri.encodeComponent(webhookId)}',
-  );
-
-  Future<StudioWorkflowDetail> getWorkflow(String botId, String name) async {
-    final json = await _send(
-      'GET',
-      '/api/v2/bots/${Uri.encodeComponent(botId)}/workflows/${Uri.encodeComponent(name)}',
-    );
-    final workflow = json['workflow'];
-    if (workflow is! Map) {
-      throw const StudioApiException('Unexpected workflow response.');
-    }
-    return StudioWorkflowDetail(
-      raw: Map<String, dynamic>.from(workflow),
-      revision: _string(json, const ['revision']),
-    );
-  }
-
-  /// Crée ou remplace un workflow (la clé de fusion est son nom).
-  Future<void> saveWorkflow(
-    String botId,
-    String botName,
-    Map<String, dynamic> workflow,
-  ) async {
-    final name = '${workflow['name'] ?? ''}'.trim();
-    await _send(
-      'POST',
-      '/gateway/bots/${Uri.encodeComponent(botId)}/workflows/sync',
-      body: {
-        'botId': botId,
-        'botName': botName,
-        'workflowName': name,
-        'workflow': workflow,
-      },
-      timeout: const Duration(seconds: 60),
-    );
-  }
-
-  Future<void> deleteWorkflow(String botId, String botName, String name) =>
-      _send(
-        'POST',
-        '/gateway/bots/${Uri.encodeComponent(botId)}/workflows/delete',
-        body: {'botId': botId, 'botName': botName, 'workflowName': name},
-        timeout: const Duration(seconds: 60),
-      );
 
   // ── IA (Copilot) ──────────────────────────────────────────────────────────
 
@@ -1376,34 +1330,6 @@ class StudioApi {
         '/gateway/bots/${Uri.encodeComponent(botId)}/team/chat',
         body: {'content': content},
       );
-
-  // ── Rejeu du débogueur (premium, relayé vers le runner du bot) ───────────
-
-  /// Les rejeux capturés du bot et l'état de la capture, tels que le runner les
-  /// rend (`capturing`, `replays`). Le Manager refuse hors formule premium.
-  Future<Map<String, dynamic>> debugReplaysWire(
-    String botId, {
-    int limit = 30,
-  }) => _send(
-    'GET',
-    '/gateway/bots/${Uri.encodeComponent(botId)}/debug-replays?limit=$limit',
-  );
-
-  Future<void> clearDebugReplays(String botId) => _send(
-    'POST',
-    '/gateway/bots/${Uri.encodeComponent(botId)}/debug-replays/clear',
-    body: const <String, dynamic>{},
-  );
-
-  /// Active ou coupe la capture ; rend l'état annoncé par le runner.
-  Future<bool> setDebugReplayCapturing(String botId, bool enabled) async {
-    final json = await _send(
-      'POST',
-      '/gateway/bots/${Uri.encodeComponent(botId)}/debug-replays/capture',
-      body: {'enabled': enabled},
-    );
-    return json['capturing'] == true;
-  }
 
   // ── Bac à sable de commandes ─────────────────────────────────────────────
   //
