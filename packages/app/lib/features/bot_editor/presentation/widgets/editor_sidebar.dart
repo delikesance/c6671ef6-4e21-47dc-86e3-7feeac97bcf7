@@ -1,2 +1,3 @@
 // Moved to package:bot_creator_ui (shared with Studio); kept as a re-export.
 export 'package:bot_creator_ui/src/editor/widgets/editor_sidebar.dart';
+export 'package:bot_creator_ui/src/editor/widgets/editor_top_bar.dart';

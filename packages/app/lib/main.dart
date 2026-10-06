@@ -877,19 +877,22 @@ class _MyMainPageState extends State<MyMainPage> {
         MediaQuery.sizeOf(context).width >= AppTheme.desktopBreakpoint;
 
     if (isWide) {
+      final managing = _managingBotId != null;
       final content = SafeArea(
         bottom: false,
-        top: !ResponsiveHelper.isDesktopPlatform(),
+        // La barre du haut gère déjà la zone de sécurité haute.
+        top: managing && !ResponsiveHelper.isDesktopPlatform(),
         child: _homeOrManage(),
       );
       return Scaffold(
-        // Rail gauche (84 px) sur l'accueil ; l'éditeur d'un bot embarqué garde
-        // toute la largeur et sa propre navigation.
-        body: _managingBotId != null
+        // Barre de navigation en haut sur l'accueil ; l'éditeur d'un bot
+        // embarqué garde toute la hauteur et sa propre navigation.
+        body: managing
             ? content
-            : Row(
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  FlatNavRail(
+                  FlatNavTopBar(
                     leading: const _RailBrandMark(),
                     items: _railNavItems(context),
                   ),
