@@ -3,34 +3,9 @@ import '../engine/bdfd/program.dart';
 import 'bdfd_ast.dart';
 import 'bdfd_lexer.dart';
 import 'bdfd_parser.dart';
+import '../engine/bdfd/validation/bdfd_diagnostic.dart';
 
-enum BdfdCompileDiagnosticSeverity { warning, error }
-
-/// `native` diagnostics come from the native-v1 engine's preparation step,
-/// which validates every function call without performing any effect.
-enum BdfdCompileDiagnosticStage { lexer, parser, native }
-
-class BdfdCompileDiagnostic {
-  const BdfdCompileDiagnostic({
-    required this.message,
-    required this.severity,
-    required this.stage,
-    this.start,
-    this.end,
-    this.line,
-    this.column,
-    this.functionName,
-  });
-
-  final String message;
-  final BdfdCompileDiagnosticSeverity severity;
-  final BdfdCompileDiagnosticStage stage;
-  final int? start;
-  final int? end;
-  final int? line;
-  final int? column;
-  final String? functionName;
-}
+export '../engine/bdfd/validation/bdfd_diagnostic.dart';
 
 class BdfdCompileResult {
   const BdfdCompileResult({

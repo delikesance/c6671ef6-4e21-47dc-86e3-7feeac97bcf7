@@ -54,6 +54,13 @@ Quelques composants délèguent à l'hôte par un point d'accroche statique, pos
 (cache d'images), `ExternalLinkOpener` (ouvrir un lien), `DocumentationWebViewHost` (page web de la doc),
 `UiDiagnostics` (traces). L'app les règle dans `main()` ; le Studio garde les valeurs par défaut.
 
+`BdfdEditorHooks.diagnostics` fournit les diagnostics de l'éditeur BDFD. Par défaut : l'analyse lexicale et syntaxique
+(crochets non fermés, fonctions mal formées). Les deux hôtes y branchent la validation native complète
+(`bdfdNativeDiagnostics` de `bot_creator_shared/bdfd_validation.dart`, qui vérifie aussi les fonctions inconnues ou non
+prises en charge et le nombre d'arguments) : l'app dans `core/ui_hooks.dart`, le Studio dans
+`lib/src/editor/bdfd_hooks.dart`. Cette entrée est web-safe (sans nyxx ni `dart:io`) ; il ne faut jamais importer le
+moteur complet (`engine/bdfd/engine.dart`) depuis le Studio.
+
 ## Les deux hôtes
 
 - **App** : `AppEditorHost` (`packages/app/lib/features/bot_editor/presentation/app_editor_host.dart`), monté dans

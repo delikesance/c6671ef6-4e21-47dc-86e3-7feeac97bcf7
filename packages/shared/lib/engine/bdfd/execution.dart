@@ -15,23 +15,9 @@ import 'engine.dart';
 import 'replay.dart';
 import 'runtime.dart';
 import 'workflow_functions.dart';
+import 'validation/bdfd_backend.dart';
 
-enum BdfdBackend {
-  native(BdfdEngine.backendId);
-
-  const BdfdBackend(this.id);
-  final String id;
-
-  /// `native-v1` is the only BDFD backend. Absent values select it; any other
-  /// version is rejected before effects instead of being guessed.
-  static BdfdBackend parse(Object? value) {
-    if (value == null || value == '') return native;
-    for (final backend in values) {
-      if (value == backend.id) return backend;
-    }
-    throw FormatException('Unknown BDFD backend: $value');
-  }
-}
+export 'validation/bdfd_backend.dart';
 
 /// Common entry-point adapter during migration. Backend selection occurs once,
 /// before preparation or effects. The legacy callback is never used as an

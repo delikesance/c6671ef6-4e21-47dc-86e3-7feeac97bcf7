@@ -245,6 +245,44 @@ class BdfdNativeFunction {
   final Set<int>? allowedArgumentCounts;
 }
 
+/// The part of a native function that preparation checks: which names exist
+/// and how many arguments they accept. Handlers are never needed to validate.
+class BdfdFunctionSignature {
+  const BdfdFunctionSignature(
+    this.minArguments,
+    this.maxArguments, [
+    this.allowedArgumentCounts,
+  ]);
+  final int minArguments;
+  final int maxArguments;
+  final Set<int>? allowedArgumentCounts;
+
+  @override
+  bool operator ==(Object other) =>
+      other is BdfdFunctionSignature &&
+      other.minArguments == minArguments &&
+      other.maxArguments == maxArguments &&
+      _sameCounts(other.allowedArgumentCounts, allowedArgumentCounts);
+
+  @override
+  int get hashCode => Object.hash(
+    minArguments,
+    maxArguments,
+    allowedArgumentCounts == null
+        ? null
+        : Object.hashAllUnordered(allowedArgumentCounts!),
+  );
+
+  @override
+  String toString() =>
+      'BdfdFunctionSignature($minArguments, $maxArguments, '
+      '$allowedArgumentCounts)';
+
+  static bool _sameCounts(Set<int>? a, Set<int>? b) => a == null || b == null
+      ? a == b
+      : a.length == b.length && a.containsAll(b);
+}
+
 class BdfdInvocation {
   BdfdInvocation._(this._runtime, this._program, this.node, this.context);
   final BdfdRuntime _runtime;
@@ -349,6 +387,17 @@ class BdfdRuntime {
     ..._functions.keys,
     ...BdfdProgram.structuralFunctionNames,
   });
+
+  /// Registered functions (core and supplied) reduced to what `prepare` checks.
+  Map<String, BdfdFunctionSignature> get functionSignatures =>
+      Map.unmodifiable({
+        for (final entry in _functions.entries)
+          entry.key: BdfdFunctionSignature(
+            entry.value.minArguments,
+            entry.value.maxArguments,
+            entry.value.allowedArgumentCounts,
+          ),
+      });
 
   /// Structural and capability validation; performs no service calls.
   BdfdProgram prepare(String source) {

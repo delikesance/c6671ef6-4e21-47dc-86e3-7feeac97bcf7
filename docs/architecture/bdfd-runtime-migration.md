@@ -188,7 +188,9 @@ Le noyau se trouve dans `packages/shared/lib/engine/bdfd/` :
 - La page de commande et son éditeur de code sélectionnent explicitement
   `legacy-v1` ou `native-v1`. La validation native appelle le registre réel
   via `BdfdEngine.validation()`, dont les services refusent toute exécution ;
-  elle ne compile pas d’actions. Le notifier efface son ancien résultat de
+  elle ne compile pas d’actions. Pour le web (Studio), `bdfd_validation.dart`
+  rejoue la même préparation avec une table de signatures générée depuis ce
+  registre (`tool/gen_bdfd_signatures.dart`, test de dérive dans shared). Le notifier efface son ancien résultat de
   compilation en passant au natif. Les diagnostics ont les positions natives,
   y compris les fonctions connues non encore prises en charge dans une branche
   ignorée ; les fonctions inconnues restent opaques et autorisées. Sauvegarde,
