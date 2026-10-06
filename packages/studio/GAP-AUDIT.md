@@ -234,70 +234,24 @@ Périmètre : `packages/studio/lib/src` (≈46 fichiers) comparé à `packages/a
 Limites : lecture de la coque, du modèle de brouillon et des fichiers de routes ; les écrans du Studio et le canvas
 Blueprint / la page Copilot de l'app n'ont pas été lus en entier.
 
-## État du Studio
+## État du Studio (2026-10-06)
 
-- Rail d'accueil : Accueil (liste des bots), Docs (placeholder), Réglages.
-- Rail d'un bot : seuls `commands`, `overview`, `dash`, `vars`, `team` sont réels. `copilot`, `flows`, `emojis`,
-  `guilds`, `docs` tombent sur `ComingSoon` ; `sched` et `hooks` sont des stubs premium.
+Les sections ci-dessus décrivent le chemin parcouru ; l'audit initial (écrans « absents », priorités) est dépassé et a
+été retiré. Aujourd'hui le Studio affiche, via `bot_creator_ui`, les mêmes écrans que l'app : commandes, workflows,
+Blueprint, BDFD / JavaScript / image, variables, planificateur, webhooks entrants, émojis, serveurs, marketplace,
+Copilote, équipe et tchat, historique de commande et versions de configuration, rejeu du débogueur, sandbox,
+applications hébergées, abonnements et crédits IA, documentation, apparence et éditeur de code.
 
-## 1. IA / Copilot : absent
+### Écarts restants (aucun n'est un écran manquant)
 
-- Rien côté Studio hormis des libellés et l'entrée de rail (`studio_shell.dart:161`). Aucun appel `/gateway/ai/*`.
-- App : `features/copilot` (≈6 100 lignes) : conversations en flux, approbation des appels d'outils, aperçu et
-  application de commandes, bac à sable, bibliothèque communautaire, configuration MCP, crédits (portefeuille,
-  registre, roulette, récompenses).
-- Manager : toutes les routes existent déjà (`routes_gateway.go`) avec la même authentification Bearer : portefeuille,
-  catalogue d'outils, registre, conversations (créer, lire, modifier, supprimer, `turns`, `summarize`, `continue`,
-  flux d'événements `requests/{key}/events`, `actions/{call_id}`), bibliothèque, contributions.
-- Les achats, la roulette et les pubs restent côté mobile (règle du Studio : aucun achat).
+| Sujet | Pourquoi | Ce qu'il faudrait |
+|---|---|---|
+| Paiement web des formules (achat, restauration, gestion) | Le Manager n'a ni checkout ni portail pour les comptes (seulement des webhooks de boutiques et la vérification de reçus) ; le Studio affiche l'état en lecture seule | Décision produit puis route Manager (Stripe Checkout + portail + webhook) |
+| Publicités récompensées, achats intégrés, roulette, packs de crédits | Fonctions des boutiques mobiles (AdMob, Play, App Store) | Aucune : propres au mobile |
+| Console WebSocket des conteneurs | Aucun écran de l'app ne l'utilise ; le Studio affiche les logs par sondage comme l'app ; la route Manager n'accepte pas l'authentification navigateur | Aucune tant que l'app ne l'expose pas |
+| Sandbox hors ligne | L'app simule en local ; le Studio exécute sur le runner du bot, qui doit donc tourner | Aucune : conséquence du navigateur |
+| Réglages | Volontairement réduits : compte, langue, apparence, éditeur de code, abonnements | — |
+| Avatars de serveurs (pile) | Données du Manager au lieu du cache nyxx, rendu identique | — |
 
-## 2. Blueprint (workflows et variables) : très partiel
-
-Modèle de l'app : un Blueprint est une vue graphe de la liste `actions[]` d'une commande ; il n'a pas de modèle propre
-(positions des nœuds = état d'interface). Un workflow est une liste d'actions nommée et réutilisable (général ou
-événement, avec arguments). Variables : globales, à portée (guilde / membre / utilisateur), temporaires, tableaux.
-
-Studio : éditeur de commande en liste (cartes d'actions, champs scalaires modifiables, charges imbriquées en lecture
-seule), variables globales complètes, variables à portée en lecture seule.
-
-Manque :
-- Créer une commande, ajouter une action depuis une palette (aucun contrôle trouvé).
-- Éditeurs typés par action (≈60 types), validation, suggestions de variables, imbriqués (embeds, conditions).
-- Onglet Workflows : aucun appel `workflows/sync` ni lecture ; workflows d'événement et arguments.
-- Canvas Blueprint (≈1 000 lignes + peintre, mise en page, mini-carte dans l'app).
-- Éditeurs BDFD et JavaScript ; Components V2 et modales. (Le bac à sable est partagé : voir plus haut.)
-- Valeurs de variables à portée, variables temporaires et tableaux, création et suppression des définitions.
-- Versions de configuration, historique de commande et retour arrière, export / import, rejeu de débogage.
-
-Routes déjà là : `commands/sync`, `workflows/sync` et `delete` (pas de GET : lecture via `GET /gateway/bots/{id}/config`),
-`versions*`, historique de commande v2, variables à portée (`set`, `remove`, valeurs).
-
-## 3. Autres écarts
-
-| Fonction de l'app | Studio |
-|---|---|
-| Éditeur de commandes | partiel |
-| Workflows, Blueprint, BDFD, JS, Components V2 | absent |
-| Variables globales | présent ; à portée : partiel |
-| Journaux, statistiques | présent / partiel |
-| Planificateur, webhooks entrants | stub premium (routes de gestion non repérées) |
-| Émojis, serveurs (guilds), Docs | stub |
-| Versions de config, export / import, rejeu | absent |
-| Musique (Lavalink), historique pubs | absent |
-| Conteneurs (bots hébergés), marketplace | absent (routes existantes) |
-| Bots (liste, création, démarrage, arrêt), équipe, connexion Discord | présent |
-| Abonnements, facturation, crédits IA | partagé (hub, offres, crédits, refus de formule), lecture seule : aucun paiement web côté Manager |
-
-## 4. Priorités proposées
-
-1. **Workflows + palette d'ajout d'actions + création de commande** (M) : sans cela, le Studio ne sait que retoucher.
-2. **Éditeurs d'actions typés et validation**, pilotés par un schéma de données (L).
-3. **Variables à portée complètes** (S).
-4. **Versions de config, historique, rollback, rechargement** (S/M).
-5. **Copilot minimal** (L) : phase 1 portefeuille + liste de conversations (S/M) ; phase 2 chat en flux + approbation des
-   outils (L). Pas besoin de porter la page de 2 900 lignes ni le MCP : l'état des conversations est côté serveur.
-6. **Canvas Blueprint** (L), après 1 et 2 : seconde vue de `actions[]`, positions côté client.
-7. **BDFD / JS** (L) ; en attendant, vue code en lecture seule (S). Le bac à sable est fait.
-8. **Marketplace, import / export, conteneurs, docs, émojis, guilds** (M chacun).
-9. **Planificateur et webhooks entrants** (M) : confirmer d'abord le stockage dans la config du bot.
-10. **Components V2 / modales** (L), avec le point 2.
+Garde de dérive : la table de signatures BDFD (`packages/shared/lib/engine/bdfd/validation/bdfd_signatures.g.dart`) se
+régénère par `dart run tool/gen_bdfd_signatures.dart` ; un test échoue si elle diverge du moteur.
