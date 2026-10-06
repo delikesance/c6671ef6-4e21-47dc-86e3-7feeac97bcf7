@@ -9418,6 +9418,7 @@
   "unit_short_day": "Jours",
   "unit_short_hour": "Heures",
   "unit_short_minute": "Min",
+  "unit_short_second": "Sec",
   "validation_awaited_callback_format": "Le callback attendu doit utiliser $awaitedCommand[name;filter] ou $awaitedCommandError[name].",
   "validation_awaited_callback_length": "Le déclencheur de callback attendu doit contenir au maximum {max} caractères",
   "validation_awaited_callback_local_only": "Les callbacks attendus nécessitent une commande à préfixe locale uniquement.",

@@ -7705,6 +7705,9 @@
   "@unit_short_minute": {
     "description": "Segment label: minutes (uppercased by the UI)"
   },
+  "@unit_short_second": {
+    "description": "Segment label: seconds (uppercased by the UI)"
+  },
   "@validation_awaited_callback_format": {
     "description": "Awaited callback must use $awaitedCommand[name;filter] or $awaitedCommandError[name]."
   },
@@ -10995,6 +10998,7 @@
   "unit_short_day": "Days",
   "unit_short_hour": "Hours",
   "unit_short_minute": "Min",
+  "unit_short_second": "Sec",
   "validation_awaited_callback_format": "Awaited callback must use $awaitedCommand[name;filter] or $awaitedCommandError[name].",
   "validation_awaited_callback_length": "Awaited callback trigger must be at most {max} characters long",
   "validation_awaited_callback_local_only": "Awaited callbacks require a local-only Prefix Command.",

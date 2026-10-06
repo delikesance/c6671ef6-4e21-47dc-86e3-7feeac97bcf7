@@ -14703,6 +14703,12 @@ abstract class AppLocalizations {
   /// **'Min'**
   String get unit_short_minute;
 
+  /// Segment label: seconds (uppercased by the UI)
+  ///
+  /// In en, this message translates to:
+  /// **'Sec'**
+  String get unit_short_second;
+
   /// Awaited callback must use $awaitedCommand[name;filter] or $awaitedCommandError[name].
   ///
   /// In en, this message translates to:

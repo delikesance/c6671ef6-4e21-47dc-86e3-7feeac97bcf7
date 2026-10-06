@@ -9276,6 +9276,7 @@
   "unit_short_day": "Gün",
   "unit_short_hour": "Saat",
   "unit_short_minute": "Dak",
+  "unit_short_second": "Sn",
   "validation_awaited_callback_format": "Beklenen geri arama $awaitedCommand[ad;filtre] veya $awaitedCommandError[ad] kullanmalıdır.",
   "validation_awaited_callback_length": "Beklenen geri arama tetikleyicisi en fazla {max} karakter uzunluğunda olmalıdır",
   "validation_awaited_callback_local_only": "Beklenen geri aramalar yalnızca yerel bir Ön Ek Komutu gerektirir.",

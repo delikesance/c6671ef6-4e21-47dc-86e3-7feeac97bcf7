@@ -9275,6 +9275,7 @@
   "unit_short_day": "Tage",
   "unit_short_hour": "Stunden",
   "unit_short_minute": "Min",
+  "unit_short_second": "Sek",
   "validation_awaited_callback_format": "Erwarteter Callback muss $awaitedCommand[name;filter] oder $awaitedCommandError[name] verwenden.",
   "validation_awaited_callback_length": "Der Auslöser für den erwarteten Callback darf höchstens {max} Zeichen lang sein",
   "validation_awaited_callback_local_only": "Erwartete Callbacks erfordern einen rein lokalen Präfix-Befehl.",

@@ -8580,6 +8580,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get unit_short_minute => 'Dak';
 
   @override
+  String get unit_short_second => 'Sn';
+
+  @override
   String get validation_awaited_callback_format =>
       'Beklenen geri arama \$awaitedCommand[ad;filtre] veya \$awaitedCommandError[ad] kullanmalıdır.';
 
