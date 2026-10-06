@@ -1354,6 +1354,21 @@ class StudioApi {
     ];
   }
 
+  /// L'équipe du portail développeur Discord du bot, lue par le Manager avec le
+  /// jeton qu'il garde (`GET …/team/portal` : champs publics, `member_ids`).
+  Future<Map<String, dynamic>> teamPortalWire(String botId) =>
+      _send('GET', '/gateway/bots/${Uri.encodeComponent(botId)}/team/portal');
+
+  /// Pseudonyme et avatar publics d'un utilisateur Discord, lus par le Manager
+  /// (`GET …/team/users/{user_id}` : `id`, `name`, `avatar`). 404 si Discord ne
+  /// le connaît pas, 400 si l'identifiant n'est pas un identifiant Discord.
+  Future<Map<String, dynamic>> teamUserWire(String botId, String userId) =>
+      _send(
+        'GET',
+        '/gateway/bots/${Uri.encodeComponent(botId)}'
+            '/team/users/${Uri.encodeComponent(userId)}',
+      );
+
   /// Publie un message et rend la réponse brute (`message`).
   Future<Map<String, dynamic>> postTeamChat(String botId, String content) =>
       _send(

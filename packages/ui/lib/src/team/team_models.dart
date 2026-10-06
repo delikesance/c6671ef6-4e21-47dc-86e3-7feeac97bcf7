@@ -257,6 +257,14 @@ class TeamChatResyncEvent extends TeamChatEvent {
 class TeamUserProfile {
   const TeamUserProfile({this.name = '', this.avatarId = ''});
 
+  /// Le profil servi par le Manager (`GET …/team/users/{user_id}` : `name`,
+  /// `avatar`), qui lit Discord avec le jeton qu'il garde.
+  factory TeamUserProfile.fromJson(Map<String, dynamic> json) =>
+      TeamUserProfile(
+        name: (json['name'] ?? '').toString(),
+        avatarId: (json['avatar'] ?? '').toString(),
+      );
+
   final String name;
   final String avatarId;
 }
@@ -275,6 +283,35 @@ class TeamPortalInfo {
     this.teamMembers = const <Map<String, dynamic>>[],
     this.memberIds = const <String>{},
   });
+
+  /// L'équipe servie par le Manager (`GET …/team/portal`). `null` = Discord n'a
+  /// rien rendu d'exploitable (aucun identifiant) : même règle que l'app, qui
+  /// n'affiche alors ni carte ni mise en garde.
+  static TeamPortalInfo? fromJson(Map<String, dynamic> json) {
+    String text(String key) => (json[key] ?? '').toString().trim();
+    final ids = <String>{
+      if (json['member_ids'] is List)
+        for (final id in json['member_ids'] as List)
+          if (id.toString().trim().isNotEmpty) id.toString().trim(),
+    };
+    if (ids.isEmpty) return null;
+    final members = json['team_members'];
+    return TeamPortalInfo(
+      ownerId: text('owner_id'),
+      ownerUsername: text('owner_username'),
+      ownerAvatar: text('owner_avatar'),
+      teamId: text('team_id'),
+      teamName: text('team_name'),
+      teamOwnerUserId: text('team_owner_user_id'),
+      teamOwnerUsername: text('team_owner_username'),
+      teamMembers: [
+        if (members is List)
+          for (final member in members.whereType<Map>())
+            Map<String, dynamic>.from(member),
+      ],
+      memberIds: ids,
+    );
+  }
 
   final String ownerId;
   final String ownerUsername;

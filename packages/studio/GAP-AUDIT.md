@@ -43,9 +43,15 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
   de `my_permissions` : sans `can_invite` aucun contrôle de gestion, sans `can_view_chat` (refus explicite) le fil n'est
   pas affiché et le champ de saisie disparaît. Temps réel : le WebSocket du Manager (`EventSocket`, jeton dans le
   sous-protocole) pousse `team.chat.message` / `team.members.updated` ; tant qu'il n'est pas établi (ou hors navigateur)
-  l'écran relit la conversation toutes les 12 s, et après une coupure il rattrape les messages manqués. Pas d'équipe du
-  portail Discord ni de recherche de pseudonymes Discord : ces deux lectures utilisent le jeton du bot, que le Studio
-  n'a jamais (l'hôte rend `null`, l'écran les omet). L'ancienne page maison et ses clés de traduction `team*` sont
+  l'écran relit la conversation toutes les 12 s, et après une coupure il rattrape les messages manqués. Carte « équipe du
+  portail développeur Discord » (lecture seule) et pseudonymes/avatars Discord des auteurs inconnus : ces deux lectures
+  exigent le jeton du bot, que le Studio n'a jamais ; elles passent donc par le Manager, qui lit Discord avec le jeton
+  chiffré qu'il garde (`GET /gateway/bots/{id}/team/portal` et `GET …/team/users/{user_id}`, scope `read:bots`, même
+  garde d'accès au bot que les relais runner — un bot étranger répond 404 — plus le droit `can_view_chat`) et ne rend que
+  les champs publics (identifiants, noms, hash d'avatar), jamais le jeton ; l'identifiant d'utilisateur doit être un
+  flocon Discord (sinon 400, rien n'est envoyé à Discord). Mêmes règles que l'app : portail sans identifiant exploitable
+  = pas de carte, panne du portail = aucune mise en garde, utilisateur non résolu = l'identifiant reste affiché.
+  L'ancienne page maison et ses clés de traduction `team*` sont
   supprimées. Le Manager ne renvoie ni `display_name` ni `is_owner` dans la liste des collaborateurs (seulement `role`) :
   l'app a le même comportement, non corrigé ici.
 - **Rejeu du débogueur** : nouvel onglet « Replay Débogueur » d'un bot (rail large, page « Modules » du téléphone, groupe

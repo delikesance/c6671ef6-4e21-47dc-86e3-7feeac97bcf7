@@ -24,12 +24,54 @@ Map<String, dynamic> _message(int id, String author, String content, int at) =>
       'created_at': DateTime.utc(2026, 10, 3, 10, at).toIso8601String(),
     };
 
+/// `GET …/team/portal` tel que le Manager le sert : champs publics seulement.
+const _portal = <String, dynamic>{
+  'owner_id': '111111111111111111',
+  'owner_username': 'olivia',
+  'owner_avatar': 'av1',
+  'team_id': '222222222222222222',
+  'team_name': 'Les Devs',
+  'team_owner_user_id': '333333333333333333',
+  'team_owner_username': 'tess',
+  'team_members': [
+    {
+      'id': '333333333333333333',
+      'username': 'tess',
+      'avatar': 'av2',
+      'role': 'admin',
+    },
+    {
+      'id': '111111111111111111',
+      'username': 'olivia',
+      'avatar': '',
+      'role': 'member',
+    },
+  ],
+  'member_ids': [
+    '333333333333333333',
+    '111111111111111111',
+    '222222222222222222',
+  ],
+};
+
 /// Un Manager simulé : équipe, droits du lecteur, fil du tchat.
 class _Manager {
-  _Manager({this.canInvite = true, this.canViewChat = true});
+  _Manager({
+    this.canInvite = true,
+    this.canViewChat = true,
+    this.portal = _portal,
+    this.unknownAuthor = false,
+  });
 
   final bool canInvite;
   final bool canViewChat;
+
+  /// Corps de `GET …/team/portal`.
+  final Map<String, dynamic> portal;
+
+  /// Ajoute au fil un message d'un auteur que ni l'équipe ni le portail ne
+  /// connaissent (nom d'affichage = identifiant) : l'écran doit le résoudre.
+  final bool unknownAuthor;
   final seen = <http.Request>[];
   final posted = <String>[];
 
@@ -64,6 +106,11 @@ class _Manager {
       if (!canViewChat) return _json({'error': 'forbidden'}, 403);
       return _json({
         'messages': [
+          if (unknownAuthor)
+            {
+              ..._message(3, '987654321098765432', 'salut', 7),
+              'author_user_id': '987654321098765432',
+            },
           _message(2, 'Bob', 'deuxième', 5),
           _message(1, 'Ana', 'premier', 1),
         ],
@@ -73,6 +120,23 @@ class _Manager {
       final content = (jsonDecode(r.body) as Map)['content'] as String;
       posted.add(content);
       return _json({'message': _message(3, 'Ana', content, 9)});
+    }
+    if (p.endsWith('/team/portal') && r.method == 'GET') return _json(portal);
+    if (p.contains('/team/users/') && r.method == 'GET') {
+      return switch (p.split('/').last) {
+        '987654321098765432' => _json({
+          'id': '987654321098765432',
+          'name': 'Uzi Display',
+          'avatar': '',
+        }),
+        '123456789012345678' => _json({
+          'id': '123456789012345678',
+          'name': 'Zed',
+          'avatar': 'a_hash',
+        }),
+        '1' => _json({'code': 'invalid_discord_request'}, 400),
+        _ => _json({'code': 'discord_not_found'}, 404),
+      };
     }
     return _json({'ok': true});
   });
@@ -193,14 +257,106 @@ void main() {
       },
     );
 
+    test('le nom de l\'utilisateur connecté vient du Studio', () async {
+      final host = StudioTeamChatHost(_Manager().api, userName: 'Ana');
+      expect(await host.prepare('b1'), isTrue);
+      expect(await host.currentUserName(), 'Ana');
+    });
+
     test(
-      'pas d\'équipe du portail ni de recherche Discord côté Studio',
+      'l\'équipe du portail est lue par le Manager, jamais par Discord',
       () async {
-        final host = StudioTeamChatHost(_Manager().api, userName: 'Ana');
-        expect(await host.prepare('b1'), isTrue);
-        expect(await host.currentUserName(), 'Ana');
-        expect(await host.portalTeam('b1'), isNull);
-        expect(await host.lookupUser('b1', '1'), isNull);
+        final manager = _Manager();
+        final info = await StudioTeamChatHost(manager.api).portalTeam('b1');
+
+        expect(manager.seen.single.method, 'GET');
+        expect(manager.seen.single.url.path, '/gateway/bots/b1/team/portal');
+        expect(manager.seen.single.headers['authorization'], 'Bearer tok');
+        expect(info, isNotNull);
+        expect(info!.ownerId, '111111111111111111');
+        expect(info.ownerUsername, 'olivia');
+        expect(info.ownerAvatar, 'av1');
+        expect(info.teamId, '222222222222222222');
+        expect(info.teamName, 'Les Devs');
+        expect(info.teamOwnerUserId, '333333333333333333');
+        expect(info.teamOwnerUsername, 'tess');
+        expect(info.teamMembers.map((m) => m['username']), ['tess', 'olivia']);
+        expect(info.teamMembers.first['role'], 'admin');
+        expect(info.teamMembers.first['avatar'], 'av2');
+        expect(info.memberIds, {
+          '333333333333333333',
+          '111111111111111111',
+          '222222222222222222',
+        });
+      },
+    );
+
+    test(
+      'portail sans identifiant exploitable : inconnu, pas de carte',
+      () async {
+        final manager = _Manager(
+          portal: {'team_members': <Object>[], 'member_ids': <Object>[]},
+        );
+        expect(await StudioTeamChatHost(manager.api).portalTeam('b1'), isNull);
+      },
+    );
+
+    test('portail injoignable : l\'hôte lève, l\'écran l\'ignore', () async {
+      final api = StudioApi(
+        baseUrl: 'https://api.test',
+        client: MockClient(
+          (_) async => _json({'code': 'discord_upstream_error'}, 502),
+        ),
+      )..accessToken = ({bool force = false}) async => 'tok';
+      await expectLater(
+        StudioTeamChatHost(api).portalTeam('b1'),
+        throwsA(isA<StudioApiException>()),
+      );
+    });
+
+    test(
+      'pseudonyme et avatar d\'un utilisateur passent par le Manager',
+      () async {
+        final manager = _Manager();
+        final host = StudioTeamChatHost(manager.api);
+
+        final profile = await host.lookupUser('b1', '123456789012345678');
+        expect(profile, isNotNull);
+        expect(profile!.name, 'Zed');
+        expect(profile.avatarId, 'a_hash');
+        expect(manager.seen.single.method, 'GET');
+        expect(
+          manager.seen.single.url.path,
+          '/gateway/bots/b1/team/users/123456789012345678',
+        );
+        expect(manager.seen.single.headers['authorization'], 'Bearer tok');
+      },
+    );
+
+    test(
+      'l\'identifiant est encodé dans le chemin, jamais interprété',
+      () async {
+        final manager = _Manager();
+        await StudioTeamChatHost(manager.api).lookupUser('b1', '../x?y=1');
+        expect(manager.seen.single.url.toString(), isNot(contains('?y=1')));
+        expect(manager.seen.single.url.path, contains('%2F'));
+      },
+    );
+
+    test(
+      'utilisateur inconnu, identifiant refusé ou panne : non résolu',
+      () async {
+        final host = StudioTeamChatHost(_Manager().api);
+        expect(
+          await host.lookupUser('b1', '555555555555555555'),
+          isNull,
+        ); // 404
+        expect(await host.lookupUser('b1', '1'), isNull); // 400
+        final down = StudioApi(
+          baseUrl: 'https://api.test',
+          client: MockClient((_) async => throw Exception('offline')),
+        )..accessToken = ({bool force = false}) async => 'tok';
+        expect(await StudioTeamChatHost(down).lookupUser('b1', '2'), isNull);
       },
     );
   });
@@ -328,6 +484,41 @@ void main() {
 
       expect(manager.posted, ['bonjour équipe']);
       expect(find.text('bonjour équipe'), findsOneWidget);
+      await close(tester);
+    });
+
+    testWidgets(
+      'carte du portail Discord et pseudonymes résolus, comme dans l\'app',
+      (tester) async {
+        final manager = _Manager(unknownAuthor: true);
+        final fr = await AppLocalizations.delegate.load(const Locale('fr'));
+        await pump(tester, manager);
+
+        // La carte « Équipe du portail développeur » (propriété par une équipe).
+        expect(find.text(fr.team_portal_section_title), findsOneWidget);
+        expect(find.text(fr.settings_team_ownership), findsOneWidget);
+        // L'auteur inconnu du fil montre son pseudonyme Discord, pas son identifiant.
+        expect(find.text('Uzi Display'), findsWidgets);
+        expect(find.text('987654321098765432'), findsNothing);
+        final paths = manager.seen.map((r) => r.url.path);
+        expect(paths, contains('/gateway/bots/b1/team/portal'));
+        expect(
+          paths,
+          contains('/gateway/bots/b1/team/users/987654321098765432'),
+        );
+        await close(tester);
+      },
+    );
+
+    testWidgets('portail sans équipe exploitable : aucune carte', (
+      tester,
+    ) async {
+      final manager = _Manager(portal: {'member_ids': <Object>[]});
+      final fr = await AppLocalizations.delegate.load(const Locale('fr'));
+      await pump(tester, manager);
+
+      expect(find.text(fr.team_portal_section_title), findsNothing);
+      expect(find.text('premier'), findsOneWidget);
       await close(tester);
     });
 
