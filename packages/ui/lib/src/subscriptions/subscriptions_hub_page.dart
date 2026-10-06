@@ -219,143 +219,159 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _refresh,
-              child: ListView(
-                padding: EdgeInsets.fromLTRB(
-                  16,
-                  16,
-                  16,
-                  16 + MediaQuery.paddingOf(context).bottom,
+          // Colonne centrée de largeur lisible : sur un grand écran, des cartes
+          // collées aux bords de la fenêtre se lisent mal.
+          : Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 760),
+                child: RefreshIndicator(
+                  onRefresh: _refresh,
+                  child: ListView(
+                    padding: EdgeInsets.fromLTRB(
+                      20,
+                      20,
+                      20,
+                      24 + MediaQuery.paddingOf(context).bottom,
+                    ),
+                    children: [
+                      // Sans achat possible, les offres restent LISIBLES : le bouton
+                      // ouvre la même page, en lecture seule.
+                      if (_commerce != null || !canPurchase)
+                        OutlinedButton(
+                          onPressed: _busy
+                              ? null
+                              : () => SubscriptionPage.show(context, _host),
+                          child: Text(tr.plan_limit_view_offers),
+                        ),
+                      if (_commerce != null || !canPurchase)
+                        const SizedBox(height: 12),
+                      if (_host.canOpenAiCredits && _hasRewardedAiOffer)
+                        ListTile(
+                          leading: const AppIcon.fromMaterial(
+                            Icons.auto_awesome,
+                          ),
+                          title: Text(
+                            _host.hasRewardedAds
+                                ? tr.subscriptions_hub_ai_credits_roulette
+                                : tr.ai_credits_title,
+                          ),
+                          onTap: () => _host.openAiCredits(context),
+                        ),
+                      Text(
+                        tr.subscriptions_hub_subtitle,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      _SubscriptionSectionCard(
+                        icon: Icons.workspace_premium_rounded,
+                        iconColor: AppTheme.premiumGold,
+                        title: tr.subscriptions_hub_bot_premium_section,
+                        description: tr.subscriptions_hub_bot_premium_desc,
+                        isActive: botActive,
+                        activeLabel: botActive ? _botPlanLabel(tr) : null,
+                        expiryText: botActive
+                            ? _formatExpiry(context, s.botExpiresAt)
+                            : null,
+                        statusActiveLabel: tr.subscriptions_hub_status_active,
+                        statusInactiveLabel:
+                            tr.subscriptions_hub_status_inactive,
+                        managedByServerNote: botActive && s.botServerGranted
+                            ? tr.subscriptions_hub_managed_by_server
+                            : null,
+                        primaryActionLabel: !canPurchase
+                            ? null
+                            : botActive
+                            ? (s.botHasStoreSubscription
+                                  ? tr.subscription_manage
+                                  : null)
+                            : tr.subscriptions_hub_subscribe,
+                        onPrimaryAction: !canPurchase
+                            ? null
+                            : botActive
+                            ? (s.botHasStoreSubscription
+                                  ? () => _host.manageSubscription(
+                                      SubscriptionKind.botPremium,
+                                    )
+                                  : null)
+                            : () => SubscriptionPage.show(context, _host),
+                        secondaryActionLabel:
+                            canPurchase && s.canUpgradeBotToAnnual
+                            ? tr.subscription_upgrade_annual
+                            : null,
+                        onSecondaryAction:
+                            canPurchase && s.canUpgradeBotToAnnual
+                            ? () => _upgrade(_host.upgradeBotToAnnual)
+                            : null,
+                        busy: _busy,
+                      ),
+                      const SizedBox(height: 16),
+                      _SubscriptionSectionCard(
+                        icon: Icons.storage_rounded,
+                        iconColor: Colors.teal,
+                        title: tr.subscriptions_hub_hosted_section,
+                        description: tr.subscriptions_hub_hosted_desc,
+                        isActive: hostedActive,
+                        activeLabel: hostedActive ? _hostedPlanLabel(tr) : null,
+                        expiryText: hostedActive
+                            ? _hostingExpiryText(context)
+                            : null,
+                        statusActiveLabel: tr.subscriptions_hub_status_active,
+                        statusInactiveLabel:
+                            tr.subscriptions_hub_status_inactive,
+                        // Même information que sur la carte du haut : quand c'est une formule
+                        // serveur qui ouvre le droit, l'utilisateur doit savoir qu'il n'a rien
+                        // à gérer dans le store (et que « Gérer » ne le concernera pas).
+                        managedByServerNote: s.hostedServerGranted
+                            ? tr.subscriptions_hub_managed_by_server
+                            : null,
+                        primaryActionLabel: !canPurchase
+                            ? null
+                            : hostedActive
+                            ? tr.subscription_manage
+                            : tr.subscriptions_hub_subscribe,
+                        onPrimaryAction: !canPurchase
+                            ? null
+                            : hostedActive
+                            ? () => _host.manageSubscription(
+                                SubscriptionKind.hostedApp,
+                              )
+                            : () => _host.openHostedPurchase(context),
+                        secondaryActionLabel:
+                            canPurchase && s.canUpgradeHostedToTwoApps
+                            ? tr.subscription_upgrade_two_apps
+                            : null,
+                        onSecondaryAction:
+                            canPurchase && s.canUpgradeHostedToTwoApps
+                            ? () => _upgrade(_host.upgradeHostedToTwoApps)
+                            : null,
+                        busy: _busy,
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        canPurchase
+                            ? tr.subscription_manage_cancel_hint
+                            : tr.subscription_not_available_on_platform,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      if (canPurchase) ...[
+                        const SizedBox(height: 12),
+                        Center(
+                          child: TextButton.icon(
+                            onPressed: _busy ? null : _restoreAll,
+                            icon: const AppIcon.fromMaterial(Icons.restore),
+                            label: Text(tr.subscription_restore),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
-                children: [
-                  // Sans achat possible, les offres restent LISIBLES : le bouton
-                  // ouvre la même page, en lecture seule.
-                  if (_commerce != null || !canPurchase)
-                    OutlinedButton(
-                      onPressed: _busy
-                          ? null
-                          : () => SubscriptionPage.show(context, _host),
-                      child: Text(tr.plan_limit_view_offers),
-                    ),
-                  if (_host.canOpenAiCredits && _hasRewardedAiOffer)
-                    ListTile(
-                      leading: const AppIcon.fromMaterial(Icons.auto_awesome),
-                      title: Text(
-                        _host.hasRewardedAds
-                            ? tr.subscriptions_hub_ai_credits_roulette
-                            : tr.ai_credits_title,
-                      ),
-                      onTap: () => _host.openAiCredits(context),
-                    ),
-                  Text(
-                    tr.subscriptions_hub_subtitle,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  _SubscriptionSectionCard(
-                    icon: Icons.workspace_premium_rounded,
-                    iconColor: AppTheme.premiumGold,
-                    title: tr.subscriptions_hub_bot_premium_section,
-                    description: tr.subscriptions_hub_bot_premium_desc,
-                    isActive: botActive,
-                    activeLabel: botActive ? _botPlanLabel(tr) : null,
-                    expiryText: botActive
-                        ? _formatExpiry(context, s.botExpiresAt)
-                        : null,
-                    statusActiveLabel: tr.subscriptions_hub_status_active,
-                    statusInactiveLabel: tr.subscriptions_hub_status_inactive,
-                    managedByServerNote: botActive && s.botServerGranted
-                        ? tr.subscriptions_hub_managed_by_server
-                        : null,
-                    primaryActionLabel: !canPurchase
-                        ? null
-                        : botActive
-                        ? (s.botHasStoreSubscription
-                              ? tr.subscription_manage
-                              : null)
-                        : tr.subscriptions_hub_subscribe,
-                    onPrimaryAction: !canPurchase
-                        ? null
-                        : botActive
-                        ? (s.botHasStoreSubscription
-                              ? () => _host.manageSubscription(
-                                  SubscriptionKind.botPremium,
-                                )
-                              : null)
-                        : () => SubscriptionPage.show(context, _host),
-                    secondaryActionLabel: canPurchase && s.canUpgradeBotToAnnual
-                        ? tr.subscription_upgrade_annual
-                        : null,
-                    onSecondaryAction: canPurchase && s.canUpgradeBotToAnnual
-                        ? () => _upgrade(_host.upgradeBotToAnnual)
-                        : null,
-                    busy: _busy,
-                  ),
-                  const SizedBox(height: 16),
-                  _SubscriptionSectionCard(
-                    icon: Icons.storage_rounded,
-                    iconColor: Colors.teal,
-                    title: tr.subscriptions_hub_hosted_section,
-                    description: tr.subscriptions_hub_hosted_desc,
-                    isActive: hostedActive,
-                    activeLabel: hostedActive ? _hostedPlanLabel(tr) : null,
-                    expiryText: hostedActive
-                        ? _hostingExpiryText(context)
-                        : null,
-                    statusActiveLabel: tr.subscriptions_hub_status_active,
-                    statusInactiveLabel: tr.subscriptions_hub_status_inactive,
-                    // Même information que sur la carte du haut : quand c'est une formule
-                    // serveur qui ouvre le droit, l'utilisateur doit savoir qu'il n'a rien
-                    // à gérer dans le store (et que « Gérer » ne le concernera pas).
-                    managedByServerNote: s.hostedServerGranted
-                        ? tr.subscriptions_hub_managed_by_server
-                        : null,
-                    primaryActionLabel: !canPurchase
-                        ? null
-                        : hostedActive
-                        ? tr.subscription_manage
-                        : tr.subscriptions_hub_subscribe,
-                    onPrimaryAction: !canPurchase
-                        ? null
-                        : hostedActive
-                        ? () => _host.manageSubscription(
-                            SubscriptionKind.hostedApp,
-                          )
-                        : () => _host.openHostedPurchase(context),
-                    secondaryActionLabel:
-                        canPurchase && s.canUpgradeHostedToTwoApps
-                        ? tr.subscription_upgrade_two_apps
-                        : null,
-                    onSecondaryAction:
-                        canPurchase && s.canUpgradeHostedToTwoApps
-                        ? () => _upgrade(_host.upgradeHostedToTwoApps)
-                        : null,
-                    busy: _busy,
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    canPurchase
-                        ? tr.subscription_manage_cancel_hint
-                        : tr.subscription_not_available_on_platform,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  if (canPurchase) ...[
-                    const SizedBox(height: 12),
-                    Center(
-                      child: TextButton.icon(
-                        onPressed: _busy ? null : _restoreAll,
-                        icon: const AppIcon.fromMaterial(Icons.restore),
-                        label: Text(tr.subscription_restore),
-                      ),
-                    ),
-                  ],
-                ],
               ),
             ),
     );
