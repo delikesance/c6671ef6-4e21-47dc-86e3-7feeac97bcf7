@@ -6,6 +6,7 @@ import 'package:archive/archive.dart';
 import 'package:bot_creator/core/storage/app_storage_directory.dart';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/features/bot_editor/logic/command_folder_tree.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_presence_keys.dart';
 import 'package:bot_creator/features/bot_editor/logic/normalize_command_data.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
@@ -510,12 +511,12 @@ Future<ImportResult> importBot(
   // Import status
   if (importStatus && preview.hasStatus) {
     final appData = Map<String, dynamic>.from(await appManager.getApp(botId));
-    if (preview.status!.containsKey('statuses')) {
-      appData['statuses'] = preview.status!['statuses'];
-    }
-    if (preview.status!.containsKey('activities')) {
-      appData['activities'] = preview.status!['activities'];
-    }
+    // Un export porte les deux clés ; en local c'est `activities` qui fait foi.
+    // Les deux sont recopiées ensemble pour ne pas laisser l'ancienne liste
+    // masquer la nouvelle (voir `mirrorPresenceActivities`).
+    mirrorPresenceActivities(appData, {
+      'statuses': preview.status!['activities'] ?? preview.status!['statuses'],
+    });
     await appManager.saveApp(botId, appData);
   }
 

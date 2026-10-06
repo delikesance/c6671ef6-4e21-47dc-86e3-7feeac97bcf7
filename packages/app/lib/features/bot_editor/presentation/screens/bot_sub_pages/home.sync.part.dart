@@ -970,6 +970,10 @@ extension _AppHomePageSync on _AppHomePageState {
       _runtimeCapabilities = capabilities;
     });
     await appManager.refreshApps();
+    // La fusion distante s'écrit sans notifier le runtime : un bot qui tourne
+    // sur ce poste gardait donc son ancien statut / activité jusqu'au prochain
+    // redémarrage. Sans session locale, le rechargement ne fait rien.
+    applyDesktopRuntimeSettings(botId: botId, appData: app);
   }
 
   Future<void> _showReconciliationConflictDialog({

@@ -1,6 +1,7 @@
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator_shared/utils/command_trigger_type.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_config_refresh.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_presence_keys.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 
 List<Map<String, dynamic>> extractCommandListFromConfig(dynamic raw) {
@@ -89,6 +90,9 @@ Future<void> applyManagerConfigToLocal({
       final existingApp = await appManager.getApp(botId);
       final merged = Map<String, dynamic>.from(existingApp)
         ..addAll(remoteConfig);
+      // Le Manager ne porte que `statuses` ; sans cette recopie, les anciennes
+      // `activities` locales (lues en premier) masquent le statut tiré du cloud.
+      mirrorPresenceActivities(merged, remoteConfig);
 
       if (remoteConfig['prefix'] == null && existingApp.containsKey('prefix')) {
         merged['prefix'] = existingApp['prefix'];
