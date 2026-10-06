@@ -135,9 +135,6 @@ class StudioLocalizationsTr extends StudioLocalizations {
   String get commonRefresh => 'Yenile';
 
   @override
-  String get commonSend => 'Send';
-
-  @override
   String get statusOnline => 'Çevrimiçi';
 
   @override
@@ -317,43 +314,6 @@ class StudioLocalizationsTr extends StudioLocalizations {
 
   @override
   String get commandsNoMatch => 'Mevcut filtrelerle eşleşen komut yok.';
-
-  @override
-  String get teamSubtitle => 'Collaborators and team chat.';
-
-  @override
-  String get teamChatTitle => 'Team chat';
-
-  @override
-  String get teamNoChatAccess =>
-      'The owner has not given you access to the chat.';
-
-  @override
-  String get teamNoMessages => 'No messages.';
-
-  @override
-  String get teamWriteHint => 'Write a message…';
-
-  @override
-  String get teamOwner => 'Sahip';
-
-  @override
-  String get teamNoPermissions => 'No specific permissions';
-
-  @override
-  String get teamRemove => 'Remove from team';
-
-  @override
-  String get teamPermEditCommands => 'Edit commands';
-
-  @override
-  String get teamPermStartStop => 'Start / stop';
-
-  @override
-  String get teamPermClaimAds => 'Earn time (ads)';
-
-  @override
-  String get teamPermInvite => 'Invite';
 
   @override
   String get premiumHint =>

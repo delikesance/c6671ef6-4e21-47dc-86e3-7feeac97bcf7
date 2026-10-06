@@ -137,9 +137,6 @@ class StudioLocalizationsDe extends StudioLocalizations {
   String get commonRefresh => 'Aktualisieren';
 
   @override
-  String get commonSend => 'Send';
-
-  @override
   String get statusOnline => 'Online';
 
   @override
@@ -321,43 +318,6 @@ class StudioLocalizationsDe extends StudioLocalizations {
   @override
   String get commandsNoMatch =>
       'Keine Befehle entsprechen den aktuellen Filtern.';
-
-  @override
-  String get teamSubtitle => 'Collaborators and team chat.';
-
-  @override
-  String get teamChatTitle => 'Team chat';
-
-  @override
-  String get teamNoChatAccess =>
-      'The owner has not given you access to the chat.';
-
-  @override
-  String get teamNoMessages => 'No messages.';
-
-  @override
-  String get teamWriteHint => 'Write a message…';
-
-  @override
-  String get teamOwner => 'Besitzer';
-
-  @override
-  String get teamNoPermissions => 'No specific permissions';
-
-  @override
-  String get teamRemove => 'Remove from team';
-
-  @override
-  String get teamPermEditCommands => 'Edit commands';
-
-  @override
-  String get teamPermStartStop => 'Start / stop';
-
-  @override
-  String get teamPermClaimAds => 'Earn time (ads)';
-
-  @override
-  String get teamPermInvite => 'Invite';
 
   @override
   String get premiumHint =>

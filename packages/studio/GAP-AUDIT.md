@@ -29,6 +29,25 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
   conflit 409 traité comme tel, suppression) remplace la boîte de dialogue maison ; le Studio fournit seulement
   `StudioCommandHistoryHost` (routes v2 du Manager). Même chose pour la carte « Éditeur de code » des réglages
   (`CodeEditorSettingsCard`).
+- **Versions de la configuration d'un bot** : l'écran « Historique des versions » de l'app (`BotConfigVersionsPage` :
+  liste, aperçu, suppression, restauration confirmée avec les commandes concernées, restauration forcée proposée quand
+  le serveur répond `409 bot_config_version_too_small`) est partagé. Le Studio fournit `StudioBotConfigVersionsHost`
+  (`/gateway/bots/{id}/versions`, `…/content`, `…/restore`, DELETE avec `?key=` ; `checkpointBotConfig` est dans
+  `StudioApi` mais l'écran de l'app n'a pas de bouton « checkpoint », donc le Studio non plus). Pas de copie locale :
+  `applyRestoredLocally` ne fait rien, le serveur est la source de vérité. Entrée : bouton « Historique des versions »
+  sur l'accueil du bot (comme la tuile « Outils » de l'accueil de l'app). Pas de formule requise, comme dans l'app.
+- **Équipe et tchat** : l'onglet « Équipe » du Studio est l'écran de l'app (`TeamChatPage` : tchat d'équipe persisté,
+  messages en cours d'envoi avec réessai automatique puis bouton « Réessayer », collaborateurs et droits, ajout par
+  identifiant Discord avec les cinq droits, retrait confirmé, pseudonymes). Le Studio fournit `StudioTeamChatHost`
+  (`GET/POST /gateway/bots/{id}/team/collaborators`, `DELETE …/{user_id}`, `GET/POST …/team/chat`). Les droits viennent
+  de `my_permissions` : sans `can_invite` aucun contrôle de gestion, sans `can_view_chat` (refus explicite) le fil n'est
+  pas affiché et le champ de saisie disparaît. Temps réel : le WebSocket du Manager (`EventSocket`, jeton dans le
+  sous-protocole) pousse `team.chat.message` / `team.members.updated` ; tant qu'il n'est pas établi (ou hors navigateur)
+  l'écran relit la conversation toutes les 12 s, et après une coupure il rattrape les messages manqués. Pas d'équipe du
+  portail Discord ni de recherche de pseudonymes Discord : ces deux lectures utilisent le jeton du bot, que le Studio
+  n'a jamais (l'hôte rend `null`, l'écran les omet). L'ancienne page maison et ses clés de traduction `team*` sont
+  supprimées. Le Manager ne renvoie ni `display_name` ni `is_owner` dans la liste des collaborateurs (seulement `role`) :
+  l'app a le même comportement, non corrigé ici.
 - **Traductions** : les écrans du Studio n'ont plus de texte français codé en dur. Ils réutilisent les clés de l'app
   (`context.tr`, 6 langues) quand le sens est identique, sinon des clés Studio (`context.l10n`, 6 langues) ; les
   validations, erreurs de connexion et refus de démarrage sont des types (`ValidationProblem`, `AuthIssue`,

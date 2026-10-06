@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bot_creator_ui/bot_creator_ui.dart' show discordAvatarUrl;
 import 'package:http/http.dart' as http;
 import 'package:nyxx/nyxx.dart';
 import 'dart:developer' as developer;
@@ -372,47 +373,13 @@ String makeAvatarUrl(
   bool isAnimated = false,
   String legacyFormat = "webp",
   String? discriminator,
-}) {
-  if (avatarId == null || avatarId.isEmpty || avatarId == "0") {
-    if (discriminator != null &&
-        discriminator != "0" &&
-        discriminator != "0000") {
-      final parsedDiscrim = int.tryParse(discriminator);
-      if (parsedDiscrim != null) {
-        return "https://cdn.discordapp.com/embed/avatars/${parsedDiscrim % 5}.png";
-      }
-    }
-    final parsedId = BigInt.tryParse(userId);
-    if (parsedId != null) {
-      return "https://cdn.discordapp.com/embed/avatars/${(parsedId >> 22).toInt() % 6}.png";
-    }
-    return "https://cdn.discordapp.com/embed/avatars/0.png";
-  }
-
-  var cleanAvatarId = avatarId.trim();
-  if (cleanAvatarId.contains('/')) {
-    final hashMatch = RegExp(
-      r'([a-f0-9]{32}|a_[a-f0-9]{32})',
-      caseSensitive: false,
-    ).allMatches(cleanAvatarId);
-    if (hashMatch.isNotEmpty) {
-      cleanAvatarId = hashMatch.last.group(0)!;
-    } else if (cleanAvatarId.startsWith('http://') ||
-        cleanAvatarId.startsWith('https://')) {
-      return cleanAvatarId.split('?').first;
-    }
-  }
-
-  if (cleanAvatarId.startsWith('a_')) {
-    isAnimated = true;
-  }
-
-  if (isAnimated && legacyFormat == "gif") {
-    return "https://cdn.discordapp.com/avatars/$userId/$cleanAvatarId.gif?size=1024";
-  }
-
-  return "https://cdn.discordapp.com/avatars/$userId/$cleanAvatarId.$legacyFormat?size=1024";
-}
+}) => discordAvatarUrl(
+  userId,
+  avatarId: avatarId,
+  isAnimated: isAnimated,
+  legacyFormat: legacyFormat,
+  discriminator: discriminator,
+);
 
 String makeGuildIcon(String guildId, String? iconId) {
   if (guildId == "DM" || iconId == null || iconId.isEmpty) {
@@ -512,8 +479,8 @@ Future<Map<String, dynamic>> updateDiscordBotBanner(
       final mime = ext == 'gif'
           ? 'image/gif'
           : (ext == 'jpg' || ext == 'jpeg')
-              ? 'image/jpeg'
-              : 'image/png';
+          ? 'image/jpeg'
+          : 'image/png';
       final base64Str = base64Encode(bytes);
       body['banner'] = 'data:$mime;base64,$base64Str';
     } else {

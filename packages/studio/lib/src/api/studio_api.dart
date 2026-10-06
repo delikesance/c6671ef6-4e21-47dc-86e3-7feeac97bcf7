@@ -603,6 +603,73 @@ class StudioApi {
     return _string(json, const ['revision']);
   }
 
+  // ── Versions de la configuration d'un bot ─────────────────────────────────
+
+  /// Versions de la configuration complète d'un bot (`{key, size, time}`),
+  /// telles que le Manager les liste.
+  Future<List<Map<String, dynamic>>> botConfigVersions(String botId) async {
+    final json = await _send(
+      'GET',
+      '/gateway/bots/${Uri.encodeComponent(botId.trim())}/versions',
+    );
+    final data = json['data'];
+    if (data is! List) return const [];
+    return [
+      for (final v in data.whereType<Map>()) Map<String, dynamic>.from(v),
+    ];
+  }
+
+  /// Contenu d'une version de configuration (aperçu, liste des commandes).
+  Future<Map<String, dynamic>> previewBotConfigVersion(
+    String botId,
+    String key,
+  ) async {
+    final json = await _send(
+      'GET',
+      '/gateway/bots/${Uri.encodeComponent(botId)}/versions/content?key=${Uri.encodeQueryComponent(key)}',
+    );
+    final content = json['content'];
+    return content is Map ? Map<String, dynamic>.from(content) : const {};
+  }
+
+  Future<void> deleteBotConfigVersion(String botId, String key) async {
+    await _send(
+      'DELETE',
+      '/gateway/bots/${Uri.encodeComponent(botId)}/versions?key=${Uri.encodeQueryComponent(key)}',
+    );
+  }
+
+  /// Archive la configuration distante et la rend. `confirmOvershrink` FORCE la
+  /// restauration d'une version sous le plancher de plausibilité du serveur
+  /// (`409 bot_config_version_too_small`) : à ne poser qu'après un accord
+  /// explicite. Rend `true` quand le serveur confirme (`ok`).
+  Future<bool> restoreBotConfigVersion(
+    String botId,
+    String key, {
+    bool confirmOvershrink = false,
+  }) async {
+    final json = await _send(
+      'POST',
+      '/gateway/bots/${Uri.encodeComponent(botId.trim())}/versions/restore',
+      body: {'key': key, if (confirmOvershrink) 'confirmOvershrink': true},
+      timeout: const Duration(seconds: 60),
+    );
+    return json['ok'] == true;
+  }
+
+  /// Archive la configuration distante d'un bot comme nouvelle version et la
+  /// rend.
+  Future<Map<String, dynamic>> checkpointBotConfig(String botId) async {
+    final json = await _send(
+      'POST',
+      '/gateway/bots/${Uri.encodeComponent(botId.trim())}/versions/checkpoint',
+      body: const <String, dynamic>{},
+      timeout: const Duration(seconds: 60),
+    );
+    final config = json['config'];
+    return config is Map ? Map<String, dynamic>.from(config) : const {};
+  }
+
   /// Il n'existe pas de DELETE v2 : l'app passe par cette route.
   Future<void> deleteCommand(
     String botId,
@@ -1239,6 +1306,50 @@ class StudioApi {
     body: {'content': content},
   );
 
+  /// Réponse BRUTE de `GET …/team/collaborators` (`collaborators`,
+  /// `my_permissions`, `is_owner`) : l'écran partagé d'équipe la décode avec
+  /// les modèles de l'app.
+  Future<Map<String, dynamic>> teamCollaboratorsWire(String botId) => _send(
+    'GET',
+    '/gateway/bots/${Uri.encodeComponent(botId)}/team/collaborators',
+  );
+
+  /// Ajoute un collaborateur, ou remplace ses droits (`POST …/team/collaborators`).
+  Future<void> upsertCollaborator(
+    String botId,
+    String userId,
+    Map<String, dynamic> permissions,
+  ) => _send(
+    'POST',
+    '/gateway/bots/${Uri.encodeComponent(botId)}/team/collaborators',
+    body: {'user_id': userId, 'permissions': permissions},
+  );
+
+  /// Le fil du tchat tel que le serveur le rend (`messages`).
+  Future<List<Map<String, dynamic>>> teamChatWire(
+    String botId, {
+    int limit = 50,
+  }) async {
+    final json = await _send(
+      'GET',
+      '/gateway/bots/${Uri.encodeComponent(botId)}/team/chat?limit=$limit',
+    );
+    final raw = json['messages'];
+    return [
+      if (raw is List)
+        for (final item in raw.whereType<Map>())
+          Map<String, dynamic>.from(item),
+    ];
+  }
+
+  /// Publie un message et rend la réponse brute (`message`).
+  Future<Map<String, dynamic>> postTeamChat(String botId, String content) =>
+      _send(
+        'POST',
+        '/gateway/bots/${Uri.encodeComponent(botId)}/team/chat',
+        body: {'content': content},
+      );
+
   // ── Transport ─────────────────────────────────────────────────────────────
 
   Future<Map<String, dynamic>> _send(
@@ -1306,8 +1417,12 @@ class StudioApi {
         decoded = null;
       }
     }
+    // Une réponse qui est une liste (`GET /gateway/bots/{id}/versions`) est
+    // rendue sous `data`, comme `MainApiClient` de l'app.
     final map = decoded is Map
         ? Map<String, dynamic>.from(decoded)
+        : decoded is List
+        ? <String, dynamic>{'data': decoded}
         : <String, dynamic>{};
     if (response.statusCode >= 200 && response.statusCode < 300) return map;
     final message =

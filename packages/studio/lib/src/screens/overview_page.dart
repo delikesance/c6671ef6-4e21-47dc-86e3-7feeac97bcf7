@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
+import '../editor/studio_bot_config_versions_host.dart';
 import '../l10n_ext.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
@@ -74,6 +75,19 @@ class _OverviewPageState extends State<OverviewPage> {
     }
   }
 
+  /// Même entrée que l'accueil de l'app (« Historique des versions ») : l'écran
+  /// est celui de l'app, branché sur l'API du Manager.
+  void _openVersionHistory() {
+    Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => BotConfigVersionsPage(
+          botId: _bot.id,
+          host: StudioBotConfigVersionsHost(widget.api),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final logs = _logs;
@@ -134,6 +148,14 @@ class _OverviewPageState extends State<OverviewPage> {
                         ),
                         label: Text(context.l10n.botStart),
                       ),
+                OutlinedButton.icon(
+                  onPressed: _openVersionHistory,
+                  icon: const AppIcon.fromMaterial(
+                    Icons.history_rounded,
+                    size: 16,
+                  ),
+                  label: Text(context.tr.bot_home_version_history),
+                ),
               ],
             ),
             const SizedBox(height: 24),

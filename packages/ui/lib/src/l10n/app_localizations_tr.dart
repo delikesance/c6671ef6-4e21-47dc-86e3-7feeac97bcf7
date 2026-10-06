@@ -8413,6 +8413,18 @@ class AppLocalizationsTr extends AppLocalizations {
   String get team_owner_badge => 'OWNER';
 
   @override
+  String get team_chat_me => 'Ben';
+
+  @override
+  String get team_chat_send_failed => 'Gönderilemedi';
+
+  @override
+  String get team_chat_sending => 'Gönderiliyor...';
+
+  @override
+  String get team_chat_no_access => 'Sahip size sohbete erişim vermedi.';
+
+  @override
   String get home_section_my_bots => 'MY BOTS';
 
   @override

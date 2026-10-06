@@ -20,6 +20,8 @@ que les deux interfaces se ressemblent et se comportent pareil.
 | `lib/src/editor/lists` | widgets de listes et de pages d'éditeur (modules, groupes de réglages, barre de page) |
 | `lib/src/editor/widgets` | `EditorSidebar` / `EditorRail` (navigation d'un bot) |
 | `lib/src/code` | thème et réglages des éditeurs de code, coloration BDFD / JavaScript |
+| `lib/src/history` | historique des versions : modale d'une commande (`CommandHistorySheet` + `CommandHistoryHost`) et écran de la configuration d'un bot (`BotConfigVersionsPage` + `BotConfigVersionsHost`) |
+| `lib/src/team` | écran « Équipe et tchat » d'un bot (`TeamChatPage` + `TeamChatHost`), modèles d'équipe (`BotPermissions`, `BotCollaborator`, `TeamChatMessage`) et événements temps réel (`TeamChatEvent`) |
 | `lib/src/docs` | documentation intégrée : hub, articles Markdown natifs, dépôt de contenu |
 | `lib/src/editor/host` | `EditorHost` : ce que le paquet demande à l'application |
 
