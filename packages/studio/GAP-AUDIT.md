@@ -39,9 +39,9 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
 - **Éditeur JavaScript** : l'éditeur de script de l'app (coloration, autocomplétion discord.js, signatures, diagnostics,
   réglages de la palette) pour les commandes en JavaScript et l'autocomplétion des options.
 
-- **Éditeur BDFD** : l'éditeur de l'app (coloration, autocomplétion, signatures). Les diagnostics du compilateur BDFD
-  viennent de l'hôte (`BdfdEditorHooks`) : le moteur ne se compile pas pour le web, donc le Studio n'en affiche pas
-  pour l'instant.
+- **Éditeur BDFD** : l'éditeur de l'app (coloration, autocomplétion, signatures). Le Studio affiche les diagnostics
+  lexicaux et syntaxiques (crochets non fermés, fonctions mal formées) ; la validation complète des arguments de chaque
+  fonction vient du moteur natif, qui ne se compile pas pour le web (l'app la garde via `BdfdEditorHooks`).
 
 - **Planificateur** : l'écran de l'app (déclencheurs, activation, limite du forfait), via les routes
   `scheduled-triggers` du Manager.
