@@ -7969,6 +7969,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get team_owner_badge => 'OWNER';
 
   @override
+  String get team_chat_me => '自分';
+
+  @override
+  String get team_chat_send_failed => '送信に失敗しました';
+
+  @override
+  String get team_chat_sending => '送信中...';
+
+  @override
+  String get team_chat_no_access => 'オーナーからチャットへのアクセス権が付与されていません。';
+
+  @override
   String get home_section_my_bots => 'MY BOTS';
 
   @override

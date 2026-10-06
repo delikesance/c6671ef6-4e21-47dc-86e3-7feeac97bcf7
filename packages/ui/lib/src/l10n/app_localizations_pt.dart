@@ -8468,6 +8468,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get team_owner_badge => 'OWNER';
 
   @override
+  String get team_chat_me => 'Eu';
+
+  @override
+  String get team_chat_send_failed => 'Falha no envio';
+
+  @override
+  String get team_chat_sending => 'Enviando...';
+
+  @override
+  String get team_chat_no_access =>
+      'O proprietário não lhe deu acesso ao chat.';
+
+  @override
   String get home_section_my_bots => 'MY BOTS';
 
   @override

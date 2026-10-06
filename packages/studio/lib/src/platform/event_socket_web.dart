@@ -14,11 +14,15 @@ class EventSocket {
     required this.token,
     required this.onMessage,
     required this.onClosed,
+    this.onData,
   });
 
   final String url;
   final Future<String?> Function() token;
   final void Function() onMessage;
+
+  /// Le texte de chaque message reçu (le temps réel de l'équipe en lit le type).
+  final void Function(String data)? onData;
   final void Function() onClosed;
 
   web.WebSocket? _socket;
@@ -34,8 +38,11 @@ class EventSocket {
     final protocols = <JSString>['bc.bearer'.toJS, jwt.toJS].toJS;
     final socket = web.WebSocket(url, protocols);
     _socket = socket;
-    socket.onmessage = ((web.MessageEvent _) {
-      if (!_closed) onMessage();
+    socket.onmessage = ((web.MessageEvent event) {
+      if (_closed) return;
+      onMessage();
+      final data = event.data;
+      if (data.isA<JSString>()) onData?.call((data as JSString).toDart);
     }).toJS;
     socket.onclose = ((web.CloseEvent _) {
       if (!_closed) onClosed();

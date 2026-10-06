@@ -358,12 +358,6 @@ abstract class StudioLocalizations {
   /// **'Refresh'**
   String get commonRefresh;
 
-  /// No description provided for @commonSend.
-  ///
-  /// In en, this message translates to:
-  /// **'Send'**
-  String get commonSend;
-
   /// No description provided for @statusOnline.
   ///
   /// In en, this message translates to:
@@ -681,78 +675,6 @@ abstract class StudioLocalizations {
   /// In en, this message translates to:
   /// **'No commands match the current filters.'**
   String get commandsNoMatch;
-
-  /// No description provided for @teamSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Collaborators and team chat.'**
-  String get teamSubtitle;
-
-  /// No description provided for @teamChatTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Team chat'**
-  String get teamChatTitle;
-
-  /// No description provided for @teamNoChatAccess.
-  ///
-  /// In en, this message translates to:
-  /// **'The owner has not given you access to the chat.'**
-  String get teamNoChatAccess;
-
-  /// No description provided for @teamNoMessages.
-  ///
-  /// In en, this message translates to:
-  /// **'No messages.'**
-  String get teamNoMessages;
-
-  /// No description provided for @teamWriteHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Write a message…'**
-  String get teamWriteHint;
-
-  /// No description provided for @teamOwner.
-  ///
-  /// In en, this message translates to:
-  /// **'Owner'**
-  String get teamOwner;
-
-  /// No description provided for @teamNoPermissions.
-  ///
-  /// In en, this message translates to:
-  /// **'No specific permissions'**
-  String get teamNoPermissions;
-
-  /// No description provided for @teamRemove.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove from team'**
-  String get teamRemove;
-
-  /// No description provided for @teamPermEditCommands.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit commands'**
-  String get teamPermEditCommands;
-
-  /// No description provided for @teamPermStartStop.
-  ///
-  /// In en, this message translates to:
-  /// **'Start / stop'**
-  String get teamPermStartStop;
-
-  /// No description provided for @teamPermClaimAds.
-  ///
-  /// In en, this message translates to:
-  /// **'Earn time (ads)'**
-  String get teamPermClaimAds;
-
-  /// No description provided for @teamPermInvite.
-  ///
-  /// In en, this message translates to:
-  /// **'Invite'**
-  String get teamPermInvite;
 
   /// No description provided for @premiumHint.
   ///

@@ -14481,6 +14481,30 @@ abstract class AppLocalizations {
   /// **'OWNER'**
   String get team_owner_badge;
 
+  /// No description provided for @team_chat_me.
+  ///
+  /// In en, this message translates to:
+  /// **'Me'**
+  String get team_chat_me;
+
+  /// No description provided for @team_chat_send_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Send failed'**
+  String get team_chat_send_failed;
+
+  /// No description provided for @team_chat_sending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending...'**
+  String get team_chat_sending;
+
+  /// No description provided for @team_chat_no_access.
+  ///
+  /// In en, this message translates to:
+  /// **'The owner has not given you access to the chat.'**
+  String get team_chat_no_access;
+
   /// No description provided for @home_section_my_bots.
   ///
   /// In en, this message translates to:

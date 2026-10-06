@@ -8,6 +8,7 @@ import '../l10n_ext.dart';
 import '../layout.dart';
 import '../locale_controller.dart';
 import '../editor/studio_editor_host.dart';
+import '../editor/studio_team_chat_host.dart';
 import '../premium/studio_feature.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
@@ -17,7 +18,6 @@ import 'commands_page.dart';
 import 'dashboard_page.dart';
 import 'modules_page.dart';
 import 'overview_page.dart';
-import 'team_page.dart';
 import 'variables_page.dart';
 import 'workflows_page.dart';
 import 'copilot_page.dart';
@@ -311,7 +311,16 @@ class _StudioShellState extends State<StudioShell> {
       case 'vars':
         return VariablesPage(key: ValueKey(bot.id), api: api, bot: bot);
       case 'team':
-        return TeamPage(key: ValueKey(bot.id), api: api, bot: bot);
+        return TeamChatPage(
+          key: ValueKey(bot.id),
+          botId: bot.id,
+          host: StudioTeamChatHost(
+            api,
+            userName: widget.auth.session?.username,
+          ),
+          // La barre de navigation du Studio est hors de la page.
+          reserveNavBarClearance: false,
+        );
       case 'guilds':
         return GuildsPage(
           key: ValueKey('guilds-${bot.id}'),

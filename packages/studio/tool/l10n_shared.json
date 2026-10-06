@@ -14,7 +14,6 @@
   "commonClose": "common_close",
   "commonRefresh": "common_refresh",
   "commonRetry": "common_retry",
-  "commonSend": "team_chat_send",
   "createBotSamplePing": "commands_empty_sample_ping",
   "featureAnalyticsDesc": "dashboard_premium_analytics_desc",
   "featureAnalyticsTitle": "dashboard_premium_analytics_title",
@@ -68,7 +67,5 @@
   "settingsLanguage": "settings_language_title",
   "settingsTitle": "settings_tab",
   "statusOnline": "home_status_online",
-  "statusStopped": "container_state_stopped",
-  "teamOwner": "settings_owner_fallback",
-  "teamPermEditCommands": "team_permission_edit_commands"
+  "statusStopped": "container_state_stopped"
 }
