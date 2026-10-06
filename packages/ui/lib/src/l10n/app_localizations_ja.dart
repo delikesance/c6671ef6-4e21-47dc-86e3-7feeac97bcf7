@@ -8130,6 +8130,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get unit_short_minute => '分';
 
   @override
+  String get unit_short_second => '秒';
+
+  @override
   String get validation_awaited_callback_format =>
       '待機コールバックは \$awaitedCommand[name;filter] または \$awaitedCommandError[name] を使用する必要があります。';
 

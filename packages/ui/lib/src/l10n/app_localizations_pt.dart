@@ -8636,6 +8636,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get unit_short_minute => 'Min';
 
   @override
+  String get unit_short_second => 'Seg';
+
+  @override
   String get validation_awaited_callback_format =>
       'O retorno de chamada aguardado deve usar \$awaitedCommand[nome;filtro] ou \$awaitedCommandError[nome].';
 

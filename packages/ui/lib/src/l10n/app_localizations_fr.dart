@@ -8669,6 +8669,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get unit_short_minute => 'Min';
 
   @override
+  String get unit_short_second => 'Sec';
+
+  @override
   String get validation_awaited_callback_format =>
       'Le callback attendu doit utiliser \$awaitedCommand[name;filter] ou \$awaitedCommandError[name].';
 

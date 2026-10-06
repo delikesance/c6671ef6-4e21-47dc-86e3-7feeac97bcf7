@@ -9309,6 +9309,7 @@
   "unit_short_day": "Dias",
   "unit_short_hour": "Horas",
   "unit_short_minute": "Min",
+  "unit_short_second": "Seg",
   "validation_awaited_callback_format": "O retorno de chamada aguardado deve usar $awaitedCommand[nome;filtro] ou $awaitedCommandError[nome].",
   "validation_awaited_callback_length": "O gatilho de retorno de chamada aguardado deve ter no máximo {max} caracteres",
   "validation_awaited_callback_local_only": "Retornos de chamada aguardados requerem um Comando com Prefixo apenas local.",

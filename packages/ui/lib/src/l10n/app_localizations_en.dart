@@ -8523,6 +8523,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unit_short_minute => 'Min';
 
   @override
+  String get unit_short_second => 'Sec';
+
+  @override
   String get validation_awaited_callback_format =>
       'Awaited callback must use \$awaitedCommand[name;filter] or \$awaitedCommandError[name].';
 

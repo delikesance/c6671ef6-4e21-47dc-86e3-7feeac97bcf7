@@ -9363,6 +9363,7 @@
   "unit_short_day": "日",
   "unit_short_hour": "時間",
   "unit_short_minute": "分",
+  "unit_short_second": "秒",
   "validation_awaited_callback_format": "待機コールバックは $awaitedCommand[name;filter] または $awaitedCommandError[name] を使用する必要があります。",
   "validation_awaited_callback_length": "待機コールバックトリガーは最大 {max} 文字です",
   "validation_awaited_callback_local_only": "待機コールバックにはローカルのみのプレフィックスコマンドが必要です。",

@@ -6,6 +6,7 @@ import '../theme/app_theme.dart';
 import 'app_icon.dart';
 import 'duration_formatter.dart';
 import 'home_ui.dart';
+import 'hosting_countdown.dart';
 
 /// Carte d'accueil d'un bot classique (repliable) : avatar, serveurs, état et
 /// actions (démarrer/arrêter, gérer, logs).
@@ -44,7 +45,13 @@ class HomeBotCard extends StatefulWidget {
     this.serverAvatars,
     this.showServers = true,
     this.hostingOverride,
+    this.hostingDeadline,
   });
+
+  /// Instant où le temps d'hébergement tombe à zéro : la boîte affiche alors un
+  /// décompte à la seconde au lieu du texte `value` (qui reste lu par les
+  /// lecteurs d'écran). `null` : texte seul.
+  final DateTime? hostingDeadline;
 
   /// Montrer la ligne « actif sur N serveurs » (faux quand l'hôte ne connaît
   /// pas les serveurs du bot).
@@ -255,6 +262,7 @@ class HomeBotCardState extends State<HomeBotCard> {
             overline: hosting.overline,
             value: hosting.value,
             detail: hosting.detail,
+            deadline: widget.hostingDeadline,
           ),
         ],
         if (widget.showPremiumLabels && widget.isSubscribed) ...[
@@ -623,11 +631,15 @@ class HomeHostingBox extends StatelessWidget {
     required this.overline,
     required this.value,
     this.detail,
+    this.deadline,
   });
 
   final String overline;
   final String value;
   final String? detail;
+
+  /// Quand il est donné, un décompte vivant remplace [value] à l'écran.
+  final DateTime? deadline;
 
   @override
   Widget build(BuildContext context) {
@@ -655,16 +667,23 @@ class HomeHostingBox extends StatelessWidget {
             style: homeSectionLabelStyle(context),
           ),
           const SizedBox(height: 4),
-          Text(
-            value,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: homeDisplayStyle(
-              15,
-              weight: FontWeight.w700,
-              color: scheme.onSurface,
+          if (deadline != null)
+            HostingCountdown(
+              deadline: deadline!,
+              expiredLabel: context.tr.home_hosting_expired,
+              summary: value,
+            )
+          else
+            Text(
+              value,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: homeDisplayStyle(
+                15,
+                weight: FontWeight.w700,
+                color: scheme.onSurface,
+              ),
             ),
-          ),
           if (detail != null) ...[
             const SizedBox(height: 2),
             Text(
