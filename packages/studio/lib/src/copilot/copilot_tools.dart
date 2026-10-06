@@ -191,7 +191,8 @@ class CopilotTools {
       description: '${args['description'] ?? ''}'.trim(),
     );
     final problem = draft.validate();
-    if (problem != null) throw FormatException(problem);
+    // Retour destiné au modèle : toujours en français, comme les autres outils.
+    if (problem != null) throw FormatException(problem.inLanguage('fr'));
     final raw = draft.toRaw();
     final data = Map<String, dynamic>.from(raw['data'] as Map);
     data['actions'] = _actions(args['actions_json'] ?? '[]');

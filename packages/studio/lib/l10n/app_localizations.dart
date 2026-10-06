@@ -795,6 +795,336 @@ abstract class StudioLocalizations {
   /// In en, this message translates to:
   /// **'Create secure webhook endpoints and route calls to workflows.'**
   String get featureHooksDesc;
+
+  /// No description provided for @commonSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get commonSaved;
+
+  /// No description provided for @commonAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get commonAdd;
+
+  /// No description provided for @deleteIrreversible.
+  ///
+  /// In en, this message translates to:
+  /// **'This action is permanent.'**
+  String get deleteIrreversible;
+
+  /// No description provided for @deleteNamedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{name}”?'**
+  String deleteNamedTitle(String name);
+
+  /// No description provided for @commandNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New command'**
+  String get commandNew;
+
+  /// No description provided for @commandSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Command saved.'**
+  String get commandSaved;
+
+  /// No description provided for @commandChangedElsewhere.
+  ///
+  /// In en, this message translates to:
+  /// **'This bot was modified elsewhere (app or another session). Reload the command before saving.'**
+  String get commandChangedElsewhere;
+
+  /// No description provided for @scriptEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit script'**
+  String get scriptEdit;
+
+  /// No description provided for @commandTriggerHybrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Slash + text message'**
+  String get commandTriggerHybrid;
+
+  /// No description provided for @workflowNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New workflow'**
+  String get workflowNew;
+
+  /// No description provided for @workflowsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No workflows. Create one to reuse a sequence of actions or react to an event.'**
+  String get workflowsEmpty;
+
+  /// No description provided for @workflowSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Workflow saved.'**
+  String get workflowSaved;
+
+  /// No description provided for @workflowDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Commands that call this workflow will no longer find anything to run.'**
+  String get workflowDeleteBody;
+
+  /// No description provided for @workflowTypeGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General (called by a command)'**
+  String get workflowTypeGeneral;
+
+  /// No description provided for @workflowCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get workflowCategory;
+
+  /// No description provided for @workflowScriptNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'This workflow is written in {mode}: Studio only edits visual workflows. It stays saved as is.'**
+  String workflowScriptNotice(String mode);
+
+  /// No description provided for @variablesGlobalSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Data remembered for the whole bot.'**
+  String get variablesGlobalSubtitle;
+
+  /// No description provided for @variablesScopedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A definition sets the default value; each server, channel or member then keeps its own value.'**
+  String get variablesScopedHint;
+
+  /// No description provided for @variableScopedRemoveNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The definition is removed; values already stored are not erased.'**
+  String get variableScopedRemoveNote;
+
+  /// No description provided for @copilotNoCredits.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough AI credits. Top them up from the mobile app.'**
+  String get copilotNoCredits;
+
+  /// No description provided for @copilotChatTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'This conversation is too long: start a new one.'**
+  String get copilotChatTooLong;
+
+  /// No description provided for @copilotUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The Copilot is unavailable right now.'**
+  String get copilotUnavailable;
+
+  /// No description provided for @copilotGenerationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Generation failed.'**
+  String get copilotGenerationFailed;
+
+  /// No description provided for @copilotDeleteChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete conversation'**
+  String get copilotDeleteChat;
+
+  /// No description provided for @copilotWants.
+  ///
+  /// In en, this message translates to:
+  /// **'The Copilot wants to: {tool}'**
+  String copilotWants(String tool);
+
+  /// No description provided for @dashboardRuns.
+  ///
+  /// In en, this message translates to:
+  /// **'Executions'**
+  String get dashboardRuns;
+
+  /// No description provided for @dashboardSinceStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Since the start'**
+  String get dashboardSinceStart;
+
+  /// No description provided for @dashboardLatencyP50P95.
+  ///
+  /// In en, this message translates to:
+  /// **'Latency P50 / P95'**
+  String get dashboardLatencyP50P95;
+
+  /// No description provided for @dashboardActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get dashboardActivity;
+
+  /// No description provided for @dashboardLanguages.
+  ///
+  /// In en, this message translates to:
+  /// **'Languages'**
+  String get dashboardLanguages;
+
+  /// No description provided for @dashboardNoRuns.
+  ///
+  /// In en, this message translates to:
+  /// **'No executions in this period.'**
+  String get dashboardNoRuns;
+
+  /// No description provided for @dashboardNoActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity in this period.'**
+  String get dashboardNoActivity;
+
+  /// No description provided for @dashboardOneExecution.
+  ///
+  /// In en, this message translates to:
+  /// **'1 execution'**
+  String get dashboardOneExecution;
+
+  /// No description provided for @dashboardAgoDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} d ago'**
+  String dashboardAgoDays(int days);
+
+  /// No description provided for @dashboardAgoHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h ago'**
+  String dashboardAgoHours(int hours);
+
+  /// No description provided for @dashboardErrorRateOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{rate} % errors'**
+  String dashboardErrorRateOf(String rate);
+
+  /// No description provided for @dashboardLatencyPercentiles.
+  ///
+  /// In en, this message translates to:
+  /// **'P50 {p50} ms · P95 {p95} ms'**
+  String dashboardLatencyPercentiles(int p50, int p95);
+
+  /// No description provided for @dashboardLatencyNone.
+  ///
+  /// In en, this message translates to:
+  /// **'latency —'**
+  String get dashboardLatencyNone;
+
+  /// No description provided for @botStopFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not stop the bot'**
+  String get botStopFailed;
+
+  /// No description provided for @botStartFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not start the bot'**
+  String get botStartFailed;
+
+  /// No description provided for @refusalNoFreeTimeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hosting time used up'**
+  String get refusalNoFreeTimeTitle;
+
+  /// No description provided for @refusalNoFreeTimeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This bot has no free hosting time left. Watch an ad from the mobile app to earn some, or go Premium. Studio offers no ads or purchases.'**
+  String get refusalNoFreeTimeBody;
+
+  /// No description provided for @authSessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Session expired. Please sign in again.'**
+  String get authSessionExpired;
+
+  /// No description provided for @authDiscordRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'Discord sign-in refused ({reason}).'**
+  String authDiscordRefused(String reason);
+
+  /// No description provided for @authInvalidResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid sign-in response. Please try again.'**
+  String get authInvalidResponse;
+
+  /// No description provided for @validationCommandNameFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid name: lowercase letters, digits, “-” and “_” only, no spaces.'**
+  String get validationCommandNameFormat;
+
+  /// No description provided for @validationDescriptionTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'The description must be at most {max} characters.'**
+  String validationDescriptionTooLong(int max);
+
+  /// No description provided for @validationWorkflowNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'The workflow name is required.'**
+  String get validationWorkflowNameRequired;
+
+  /// No description provided for @validationWorkflowNameTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'The name must be at most {max} characters.'**
+  String validationWorkflowNameTooLong(int max);
+
+  /// No description provided for @validationWorkflowTooManyBlocks.
+  ///
+  /// In en, this message translates to:
+  /// **'At most {max} blocks per workflow.'**
+  String validationWorkflowTooManyBlocks(int max);
+
+  /// No description provided for @validationOptionNameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Option “{name}”: lowercase letters, digits, “-” and “_”, 32 characters at most.'**
+  String validationOptionNameInvalid(String name);
+
+  /// No description provided for @validationOptionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Option “{name}”: description required (100 characters at most).'**
+  String validationOptionDescription(String name);
+
+  /// No description provided for @validationOptionRequiredOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Required options must come before optional ones (“{name}”).'**
+  String validationOptionRequiredOrder(String name);
+
+  /// No description provided for @schedulerPremiumOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'The scheduler is reserved for Premium accounts. The subscription is managed in the app.'**
+  String get schedulerPremiumOnly;
+
+  /// No description provided for @webhooksPremiumOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Inbound webhooks are reserved for Premium accounts. The subscription is managed in the app.'**
+  String get webhooksPremiumOnly;
 }
 
 class _StudioLocalizationsDelegate

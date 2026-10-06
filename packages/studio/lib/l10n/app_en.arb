@@ -166,5 +166,161 @@
   "featureAnalyticsTitle": "Premium analytics",
   "featureAnalyticsDesc": "Unlock error rate, latency percentiles, and locale insights.",
   "featureHooksTitle": "Inbound webhooks",
-  "featureHooksDesc": "Create secure webhook endpoints and route calls to workflows."
+  "featureHooksDesc": "Create secure webhook endpoints and route calls to workflows.",
+  "commonSaved": "Saved",
+  "commonAdd": "Add",
+  "deleteIrreversible": "This action is permanent.",
+  "deleteNamedTitle": "Delete “{name}”?",
+  "@deleteNamedTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "commandNew": "New command",
+  "commandSaved": "Command saved.",
+  "commandChangedElsewhere": "This bot was modified elsewhere (app or another session). Reload the command before saving.",
+  "scriptEdit": "Edit script",
+  "commandTriggerHybrid": "Slash + text message",
+  "workflowNew": "New workflow",
+  "workflowsEmpty": "No workflows. Create one to reuse a sequence of actions or react to an event.",
+  "workflowSaved": "Workflow saved.",
+  "workflowDeleteBody": "Commands that call this workflow will no longer find anything to run.",
+  "workflowTypeGeneral": "General (called by a command)",
+  "workflowCategory": "Category",
+  "workflowScriptNotice": "This workflow is written in {mode}: Studio only edits visual workflows. It stays saved as is.",
+  "@workflowScriptNotice": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "variablesGlobalSubtitle": "Data remembered for the whole bot.",
+  "variablesScopedHint": "A definition sets the default value; each server, channel or member then keeps its own value.",
+  "variableScopedRemoveNote": "The definition is removed; values already stored are not erased.",
+  "copilotNoCredits": "Not enough AI credits. Top them up from the mobile app.",
+  "copilotChatTooLong": "This conversation is too long: start a new one.",
+  "copilotUnavailable": "The Copilot is unavailable right now.",
+  "copilotGenerationFailed": "Generation failed.",
+  "copilotDeleteChat": "Delete conversation",
+  "copilotWants": "The Copilot wants to: {tool}",
+  "@copilotWants": {
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardRuns": "Executions",
+  "dashboardSinceStart": "Since the start",
+  "dashboardLatencyP50P95": "Latency P50 / P95",
+  "dashboardActivity": "Activity",
+  "dashboardLanguages": "Languages",
+  "dashboardNoRuns": "No executions in this period.",
+  "dashboardNoActivity": "No activity in this period.",
+  "dashboardOneExecution": "1 execution",
+  "dashboardAgoDays": "{days} d ago",
+  "@dashboardAgoDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardAgoHours": "{hours} h ago",
+  "@dashboardAgoHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardErrorRateOf": "{rate} % errors",
+  "@dashboardErrorRateOf": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardLatencyPercentiles": "P50 {p50} ms · P95 {p95} ms",
+  "@dashboardLatencyPercentiles": {
+    "placeholders": {
+      "p50": {
+        "type": "int"
+      },
+      "p95": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardLatencyNone": "latency —",
+  "botStopFailed": "Could not stop the bot",
+  "botStartFailed": "Could not start the bot",
+  "refusalNoFreeTimeTitle": "Hosting time used up",
+  "refusalNoFreeTimeBody": "This bot has no free hosting time left. Watch an ad from the mobile app to earn some, or go Premium. Studio offers no ads or purchases.",
+  "authSessionExpired": "Session expired. Please sign in again.",
+  "authDiscordRefused": "Discord sign-in refused ({reason}).",
+  "@authDiscordRefused": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "authInvalidResponse": "Invalid sign-in response. Please try again.",
+  "validationCommandNameFormat": "Invalid name: lowercase letters, digits, “-” and “_” only, no spaces.",
+  "validationDescriptionTooLong": "The description must be at most {max} characters.",
+  "@validationDescriptionTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationWorkflowNameRequired": "The workflow name is required.",
+  "validationWorkflowNameTooLong": "The name must be at most {max} characters.",
+  "@validationWorkflowNameTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationWorkflowTooManyBlocks": "At most {max} blocks per workflow.",
+  "@validationWorkflowTooManyBlocks": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationOptionNameInvalid": "Option “{name}”: lowercase letters, digits, “-” and “_”, 32 characters at most.",
+  "@validationOptionNameInvalid": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "validationOptionDescription": "Option “{name}”: description required (100 characters at most).",
+  "@validationOptionDescription": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "validationOptionRequiredOrder": "Required options must come before optional ones (“{name}”).",
+  "@validationOptionRequiredOrder": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "schedulerPremiumOnly": "The scheduler is reserved for Premium accounts. The subscription is managed in the app.",
+  "webhooksPremiumOnly": "Inbound webhooks are reserved for Premium accounts. The subscription is managed in the app."
 }

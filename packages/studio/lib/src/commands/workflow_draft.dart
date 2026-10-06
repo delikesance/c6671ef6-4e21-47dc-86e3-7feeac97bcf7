@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'action_list.dart';
+import 'validation_problem.dart';
 
 /// Copie de travail d'un workflow. Comme [CommandDraft], le JSON d'origine est
 /// conservé entier : les champs que le Studio ne comprend pas (arguments,
@@ -117,11 +118,24 @@ class WorkflowDraft implements ActionListHost {
     map['enabled'] = !(map['enabled'] != false);
   }
 
-  String? validate() {
+  /// Refus de validation, ou `null` si le workflow peut être enregistré.
+  ValidationProblem? validate() {
     final n = name.trim();
-    if (n.isEmpty) return 'Le nom du workflow est requis.';
-    if (n.length > 200) return 'Le nom fait 200 caractères au maximum.';
-    if (_list.length > 80) return '80 blocs au maximum par workflow.';
+    if (n.isEmpty) {
+      return const ValidationProblem(ValidationKind.workflowNameRequired);
+    }
+    if (n.length > 200) {
+      return const ValidationProblem(
+        ValidationKind.workflowNameTooLong,
+        max: 200,
+      );
+    }
+    if (_list.length > 80) {
+      return const ValidationProblem(
+        ValidationKind.workflowTooManyBlocks,
+        max: 80,
+      );
+    }
     return null;
   }
 

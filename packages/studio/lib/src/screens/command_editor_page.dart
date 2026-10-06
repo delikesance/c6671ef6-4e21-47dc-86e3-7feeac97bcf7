@@ -6,6 +6,7 @@ import '../api/studio_api.dart';
 import '../commands/command_draft.dart';
 import '../editor/studio_command_history_host.dart';
 import '../editor/studio_editor_host.dart';
+import '../l10n_ext.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 import '../commands/options_validation.dart';
@@ -106,7 +107,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
     final draft = _draft!;
     final problem = draft.validate() ?? validateOptions(draft.options);
     if (problem != null) {
-      setState(() => _formError = problem);
+      setState(() => _formError = problem.text(context));
       return;
     }
     setState(() {
@@ -130,12 +131,12 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
       });
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Commande enregistrée.')));
+      ).showSnackBar(SnackBar(content: Text(context.l10n.commandSaved)));
     } on StudioApiException catch (e) {
       if (!mounted) return;
       setState(
         () => _formError = e.statusCode == 409
-            ? 'Ce bot a été modifié ailleurs (app ou autre session). Rechargez la commande avant d\'enregistrer.'
+            ? context.l10n.commandChangedElsewhere
             : e.message,
       );
     } catch (e) {
@@ -170,18 +171,18 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Supprimer /${_draft!.name} ?'),
-        content: const Text('Cette action est définitive.'),
+        title: Text(context.tr.cmd_delete_confirm(_draft!.name)),
+        content: Text(context.l10n.deleteIrreversible),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Annuler'),
+            child: Text(context.tr.common_cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text(
-              'Supprimer',
-              style: TextStyle(color: StudioColors.errorText),
+            child: Text(
+              context.tr.common_delete,
+              style: const TextStyle(color: StudioColors.errorText),
             ),
           ),
         ],
@@ -216,7 +217,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
           child: Row(
             children: [
               IconButton(
-                tooltip: 'Retour',
+                tooltip: context.tr.common_back,
                 onPressed: () => widget.onClose(_changed),
                 icon: const AppIcon.fromMaterial(
                   Icons.arrow_back_rounded,
@@ -235,7 +236,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
               if (draft != null) ...[
                 if (!_isNew)
                   IconButton(
-                    tooltip: 'Historique',
+                    tooltip: context.tr.copilot_history_tooltip,
                     onPressed: _saving ? null : _history,
                     icon: const AppIcon.fromMaterial(
                       Icons.history_rounded,
@@ -243,7 +244,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
                     ),
                   ),
                 IconButton(
-                  tooltip: 'Supprimer la commande',
+                  tooltip: context.tr.cmd_delete_tooltip,
                   onPressed: _saving ? null : _delete,
                   icon: const AppIcon.fromMaterial(
                     Icons.delete_outline_rounded,
@@ -265,7 +266,11 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
                               : Icons.check_rounded,
                           size: 16,
                         ),
-                  label: Text(draft.dirty ? 'Enregistrer' : 'Enregistré'),
+                  label: Text(
+                    draft.dirty
+                        ? context.tr.common_save
+                        : context.l10n.commonSaved,
+                  ),
                 ),
               ],
             ],
@@ -390,7 +395,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
                 }
               },
               icon: const AppIcon.fromMaterial(Icons.edit_note, size: 18),
-              label: const Text('Modifier le script'),
+              label: Text(context.l10n.scriptEdit),
             ),
           ],
         ),

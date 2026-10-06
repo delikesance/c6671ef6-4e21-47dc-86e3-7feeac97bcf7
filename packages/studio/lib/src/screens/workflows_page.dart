@@ -6,6 +6,7 @@ import 'package:bot_creator_shared/utils/event_catalog.dart';
 
 import '../commands/workflow_draft.dart';
 import '../editor/studio_editor_host.dart';
+import '../l10n_ext.dart';
 import '../layout.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
@@ -86,14 +87,17 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
               ),
               child: Row(
                 children: [
-                  const Text(
-                    'Workflows',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                  Text(
+                    context.tr.workflows_title,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const Spacer(),
                   if (MediaQuery.sizeOf(context).width < 480)
                     IconButton.filled(
-                      tooltip: 'Nouveau workflow',
+                      tooltip: context.l10n.workflowNew,
                       onPressed: _create,
                       icon: const AppIcon.fromMaterial(
                         Icons.add_rounded,
@@ -107,7 +111,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                         Icons.add_rounded,
                         size: 18,
                       ),
-                      label: const Text('Nouveau workflow'),
+                      label: Text(context.l10n.workflowNew),
                     ),
                 ],
               ),
@@ -147,7 +151,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
               : tr.workflows_type_badge_general,
         ),
         if (w.executionMode != 'workflow')
-          ModuleChip(_modeLabel(w.executionMode)),
+          ModuleChip(_modeLabel(tr, w.executionMode)),
         if (w.folder.isNotEmpty) ModuleChip(w.folder),
       ],
       onTap: () => setState(() => _editing = w.name),
@@ -165,13 +169,13 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
       return ErrorNotice(message: '${snapshot.error}', onRetry: _refresh);
     }
     if (items.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           child: Text(
-            "Aucun workflow. Créez-en un pour réutiliser une suite d'actions ou réagir à un événement.",
+            context.l10n.workflowsEmpty,
             textAlign: TextAlign.center,
-            style: TextStyle(color: StudioColors.muted),
+            style: const TextStyle(color: StudioColors.muted),
           ),
         ),
       );
@@ -190,10 +194,10 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
   }
 }
 
-String _modeLabel(String mode) => switch (mode) {
-  'bdfd_script' => 'Code BDFD',
+String _modeLabel(AppLocalizations tr, String mode) => switch (mode) {
+  'bdfd_script' => tr.scratch_mode_bdfd,
   'javascript' => 'JavaScript',
-  _ => 'Visuel (Blocs)',
+  _ => tr.scratch_mode_blocks,
 };
 
 class _NewWorkflowDialog extends StatefulWidget {
@@ -229,7 +233,7 @@ class _NewWorkflowDialogState extends State<_NewWorkflowDialog> {
     );
     final problem = draft.validate();
     if (problem != null) {
-      setState(() => _error = problem);
+      setState(() => _error = problem.text(context));
       return;
     }
     Navigator.of(context).pop(draft);
@@ -239,7 +243,7 @@ class _NewWorkflowDialogState extends State<_NewWorkflowDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: const Text('Nouveau workflow'),
+      title: Text(context.l10n.workflowNew),
       content: SizedBox(
         width: 420,
         child: Column(
@@ -249,9 +253,9 @@ class _NewWorkflowDialogState extends State<_NewWorkflowDialog> {
             TextField(
               controller: _name,
               autofocus: true,
-              decoration: const InputDecoration(
-                labelText: 'Nom',
-                prefixIcon: AppIcon.fromMaterial(
+              decoration: InputDecoration(
+                labelText: context.tr.common_name,
+                prefixIcon: const AppIcon.fromMaterial(
                   Icons.account_tree_outlined,
                   size: 18,
                 ),
@@ -260,15 +264,15 @@ class _NewWorkflowDialogState extends State<_NewWorkflowDialog> {
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               initialValue: _type,
-              decoration: const InputDecoration(labelText: 'Type'),
-              items: const [
+              decoration: InputDecoration(labelText: context.tr.common_type),
+              items: [
                 DropdownMenuItem(
                   value: 'general',
-                  child: Text('Général (appelé par une commande)'),
+                  child: Text(context.l10n.workflowTypeGeneral),
                 ),
                 DropdownMenuItem(
                   value: 'event',
-                  child: Text('Événement Discord'),
+                  child: Text(context.tr.scratch_wizard_trigger_event_title),
                 ),
               ],
               onChanged: (v) => setState(() => _type = v ?? 'general'),
@@ -277,12 +281,16 @@ class _NewWorkflowDialogState extends State<_NewWorkflowDialog> {
               const SizedBox(height: 12),
               TextField(
                 controller: _category,
-                decoration: const InputDecoration(labelText: 'Catégorie'),
+                decoration: InputDecoration(
+                  labelText: context.l10n.workflowCategory,
+                ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _event,
-                decoration: const InputDecoration(labelText: 'Événement'),
+                decoration: InputDecoration(
+                  labelText: context.tr.workflows_type_badge_event,
+                ),
               ),
             ],
             if (_error != null)
@@ -299,9 +307,9 @@ class _NewWorkflowDialogState extends State<_NewWorkflowDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Annuler'),
+          child: Text(context.tr.common_cancel),
         ),
-        FilledButton(onPressed: _submit, child: const Text('Créer')),
+        FilledButton(onPressed: _submit, child: Text(context.tr.create)),
       ],
     );
   }
@@ -386,7 +394,7 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
     final draft = _draft!;
     final problem = draft.validate();
     if (problem != null) {
-      setState(() => _formError = problem);
+      setState(() => _formError = problem.text(context));
       return;
     }
     setState(() {
@@ -404,7 +412,7 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
       });
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Workflow enregistré.')));
+      ).showSnackBar(SnackBar(content: Text(context.l10n.workflowSaved)));
     } on StudioApiException catch (e) {
       if (mounted) setState(() => _formError = e.message);
     } catch (e) {
@@ -423,20 +431,18 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Supprimer « ${_draft!.name} » ?'),
-        content: const Text(
-          'Les commandes qui appellent ce workflow ne trouveront plus rien à exécuter.',
-        ),
+        title: Text(context.l10n.deleteNamedTitle(_draft!.name)),
+        content: Text(context.l10n.workflowDeleteBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Annuler'),
+            child: Text(context.tr.common_cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text(
-              'Supprimer',
-              style: TextStyle(color: StudioColors.errorText),
+            child: Text(
+              context.tr.common_delete,
+              style: const TextStyle(color: StudioColors.errorText),
             ),
           ),
         ],
@@ -471,7 +477,7 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
           child: Row(
             children: [
               IconButton(
-                tooltip: 'Retour',
+                tooltip: context.tr.common_back,
                 onPressed: () => widget.onClose(_changed),
                 icon: const AppIcon.fromMaterial(
                   Icons.arrow_back_rounded,
@@ -490,7 +496,7 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
               ),
               if (draft != null) ...[
                 IconButton(
-                  tooltip: 'Supprimer le workflow',
+                  tooltip: context.tr.workflows_delete_title,
                   onPressed: _saving ? null : _delete,
                   icon: const AppIcon.fromMaterial(
                     Icons.delete_outline_rounded,
@@ -506,7 +512,11 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
                     draft.dirty ? Icons.save_outlined : Icons.check_rounded,
                     size: 16,
                   ),
-                  label: Text(draft.dirty ? 'Enregistrer' : 'Enregistré'),
+                  label: Text(
+                    draft.dirty
+                        ? context.tr.common_save
+                        : context.l10n.commonSaved,
+                  ),
                 ),
               ],
             ],
@@ -597,7 +607,9 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
                       header,
                       const SizedBox(height: 12),
                       Text(
-                        'Ce workflow est écrit en ${_modeLabel(draft.executionMode)} : le Studio ne modifie que les workflows visuels. Il reste enregistré tel quel.',
+                        context.l10n.workflowScriptNotice(
+                          _modeLabel(context.tr, draft.executionMode),
+                        ),
                         style: const TextStyle(color: StudioColors.muted),
                       ),
                     ],

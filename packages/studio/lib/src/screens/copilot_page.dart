@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
 import '../copilot/copilot_tools.dart';
+import '../l10n_ext.dart';
 import '../layout.dart';
 import '../theme.dart';
 
@@ -82,13 +83,13 @@ class _CopilotPageState extends State<CopilotPage> {
     if (e is StudioApiException) {
       final code = (e.code ?? '').toLowerCase();
       if (e.statusCode == 402 || code.contains('insufficient')) {
-        return 'Crédits IA insuffisants. Rechargez-les depuis l\'app mobile.';
+        return context.l10n.copilotNoCredits;
       }
       if (code == 'ai_context_limit') {
-        return 'Cette discussion est trop longue : démarrez-en une nouvelle.';
+        return context.l10n.copilotChatTooLong;
       }
       if (code == 'ai_disabled' || e.statusCode == 503) {
-        return 'Le Copilote est indisponible pour le moment.';
+        return context.l10n.copilotUnavailable;
       }
       return e.message;
     }
@@ -148,7 +149,9 @@ class _CopilotPageState extends State<CopilotPage> {
     try {
       _chat ??= await widget.api.createAiConversation(
         botId: widget.bot.id,
-        title: text.length > 60 ? text.substring(0, 60) : text,
+        title: text.isEmpty
+            ? context.tr.copilot_new_discussion
+            : (text.length > 60 ? text.substring(0, 60) : text),
       );
       _pending ??= {
         'idempotency_key': _newKey(),
@@ -205,7 +208,7 @@ class _CopilotPageState extends State<CopilotPage> {
       if (!mounted) return;
       if (failedCode.isNotEmpty || chat['last_request_status'] == 'failed') {
         throw StudioApiException(
-          'La génération a échoué.',
+          context.l10n.copilotGenerationFailed,
           code: failedCode.isEmpty ? '${chat['last_error_code']}' : failedCode,
         );
       }
@@ -446,7 +449,7 @@ class _CopilotPageState extends State<CopilotPage> {
                   Icons.delete_outline,
                   size: 16,
                 ),
-                label: const Text('Supprimer la discussion'),
+                label: Text(context.l10n.copilotDeleteChat),
               ),
             ),
           ),
@@ -478,9 +481,9 @@ class _CopilotPageState extends State<CopilotPage> {
                       child: Text(context.tr.copilot_new_discussion),
                     ),
                     if (_chat != null)
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: '__delete__',
-                        child: Text('Supprimer cette discussion'),
+                        child: Text(context.l10n.copilotDeleteChat),
                       ),
                     if (_history.isNotEmpty) const PopupMenuDivider(),
                     for (final c in _summaries.take(20))
@@ -587,7 +590,7 @@ class _CopilotPageState extends State<CopilotPage> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Le Copilote veut : ${_toolLabel(name)}',
+                  context.l10n.copilotWants(_toolLabel(name)),
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
               ),
@@ -615,12 +618,12 @@ class _CopilotPageState extends State<CopilotPage> {
             children: [
               TextButton(
                 onPressed: _busy ? null : () => _action(a, false),
-                child: const Text('Refuser'),
+                child: Text(context.tr.copilot_decline),
               ),
               const SizedBox(width: 8),
               FilledButton(
                 onPressed: _busy ? null : () => _action(a, true),
-                child: const Text('Approuver'),
+                child: Text(context.tr.copilot_approve),
               ),
             ],
           ),

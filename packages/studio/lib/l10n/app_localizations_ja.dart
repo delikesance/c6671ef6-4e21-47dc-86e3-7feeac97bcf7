@@ -376,4 +376,204 @@ class StudioLocalizationsJa extends StudioLocalizations {
 
   @override
   String get featureHooksDesc => '安全なWebhookエンドポイントを作成し、呼び出しをワークフローにルーティング。';
+
+  @override
+  String get commonSaved => '保存済み';
+
+  @override
+  String get commonAdd => '追加';
+
+  @override
+  String get deleteIrreversible => 'この操作は元に戻せません。';
+
+  @override
+  String deleteNamedTitle(String name) {
+    return '「$name」を削除しますか？';
+  }
+
+  @override
+  String get commandNew => '新しいコマンド';
+
+  @override
+  String get commandSaved => 'コマンドを保存しました。';
+
+  @override
+  String get commandChangedElsewhere =>
+      'このボットは別の場所（アプリまたは別のセッション）で変更されました。保存する前にコマンドを再読み込みしてください。';
+
+  @override
+  String get scriptEdit => 'スクリプトを編集';
+
+  @override
+  String get commandTriggerHybrid => 'スラッシュ＋テキストメッセージ';
+
+  @override
+  String get workflowNew => '新しいワークフロー';
+
+  @override
+  String get workflowsEmpty =>
+      'ワークフローがありません。アクションの流れを再利用したり、イベントに反応させたりするには、ワークフローを作成してください。';
+
+  @override
+  String get workflowSaved => 'ワークフローを保存しました。';
+
+  @override
+  String get workflowDeleteBody => 'このワークフローを呼び出すコマンドは、実行するものがなくなります。';
+
+  @override
+  String get workflowTypeGeneral => '汎用（コマンドから呼び出し）';
+
+  @override
+  String get workflowCategory => 'カテゴリ';
+
+  @override
+  String workflowScriptNotice(String mode) {
+    return 'このワークフローは $mode で書かれています。Studio で編集できるのはビジュアルのワークフローのみです。内容はそのまま保存されます。';
+  }
+
+  @override
+  String get variablesGlobalSubtitle => 'ボット全体で記憶されるデータ。';
+
+  @override
+  String get variablesScopedHint =>
+      '定義はデフォルト値を決めます。その後、サーバー・チャンネル・メンバーごとに独自の値が保持されます。';
+
+  @override
+  String get variableScopedRemoveNote => '定義は削除されますが、すでに保存されている値は消去されません。';
+
+  @override
+  String get copilotNoCredits => 'AIクレジットが不足しています。モバイルアプリからチャージしてください。';
+
+  @override
+  String get copilotChatTooLong => 'この会話は長すぎます。新しい会話を始めてください。';
+
+  @override
+  String get copilotUnavailable => 'コパイロットは現在利用できません。';
+
+  @override
+  String get copilotGenerationFailed => '生成に失敗しました。';
+
+  @override
+  String get copilotDeleteChat => '会話を削除';
+
+  @override
+  String copilotWants(String tool) {
+    return 'コパイロットの要求: $tool';
+  }
+
+  @override
+  String get dashboardRuns => '実行回数';
+
+  @override
+  String get dashboardSinceStart => '開始から';
+
+  @override
+  String get dashboardLatencyP50P95 => 'レイテンシ P50 / P95';
+
+  @override
+  String get dashboardActivity => 'アクティビティ';
+
+  @override
+  String get dashboardLanguages => '言語';
+
+  @override
+  String get dashboardNoRuns => 'この期間の実行はありません。';
+
+  @override
+  String get dashboardNoActivity => 'この期間のアクティビティはありません。';
+
+  @override
+  String get dashboardOneExecution => '1 回の実行';
+
+  @override
+  String dashboardAgoDays(int days) {
+    return '$days 日前';
+  }
+
+  @override
+  String dashboardAgoHours(int hours) {
+    return '$hours 時間前';
+  }
+
+  @override
+  String dashboardErrorRateOf(String rate) {
+    return 'エラー $rate %';
+  }
+
+  @override
+  String dashboardLatencyPercentiles(int p50, int p95) {
+    return 'P50 $p50 ms · P95 $p95 ms';
+  }
+
+  @override
+  String get dashboardLatencyNone => 'レイテンシ —';
+
+  @override
+  String get botStopFailed => 'ボットを停止できません';
+
+  @override
+  String get botStartFailed => 'ボットを起動できません';
+
+  @override
+  String get refusalNoFreeTimeTitle => 'ホスティング時間を使い切りました';
+
+  @override
+  String get refusalNoFreeTimeBody =>
+      'このボットには無料のホスティング時間が残っていません。モバイルアプリで広告を視聴して獲得するか、Premiumにアップグレードしてください。Studioでは広告の表示も購入もできません。';
+
+  @override
+  String get authSessionExpired => 'セッションの有効期限が切れました。もう一度サインインしてください。';
+
+  @override
+  String authDiscordRefused(String reason) {
+    return 'Discordサインインが拒否されました（$reason）。';
+  }
+
+  @override
+  String get authInvalidResponse => 'サインインの応答が無効です。もう一度お試しください。';
+
+  @override
+  String get validationCommandNameFormat =>
+      '無効な名前です。小文字、数字、「-」と「_」のみ使用でき、スペースは使えません。';
+
+  @override
+  String validationDescriptionTooLong(int max) {
+    return '説明は最大$max文字です。';
+  }
+
+  @override
+  String get validationWorkflowNameRequired => 'ワークフロー名は必須です。';
+
+  @override
+  String validationWorkflowNameTooLong(int max) {
+    return '名前は最大$max文字です。';
+  }
+
+  @override
+  String validationWorkflowTooManyBlocks(int max) {
+    return 'ワークフローあたり最大$maxブロックです。';
+  }
+
+  @override
+  String validationOptionNameInvalid(String name) {
+    return 'オプション「$name」：小文字、数字、「-」と「_」のみ、最大32文字です。';
+  }
+
+  @override
+  String validationOptionDescription(String name) {
+    return 'オプション「$name」：説明は必須です（最大100文字）。';
+  }
+
+  @override
+  String validationOptionRequiredOrder(String name) {
+    return '必須オプションは任意オプションより前に置く必要があります（「$name」）。';
+  }
+
+  @override
+  String get schedulerPremiumOnly =>
+      'スケジューラーはPremiumアカウント専用です。サブスクリプションはアプリで管理します。';
+
+  @override
+  String get webhooksPremiumOnly =>
+      '受信Webhookはプレミアムアカウント専用です。サブスクリプションはアプリで管理します。';
 }

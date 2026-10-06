@@ -12,9 +12,20 @@ class LoginPage extends StatelessWidget {
 
   final AuthController auth;
 
+  /// Motif connu traduit, sinon le message brut du serveur.
+  String? _errorText(BuildContext context) => switch (auth.issue) {
+    AuthIssue.sessionExpired => context.l10n.authSessionExpired,
+    AuthIssue.discordRefused => context.l10n.authDiscordRefused(
+      auth.issueDetail ?? '',
+    ),
+    AuthIssue.invalidResponse => context.l10n.authInvalidResponse,
+    null => auth.errorMessage,
+  };
+
   @override
   Widget build(BuildContext context) {
     final failed = auth.status == AuthStatus.error;
+    final error = _errorText(context);
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -51,12 +62,12 @@ class LoginPage extends StatelessWidget {
                       color: StudioColors.muted,
                     ),
                   ),
-                  if (auth.errorMessage != null) ...[
+                  if (error != null) ...[
                     const SizedBox(height: 16),
                     Semantics(
                       liveRegion: true,
                       child: Text(
-                        auth.errorMessage!,
+                        error,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 13,

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
 import '../commands/action_list.dart';
+import '../l10n_ext.dart';
 import '../screens/variables_page.dart';
 import '../screens/workflows_page.dart';
 
@@ -163,15 +164,11 @@ class StudioSchedulerController extends SchedulerController {
   bool get hasCapability => available;
 
   @override
-  Widget? upsell(
-    BuildContext context,
-    Future<void> Function() reload,
-  ) => const Padding(
-    padding: EdgeInsets.only(top: 12),
-    child: Text(
-      "Le planificateur est réservé aux comptes Premium. L'abonnement se gère dans l'app.",
-    ),
-  );
+  Widget? upsell(BuildContext context, Future<void> Function() reload) =>
+      Padding(
+        padding: const EdgeInsets.only(top: 12),
+        child: Text(context.l10n.schedulerPremiumOnly),
+      );
 }
 
 /// Webhooks entrants du Studio : le secret n'est jamais relu (le Manager ne le
@@ -223,15 +220,11 @@ class StudioInboundWebhooksController extends InboundWebhooksController {
   bool get hasCapability => available;
 
   @override
-  Widget? upsell(
-    BuildContext context,
-    Future<void> Function() reload,
-  ) => const Padding(
-    padding: EdgeInsets.only(top: 12),
-    child: Text(
-      "Les webhooks entrants sont réservés aux comptes Premium. L'abonnement se gère dans l'app.",
-    ),
-  );
+  Widget? upsell(BuildContext context, Future<void> Function() reload) =>
+      Padding(
+        padding: const EdgeInsets.only(top: 12),
+        child: Text(context.l10n.webhooksPremiumOnly),
+      );
 }
 
 /// Émojis d'application du Studio : Discord est joint par le Manager.

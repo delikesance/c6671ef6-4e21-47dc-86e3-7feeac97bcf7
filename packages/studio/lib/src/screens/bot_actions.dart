@@ -1,7 +1,9 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../api/start_refusal.dart';
 import '../api/studio_api.dart';
+import '../l10n_ext.dart';
 
 /// Explique un échec de lancement/arrêt : refus de formule traduit, sinon le
 /// message du serveur.
@@ -11,13 +13,13 @@ Future<void> explainBotError(
   Object error,
 ) {
   final refusal = StartRefusal.fromError(error);
+  final l = context.l10n;
   final title =
-      refusal?.title ??
-      (bot.running
-          ? "Impossible d'arrêter le bot"
-          : 'Impossible de lancer le bot');
+      refusal?.title(l, context.tr) ??
+      (bot.running ? l.botStopFailed : l.botStartFailed);
   final body =
-      refusal?.body ?? (error is StudioApiException ? error.message : '$error');
+      refusal?.body(l, context.tr) ??
+      (error is StudioApiException ? error.message : '$error');
   return showDialog<void>(
     context: context,
     builder: (context) => AlertDialog(
@@ -27,7 +29,7 @@ Future<void> explainBotError(
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Fermer'),
+          child: Text(context.tr.common_close),
         ),
       ],
     ),

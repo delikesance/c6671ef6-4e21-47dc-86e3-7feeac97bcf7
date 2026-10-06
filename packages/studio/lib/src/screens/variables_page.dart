@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
+import '../l10n_ext.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 import '../layout.dart';
@@ -79,7 +80,9 @@ class _VariablesPageState extends State<VariablesPage> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(key == null ? 'Nouvelle variable' : 'Modifier la variable'),
+        title: Text(
+          key == null ? context.tr.globals_add : context.tr.globals_edit,
+        ),
         content: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 420),
           child: Column(
@@ -87,16 +90,16 @@ class _VariablesPageState extends State<VariablesPage> {
             children: [
               TextField(
                 controller: keyCtl,
-                decoration: const InputDecoration(labelText: 'Nom'),
+                decoration: InputDecoration(labelText: context.tr.common_name),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: valueCtl,
                 minLines: 1,
                 maxLines: 6,
-                decoration: const InputDecoration(
-                  labelText: 'Valeur',
-                  helperText: 'Nombre, true/false et JSON gardent leur type.',
+                decoration: InputDecoration(
+                  labelText: context.tr.common_value,
+                  helperText: context.tr.globals_value_auto_type_hint,
                 ),
               ),
             ],
@@ -105,14 +108,14 @@ class _VariablesPageState extends State<VariablesPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Annuler'),
+            child: Text(context.tr.common_cancel),
           ),
           FilledButton(
             onPressed: () {
               if (keyCtl.text.trim().isEmpty) return;
               Navigator.of(context).pop((keyCtl.text.trim(), valueCtl.text));
             },
-            child: const Text('Enregistrer'),
+            child: Text(context.tr.common_save),
           ),
         ],
       ),
@@ -141,11 +144,12 @@ class _VariablesPageState extends State<VariablesPage> {
           : formatVariableValue(existing!.defaultValue),
     );
     var scope = existing?.scope.isNotEmpty == true ? existing!.scope : 'user';
-    const scopes = {
-      'user': 'Utilisateur',
-      'guild': 'Serveur',
-      'channel': 'Salon',
-      'guildMember': 'Membre (par serveur)',
+    final tr = context.tr;
+    final scopes = {
+      'user': tr.globals_scope_user,
+      'guild': tr.globals_scope_guild,
+      'channel': tr.globals_scope_channel,
+      'guildMember': tr.globals_scope_guildMember,
     };
     if (!scopes.containsKey(scope)) scope = 'user';
     final result = await showDialog<(String, String, String)>(
@@ -157,8 +161,8 @@ class _VariablesPageState extends State<VariablesPage> {
           ),
           title: Text(
             existing == null
-                ? 'Nouvelle variable à portée'
-                : 'Modifier la variable à portée',
+                ? context.tr.globals_add_scoped
+                : context.tr.globals_edit_scoped,
           ),
           content: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 420),
@@ -168,12 +172,16 @@ class _VariablesPageState extends State<VariablesPage> {
                 TextField(
                   controller: keyCtl,
                   enabled: existing == null,
-                  decoration: const InputDecoration(labelText: 'Nom'),
+                  decoration: InputDecoration(
+                    labelText: context.tr.common_name,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   initialValue: scope,
-                  decoration: const InputDecoration(labelText: 'Portée'),
+                  decoration: InputDecoration(
+                    labelText: context.tr.scoped_scope,
+                  ),
                   items: [
                     for (final e in scopes.entries)
                       DropdownMenuItem(value: e.key, child: Text(e.value)),
@@ -187,9 +195,9 @@ class _VariablesPageState extends State<VariablesPage> {
                   controller: valueCtl,
                   minLines: 1,
                   maxLines: 4,
-                  decoration: const InputDecoration(
-                    labelText: 'Valeur par défaut',
-                    helperText: 'Nombre, true/false et JSON gardent leur type.',
+                  decoration: InputDecoration(
+                    labelText: context.tr.scoped_default_value,
+                    helperText: context.tr.globals_value_auto_type_hint,
                   ),
                 ),
               ],
@@ -198,7 +206,7 @@ class _VariablesPageState extends State<VariablesPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Annuler'),
+              child: Text(context.tr.common_cancel),
             ),
             FilledButton(
               onPressed: () {
@@ -207,7 +215,7 @@ class _VariablesPageState extends State<VariablesPage> {
                   context,
                 ).pop((keyCtl.text.trim(), scope, valueCtl.text));
               },
-              child: const Text('Enregistrer'),
+              child: Text(context.tr.common_save),
             ),
           ],
         ),
@@ -230,20 +238,18 @@ class _VariablesPageState extends State<VariablesPage> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Supprimer « ${d.key} » ?'),
-        content: const Text(
-          'La définition est retirée ; les valeurs déjà mémorisées ne sont pas effacées.',
-        ),
+        title: Text(context.tr.globals_delete_confirm(d.key)),
+        content: Text(context.l10n.variableScopedRemoveNote),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Annuler'),
+            child: Text(context.tr.common_cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text(
-              'Supprimer',
-              style: TextStyle(color: StudioColors.errorText),
+            child: Text(
+              context.tr.common_delete,
+              style: const TextStyle(color: StudioColors.errorText),
             ),
           ),
         ],
@@ -281,10 +287,10 @@ class _VariablesPageState extends State<VariablesPage> {
               children: [
                 Row(
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        'Variables',
-                        style: TextStyle(
+                        context.tr.globals_title,
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
                         ),
@@ -296,23 +302,23 @@ class _VariablesPageState extends State<VariablesPage> {
                         Icons.add_rounded,
                         size: 18,
                       ),
-                      label: const Text('Ajouter'),
+                      label: Text(context.l10n.commonAdd),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Données mémorisées pour tout le bot.',
-                  style: TextStyle(color: StudioColors.muted),
+                Text(
+                  context.l10n.variablesGlobalSubtitle,
+                  style: const TextStyle(color: StudioColors.muted),
                 ),
                 const SizedBox(height: 16),
                 if (keys.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 32),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 32),
                     child: Center(
                       child: Text(
-                        'Aucune variable.',
-                        style: TextStyle(color: StudioColors.muted),
+                        context.tr.globals_empty,
+                        style: const TextStyle(color: StudioColors.muted),
                       ),
                     ),
                   ),
@@ -330,21 +336,26 @@ class _VariablesPageState extends State<VariablesPage> {
                 const SizedBox(height: 28),
                 Row(
                   children: [
-                    const Expanded(child: Overline('Par serveur, membre…')),
+                    Expanded(
+                      child: Overline(context.tr.globals_section_scoped),
+                    ),
                     TextButton.icon(
                       onPressed: () => _editScoped(),
                       icon: const AppIcon.fromMaterial(
                         Icons.add_rounded,
                         size: 18,
                       ),
-                      label: const Text('Ajouter'),
+                      label: Text(context.l10n.commonAdd),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Une définition donne la valeur par défaut ; chaque serveur, salon ou membre garde ensuite sa propre valeur.',
-                  style: TextStyle(fontSize: 12, color: StudioColors.muted),
+                Text(
+                  context.l10n.variablesScopedHint,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: StudioColors.muted,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 ScopedVariablesList(

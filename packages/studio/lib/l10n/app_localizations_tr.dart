@@ -379,4 +379,210 @@ class StudioLocalizationsTr extends StudioLocalizations {
   @override
   String get featureHooksDesc =>
       'Güvenli webhook uç noktaları oluşturun ve çağrıları iş akışlarına yönlendirin.';
+
+  @override
+  String get commonSaved => 'Kaydedildi';
+
+  @override
+  String get commonAdd => 'Ekle';
+
+  @override
+  String get deleteIrreversible => 'Bu işlem kalıcıdır.';
+
+  @override
+  String deleteNamedTitle(String name) {
+    return '“$name” silinsin mi?';
+  }
+
+  @override
+  String get commandNew => 'Yeni komut';
+
+  @override
+  String get commandSaved => 'Komut kaydedildi.';
+
+  @override
+  String get commandChangedElsewhere =>
+      'Bu bot başka bir yerde (uygulama veya başka bir oturum) değiştirildi. Kaydetmeden önce komutu yeniden yükleyin.';
+
+  @override
+  String get scriptEdit => 'Betiği düzenle';
+
+  @override
+  String get commandTriggerHybrid => 'Slash + metin mesajı';
+
+  @override
+  String get workflowNew => 'Yeni iş akışı';
+
+  @override
+  String get workflowsEmpty =>
+      'İş akışı yok. Bir eylem dizisini yeniden kullanmak veya bir olaya tepki vermek için bir tane oluşturun.';
+
+  @override
+  String get workflowSaved => 'İş akışı kaydedildi.';
+
+  @override
+  String get workflowDeleteBody =>
+      'Bu iş akışını çağıran komutlar artık çalıştıracak bir şey bulamaz.';
+
+  @override
+  String get workflowTypeGeneral => 'Genel (bir komut tarafından çağrılır)';
+
+  @override
+  String get workflowCategory => 'Kategori';
+
+  @override
+  String workflowScriptNotice(String mode) {
+    return 'Bu iş akışı $mode ile yazılmış: Studio yalnızca görsel iş akışlarını düzenler. Olduğu gibi kayıtlı kalır.';
+  }
+
+  @override
+  String get variablesGlobalSubtitle => 'Tüm bot için hatırlanan veriler.';
+
+  @override
+  String get variablesScopedHint =>
+      'Bir tanım varsayılan değeri belirler; ardından her sunucu, kanal veya üye kendi değerini tutar.';
+
+  @override
+  String get variableScopedRemoveNote =>
+      'Tanım kaldırılır; önceden kaydedilmiş değerler silinmez.';
+
+  @override
+  String get copilotNoCredits =>
+      'Yapay zeka kredisi yetersiz. Mobil uygulamadan yükleyin.';
+
+  @override
+  String get copilotChatTooLong =>
+      'Bu sohbet çok uzun: yeni bir tane başlatın.';
+
+  @override
+  String get copilotUnavailable => 'Yardımcı şu anda kullanılamıyor.';
+
+  @override
+  String get copilotGenerationFailed => 'Oluşturma başarısız oldu.';
+
+  @override
+  String get copilotDeleteChat => 'Sohbeti sil';
+
+  @override
+  String copilotWants(String tool) {
+    return 'Yardımcı şunu yapmak istiyor: $tool';
+  }
+
+  @override
+  String get dashboardRuns => 'Yürütmeler';
+
+  @override
+  String get dashboardSinceStart => 'Başlangıçtan beri';
+
+  @override
+  String get dashboardLatencyP50P95 => 'Gecikme P50 / P95';
+
+  @override
+  String get dashboardActivity => 'Etkinlik';
+
+  @override
+  String get dashboardLanguages => 'Diller';
+
+  @override
+  String get dashboardNoRuns => 'Bu dönemde yürütme yok.';
+
+  @override
+  String get dashboardNoActivity => 'Bu dönemde etkinlik yok.';
+
+  @override
+  String get dashboardOneExecution => '1 yürütme';
+
+  @override
+  String dashboardAgoDays(int days) {
+    return '$days gün önce';
+  }
+
+  @override
+  String dashboardAgoHours(int hours) {
+    return '$hours sa. önce';
+  }
+
+  @override
+  String dashboardErrorRateOf(String rate) {
+    return '%$rate hata';
+  }
+
+  @override
+  String dashboardLatencyPercentiles(int p50, int p95) {
+    return 'P50 $p50 ms · P95 $p95 ms';
+  }
+
+  @override
+  String get dashboardLatencyNone => 'gecikme —';
+
+  @override
+  String get botStopFailed => 'Bot durdurulamadı';
+
+  @override
+  String get botStartFailed => 'Bot başlatılamadı';
+
+  @override
+  String get refusalNoFreeTimeTitle => 'Barındırma süresi doldu';
+
+  @override
+  String get refusalNoFreeTimeBody =>
+      'Bu botun ücretsiz barındırma süresi kalmadı. Süre kazanmak için mobil uygulamadan bir reklam izleyin veya Premium\'a geçin. Studio reklam veya satın alma sunmaz.';
+
+  @override
+  String get authSessionExpired =>
+      'Oturum süresi doldu. Lütfen yeniden oturum açın.';
+
+  @override
+  String authDiscordRefused(String reason) {
+    return 'Discord girişi reddedildi ($reason).';
+  }
+
+  @override
+  String get authInvalidResponse =>
+      'Geçersiz giriş yanıtı. Lütfen tekrar deneyin.';
+
+  @override
+  String get validationCommandNameFormat =>
+      'Geçersiz ad: yalnızca küçük harf, rakam, “-” ve “_”; boşluk yok.';
+
+  @override
+  String validationDescriptionTooLong(int max) {
+    return 'Açıklama en fazla $max karakter olabilir.';
+  }
+
+  @override
+  String get validationWorkflowNameRequired => 'İş akışı adı gereklidir.';
+
+  @override
+  String validationWorkflowNameTooLong(int max) {
+    return 'Ad en fazla $max karakter olabilir.';
+  }
+
+  @override
+  String validationWorkflowTooManyBlocks(int max) {
+    return 'İş akışı başına en fazla $max blok.';
+  }
+
+  @override
+  String validationOptionNameInvalid(String name) {
+    return '“$name” seçeneği: küçük harf, rakam, “-” ve “_”, en fazla 32 karakter.';
+  }
+
+  @override
+  String validationOptionDescription(String name) {
+    return '“$name” seçeneği: açıklama gerekli (en fazla 100 karakter).';
+  }
+
+  @override
+  String validationOptionRequiredOrder(String name) {
+    return 'Zorunlu seçenekler isteğe bağlı olanlardan önce gelmelidir (“$name”).';
+  }
+
+  @override
+  String get schedulerPremiumOnly =>
+      'Zamanlayıcı yalnızca Premium hesaplara özeldir. Abonelik uygulamada yönetilir.';
+
+  @override
+  String get webhooksPremiumOnly =>
+      'Gelen webhook\'lar yalnızca Premium hesaplara özeldir. Abonelik uygulamada yönetilir.';
 }

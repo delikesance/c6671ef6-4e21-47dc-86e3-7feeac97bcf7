@@ -105,6 +105,8 @@ void main() {
     await auth.init();
     expect(auth.status, AuthStatus.signedOut);
     expect(auth.session, isNull);
+    // Le motif est une clé, traduite à l'affichage par l'écran de connexion.
+    expect(auth.issue, AuthIssue.sessionExpired);
   });
 
   test('session valide : connecté, plan lu depuis le serveur', () async {

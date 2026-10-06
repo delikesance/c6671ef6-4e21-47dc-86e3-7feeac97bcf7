@@ -166,5 +166,161 @@
   "featureAnalyticsTitle": "Analytics Premium",
   "featureAnalyticsDesc": "Débloquez le taux d'erreur, les percentiles de latence et les insights de localisation.",
   "featureHooksTitle": "Webhooks entrants",
-  "featureHooksDesc": "Crée des endpoints webhook sécurisés et route les appels vers les workflows."
+  "featureHooksDesc": "Crée des endpoints webhook sécurisés et route les appels vers les workflows.",
+  "commonSaved": "Enregistré",
+  "commonAdd": "Ajouter",
+  "deleteIrreversible": "Cette action est définitive.",
+  "deleteNamedTitle": "Supprimer « {name} » ?",
+  "@deleteNamedTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "commandNew": "Nouvelle commande",
+  "commandSaved": "Commande enregistrée.",
+  "commandChangedElsewhere": "Ce bot a été modifié ailleurs (app ou autre session). Rechargez la commande avant d'enregistrer.",
+  "scriptEdit": "Modifier le script",
+  "commandTriggerHybrid": "Slash + message texte",
+  "workflowNew": "Nouveau workflow",
+  "workflowsEmpty": "Aucun workflow. Créez-en un pour réutiliser une suite d'actions ou réagir à un événement.",
+  "workflowSaved": "Workflow enregistré.",
+  "workflowDeleteBody": "Les commandes qui appellent ce workflow ne trouveront plus rien à exécuter.",
+  "workflowTypeGeneral": "Général (appelé par une commande)",
+  "workflowCategory": "Catégorie",
+  "workflowScriptNotice": "Ce workflow est écrit en {mode} : le Studio ne modifie que les workflows visuels. Il reste enregistré tel quel.",
+  "@workflowScriptNotice": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "variablesGlobalSubtitle": "Données mémorisées pour tout le bot.",
+  "variablesScopedHint": "Une définition donne la valeur par défaut ; chaque serveur, salon ou membre garde ensuite sa propre valeur.",
+  "variableScopedRemoveNote": "La définition est retirée ; les valeurs déjà mémorisées ne sont pas effacées.",
+  "copilotNoCredits": "Crédits IA insuffisants. Rechargez-les depuis l'app mobile.",
+  "copilotChatTooLong": "Cette discussion est trop longue : démarrez-en une nouvelle.",
+  "copilotUnavailable": "Le Copilote est indisponible pour le moment.",
+  "copilotGenerationFailed": "La génération a échoué.",
+  "copilotDeleteChat": "Supprimer la discussion",
+  "copilotWants": "Le Copilote veut : {tool}",
+  "@copilotWants": {
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardRuns": "Exécutions",
+  "dashboardSinceStart": "Depuis le début",
+  "dashboardLatencyP50P95": "Latence P50 / P95",
+  "dashboardActivity": "Activité",
+  "dashboardLanguages": "Langues",
+  "dashboardNoRuns": "Aucune exécution sur cette période.",
+  "dashboardNoActivity": "Aucune activité sur cette période.",
+  "dashboardOneExecution": "1 exécution",
+  "dashboardAgoDays": "il y a {days} j",
+  "@dashboardAgoDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardAgoHours": "il y a {hours} h",
+  "@dashboardAgoHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardErrorRateOf": "{rate} % d'erreurs",
+  "@dashboardErrorRateOf": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardLatencyPercentiles": "P50 {p50} ms · P95 {p95} ms",
+  "@dashboardLatencyPercentiles": {
+    "placeholders": {
+      "p50": {
+        "type": "int"
+      },
+      "p95": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardLatencyNone": "latence —",
+  "botStopFailed": "Impossible d'arrêter le bot",
+  "botStartFailed": "Impossible de lancer le bot",
+  "refusalNoFreeTimeTitle": "Temps d'hébergement épuisé",
+  "refusalNoFreeTimeBody": "Ce bot n'a plus de temps d'hébergement gratuit. Regardez une publicité depuis l'application mobile pour en gagner, ou passez Premium. Le Studio ne propose ni publicité ni achat.",
+  "authSessionExpired": "Session expirée. Reconnectez-vous.",
+  "authDiscordRefused": "Connexion Discord refusée ({reason}).",
+  "@authDiscordRefused": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "authInvalidResponse": "Réponse de connexion invalide. Réessayez.",
+  "validationCommandNameFormat": "Nom invalide : minuscules, chiffres, « - » et « _ » uniquement, sans espace.",
+  "validationDescriptionTooLong": "La description fait {max} caractères au maximum.",
+  "@validationDescriptionTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationWorkflowNameRequired": "Le nom du workflow est requis.",
+  "validationWorkflowNameTooLong": "Le nom fait {max} caractères au maximum.",
+  "@validationWorkflowNameTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationWorkflowTooManyBlocks": "{max} blocs au maximum par workflow.",
+  "@validationWorkflowTooManyBlocks": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationOptionNameInvalid": "Option « {name} » : minuscules, chiffres, « - » et « _ », 32 caractères au plus.",
+  "@validationOptionNameInvalid": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "validationOptionDescription": "Option « {name} » : description requise (100 caractères au plus).",
+  "@validationOptionDescription": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "validationOptionRequiredOrder": "Les options obligatoires doivent précéder les facultatives (« {name} »).",
+  "@validationOptionRequiredOrder": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "schedulerPremiumOnly": "Le planificateur est réservé aux comptes Premium. L'abonnement se gère dans l'app.",
+  "webhooksPremiumOnly": "Les webhooks entrants sont réservés aux comptes Premium. L'abonnement se gère dans l'app."
 }

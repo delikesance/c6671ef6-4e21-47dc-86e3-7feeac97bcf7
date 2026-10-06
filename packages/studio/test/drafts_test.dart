@@ -1,12 +1,14 @@
 import 'package:bot_creator_studio/src/api/studio_api.dart';
 import 'package:bot_creator_studio/src/commands/action_list.dart';
 import 'package:bot_creator_studio/src/commands/command_draft.dart';
+import 'package:bot_creator_studio/src/commands/validation_problem.dart';
 import 'package:bot_creator_studio/src/commands/workflow_draft.dart';
 import 'package:bot_creator_studio/src/commands/options_validation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   optionsTests();
+  validationTexts();
   group('CommandDraft', () {
     test('une commande neuve est à enregistrer et valide', () {
       final d = CommandDraft.blank(name: 'ping', description: 'Répond pong');
@@ -110,6 +112,27 @@ void main() {
   });
 }
 
+void validationTexts() {
+  test('chaque refus a un texte dans chaque langue', () {
+    for (final code in ['de', 'en', 'fr', 'ja', 'pt', 'tr']) {
+      for (final kind in ValidationKind.values) {
+        final text = ValidationProblem(
+          kind,
+          name: 'cible',
+          max: 7,
+        ).inLanguage(code);
+        expect(text, isNotEmpty, reason: '$code/$kind');
+      }
+    }
+    // Les paramètres sont bien injectés.
+    const named = ValidationProblem(ValidationKind.optionRequiredOrder);
+    expect(
+      ValidationProblem(named.kind, name: 'cible').inLanguage('fr'),
+      contains('cible'),
+    );
+  });
+}
+
 void optionsTests() {
   group('options de commande', () {
     test('options valides', () {
@@ -145,7 +168,9 @@ void optionsTests() {
           {'name': 'a', 'description': 'x'},
           {'name': 'b', 'description': 'y', 'required': true},
         ]),
-        contains('obligatoires'),
+        isA<ValidationProblem>()
+            .having((p) => p.kind, 'kind', ValidationKind.optionRequiredOrder)
+            .having((p) => p.name, 'name', 'b'),
       );
       expect(
         validateOptions([
