@@ -57,6 +57,21 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:nyxx/nyxx.dart';
 
 import 'package:bot_creator/core/widgets/app_icon.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart'
+    show
+        BotHomeButton,
+        BotHomeButtonVariant,
+        BotHomeCardGrid,
+        BotHomeChip,
+        BotHomeConsolePanel,
+        BotHomeCountdown,
+        BotHomeEmptyHint,
+        BotHomeLinkButton,
+        BotHomeMonogram,
+        BotHomePalette,
+        BotHomePanel,
+        BotHomeRow,
+        botHomeMono;
 part 'home.logic.part.dart';
 part 'home.sync.part.dart';
 part 'home.ads.part.dart';
