@@ -2,7 +2,7 @@ import 'package:bot_creator/core/code_editor/script_editor_diagnostics_bar.dart'
 import 'package:bot_creator/core/code_editor/script_editor_editor_body.dart';
 import 'package:bot_creator/core/code_editor/script_editor_overlays.dart';
 import 'package:bot_creator/core/code_editor/script_editor_snippet.dart';
-import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/models/types/app_emoji.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/js_editor_page.dart';
 import 'package:flutter/material.dart';

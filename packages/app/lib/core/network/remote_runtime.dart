@@ -1,4 +1,4 @@
-import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
@@ -223,7 +223,9 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
     if (!isDesktop) {
       final RuntimeNoticeMessage unavailableReason = mainApiSession == null
           ? (isIOS
-                ? const RuntimeNoticeMessage(RuntimeNotice.localUnsupportedIosSignIn)
+                ? const RuntimeNoticeMessage(
+                    RuntimeNotice.localUnsupportedIosSignIn,
+                  )
                 : const RuntimeNoticeMessage(RuntimeNotice.signInRequired))
           : const RuntimeNoticeMessage(RuntimeNotice.sessionExpired);
 
@@ -238,7 +240,9 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
   if (isIOS) {
     return ResolvedRemoteRuntime(
       source: RemoteRuntimeSource.manager,
-      unavailableReason: const RuntimeNoticeMessage(RuntimeNotice.localUnsupportedIosConfigure),
+      unavailableReason: const RuntimeNoticeMessage(
+        RuntimeNotice.localUnsupportedIosConfigure,
+      ),
     );
   }
 
@@ -279,7 +283,10 @@ Future<RuntimeNoticeMessage> describeManagerRuntimeFailure(
   }
 
   if (isInvalidBotId(originalError)) {
-    return RuntimeNoticeMessage(RuntimeNotice.invalidBotId, error: originalError);
+    return RuntimeNoticeMessage(
+      RuntimeNotice.invalidBotId,
+      error: originalError,
+    );
   }
 
   try {
@@ -298,14 +305,24 @@ Future<RuntimeNoticeMessage> describeManagerRuntimeFailure(
     final healthStatus = (runner['health_status'] ?? '').toString().trim();
 
     if (isInvalidBotId(jobError)) {
-      return RuntimeNoticeMessage(RuntimeNotice.invalidBotIdDetails, detail: jobError);
+      return RuntimeNoticeMessage(
+        RuntimeNotice.invalidBotIdDetails,
+        detail: jobError,
+      );
     }
 
     if (!deployed) {
-      return RuntimeNoticeMessage(RuntimeNotice.serversNotReady, error: originalError);
+      return RuntimeNoticeMessage(
+        RuntimeNotice.serversNotReady,
+        error: originalError,
+      );
     }
     if (jobStatus == 'QUEUED' || jobStatus == 'RUNNING') {
-      return RuntimeNoticeMessage(RuntimeNotice.startupInProgress, status: jobStatus, error: originalError);
+      return RuntimeNoticeMessage(
+        RuntimeNotice.startupInProgress,
+        status: jobStatus,
+        error: originalError,
+      );
     }
     if (jobStatus == 'FAILED') {
       // Deux messages plutôt qu'un suffixe composé à la main : une phrase ne
@@ -323,12 +340,18 @@ Future<RuntimeNoticeMessage> describeManagerRuntimeFailure(
     }
     if (healthStatus.toLowerCase() == 'unreachable' ||
         runnerState.toUpperCase() == 'DEGRADED') {
-      return RuntimeNoticeMessage(RuntimeNotice.unreachable, error: originalError);
+      return RuntimeNoticeMessage(
+        RuntimeNotice.unreachable,
+        error: originalError,
+      );
     }
   } catch (_) {
     // Fall back to the original error when the diagnostic endpoint is unavailable.
   }
-  return RuntimeNoticeMessage(RuntimeNotice.requestFailed, error: originalError);
+  return RuntimeNoticeMessage(
+    RuntimeNotice.requestFailed,
+    error: originalError,
+  );
 }
 
 bool isPendingFreeRuntimeCreditError(Object error) {
