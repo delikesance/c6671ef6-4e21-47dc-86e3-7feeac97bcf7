@@ -564,4 +564,10 @@ class StudioLocalizationsPt extends StudioLocalizations {
   @override
   String get webhooksPremiumOnly =>
       'Os webhooks de entrada são reservados a contas Premium. A assinatura é gerenciada no app.';
+
+  @override
+  String get overviewEngine => 'Motor';
+
+  @override
+  String get overviewLive => 'Ao vivo';
 }

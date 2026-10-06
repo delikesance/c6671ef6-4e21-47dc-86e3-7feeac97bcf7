@@ -561,4 +561,10 @@ class StudioLocalizationsTr extends StudioLocalizations {
   @override
   String get webhooksPremiumOnly =>
       'Gelen webhook\'lar yalnızca Premium hesaplara özeldir. Abonelik uygulamada yönetilir.';
+
+  @override
+  String get overviewEngine => 'Çalışma ortamı';
+
+  @override
+  String get overviewLive => 'Canlı';
 }

@@ -128,5 +128,7 @@
   "validationOptionDescription": "“{name}” seçeneği: açıklama gerekli (en fazla 100 karakter).",
   "validationOptionRequiredOrder": "Zorunlu seçenekler isteğe bağlı olanlardan önce gelmelidir (“{name}”).",
   "schedulerPremiumOnly": "Zamanlayıcı yalnızca Premium hesaplara özeldir. Abonelik uygulamada yönetilir.",
-  "webhooksPremiumOnly": "Gelen webhook'lar yalnızca Premium hesaplara özeldir. Abonelik uygulamada yönetilir."
+  "webhooksPremiumOnly": "Gelen webhook'lar yalnızca Premium hesaplara özeldir. Abonelik uygulamada yönetilir.",
+  "overviewEngine": "Çalışma ortamı",
+  "overviewLive": "Canlı"
 }

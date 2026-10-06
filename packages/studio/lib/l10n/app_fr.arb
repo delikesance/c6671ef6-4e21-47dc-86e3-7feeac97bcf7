@@ -314,5 +314,7 @@
     }
   },
   "schedulerPremiumOnly": "Le planificateur est réservé aux comptes Premium. L'abonnement se gère dans l'app.",
-  "webhooksPremiumOnly": "Les webhooks entrants sont réservés aux comptes Premium. L'abonnement se gère dans l'app."
+  "webhooksPremiumOnly": "Les webhooks entrants sont réservés aux comptes Premium. L'abonnement se gère dans l'app.",
+  "overviewEngine": "Moteur",
+  "overviewLive": "En direct"
 }

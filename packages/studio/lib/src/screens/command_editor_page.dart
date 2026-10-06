@@ -61,6 +61,10 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
     if (fresh != null) {
       _draft = fresh;
       _isNew = true;
+      // Un bot JavaScript n'écrit qu'en JavaScript : pas de blocs à vide.
+      if (widget.bot.isJavascript && fresh.executionMode == 'workflow') {
+        fresh.executionMode = 'javascript';
+      }
     } else {
       _load();
     }
@@ -446,7 +450,12 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
                   MaterialPageRoute<String>(
                     builder: (_) => EditorHostScope(
                       host: StudioEditorHost(api: widget.api, bot: widget.bot),
-                      child: JsEditorPage(initialCode: code, title: draft.name),
+                      // Chaque langage a son éditeur (coloration, snippets,
+                      // diagnostics) : un script BDFD ne passe pas par celui
+                      // du JavaScript.
+                      child: bdfd
+                          ? BdfdEditorPage(initialCode: code, title: draft.name)
+                          : JsEditorPage(initialCode: code, title: draft.name),
                     ),
                   ),
                 );
@@ -577,10 +586,14 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
       onLegacyResponseTargetChanged: (value) =>
           setState(() => draft.legacyResponseTarget = value),
       executionMode: draft.executionMode,
-      showBdfdMode: true,
-      showJavascriptMode: true,
-      onExecutionModeChanged: (mode) =>
-          setState(() => draft.executionMode = mode),
+      // Bot Dart : blocs ou BDFD. Bot JavaScript : le script seul. Le
+      // JavaScript n'est jamais proposé sur un bot Dart (ni l'inverse).
+      showWorkflowMode: !widget.bot.isJavascript,
+      showBdfdMode: !widget.bot.isJavascript,
+      showJavascriptMode: widget.bot.isJavascript,
+      onExecutionModeChanged: widget.bot.isJavascript
+          ? null
+          : (mode) => setState(() => draft.executionMode = mode),
     );
   }
 }

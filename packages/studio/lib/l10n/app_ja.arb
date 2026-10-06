@@ -128,5 +128,7 @@
   "validationOptionDescription": "オプション「{name}」：説明は必須です（最大100文字）。",
   "validationOptionRequiredOrder": "必須オプションは任意オプションより前に置く必要があります（「{name}」）。",
   "schedulerPremiumOnly": "スケジューラーはPremiumアカウント専用です。サブスクリプションはアプリで管理します。",
-  "webhooksPremiumOnly": "受信Webhookはプレミアムアカウント専用です。サブスクリプションはアプリで管理します。"
+  "webhooksPremiumOnly": "受信Webhookはプレミアムアカウント専用です。サブスクリプションはアプリで管理します。",
+  "overviewEngine": "ランタイム",
+  "overviewLive": "ライブ"
 }

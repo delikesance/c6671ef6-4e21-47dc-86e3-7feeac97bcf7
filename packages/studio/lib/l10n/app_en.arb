@@ -314,5 +314,7 @@
     }
   },
   "schedulerPremiumOnly": "The scheduler is reserved for Premium accounts. The subscription is managed in the app.",
-  "webhooksPremiumOnly": "Inbound webhooks are reserved for Premium accounts. The subscription is managed in the app."
+  "webhooksPremiumOnly": "Inbound webhooks are reserved for Premium accounts. The subscription is managed in the app.",
+  "overviewEngine": "Runtime",
+  "overviewLive": "Live"
 }

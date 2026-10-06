@@ -128,5 +128,7 @@
   "validationOptionDescription": "Option „{name}“: Beschreibung erforderlich (höchstens 100 Zeichen).",
   "validationOptionRequiredOrder": "Erforderliche Optionen müssen vor optionalen stehen („{name}“).",
   "schedulerPremiumOnly": "Der Planer ist Premium-Konten vorbehalten. Das Abonnement wird in der App verwaltet.",
-  "webhooksPremiumOnly": "Eingehende Webhooks sind Premium-Konten vorbehalten. Das Abonnement wird in der App verwaltet."
+  "webhooksPremiumOnly": "Eingehende Webhooks sind Premium-Konten vorbehalten. Das Abonnement wird in der App verwaltet.",
+  "overviewEngine": "Laufzeit",
+  "overviewLive": "Live"
 }

@@ -1077,6 +1077,18 @@ abstract class StudioLocalizations {
   /// In en, this message translates to:
   /// **'Inbound webhooks are reserved for Premium accounts. The subscription is managed in the app.'**
   String get webhooksPremiumOnly;
+
+  /// No description provided for @overviewEngine.
+  ///
+  /// In en, this message translates to:
+  /// **'Runtime'**
+  String get overviewEngine;
+
+  /// No description provided for @overviewLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get overviewLive;
 }
 
 class _StudioLocalizationsDelegate
