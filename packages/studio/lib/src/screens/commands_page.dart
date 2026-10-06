@@ -17,10 +17,12 @@ class CommandsPage extends StatefulWidget {
     required this.api,
     required this.bot,
     this.userId,
+    this.userName,
   });
 
   /// Compte connecté (filtre « mes modèles » du marketplace).
   final String? userId;
+  final String? userName;
 
   final StudioApi api;
   final StudioBot bot;
@@ -164,6 +166,7 @@ class _CommandsPageState extends State<CommandsPage> {
               api: widget.api,
               bot: widget.bot,
               userId: widget.userId,
+              userName: widget.userName,
             ),
           ),
         ),

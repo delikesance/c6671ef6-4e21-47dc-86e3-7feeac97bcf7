@@ -8,7 +8,7 @@ import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart'
     show refreshBotRuntime;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_serialization.dart';
-import 'package:bot_creator/features/marketplace/presentation/publish_template_page.dart';
+import 'package:bot_creator/main.dart' show appManager;
 import 'package:bot_creator_shared/bot/marketplace_template.dart';
 import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
@@ -66,21 +66,29 @@ class AppMarketplaceController extends MarketplaceController {
   bool get canPublish => true;
 
   @override
-  Future<void> edit(
-    BuildContext context,
-    MarketplaceTemplate template,
-    String botId,
-  ) => Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (_) => PublishTemplatePage(
-        botId: botId,
-        apiClient: apiClient,
-        authorId: template.authorId,
-        authorName: template.authorName,
-        existingTemplate: template,
-      ),
-    ),
-  );
+  Future<TemplatePublishSource> publishSource(String botId) async {
+    final commands = await appManager.listAppCommands(botId);
+    final appData = await appManager.getApp(botId);
+    final workflows = List<Map<String, dynamic>>.from(
+      (appData['workflows'] as List?)?.whereType<Map>().map(
+            (w) => Map<String, dynamic>.from(w),
+          ) ??
+          const [],
+    );
+    return TemplatePublishSource(
+      commands: commands.map((c) => Map<String, dynamic>.from(c)).toList(),
+      workflows: workflows,
+      appData: appData,
+    );
+  }
+
+  @override
+  Future<void> createTemplate(Map<String, dynamic> template) =>
+      apiClient!.createMarketplaceTemplate(template);
+
+  @override
+  Future<void> updateTemplate(String id, Map<String, dynamic> template) =>
+      apiClient!.updateMarketplaceTemplate(id, template);
 
   @override
   Future<String?> apply(

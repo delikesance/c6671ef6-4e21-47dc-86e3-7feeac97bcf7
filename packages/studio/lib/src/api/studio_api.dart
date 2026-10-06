@@ -821,6 +821,14 @@ class StudioApi {
     body: {'rating': rating},
   );
 
+  Future<void> createMarketplaceTemplate(Map<String, dynamic> template) =>
+      _send('POST', '/marketplace', body: template);
+
+  Future<void> updateMarketplaceTemplate(
+    String id,
+    Map<String, dynamic> template,
+  ) => _send('PUT', '/marketplace/${Uri.encodeComponent(id)}', body: template);
+
   Future<void> deleteMarketplaceTemplate(String id) =>
       _send('DELETE', '/marketplace/${Uri.encodeComponent(id)}');
 

@@ -293,6 +293,7 @@ class _StudioShellState extends State<StudioShell> {
           api: api,
           bot: bot,
           userId: widget.auth.session?.userId,
+          userName: widget.auth.session?.username,
         );
       case 'overview':
         return OverviewPage(key: ValueKey(bot.id), api: api, bot: bot);
