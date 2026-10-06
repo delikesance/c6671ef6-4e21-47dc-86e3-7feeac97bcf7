@@ -269,6 +269,7 @@ class _NewWorkflowDialogState extends State<_NewWorkflowDialog> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
+              isExpanded: true,
               initialValue: _type,
               decoration: InputDecoration(labelText: context.tr.common_type),
               items: [
@@ -286,6 +287,7 @@ class _NewWorkflowDialogState extends State<_NewWorkflowDialog> {
             if (_type == 'event') ...[
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
+                isExpanded: true,
                 initialValue: _category,
                 decoration: InputDecoration(
                   labelText: context.l10n.workflowCategory,
