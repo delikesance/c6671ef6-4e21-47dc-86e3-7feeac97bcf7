@@ -5,6 +5,7 @@ import '../../l10n/tr_extension.dart';
 import '../../widgets/app_icon.dart';
 import 'marketplace_controller.dart';
 import 'marketplace_detail_view.dart';
+import 'publish_template_view.dart';
 
 /// Browse and search the marketplace for templates.
 class MarketplaceView extends StatefulWidget {
@@ -108,6 +109,24 @@ class _MarketplaceViewState extends State<MarketplaceView> {
       appBar: AppBar(
         title: Text(context.tr.marketplace_title),
         actions: [
+          if (widget.controller.canPublish && widget.controller.connected)
+            IconButton(
+              tooltip: context.tr.marketplace_publish_title,
+              icon: const AppIcon.fromMaterial(Icons.cloud_upload_outlined),
+              onPressed: () async {
+                final published = await Navigator.of(context).push<bool>(
+                  MaterialPageRoute<bool>(
+                    builder: (_) => PublishTemplateView(
+                      botId: widget.botId,
+                      controller: widget.controller,
+                      authorId: widget.controller.authorId,
+                      authorName: widget.controller.authorName,
+                    ),
+                  ),
+                );
+                if (published == true && mounted) _fetch();
+              },
+            ),
           if (_currentUserId != null)
             FilterChip(
               label: Text(context.tr.marketplace_my_templates),

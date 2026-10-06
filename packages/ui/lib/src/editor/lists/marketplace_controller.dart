@@ -34,11 +34,30 @@ abstract class MarketplaceController {
   /// Publier / modifier un modèle est possible sur cet hôte.
   bool get canPublish => false;
 
-  Future<void> edit(
-    BuildContext context,
-    MarketplaceTemplate template,
-    String botId,
-  ) async {}
+  /// Ce que le bot offre à la publication (commandes, workflows, variables).
+  Future<TemplatePublishSource> publishSource(String botId) async =>
+      const TemplatePublishSource();
+
+  /// Auteur affiché sur un modèle publié ou modifié.
+  String get authorId => '';
+  String get authorName => '';
+
+  Future<void> createTemplate(Map<String, dynamic> template) async {}
+  Future<void> updateTemplate(String id, Map<String, dynamic> template) async {}
+}
+
+/// Contenu d'un bot proposé à la publication : `commands` ont `name`,
+/// `description` et `data` ; `appData` porte `globalVariables` et `intents`.
+class TemplatePublishSource {
+  const TemplatePublishSource({
+    this.commands = const [],
+    this.workflows = const [],
+    this.appData = const {},
+  });
+
+  final List<Map<String, dynamic>> commands;
+  final List<Map<String, dynamic>> workflows;
+  final Map<String, dynamic> appData;
 }
 
 dynamic resolveTemplateVariables(dynamic data, Map<String, String> variables) {

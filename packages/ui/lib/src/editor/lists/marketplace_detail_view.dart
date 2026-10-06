@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../l10n/tr_extension.dart';
 import '../../widgets/app_icon.dart';
 import 'marketplace_controller.dart';
+import 'publish_template_view.dart';
 
 /// Detail page for a marketplace template.
 class MarketplaceDetailView extends StatefulWidget {
@@ -506,7 +507,17 @@ class _MarketplaceDetailViewState extends State<MarketplaceDetailView> {
   }
 
   Future<void> _editTemplate() async {
-    await widget.controller.edit(context, _template, widget.botId);
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PublishTemplateView(
+          botId: widget.botId,
+          controller: widget.controller,
+          authorId: _template.authorId,
+          authorName: _template.authorName,
+          existingTemplate: _template,
+        ),
+      ),
+    );
     // Refresh template data after edit
     _fetchTemplate();
   }

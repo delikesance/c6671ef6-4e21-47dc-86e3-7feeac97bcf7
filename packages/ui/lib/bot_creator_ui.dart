@@ -125,3 +125,4 @@ export 'src/editor/lists/marketplace_detail_view.dart';
 export 'src/editor/lists/marketplace_view.dart';
 export 'src/editor/forms/image_editor_page.dart';
 export 'src/editor/forms/canvas_preview_widget.dart';
+export 'src/editor/lists/publish_template_view.dart';

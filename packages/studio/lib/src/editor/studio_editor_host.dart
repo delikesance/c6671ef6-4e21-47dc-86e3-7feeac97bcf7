@@ -265,11 +265,49 @@ class StudioMarketplaceController extends MarketplaceController {
     required this.api,
     required this.bot,
     this.userId,
+    this.userName,
   });
 
   final StudioApi api;
   final StudioBot bot;
   final String? userId;
+  final String? userName;
+
+  @override
+  bool get canPublish => userId != null && userId!.isNotEmpty;
+
+  @override
+  String get authorId => userId ?? '';
+
+  @override
+  String get authorName => userName ?? '';
+
+  @override
+  Future<TemplatePublishSource> publishSource(String botId) async {
+    // Commandes et workflows complets (la liste du Manager est allégée) : une
+    // lecture par entrée, en parallèle.
+    final commands = await Future.wait([
+      for (final c in await api.listCommands(botId))
+        api.getCommand(botId, c.id).then((d) => d.raw),
+    ]);
+    final workflows = await Future.wait([
+      for (final w in await api.listWorkflows(botId))
+        api.getWorkflow(botId, w.name).then((d) => d.raw),
+    ]);
+    return TemplatePublishSource(
+      commands: commands,
+      workflows: workflows,
+      appData: {'globalVariables': await api.globalVariables(botId)},
+    );
+  }
+
+  @override
+  Future<void> createTemplate(Map<String, dynamic> template) =>
+      api.createMarketplaceTemplate(template);
+
+  @override
+  Future<void> updateTemplate(String id, Map<String, dynamic> template) =>
+      api.updateMarketplaceTemplate(id, template);
 
   @override
   Future<List<MarketplaceTemplate>> list() async => [
