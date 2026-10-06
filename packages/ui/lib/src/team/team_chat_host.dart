@@ -1,7 +1,8 @@
 /// Contrat entre l'écran « Équipe et tchat » d'un bot (partagé) et la façon dont
 /// chaque client parle au serveur : l'app passe par `MainApiClient` (et lit le
 /// portail Discord avec le jeton local du bot), le Studio par `StudioApi` (le
-/// Manager garde le jeton, donc ni portail ni recherche d'utilisateur Discord).
+/// Manager garde le jeton : il lit lui-même l'équipe du portail et les
+/// pseudonymes Discord, `GET …/team/portal` et `GET …/team/users/{id}`).
 library;
 
 import 'team_models.dart';
@@ -50,8 +51,9 @@ abstract class TeamChatHost {
   Future<String> currentUserName();
 
   /// L'équipe du portail développeur Discord du bot, en lecture seule. `null` =
-  /// inconnue ou non offerte par ce client : aucune mise en garde n'est alors
-  /// affichée, une absence ne se suppose pas.
+  /// inconnue (jeton absent, rien d'exploitable chez Discord) : aucune mise en
+  /// garde n'est alors affichée, une absence ne se suppose pas. Peut lever si
+  /// Discord est injoignable : l'écran l'ignore, pour la même raison.
   Future<TeamPortalInfo?> portalTeam(String botId) async => null;
 
   /// Pseudonyme et avatar Discord d'un utilisateur du fil qui n'est ni membre ni

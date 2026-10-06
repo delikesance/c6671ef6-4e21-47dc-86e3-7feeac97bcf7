@@ -33,9 +33,10 @@ EventSocket _webSocket({
 /// Le tchat d'équipe tel que le Studio le lit : par l'API du Manager. L'écran
 /// (`TeamChatPage`) est celui de l'app.
 ///
-/// Le Studio n'a ni jeton de bot ni appel direct à Discord : pas d'équipe du
-/// portail ni de recherche d'utilisateur (les valeurs par défaut de l'hôte,
-/// `null`) — le Manager reste le seul à parler à Discord.
+/// Le Studio n'a ni jeton de bot ni appel direct à Discord : l'équipe du portail
+/// et les pseudonymes passent par le Manager, qui lit Discord avec le jeton
+/// qu'il garde (`GET …/team/portal`, `GET …/team/users/{id}`) et ne rend que les
+/// champs publics — il reste le seul à parler à Discord.
 class StudioTeamChatHost extends TeamChatHost {
   StudioTeamChatHost(
     this.api, {
@@ -100,6 +101,24 @@ class StudioTeamChatHost extends TeamChatHost {
 
   @override
   Future<String> currentUserName() async => userName ?? '';
+
+  /// Comme l'app : `null` quand Discord n'a rien rendu d'exploitable ; une
+  /// panne lève, l'écran l'ignore (aucune mise en garde plutôt qu'une
+  /// accusation fondée sur une panne).
+  @override
+  Future<TeamPortalInfo?> portalTeam(String botId) async =>
+      TeamPortalInfo.fromJson(await api.teamPortalWire(botId));
+
+  /// Comme l'app : toute erreur (utilisateur inconnu, identifiant refusé,
+  /// réseau) vaut « non résolu », l'identifiant reste affiché.
+  @override
+  Future<TeamUserProfile?> lookupUser(String botId, String userId) async {
+    try {
+      return TeamUserProfile.fromJson(await api.teamUserWire(botId, userId));
+    } catch (_) {
+      return null;
+    }
+  }
 
   /// Le canal temps réel du Manager (WebSocket du navigateur, jeton dans le
   /// sous-protocole). Tant qu'il n'est pas établi — serveur sans le
