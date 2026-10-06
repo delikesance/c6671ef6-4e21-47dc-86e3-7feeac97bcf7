@@ -17,11 +17,12 @@ class WorkflowDraft implements ActionListHost {
     String type = 'general',
     String category = 'messages',
     String event = 'messageCreate',
+    String executionMode = 'workflow',
   }) {
     final draft = WorkflowDraft({
       'name': name,
       'workflowType': type,
-      'executionMode': 'workflow',
+      'executionMode': executionMode,
       'entryPoint': 'main',
       'arguments': <dynamic>[],
       'actions': <dynamic>[],
@@ -50,6 +51,16 @@ class WorkflowDraft implements ActionListHost {
   String get executionMode => '${_raw['executionMode'] ?? 'workflow'}';
 
   bool get visual => executionMode == 'workflow';
+
+  bool get isJavascript => executionMode == 'javascript';
+
+  /// Les blocs et les scripts JavaScript s'éditent ici ; un script BDFD reste
+  /// en lecture seule (il est renvoyé tel quel).
+  bool get editable => visual || isJavascript;
+
+  /// Script d'un workflow JavaScript (jamais mêlé aux blocs : `actions` reste vide).
+  String get jsScript => '${_raw['jsScriptContent'] ?? ''}';
+  set jsScript(String value) => _raw['jsScriptContent'] = value;
 
   String get entryPoint => '${_raw['entryPoint'] ?? 'main'}';
   set entryPoint(String value) => _raw['entryPoint'] = value;
