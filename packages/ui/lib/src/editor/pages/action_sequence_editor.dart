@@ -360,7 +360,11 @@ class _ActionSequenceEditorState extends State<ActionSequenceEditor> {
       if (!wide) _addButton(),
     ];
 
-    final skipConnectorAfter = <int>{};
+    // Les blocs fixes (métadonnées, point de départ) ne reçoivent pas d'action
+    // entre eux : seul le dernier, le point de départ, ouvre la palette.
+    final skipConnectorAfter = <int>{
+      for (var i = 0; i < firstActionIdx - 1; i++) i,
+    };
     if (items.isNotEmpty) {
       final last = items.length - 1;
       if (isFinalAction(items[last].type)) {
