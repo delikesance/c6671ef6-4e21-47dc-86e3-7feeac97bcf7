@@ -1,23 +1,31 @@
-import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'dart:async';
 
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../api/studio_api.dart';
 import '../editor/studio_bot_config_versions_host.dart';
-import '../l10n_ext.dart';
-import '../theme.dart';
-import '../widgets/common.dart';
 import '../layout.dart';
 import 'bot_actions.dart';
 
-/// Onglet « Accueil » d'un bot : identité et état, lancement/arrêt, repères
-/// (commandes, moteur, identifiant) et journaux récents.
+/// Onglet « Accueil » d'un bot : la même page que l'app (identité et actions,
+/// hébergement, aperçus des commandes et des workflows, journaux filtrables),
+/// composée avec les briques partagées de `bot_creator_ui`.
 class OverviewPage extends StatefulWidget {
-  const OverviewPage({super.key, required this.api, required this.bot});
+  const OverviewPage({
+    super.key,
+    required this.api,
+    required this.bot,
+    this.onOpenSection,
+  });
 
   final StudioApi api;
   final StudioBot bot;
+
+  /// Ouvre un onglet du bot (`commands`, `flows`) : « Voir tout », « Créer un
+  /// workflow ».
+  final ValueChanged<String>? onOpenSection;
 
   @override
   State<OverviewPage> createState() => _OverviewPageState();
@@ -25,9 +33,13 @@ class OverviewPage extends StatefulWidget {
 
 class _OverviewPageState extends State<OverviewPage> {
   late StudioBot _bot = widget.bot;
-  List<String>? _logs;
+  StudioBotRuntime? _runtime;
+  DateTime _runtimeAt = DateTime.now();
+  List<StudioCommand> _commands = const [];
+  List<StudioWorkflowSummary> _workflows = const [];
+  final _logs = ValueNotifier<List<String>>(const []);
+  bool _logsLoaded = false;
   String? _logsError;
-  int? _commandCount;
   bool _busy = false;
   Timer? _timer;
 
@@ -35,27 +47,35 @@ class _OverviewPageState extends State<OverviewPage> {
   void initState() {
     super.initState();
     _refresh();
-    _loadCommandCount();
+    _loadLists();
     _timer = Timer.periodic(const Duration(seconds: 10), (_) => _refresh());
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _logs.dispose();
     super.dispose();
   }
 
-  Future<void> _loadCommandCount() async {
+  Future<void> _loadLists() async {
+    // Les aperçus sont un plus : une liste qui ne vient pas laisse l'état vide.
     try {
       final commands = await widget.api.listCommands(_bot.id);
-      if (mounted) setState(() => _commandCount = commands.length);
-    } catch (_) {
-      // Le repère est un plus : sans lui la tuile affiche « – ».
-    }
+      if (mounted) setState(() => _commands = commands);
+    } catch (_) {}
+    try {
+      final workflows = await widget.api.listWorkflows(_bot.id);
+      if (mounted) setState(() => _workflows = workflows);
+    } catch (_) {}
   }
 
   Future<void> _refresh() async {
     final running = await widget.api.isRunning(_bot.id);
+    StudioBotRuntime? runtime;
+    try {
+      runtime = await widget.api.botRuntime(_bot.id);
+    } catch (_) {}
     List<String>? logs;
     String? logsError;
     try {
@@ -66,7 +86,14 @@ class _OverviewPageState extends State<OverviewPage> {
     if (!mounted) return;
     setState(() {
       _bot = _bot.copyWith(running: running);
-      _logs = logs ?? _logs;
+      if (runtime != null) {
+        _runtime = runtime;
+        _runtimeAt = DateTime.now();
+      }
+      if (logs != null) {
+        _logs.value = logs;
+        _logsLoaded = true;
+      }
       _logsError = logsError;
     });
   }
@@ -87,8 +114,44 @@ class _OverviewPageState extends State<OverviewPage> {
     }
   }
 
-  /// Même entrée que l'accueil de l'app (« Historique des versions ») : l'écran
-  /// est celui de l'app, branché sur l'API du Manager.
+  Future<void> _restart() async {
+    setState(() => _busy = true);
+    try {
+      await widget.api.stopBot(_bot.id);
+      await widget.api.startBot(_bot.id, botName: _bot.name);
+      await _refresh();
+    } catch (e) {
+      if (mounted) await explainBotError(context, _bot, e);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _invite() async {
+    final url = Uri.parse(
+      'https://discord.com/api/oauth2/authorize?client_id=${_bot.id}&scope=bot&permissions=8',
+    );
+    final opened = await openExternalUrl(url);
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.tr.bot_home_invite_error)));
+    }
+  }
+
+  Future<void> _copyId() async {
+    await Clipboard.setData(ClipboardData(text: _bot.id));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('ID ${_bot.id}'),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  /// Même entrée que l'accueil de l'app (« Historique des versions »).
   void _openVersionHistory() {
     Navigator.of(context).push<void>(
       MaterialPageRoute(
@@ -100,424 +163,451 @@ class _OverviewPageState extends State<OverviewPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: pageInsets(context, top: 20),
-      child: PageContent(
-        maxWidth: 960,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _Hero(
-              bot: _bot,
-              busy: _busy,
-              onToggle: _toggle,
-              onHistory: _openVersionHistory,
+  /// Les journaux en pleine page : console étirée, avec le filtre de niveau.
+  void _openLogs() {
+    Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          appBar: AppBar(title: Text(context.tr.bot_logs_title)),
+          body: Padding(
+            padding: const EdgeInsets.all(16),
+            child: ValueListenableBuilder<List<String>>(
+              valueListenable: _logs,
+              builder: (context, lines, _) => BotHomeConsolePanel(
+                lines: lines,
+                fillHeight: true,
+                showLevelFilter: true,
+                emptyHint: _emptyLogsHint(context),
+                onOpenLogs: () {},
+              ),
             ),
-            const SizedBox(height: 16),
-            _Stats(bot: _bot, commandCount: _commandCount),
-            const SizedBox(height: 28),
-            _LogsPanel(logs: _logs, error: _logsError, live: _bot.running),
-          ],
+          ),
         ),
       ),
     );
   }
-}
 
-/// Carte d'identité : avatar, nom, état, moteur ; les actions à droite (sous le
-/// nom sur téléphone).
-class _Hero extends StatelessWidget {
-  const _Hero({
-    required this.bot,
-    required this.busy,
-    required this.onToggle,
-    required this.onHistory,
-  });
-
-  final StudioBot bot;
-  final bool busy;
-  final VoidCallback onToggle;
-  final VoidCallback onHistory;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final compact = isCompact(context);
-    final identity = Row(
-      children: [
-        HomeBotAvatar(imageUrl: bot.avatarUrl, size: compact ? 52 : 64),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                bot.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: compact ? 20 : 24,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.4,
-                ),
-              ),
-              const SizedBox(height: 8),
-              StatusPill(
-                variant: bot.running
-                    ? StatusPillVariant.online
-                    : StatusPillVariant.stopped,
-                label: bot.running ? l.statusOnline : l.statusStopped,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-
-    final actions = Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      children: [
-        bot.running
-            ? OutlinedButton.icon(
-                onPressed: busy ? null : onToggle,
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(0, 44),
-                  foregroundColor: StudioColors.errorText,
-                  backgroundColor: StudioColors.error.withValues(alpha: 0.08),
-                  side: BorderSide(
-                    color: StudioColors.error.withValues(alpha: 0.4),
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                icon: busy
-                    ? const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: StudioColors.errorText,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                label: Text(l.botStop),
-              )
-            : FilledButton.icon(
-                onPressed: busy ? null : onToggle,
-                style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
-                icon: busy
-                    ? const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const AppIcon.fromMaterial(
-                        Icons.play_arrow_rounded,
-                        size: 18,
-                      ),
-                label: Text(l.botStart),
-              ),
-        OutlinedButton.icon(
-          onPressed: onHistory,
-          style: OutlinedButton.styleFrom(
-            minimumSize: const Size(0, 44),
-            foregroundColor: Colors.white,
-            backgroundColor: StudioColors.card,
-            side: const BorderSide(color: StudioColors.clusterBorder),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          icon: const AppIcon.fromMaterial(Icons.history_rounded, size: 16),
-          label: Text(context.tr.bot_home_version_history),
-        ),
-      ],
-    );
-
-    return Container(
-      padding: EdgeInsets.all(compact ? 16 : 24),
-      decoration: BoxDecoration(
-        color: StudioColors.rail,
-        border: Border.all(color: StudioColors.cardBorder),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: compact
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [identity, const SizedBox(height: 16), actions],
-            )
-          : Row(
-              children: [
-                Expanded(child: identity),
-                const SizedBox(width: 24),
-                actions,
-              ],
-            ),
-    );
+  String _emptyLogsHint(BuildContext context) {
+    if (_logsError != null) return context.tr.bot_logs_server_read_failed;
+    if (_logsLoaded) return context.tr.bot_logs_server_empty;
+    return context.tr.bot_logs_empty;
   }
-}
 
-/// Trois repères : nombre de commandes, moteur d'exécution, identifiant.
-class _Stats extends StatelessWidget {
-  const _Stats({required this.bot, required this.commandCount});
+  // ── Hébergement ───────────────────────────────────────────────────────────
 
-  final StudioBot bot;
-  final int? commandCount;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final tiles = [
-      _StatTile(
-        icon: Icons.terminal_rounded,
-        label: l.navCommands,
-        value: commandCount == null ? '–' : '$commandCount',
-      ),
-      _StatTile(
-        icon: Icons.memory,
-        label: l.overviewEngine,
-        value: bot.isJavascript ? 'JavaScript' : 'Dart',
-      ),
-      _StatTile(
-        icon: Icons.tag,
-        label: 'ID',
-        value: bot.id,
-        mono: true,
-        selectable: true,
-      ),
-    ];
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // Trois colonnes quand ça tient ; sinon une par ligne.
-        final columns = constraints.maxWidth >= 640 ? 3 : 1;
-        const gap = 12.0;
-        final width = (constraints.maxWidth - gap * (columns - 1)) / columns;
-        return Wrap(
-          spacing: gap,
-          runSpacing: gap,
-          children: [for (final t in tiles) SizedBox(width: width, child: t)],
-        );
-      },
-    );
+  /// Santé de la réserve → variante de pastille (vert / orange / rouge).
+  StatusPillVariant _hostingPill(int minutes) {
+    const day = 60 * 24;
+    if (minutes < day) return StatusPillVariant.error;
+    if (minutes < day * 3) return StatusPillVariant.warning;
+    return StatusPillVariant.online;
   }
-}
 
-class _StatTile extends StatelessWidget {
-  const _StatTile({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.mono = false,
-    this.selectable = false,
-  });
+  /// Carte « Hébergement » ; `null` quand le serveur n'a rien dit.
+  Widget? _hostingCard(BuildContext context, {required bool wide}) {
+    final runtime = _runtime;
+    if (runtime == null) return null;
+    final tr = context.tr;
+    final p = BotHomePalette.of(context);
+    final running = _bot.running;
+    final unlimited = runtime.premiumFunded;
+    final minutes = runtime.freeMinutes ?? 0;
+    final expiresAt = runtime.sessionExpiresAt;
+    // Échéance du serveur si elle existe ; sinon le solde compté depuis la
+    // lecture (une durée qui s'écoule, jamais une date inventée).
+    final deadline = running
+        ? (expiresAt ??
+              (runtime.freeMinutes == null
+                  ? null
+                  : _runtimeAt.add(Duration(minutes: minutes))))
+        : null;
 
-  final IconData icon;
-  final String label;
-  final String value;
-  final bool mono;
-  final bool selectable;
+    final overline = unlimited
+        ? tr.home_hosting_unlimited_overline
+        : running
+        ? tr.home_hosting_remaining_overline
+        : tr.home_hosting_time_preserved_overline;
 
-  @override
-  Widget build(BuildContext context) {
-    final style = TextStyle(
-      fontSize: mono ? 14 : 18,
-      fontWeight: FontWeight.w700,
-      fontFamily: mono ? StudioTheme.monoFamily : null,
-    );
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: StudioColors.card,
-        border: Border.all(color: StudioColors.clusterBorder),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: StudioColors.action.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: AppIcon.fromMaterial(
-              icon,
-              size: 20,
-              color: StudioColors.actionSoft,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Overline(label),
-                const SizedBox(height: 4),
-                selectable
-                    ? SelectableText(value, maxLines: 1, style: style)
-                    : Text(
-                        value,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: style,
-                      ),
-              ],
-            ),
-          ),
+    Widget? countdown;
+    if (unlimited) {
+      countdown = Text(
+        tr.home_hosting_unlimited_headline,
+        style: TextStyle(
+          fontSize: 20,
+          height: 26 / 20,
+          fontWeight: FontWeight.w800,
+          color: p.text,
+        ),
+      );
+    } else if (deadline != null) {
+      countdown = BotHomeLiveCountdown(
+        deadline: deadline,
+        expiredLabel: tr.home_hosting_expired,
+        wide: wide,
+      );
+    } else if (runtime.freeMinutes != null) {
+      // Bot arrêté : la réserve attend, rien ne s'écoule.
+      final parts = splitHostingDuration(minutes);
+      String two(int v) => v.toString().padLeft(2, '0');
+      countdown = BotHomeCountdown(
+        wide: wide,
+        segments: [
+          (value: two(parts.months), label: tr.unit_short_month),
+          (value: two(parts.days), label: tr.unit_short_day),
+          (value: two(parts.hours), label: tr.unit_short_hour),
+          (value: two(parts.minutes), label: tr.unit_short_minute),
         ],
+      );
+    }
+
+    final pill = unlimited
+        ? (running ? StatusPillVariant.online : StatusPillVariant.warning)
+        : (running ? _hostingPill(minutes) : StatusPillVariant.warning);
+
+    return BotHomePanel(
+      title: tr.bot_home_hosting_title,
+      wide: wide,
+      emphasize: !unlimited && minutes < 120 && running,
+      trailing: StatusPill(
+        variant: pill,
+        label: running
+            ? tr.home_hosting_status_active_short
+            : tr.home_hosting_status_paused_short,
       ),
-    );
-  }
-}
-
-/// Journaux façon terminal : heure, niveau coloré, message ; les plus récents
-/// en bas.
-class _LogsPanel extends StatelessWidget {
-  const _LogsPanel({
-    required this.logs,
-    required this.error,
-    required this.live,
-  });
-
-  final List<String>? logs;
-  final String? error;
-
-  /// Le bot tourne : les journaux se rafraîchissent (pastille « En direct »).
-  final bool live;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final lines = logs;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            Overline(l.overviewLogs),
-            const Spacer(),
-            if (live) ...[
-              Container(
-                width: 7,
-                height: 7,
-                decoration: const BoxDecoration(
-                  color: StudioColors.online,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                l.overviewLive,
-                style: const TextStyle(
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w600,
-                  color: StudioColors.muted,
-                ),
-              ),
-            ],
-          ],
-        ),
-        const SizedBox(height: 12),
-        Container(
-          constraints: const BoxConstraints(minHeight: 120, maxHeight: 460),
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-          decoration: BoxDecoration(
-            color: StudioColors.containerLowest,
-            border: Border.all(color: StudioColors.cardBorder),
-            borderRadius: BorderRadius.circular(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            overline.toUpperCase(),
+            style: TextStyle(
+              fontSize: 10.5,
+              height: 13 / 10.5,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.84,
+              color: p.muted,
+            ),
           ),
-          child: lines == null
-              ? Center(
-                  child: error != null
-                      ? Text(
-                          l.overviewLogsUnavailable(error!),
-                          style: const TextStyle(color: StudioColors.muted),
-                        )
-                      : const CircularProgressIndicator(),
-                )
-              : lines.isEmpty
-              ? Center(
+          const SizedBox(height: 12),
+          ?countdown,
+          if (running && !unlimited && expiresAt != null) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                AppIcon.fromMaterial(
+                  Icons.calendar_today_outlined,
+                  size: 16,
+                  color: p.muted,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
                   child: Text(
-                    l.overviewNoLogs,
-                    style: const TextStyle(color: StudioColors.muted),
-                  ),
-                )
-              : SelectionArea(
-                  child: ListView.builder(
-                    reverse: true,
-                    shrinkWrap: true,
-                    itemCount: lines.length,
-                    itemBuilder: (context, i) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: _LogLine(lines[lines.length - 1 - i]),
+                    formatSessionExpiration(context, expiresAt),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: wide ? 14 : 13.5,
+                      height: 20 / 14,
+                      color: p.softText,
                     ),
                   ),
                 ),
-        ),
-      ],
+              ],
+            ),
+          ],
+          if (!unlimited) ...[
+            const SizedBox(height: 16),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 1),
+                  child: AppIcon.fromMaterial(
+                    Icons.info_outline_rounded,
+                    size: 16,
+                    color: p.muted,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    tr.home_add_time_mobile_only,
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.45,
+                      color: p.muted,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: BotHomeButton(
+              variant: BotHomeButtonVariant.ghost,
+              icon: Icons.history_rounded,
+              label: tr.bot_home_version_history,
+              expand: !wide,
+              onTap: _openVersionHistory,
+            ),
+          ),
+        ],
+      ),
     );
   }
-}
 
-/// `[2026-10-06T09:14:41.828Z] [INFO] bot:1: message` → heure, niveau, message.
-/// Une ligne qui n'a pas ce format est montrée telle quelle.
-final _logPattern = RegExp(r'^\[([^\]]+)\]\s+\[(\w+)\]\s+(.*)$', dotAll: true);
+  // ── Commandes et workflows ────────────────────────────────────────────────
 
-class _LogLine extends StatelessWidget {
-  const _LogLine(this.raw);
+  Widget _commandsCard(BuildContext context, {required bool wide}) {
+    final tr = context.tr;
+    final p = BotHomePalette.of(context);
+    final open = widget.onOpenSection;
+    return BotHomePanel(
+      title: tr.commands_tab,
+      wide: wide,
+      trailing: _commands.isEmpty || open == null
+          ? null
+          : BotHomeLinkButton(
+              label: tr.bot_home_commands_see_all(_commands.length),
+              trailingIcon: Icons.chevron_right_rounded,
+              onTap: () => open('commands'),
+            ),
+      child: _commands.isEmpty
+          ? BotHomeEmptyHint(text: tr.commands_empty)
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final command in _commands.take(4)) ...[
+                  BotHomeRow(
+                    leading: BlockFamily.messages.pastille(
+                      Icons.terminal_rounded,
+                      size: 36,
+                      iconSize: 18,
+                    ),
+                    onTap: open == null ? null : () => open('commands'),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '/${command.name}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: botHomeMono(14.5, p.text).copyWith(
+                            fontWeight: FontWeight.w700,
+                            height: 20 / 14.5,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        BotHomeChip(
+                          label: tr.bot_home_actions_count(
+                            _actionCount(command),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ],
+            ),
+    );
+  }
 
-  final String raw;
+  int _actionCount(StudioCommand command) {
+    final data = command.card['data'];
+    final actions = data is Map ? data['actions'] : null;
+    return actions is List ? actions.length : 0;
+  }
 
-  static const _base = TextStyle(
-    fontFamily: StudioTheme.monoFamily,
-    fontSize: 12,
-    height: 1.5,
-  );
+  Widget _workflowsCard(BuildContext context, {required bool wide}) {
+    final tr = context.tr;
+    final p = BotHomePalette.of(context);
+    final open = widget.onOpenSection;
+    return BotHomePanel(
+      title: tr.workflows_tab,
+      wide: wide,
+      footer: open == null
+          ? null
+          : BotHomeButton(
+              variant: BotHomeButtonVariant.secondary,
+              icon: Icons.add_rounded,
+              label: tr.workflows_create,
+              onTap: () => open('flows'),
+            ),
+      child: _workflows.isEmpty
+          ? BotHomeEmptyHint(text: tr.workflows_empty)
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final workflow in _workflows.take(3)) ...[
+                  _workflowRow(context, p, workflow, open),
+                  const SizedBox(height: 8),
+                ],
+              ],
+            ),
+    );
+  }
 
-  static Color _levelColor(String level) => switch (level.toUpperCase()) {
-    'ERROR' || 'FATAL' || 'SEVERE' => StudioColors.errorText,
-    'WARN' || 'WARNING' => StudioColors.premiumGold,
-    'DEBUG' || 'TRACE' => StudioColors.muted,
-    _ => StudioColors.actionSoft,
-  };
+  Widget _workflowRow(
+    BuildContext context,
+    BotHomePalette p,
+    StudioWorkflowSummary workflow,
+    ValueChanged<String>? open,
+  ) {
+    final tr = context.tr;
+    final isEvent = workflow.type == workflowTypeEvent;
+    final family = isEvent ? BlockFamily.events : BlockFamily.logic;
+    final details = [
+      if (isEvent && workflow.event.isNotEmpty) workflow.event,
+      tr.bot_home_actions_count(workflow.actionCount),
+    ].join(' · ');
+    return BotHomeRow(
+      leading: family.pastille(
+        isEvent ? Icons.bolt_rounded : Icons.account_tree_outlined,
+        size: 36,
+        iconSize: 18,
+      ),
+      onTap: open == null ? null : () => open('flows'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            (isEvent
+                    ? tr.workflows_type_badge_event
+                    : tr.workflows_type_badge_general)
+                .toUpperCase(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: family.overlineStyle(),
+          ),
+          Text(
+            workflow.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 15,
+              height: 20 / 15,
+              fontWeight: FontWeight.w700,
+              color: p.text,
+            ),
+          ),
+          Text(
+            details,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 12.5, color: p.muted),
+          ),
+        ],
+      ),
+    );
+  }
 
-  static String _clock(String stamp) {
-    final parsed = DateTime.tryParse(stamp)?.toLocal();
-    if (parsed == null) return stamp;
-    String two(int v) => v.toString().padLeft(2, '0');
-    return '${two(parsed.hour)}:${two(parsed.minute)}:${two(parsed.second)}';
+  // ── Page ──────────────────────────────────────────────────────────────────
+
+  Widget _header(BuildContext context, {required bool wide}) {
+    final tr = context.tr;
+    final running = _bot.running;
+    final starting = _busy;
+    final pill = starting
+        ? StatusPill.warning(label: tr.bot_home_starting)
+        : (running
+              ? StatusPill.online(label: tr.home_status_online)
+              : StatusPill.stopped(label: tr.home_status_offline));
+    final h = wide ? 44.0 : 48.0;
+    Widget sized(double width, Widget child) =>
+        wide ? SizedBox(width: width, child: child) : child;
+    final invite = BotHomeButton(
+      variant: wide && running
+          ? BotHomeButtonVariant.primary
+          : BotHomeButtonVariant.secondary,
+      icon: Icons.person_add_alt_1_rounded,
+      label: tr.bot_home_invite,
+      compact: !wide,
+      onTap: _invite,
+    );
+    final restart = BotHomeButton(
+      variant: BotHomeButtonVariant.secondary,
+      icon: Icons.restart_alt_rounded,
+      label: tr.bot_home_restart,
+      height: h,
+      onTap: (!running || starting) ? null : _restart,
+    );
+    final toggle = BotHomeButton(
+      variant: running
+          ? BotHomeButtonVariant.danger
+          : BotHomeButtonVariant.online,
+      icon: running ? Icons.stop_rounded : Icons.play_arrow_rounded,
+      stopSquare: running,
+      label: starting
+          ? tr.bot_home_starting
+          : (running ? tr.home_stop : tr.home_start),
+      loading: starting,
+      height: h,
+      onTap: starting ? null : _toggle,
+    );
+    return BotHomeIdentityHeader(
+      name: _bot.name,
+      botId: _bot.id,
+      imageUrl: _bot.avatarUrl,
+      statusPill: pill,
+      sourceLabel: running ? tr.runner_source_manager : null,
+      onCopyId: _copyId,
+      wide: wide,
+      actions: wide
+          ? [sized(168, invite), sized(152, restart), sized(132, toggle)]
+          : [
+              SizedBox(
+                width: double.infinity,
+                child: Row(
+                  children: [
+                    Expanded(child: toggle),
+                    const SizedBox(width: 8),
+                    Expanded(child: restart),
+                  ],
+                ),
+              ),
+              SizedBox(width: double.infinity, child: invite),
+            ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final match = _logPattern.firstMatch(raw);
-    if (match == null) return Text(raw, style: _base);
-    final level = match.group(2)!;
-    return Text.rich(
-      TextSpan(
-        style: _base,
-        children: [
-          TextSpan(
-            text: '${_clock(match.group(1)!)}  ',
-            style: const TextStyle(color: StudioColors.muted),
-          ),
-          TextSpan(
-            text: '${level.toUpperCase().padRight(5)}  ',
-            style: TextStyle(
-              color: _levelColor(level),
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          TextSpan(text: match.group(3)),
-        ],
+    final wide = !isCompact(context);
+    final hosting = _hostingCard(context, wide: wide);
+    final commands = _commandsCard(context, wide: wide);
+    final workflows = _workflowsCard(context, wide: wide);
+    final console = ValueListenableBuilder<List<String>>(
+      valueListenable: _logs,
+      builder: (context, lines, _) => BotHomeConsolePanel(
+        lines: lines,
+        showLevelFilter: wide,
+        compactLineCount: wide ? 8 : 3,
+        emptyHint: _emptyLogsHint(context),
+        onOpenLogs: _openLogs,
+      ),
+    );
+    return PageContent(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.only(top: wide ? 24 : 12, bottom: 40),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _header(context, wide: wide),
+            SizedBox(height: wide ? 24 : 18),
+            if (wide)
+              BotHomeCardGrid(children: [?hosting, commands, workflows])
+            else ...[
+              if (hosting != null) ...[hosting, const SizedBox(height: 14)],
+              commands,
+              const SizedBox(height: 14),
+              workflows,
+            ],
+            SizedBox(height: wide ? 20 : 14),
+            console,
+          ],
+        ),
       ),
     );
   }

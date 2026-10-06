@@ -31,6 +31,8 @@ http.Response _route(http.Request r) {
     body = _noBots
         ? '{"bots":[]}'
         : '{"bots":[{"bot_id":"1","bot_name":"Modération","runtime_state":"running"}]}';
+  } else if (p == '/gateway/bots/1/status') {
+    body = '{"bot":{"state":"running"}}';
   } else if (p == '/gateway/bots/1/runtime') {
     body = '{"funding_mode":"free","free_minutes_balance":90}';
   } else if (p == '/gateway/bots/1/logs') {
@@ -157,7 +159,7 @@ void main() {
 
     await tester.tap(find.text('Gérer'));
     await _settle(tester);
-    expect(find.text('JOURNAUX'), findsOneWidget);
+    expect(find.text('Logs du bot'), findsOneWidget);
     expect(find.text('bot connecté'), findsOneWidget);
     expect(tester.takeException(), isNull);
 
@@ -225,7 +227,7 @@ void main() {
     await tester.tap(find.text('Gérer'));
     await _settle(tester);
 
-    expect(find.text('Commandes'), findsOneWidget); // rail
+    expect(find.text('Commandes'), findsWidgets); // barre du haut (+ aperçu)
     expect(find.text('Copilote IA'), findsOneWidget);
     expect(find.text('Modules'), findsOneWidget);
     expect(find.text('Paramètres'), findsOneWidget);
@@ -272,7 +274,7 @@ void main() {
     await tester.tap(find.byType(Switch));
     await _settle(tester);
     expect(find.text('CRÉATION'), findsNothing);
-    expect(find.text('Commandes'), findsOneWidget);
+    expect(find.text('Commandes'), findsWidgets);
     expect(find.text('Copilote IA'), findsOneWidget);
     expect(find.text('Modules'), findsWidgets); // reste dans le rail
     expect(tester.takeException(), isNull);
@@ -339,12 +341,61 @@ void main() {
     await _settle(tester);
     for (final label in ['Commandes', 'Copilote IA', 'Modules', 'Paramètres']) {
       expect(
-        tester.getTopLeft(find.text(label)).dy,
+        tester.getTopLeft(find.text(label).first).dy,
         lessThan(60),
         reason: label,
       );
     }
     expect(find.byTooltip('Retour'), findsWidgets);
+    await _dispose(tester);
+  });
+
+  // L'accueil d'un bot est celui de l'app : identité + actions, hébergement,
+  // aperçus des commandes et des workflows, journaux filtrables.
+  testWidgets("grand écran : l'accueil d'un bot reprend celui de l'app", (
+    tester,
+  ) async {
+    await _pumpApp(tester, const Size(1912, 920));
+    await tester.tap(find.text('Gérer'));
+    await _settle(tester);
+    final fr = lookupAppLocalizations(const Locale('fr'));
+
+    // Identité : nom, ID, serveurs d'exécution, actions.
+    expect(find.text('Modération'), findsWidgets);
+    expect(find.text('ID 1'), findsOneWidget);
+    expect(find.text(fr.runner_source_manager), findsOneWidget);
+    expect(find.text(fr.bot_home_invite), findsOneWidget);
+    expect(find.text(fr.bot_home_restart), findsOneWidget);
+    expect(find.text(fr.home_stop), findsOneWidget);
+    // Cartes : hébergement (décompte), commandes (aperçu), workflows.
+    expect(find.text(fr.bot_home_hosting_title), findsOneWidget);
+    expect(find.text(fr.unit_short_second.toUpperCase()), findsOneWidget);
+    expect(find.text('/ban'), findsOneWidget);
+    expect(find.text(fr.workflows_empty), findsOneWidget);
+    expect(find.text(fr.workflows_create), findsOneWidget);
+    // Journaux : filtre de niveau + lignes.
+    expect(find.text(fr.bot_home_logs_filter_info), findsOneWidget);
+    expect(find.text('bot connecté'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    // « Voir tout » ouvre l'onglet Commandes.
+    await tester.tap(find.text(fr.bot_home_commands_see_all(2)));
+    await _settle(tester);
+    expect(find.text('/ban'), findsNothing); // plus l'aperçu de l'accueil
+    expect(find.text('ban'), findsOneWidget); // la liste des commandes
+    await _dispose(tester);
+  });
+
+  testWidgets("téléphone : l'accueil d'un bot tient sur une colonne", (
+    tester,
+  ) async {
+    await _pumpApp(tester, const Size(390, 844));
+    await tester.tap(find.text('Gérer'));
+    await _settle(tester);
+    final fr = lookupAppLocalizations(const Locale('fr'));
+    expect(find.text(fr.bot_home_hosting_title), findsOneWidget);
+    expect(find.text(fr.home_stop), findsOneWidget);
+    expect(tester.takeException(), isNull);
     await _dispose(tester);
   });
 }
