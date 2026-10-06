@@ -10756,6 +10756,22 @@ class AppLocalizationsJa extends AppLocalizations {
       'リプレイは現在利用できません。ボットを起動してからもう一度お試しください。';
 
   @override
+  String get sandbox_unavailable =>
+      'シミュレーションサーバーは現在利用できません。ボットを起動してからもう一度お試しください。';
+
+  @override
+  String get sandbox_too_large => 'このコマンドはサーバーでテストするには大きすぎます（上限 256 KB）。';
+
+  @override
+  String get sandbox_timeout => 'シミュレーションに時間がかかりすぎたため中断されました。';
+
+  @override
+  String get sandbox_busy => 'シミュレーションサーバーが混み合っています。しばらくしてからもう一度お試しください。';
+
+  @override
+  String get sandbox_test_tooltip => 'サンドボックスでテスト';
+
+  @override
   String get debug_replay_native_start => '呼び出し';
 
   @override

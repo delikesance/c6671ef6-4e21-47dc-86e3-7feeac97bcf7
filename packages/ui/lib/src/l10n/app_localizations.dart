@@ -19399,6 +19399,36 @@ abstract class AppLocalizations {
   /// **'Replays are unavailable right now. Start the bot, then try again.'**
   String get debug_replay_unavailable;
 
+  /// No description provided for @sandbox_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The simulation server is unavailable right now. Start the bot, then try again.'**
+  String get sandbox_unavailable;
+
+  /// No description provided for @sandbox_too_large.
+  ///
+  /// In en, this message translates to:
+  /// **'This command is too large to be tested on the server (limit 256 KB).'**
+  String get sandbox_too_large;
+
+  /// No description provided for @sandbox_timeout.
+  ///
+  /// In en, this message translates to:
+  /// **'The simulation took too long and was stopped.'**
+  String get sandbox_timeout;
+
+  /// No description provided for @sandbox_busy.
+  ///
+  /// In en, this message translates to:
+  /// **'The simulation server is busy. Try again in a moment.'**
+  String get sandbox_busy;
+
+  /// No description provided for @sandbox_test_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Test in sandbox'**
+  String get sandbox_test_tooltip;
+
   /// No description provided for @debug_replay_native_start.
   ///
   /// In en, this message translates to:

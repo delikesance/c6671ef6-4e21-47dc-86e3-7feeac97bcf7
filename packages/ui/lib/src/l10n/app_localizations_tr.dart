@@ -11297,6 +11297,24 @@ class AppLocalizationsTr extends AppLocalizations {
       'Tekrarlar şu anda kullanılamıyor. Botu başlatın ve tekrar deneyin.';
 
   @override
+  String get sandbox_unavailable =>
+      'Simülasyon sunucusu şu anda kullanılamıyor. Botu başlatın ve tekrar deneyin.';
+
+  @override
+  String get sandbox_too_large =>
+      'Bu komut sunucuda test edilemeyecek kadar büyük (sınır 256 KB).';
+
+  @override
+  String get sandbox_timeout => 'Simülasyon çok uzun sürdü ve durduruldu.';
+
+  @override
+  String get sandbox_busy =>
+      'Simülasyon sunucusu meşgul. Birazdan tekrar deneyin.';
+
+  @override
+  String get sandbox_test_tooltip => 'Sandbox\'ta test et';
+
+  @override
   String get debug_replay_native_start => 'Çağrı';
 
   @override

@@ -140,13 +140,32 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
     conversation » d'une ligne de l'historique (le Copilote du Studio n'ouvre pas une discussion par son identifiant) ;
     l'entrée « Crédits IA » du hub n'apparaît, comme dans l'app, que si une offre `rewarded_ai` est publiée (le Studio y
     accède aussi par le Copilote).
-- **Bac à sable de commande et fonctions du bac à sable — NON partagés** (`CommandSandboxPage`,
-  `SandboxFunctionsPage`) : ils exécutent le moteur de commandes (BDFD natif, actions) **dans l'application**
-  (`testCommandInSandbox` de `bot_creator_shared/sandbox/command_sandbox.dart`, qui importe nyxx, `dart:io`,
-  `dart:isolate`, `package:image`) et la liste des fonctions vient de `function_suite.dart`, qui dépend du même moteur.
-  Rien de cela ne compile pour le web, et le Manager n'expose aucune route d'exécution de test (aucune occurrence de
-  « sandbox » dans `internal/api`, ni route simulate/dry-run) : il faudrait une route serveur qui lance le moteur sur un
-  brouillon de commande, ce qui est un travail Manager/runner distinct, non entrepris ici.
+- **Bac à sable de commande et laboratoire de fonctions — PARTAGÉS, exécutés sur le runner** (`CommandSandboxPage`,
+  `SandboxFunctionsPage`, dans `bot_creator_ui` avec un `SandboxHost`). Le moteur de simulation
+  (`testCommandInSandbox`, BDFD natif et actions) reste du Dart natif (nyxx, `dart:io`, isolats) : il ne compile pas
+  pour le web. L'app l'exécute donc toujours **sur l'appareil** (`AppSandboxHost`), et le Studio l'exécute **sur le
+  runner du bot** (`StudioSandboxHost`) par le Manager, sur le modèle du rejeu du débogueur :
+  - Manager : `POST /gateway/bots/{id}/sandbox/command` (scope `write:bots`, corps = la demande que prend
+    `testCommandInSandbox` : `script` OU `actions`, `bdfdBackend`, `options`, `variables`, `definitions` + fixtures ;
+    réponse = le résultat du moteur tel quel) et `GET /gateway/bots/{id}/sandbox/functions` (scope `read:bots`,
+    `{count, cases[]}` : un cas = `function`, `label`, `script`, `scenario`, `options`, `expected`, `expectedValues`).
+    **Pas premium** (l'app l'offre à tous). Contrairement aux relais voisins, l'appelant doit avoir un droit sur le bot
+    (propriétaire ou équipe) : sinon 404 `bot_not_found`, le runner d'un autre compte n'est jamais atteint.
+  - Runner : mêmes routes sous `/bots/:id/sandbox/*` (jeton Bearer du runner). Corps ≤ 256 Kio (compté sur les octets
+    reçus), délai 5 s (isolat tué), 2 simulations en parallèle au plus. Refus : 400 `invalid_request`, 413
+    `payload_too_large`, 429 `sandbox_busy` (+ `Retry-After`), 504 `sandbox_timeout`, 500 `sandbox_failed`. Un échec du
+    moteur lui-même (script invalide, fixture manquante) reste un 200 `{success:false, error}`, comme sur l'appareil.
+  - Sécurité : aucune connexion Discord (passerelle de fixtures), aucune donnée du bot (rien n'est lu du magasin du
+    runner), HTTP simulé par un client factice qui ne répond qu'aux fixtures de la demande, et l'isolat tourne sous un
+    `HttpOverrides` qui refuse de créer un vrai `HttpClient` : pas d'accès réseau ni aux adresses internes. Testé côté
+    runner par un serveur local de contrôle qui ne doit recevoir aucune requête.
+  - Placement : bouton « Tester dans le sandbox » sous l'en-tête de l'éditeur de commande (blocs et script BDFD ; pas
+    pour les commandes JavaScript), puis le laboratoire de fonctions par l'icône de la barre de l'écran, comme dans
+    l'app. Bot arrêté / sans runner (404 `runner_*`, 409, 502, 503) : phrase localisée `sandbox_unavailable`.
+  - Écarts connus avec l'app : le bac à sable n'a pas de simulation hors ligne (il faut que le bot tourne) ; le
+    catalogue de fonctions pèse ≈ 700 Kio (807 cas), chargé à l'ouverture du laboratoire ; les libellés de ces deux
+    écrans sont en français/anglais seulement (comme dans l'app : seuls les messages d'erreur et le bouton sont en 6
+    langues).
 - **Traductions** : les écrans du Studio n'ont plus de texte français codé en dur. Ils réutilisent les clés de l'app
   (`context.tr`, 6 langues) quand le sens est identique, sinon des clés Studio (`context.l10n`, 6 langues) ; les
   validations, erreurs de connexion et refus de démarrage sont des types (`ValidationProblem`, `AuthIssue`,
@@ -240,7 +259,7 @@ Manque :
 - Éditeurs typés par action (≈60 types), validation, suggestions de variables, imbriqués (embeds, conditions).
 - Onglet Workflows : aucun appel `workflows/sync` ni lecture ; workflows d'événement et arguments.
 - Canvas Blueprint (≈1 000 lignes + peintre, mise en page, mini-carte dans l'app).
-- Éditeurs BDFD et JavaScript, bac à sable ; Components V2 et modales.
+- Éditeurs BDFD et JavaScript ; Components V2 et modales. (Le bac à sable est partagé : voir plus haut.)
 - Valeurs de variables à portée, variables temporaires et tableaux, création et suppression des définitions.
 - Versions de configuration, historique de commande et retour arrière, export / import, rejeu de débogage.
 
@@ -272,7 +291,7 @@ Routes déjà là : `commands/sync`, `workflows/sync` et `delete` (pas de GET : 
 5. **Copilot minimal** (L) : phase 1 portefeuille + liste de conversations (S/M) ; phase 2 chat en flux + approbation des
    outils (L). Pas besoin de porter la page de 2 900 lignes ni le MCP : l'état des conversations est côté serveur.
 6. **Canvas Blueprint** (L), après 1 et 2 : seconde vue de `actions[]`, positions côté client.
-7. **BDFD / JS / bac à sable** (L) ; en attendant, vue code en lecture seule (S).
+7. **BDFD / JS** (L) ; en attendant, vue code en lecture seule (S). Le bac à sable est fait.
 8. **Marketplace, import / export, conteneurs, docs, émojis, guilds** (M chacun).
 9. **Planificateur et webhooks entrants** (M) : confirmer d'abord le stockage dans la config du bot.
 10. **Components V2 / modales** (L), avec le point 2.
