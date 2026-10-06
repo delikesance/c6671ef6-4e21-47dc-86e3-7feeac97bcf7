@@ -7,7 +7,8 @@ que les deux interfaces se ressemblent et se comportent pareil.
 
 | Dossier | Contenu |
 |---|---|
-| `lib/src/theme` | `AppTheme`, apparences (`AppAppearanceConfig`), échelle de texte, `BlockFamily`, `UiFonts` |
+| `lib/src/theme` | `AppTheme`, apparences (`AppAppearanceConfig`), `ThemeProvider` (apparence persistée), échelle de texte, `BlockFamily`, `UiFonts` |
+| `lib/src/settings` | cartes de réglages partagées : `AppearanceSettingsSection` (`showModeSelector: false` sur le Studio, qui reste sombre) et `TextScaleSettingsSection` |
 | `lib/src/widgets` | `AppIcon` (Reicon), `PageContent`, `ResponsiveHelper` |
 | `lib/src/l10n` | les traductions (ARB) de l'app **et** du Studio, `context.tr` |
 | `lib/src/editor/catalog` | `ActionItem`, paramètres et libellés des types d'actions |

@@ -5,6 +5,7 @@ import 'package:bot_creator_studio/src/auth/auth_controller.dart';
 import 'package:bot_creator_studio/src/auth/studio_session.dart';
 import 'package:bot_creator_studio/src/locale_controller.dart';
 import 'package:bot_creator_studio/src/studio_app.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -102,6 +103,19 @@ Future<void> _dispose(WidgetTester tester) async {
 }
 
 void main() {
+  testWidgets('réglages : carte Apparence de l\'app, sans choix de mode', (
+    tester,
+  ) async {
+    await _pumpApp(tester, const Size(1280, 800));
+    await tester.tap(find.text('Paramètres'));
+    await _settle(tester);
+    expect(find.byType(AppearanceSettingsSection), findsOneWidget);
+    expect(find.byKey(AppearanceSettingsSection.modeSelectorKey), findsNothing);
+    expect(find.byType(TextScaleSettingsSection), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await _dispose(tester);
+  });
+
   const phone = Size(390, 844);
   const desktop = Size(1280, 800);
 
