@@ -25,6 +25,10 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
   de thèmes, couleurs personnalisées, taille du texte) est celle de l'app, pilotée par le même `ThemeProvider` ; le
   Studio reste sombre (ses jetons de couleur le sont), donc sans choix clair / sombre. Les réglages du site sont
   volontairement réduits : compte, langue, apparence.
+- **Historique d'une commande** : la modale de l'app (`CommandHistorySheet` : 5 versions, aperçu, restauration confirmée,
+  conflit 409 traité comme tel, suppression) remplace la boîte de dialogue maison ; le Studio fournit seulement
+  `StudioCommandHistoryHost` (routes v2 du Manager). Même chose pour la carte « Éditeur de code » des réglages
+  (`CodeEditorSettingsCard`).
 - **Éditeur de blocs** : `ActionSequenceEditor`, assemblé comme l'éditeur de commandes de l'app : palette d'actions par
   catégorie (recherche, glisser-déposer), blocs `ActionBlock` avec les formulaires d'action de l'app (`ActionCard`,
   ≈60 types), point d'entrée `EntryPointBlock` / `WorkflowEntryPointBlock`, suggestions de variables du moteur.

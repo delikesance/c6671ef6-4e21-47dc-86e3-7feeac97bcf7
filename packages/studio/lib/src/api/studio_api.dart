@@ -205,8 +205,10 @@ class StudioCommandVersion {
     required this.historyId,
     required this.createdAt,
     this.sizeBytes = 0,
+    this.authorOwnerId = '',
   });
 
+  final String authorOwnerId;
   final String historyId;
   final DateTime? createdAt;
   final int sizeBytes;
@@ -538,11 +540,12 @@ class StudioApi {
   /// Dernières versions journalisées d'une commande, la plus récente d'abord.
   Future<List<StudioCommandVersion>> commandHistory(
     String botId,
-    String commandId,
-  ) async {
+    String commandId, {
+    int? limit,
+  }) async {
     final json = await _send(
       'GET',
-      '/api/v2/bots/${Uri.encodeComponent(botId)}/commands/${Uri.encodeComponent(commandId)}/history',
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/commands/${Uri.encodeComponent(commandId)}/history${limit == null ? '' : '?limit=$limit'}',
     );
     final raw = json['versions'];
     if (raw is! List) return const [];
@@ -552,8 +555,34 @@ class StudioApi {
           historyId: '${v['history_id'] ?? ''}',
           createdAt: DateTime.tryParse('${v['created_at'] ?? ''}'),
           sizeBytes: (v['size_bytes'] as num?)?.toInt() ?? 0,
+          authorOwnerId: '${v['author_owner_id'] ?? ''}',
         ),
     ];
+  }
+
+  /// Contenu d'une version journalisée (aperçu avant restauration).
+  Future<Map<String, dynamic>> previewCommandVersion(
+    String botId,
+    String commandId,
+    String historyId,
+  ) async {
+    final json = await _send(
+      'GET',
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/commands/${Uri.encodeComponent(commandId)}/history/${Uri.encodeComponent(historyId)}',
+    );
+    final content = json['content'];
+    return content is Map ? Map<String, dynamic>.from(content) : const {};
+  }
+
+  Future<void> deleteCommandVersion(
+    String botId,
+    String commandId,
+    String historyId,
+  ) async {
+    await _send(
+      'DELETE',
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/commands/${Uri.encodeComponent(commandId)}/history/${Uri.encodeComponent(historyId)}',
+    );
   }
 
   /// Réapplique une version ; le retour arrière est lui-même journalisé.

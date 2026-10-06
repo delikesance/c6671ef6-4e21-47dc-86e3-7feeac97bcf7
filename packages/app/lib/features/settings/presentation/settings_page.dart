@@ -4,7 +4,7 @@ import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/core/diagnostics/diagnostics_logs_page.dart';
-import 'package:bot_creator/features/settings/presentation/code_editor_settings_page.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart' show CodeEditorSettingsCard;
 import 'package:bot_creator/features/settings/presentation/appearance_settings_section.dart';
 import 'package:bot_creator/features/settings/presentation/widgets/app_version_and_updates_card.dart';
 import 'package:bot_creator/features/onboarding/presentation/onboarding_page.dart';
@@ -2308,22 +2308,7 @@ class _SettingPageState extends State<SettingPage> {
                 ),
                 const SizedBox(height: 24),
                 // ── Code editor customization card ──────────────────
-                Card(
-                  child: ListTile(
-                    leading: AppIcon.fromMaterial(
-                      Icons.code_outlined,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    title: Text(context.tr.code_editor_settings_title),
-                    subtitle: Text(context.tr.code_editor_settings_subtitle),
-                    trailing: const AppIcon.fromMaterial(Icons.chevron_right),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const CodeEditorSettingsPage(),
-                      ),
-                    ),
-                  ),
-                ),
+                const CodeEditorSettingsCard(),
                 const SizedBox(height: 24),
                 // ── Notifications card ──────────────────────────────
                 Card(

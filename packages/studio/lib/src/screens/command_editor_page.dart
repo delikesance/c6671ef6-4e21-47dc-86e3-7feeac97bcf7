@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
 import '../commands/command_draft.dart';
+import '../editor/studio_command_history_host.dart';
 import '../editor/studio_editor_host.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
@@ -145,84 +146,19 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
   }
 
   Future<void> _history() async {
-    final draft = _draft!;
-    try {
-      final versions = await widget.api.commandHistory(
-        widget.bot.id,
-        widget.command.id,
-      );
-      if (!mounted) return;
-      final picked = await showDialog<StudioCommandVersion>(
-        context: context,
-        builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: const Text('Versions précédentes'),
-          content: SizedBox(
-            width: 420,
-            child: versions.isEmpty
-                ? const Text(
-                    'Aucune version journalisée : l\'historique commence à la prochaine écriture.',
-                  )
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      for (final v in versions)
-                        ListTile(
-                          dense: true,
-                          title: Text(
-                            v.createdAt == null
-                                ? v.historyId
-                                : v.createdAt!
-                                      .toLocal()
-                                      .toString()
-                                      .split('.')
-                                      .first,
-                          ),
-                          subtitle: Text('${v.sizeBytes} octets'),
-                          trailing: const AppIcon.fromMaterial(
-                            Icons.restore,
-                            size: 18,
-                          ),
-                          onTap: () => Navigator.of(context).pop(v),
-                        ),
-                    ],
-                  ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Fermer'),
-            ),
-          ],
-        ),
-      );
-      if (picked == null || !mounted) return;
-      setState(() => _saving = true);
-      await widget.api.restoreCommandVersion(
-        widget.bot.id,
-        widget.command.id,
-        picked.historyId,
-        revision: draft.revision,
-      );
-      if (!mounted) return;
-      _changed = true;
-      setState(() => _saving = false);
-      await _load();
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Version restaurée.')));
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _saving = false;
-          _formError = e is StudioApiException ? e.message : '$e';
-        });
-      }
-    }
+    final host = StudioCommandHistoryHost(
+      widget.api,
+      revision: _draft?.revision,
+    );
+    await showCommandHistorySheet(
+      context,
+      botId: widget.bot.id,
+      commandId: widget.command.id,
+      host: host,
+    );
+    if (!mounted || !host.restored) return;
+    _changed = true;
+    await _load();
   }
 
   Future<void> _delete() async {

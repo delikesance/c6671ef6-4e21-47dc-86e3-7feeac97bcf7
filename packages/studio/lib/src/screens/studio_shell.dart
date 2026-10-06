@@ -460,6 +460,8 @@ class _SettingsPage extends StatelessWidget {
             // La même carte « Apparence » que l'app (thèmes, couleurs, taille
             // du texte) ; le Studio reste sombre, donc sans choix de mode.
             const AppearanceSettingsSection(showModeSelector: false),
+            const SizedBox(height: 16),
+            const CodeEditorSettingsCard(),
           ],
         ),
       ),
