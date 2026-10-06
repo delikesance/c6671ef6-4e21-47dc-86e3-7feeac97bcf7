@@ -19,7 +19,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 const String _homePagePath = 'lib/features/home/presentation/home_page.dart';
-const String _arbDir = 'lib/core/i18n/l10n';
+const String _arbDir = '../ui/lib/src/l10n';
 const List<String> _locales = <String>['en', 'fr', 'de', 'ja', 'pt', 'tr'];
 
 const List<String> _creditKeys = <String>[
@@ -32,7 +32,11 @@ const List<String> _creditKeys = <String>[
 String _rewardedAdMethod() {
   final source = File(_homePagePath).readAsStringSync();
   final start = source.indexOf('Future<bool> _maybeOfferRewardedAd(');
-  expect(start, isNonNegative, reason: 'La méthode a été renommée ou déplacée.');
+  expect(
+    start,
+    isNonNegative,
+    reason: 'La méthode a été renommée ou déplacée.',
+  );
   final end = source.indexOf('\n  Future<', start + 1);
   expect(end, greaterThan(start), reason: 'Fin de méthode introuvable.');
   return source.substring(start, end);
@@ -44,7 +48,11 @@ void main() {
     final pendingIndex = body.indexOf('rewarded_start_credit_pending');
     final waitIndex = body.indexOf('_waitForMainApiRewardCredit(');
 
-    expect(pendingIndex, isNonNegative, reason: 'Le message d\'attente a disparu.');
+    expect(
+      pendingIndex,
+      isNonNegative,
+      reason: 'Le message d\'attente a disparu.',
+    );
     expect(waitIndex, isNonNegative);
     expect(
       pendingIndex,

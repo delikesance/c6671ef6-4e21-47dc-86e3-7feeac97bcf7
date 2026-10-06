@@ -1,75 +1,120 @@
 import 'function_suite.dart';
 
+/// Cooldown keys need the command the cooldown belongs to.
+const _commandContext = {'command.id': '777'};
+
 final sandboxFlowFunctionCases = [
   for (final name in ['cooldown', 'globalcooldown', 'servercooldown'])
     SandboxFunctionCase(
       name,
-      '\$$name[1m]\$setVar[first;yes]\$$name[1m;blocked]\$setVar[second;bad]',
+      '\$$name[1m;blocked]\$setVar[first;yes]\$$name[1m;blocked]\$setVar[second;bad]',
       0,
       'blocked',
       label: 'second use stops before storage mutation',
+      scenario: {'variables': _commandContext},
       expectedValues: {
         '/storage_after/global': {'first': 'yes'},
         '/stopped': true,
       },
     ),
-  for (final name in ['user', 'normal', 'server', 'global', ''])
+  for (final name in ['normal', 'server', 'global'])
     SandboxFunctionCase(
       'getcooldown',
-      name.isEmpty ? r'$getCooldown' : '\$getCooldown[$name]',
+      '\$getCooldown[$name]',
       0,
       '0',
       label: 'no active cooldown: $name',
+      scenario: {'variables': _commandContext},
     ),
   SandboxFunctionCase(
     'getcooldown',
-    r'$cooldown[1m]$checkCondition[$getCooldown[user]>0]',
+    r'$getCooldown[user]',
     0,
-    'true',
-    label: 'active cooldown is readable',
+    '',
+    label: 'cooldown type must be normal, server or global',
+    scenario: {'variables': _commandContext},
+    expectedValues: {
+      '/success': false,
+      '/error':
+          r'BDFD L1:1 $getCooldown: Cooldown type must be normal, server or global.',
+    },
   ),
   SandboxFunctionCase(
     'getcooldown',
-    r'$cooldown[1m]$cooldown[1m;$checkCondition[$getCooldown[user]>0]]',
+    r'$getCooldown',
+    0,
+    '',
+    label: 'cooldown type is required',
+    scenario: {'variables': _commandContext},
+    expectedValues: {
+      '/success': false,
+      '/error':
+          r'BDFD L1:1 $getCooldown: Invalid argument count for $getCooldown: 0.',
+    },
+  ),
+  SandboxFunctionCase(
+    'getcooldown',
+    r'$cooldown[1m;wait]$checkCondition[$getCooldown[normal]>0]',
+    0,
+    'true',
+    label: 'active cooldown is readable',
+    scenario: {'variables': _commandContext},
+  ),
+  SandboxFunctionCase(
+    'getcooldown',
+    r'$cooldown[1m;wait]$cooldown[1m;$checkCondition[$getCooldown[normal]>0]]',
     0,
     'true',
     label: 'inside the error message',
+    scenario: {'variables': _commandContext},
   ),
   SandboxFunctionCase(
     'changecooldowntime',
-    r'$cooldown[1m]$changeCooldownTime[0s]$getCooldown',
+    r'$changeCooldownTime[D;H;Mins;Secs]$cooldown[1h;%time-h% of %time-m%]$cooldown[1h;%time-h% of %time-m%]',
     0,
-    '0',
-    label: 'clear latest cooldown',
+    '1 H of 60 Mins',
+    label: 'relabels the time units of cooldown messages',
+    scenario: {'variables': _commandContext},
   ),
   SandboxFunctionCase(
     'changecooldowntime',
-    r'$serverCooldown[1m]$changeCooldownTime[1s]$checkCondition[$getCooldown[server]<=1]',
+    r'$changeCooldownTime[;H;M;S]',
     0,
-    'true',
-    label: 'reduce server cooldown',
-  ),
-  SandboxFunctionCase(
-    'changecooldowntime',
-    r'$changeCooldownTime[1m]$getCooldown',
-    0,
-    '0',
-    label: 'no cooldown is not created',
+    '',
+    label: 'labels must not be empty',
+    expectedValues: {
+      '/success': false,
+      '/error':
+          r'BDFD L1:1 $changeCooldownTime: Cooldown time labels must not be empty.',
+    },
   ),
   SandboxFunctionCase(
     'wait',
-    r'$wait[0s]$setVar[after;yes]done',
+    r'$wait[1ms]$setVar[after;yes]done',
     0,
     'done',
     expectedValues: {'/storage_after/global/after': 'yes'},
   ),
   SandboxFunctionCase(
     'wait',
-    r'$wait[((opts.delay))]done',
+    r'$wait[0s]$setVar[after;yes]done',
+    0,
+    '',
+    label: 'duration must be positive',
+    expectedValues: {
+      '/success': false,
+      '/error':
+          r'BDFD L1:1 $wait: Duration must be positive and at most 40 minutes.',
+    },
+  ),
+  SandboxFunctionCase(
+    'wait',
+    r'$wait[$message[delay]]done',
     0,
     'done',
     label: 'runtime duration',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'delay': '10ms'},
     },
   ),
@@ -84,11 +129,12 @@ final sandboxFlowFunctionCases = [
   ),
   SandboxFunctionCase(
     'skipactions',
-    r'$skipActions[((opts.count))]$setVar[skipped;bad]$setVar[kept;yes]done',
+    r'$skipActions[$message[count]]$setVar[skipped;bad]$setVar[kept;yes]done',
     0,
     'done',
     label: 'runtime count',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'count': 1},
     },
     expectedValues: {
@@ -115,10 +161,10 @@ final sandboxFlowFunctionCases = [
     'defer',
     r'$defer[true]$sendMessage[after]',
     0,
-    '\nafter',
+    'after',
     expectedValues: {
-      '/responses/0/type': 'deferInteraction',
-      '/responses/0/payload/ephemeral': true,
+      '/effects/0/type': 'deferInteraction',
+      '/effects/0/ephemeral': true,
     },
   ),
   SandboxFunctionCase(
@@ -130,21 +176,23 @@ final sandboxFlowFunctionCases = [
       'variables': {'bot.uptime': '3723000'},
     },
   ),
-  for (final item in [
-    ('commandname', 'commandName', 'scolor'),
-    ('commandtrigger', 'commandName', 'scolor'),
-    ('commandtype', 'commandType', 'chatInput'),
-    ('commandfolder', 'command.folder', 'Utilities'),
-    ('customid', 'interaction.customId', 'select_colors'),
-    ('slashid', 'interaction.id', '555'),
+  for (final item in <(String, Map<String, String>, String)>[
+    ('commandname', {'commandName': 'scolor'}, 'scolor'),
+    ('commandtrigger', {'command.trigger': 'scolor'}, 'scolor'),
+    ('commandtype', {'commandType': 'chatInput'}, 'chatInput'),
+    ('commandfolder', {'command.folder': 'Utilities'}, 'Utilities'),
+    (
+      'customid',
+      {'interaction.type': '3', 'interaction.customId': 'select_colors'},
+      'select_colors',
+    ),
+    ('slashid', {'interaction.command.id': '555'}, '555'),
   ])
     SandboxFunctionCase(
       item.$1,
       '\$${item.$1}',
       0,
       item.$3,
-      scenario: {
-        'variables': {item.$2: item.$3},
-      },
+      scenario: {'variables': item.$2},
     ),
 ];

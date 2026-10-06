@@ -1,20 +1,32 @@
 import 'dart:async';
+import '../services/bot_message_service.dart';
+import '../services/bot_moderation_service.dart';
+import 'bdfd/runtime.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_lavalink/nyxx_lavalink.dart';
 import 'package:bot_creator_shared/bot/bot_data_store.dart';
 import 'package:bot_creator_shared/actions/handler.dart';
+import 'package:bot_creator_shared/engine/bdfd/visual/action_execution.dart'
+    show VisualAcknowledgement;
 import 'package:bot_creator_shared/actions/interaction_response.dart';
 import 'package:bot_creator_shared/services/lavalink_service.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
-import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator_shared/utils/runtime_variables.dart';
 import 'package:bot_creator_shared/engine/bot_engine_callbacks.dart';
 import 'package:bot_creator_shared/utils/interaction_ack_state.dart';
 
 /// Helper to execute visual workflows or BDFD actions for both interactions and events.
 class WorkflowExecutor {
-  WorkflowExecutor({required this.store, required this.callbacks});
+  WorkflowExecutor({
+    required this.store,
+    required this.callbacks,
+    this.bdfdMessages,
+    this.bdfdModeration,
+  });
+
+  final BotMessageService? bdfdMessages;
+  final BotModerationService? bdfdModeration;
 
   final BotDataStore store;
   final BotEngineCallbacks callbacks;
@@ -32,6 +44,11 @@ class WorkflowExecutor {
     Snowflake? fallbackChannelId,
     Snowflake? fallbackGuildId,
     String? replayLabel,
+    BdfdContext? bdfdContext,
+
+    /// Acknowledgement of the interaction by the root list (the native runner
+    /// decides, see `VisualAcknowledgement`).
+    VisualAcknowledgement? acknowledgement,
   }) async {
     callbacks.onDebugLog?.call(
       'executeActions started with ${actions.length} actions',
@@ -60,6 +77,13 @@ class WorkflowExecutor {
         store: store,
         botId: botId,
         variables: runtimeVariables,
+        bdfdMessages: bdfdMessages,
+        bdfdModeration: bdfdModeration,
+        bdfdContext: bdfdContext,
+        executionBudget: bdfdContext?.budget,
+        workflowStack: bdfdContext?.activeWorkflows,
+        throwOnError: bdfdContext != null,
+        acknowledgement: acknowledgement,
         lavalinkService: lavalinkService,
         resolveTemplate: (input) {
           _populateLavalinkVariables(
@@ -161,69 +185,39 @@ class WorkflowExecutor {
     }
 
     var actions = actionsJson.map(Action.fromJson).toList();
-    actions = _transpileVisualActions(actions, runtimeVariables);
     callbacks.onDebugLog?.call(
       'Parsed ${actions.length} actions for visual workflow',
       botId: botId,
     );
 
-    // Defer if needed
-    var isEphemeral =
-        workflow['visibility']?.toString().toLowerCase() == 'ephemeral';
-    // If any respondWithMessage action has ephemeral:true, the initial
-    // defer must also be ephemeral — Discord does not allow changing
-    // ephemerality on updateOriginalResponse after a non-ephemeral defer.
-    if (!isEphemeral) {
-      isEphemeral = actions.any(
-        (a) =>
-            a.type == BotCreatorActionType.respondWithMessage &&
-            a.payload['ephemeral'] == true,
-      );
-    }
-    // If a deferInteraction action was injected by CommandMigration, skip the
-    // legacy auto-defer so we don't double-acknowledge the interaction.
-    final hasDeferAction = actions.any(
-      (a) => a.type == BotCreatorActionType.deferInteraction,
-    );
-    // If a respondWithModal action is present, skip the auto-defer entirely
-    // — Discord requires modals to be the FIRST response to an interaction.
-    // Deferring first would make the modal respond fail silently.
-    final hasModalAction = actions.any(
-      (a) => a.type == BotCreatorActionType.respondWithModal,
-    );
-    final shouldDefer =
-        !hasDeferAction &&
-        !hasModalAction &&
-        actions.isNotEmpty &&
-        workflow['autoDeferIfActions'] != false;
-    var didDefer = false;
+    // Visibility of the response: the workflow's, or an ephemeral
+    // respondWithMessage (Discord does not allow changing it after a defer).
+    final isEphemeral =
+        workflow['visibility']?.toString().toLowerCase() == 'ephemeral' ||
+        actions.any(
+          (a) =>
+              a.type == BotCreatorActionType.respondWithMessage &&
+              a.payload['ephemeral'] == true,
+        );
 
-    if (shouldDefer) {
-      callbacks.onDebugLog?.call(
-        'Attempting to defer interaction',
-        botId: botId,
-      );
-      try {
+    // The runner acknowledges (defers) before the first action unless the list
+    // acknowledges itself (deferInteraction), opens a modal (it must be the
+    // first response) or the workflow disables it; the deferral is ephemeral
+    // when the workflow is or a respondWithMessage of the list is.
+    final acknowledgement = VisualAcknowledgement(
+      enabled: workflow['autoDeferIfActions'] != false,
+      ephemeral:
+          workflow['visibility']?.toString().toLowerCase() == 'ephemeral',
+      onLog: (message) => callbacks.onDebugLog?.call(message, botId: botId),
+      acknowledge: ({required bool ephemeral}) async {
         if (interaction is MessageResponse) {
-          await interaction.acknowledge(isEphemeral: isEphemeral);
+          await interaction.acknowledge(isEphemeral: ephemeral);
         } else {
-          await (interaction as dynamic).acknowledge(isEphemeral: isEphemeral);
+          await (interaction as dynamic).acknowledge(isEphemeral: ephemeral);
         }
         markInteractionAcknowledged(interaction);
-        // Fix 3: only set didDefer on success
-        didDefer = true;
-        callbacks.onDebugLog?.call(
-          'Interaction acknowledged successfully',
-          botId: botId,
-        );
-      } catch (e) {
-        callbacks.onDebugLog?.call(
-          'Failed to acknowledge interaction: $e',
-          botId: botId,
-        );
-        // didDefer remains false, correct fallback in sendWorkflowResponse
-      }
-    }
+      },
+    );
 
     if (actions.isNotEmpty) {
       callbacks.onDebugLog?.call(
@@ -236,6 +230,7 @@ class WorkflowExecutor {
         gateway: gateway,
         botId: botId,
         runtimeVariables: runtimeVariables,
+        acknowledgement: acknowledgement,
         replayLabel: workflowName.isNotEmpty
             ? workflowName
             : (interaction is ApplicationCommandInteraction
@@ -257,7 +252,7 @@ class WorkflowExecutor {
       response: response,
       runtimeVariables: runtimeVariables,
       botId: botId,
-      didDefer: didDefer,
+      didDefer: acknowledgement.didDefer,
       isEphemeral: isEphemeral,
       onLog: (msg, {required botId}) async =>
           callbacks.onLog?.call(msg, botId: botId),
@@ -297,7 +292,6 @@ class WorkflowExecutor {
     }
 
     var actions = actionsJson.map(Action.fromJson).toList();
-    actions = _transpileVisualActions(actions, runtimeVariables);
 
     callbacks.onDebugLog?.call(
       'Executing ${actions.length} actions in general workflow',
@@ -330,61 +324,6 @@ class WorkflowExecutor {
         runtimeVariables: runtimeVariables,
       );
     }
-  }
-
-  /// Helper to transpile any inline BDFD syntax found in visual workflow action payloads.
-  List<Action> _transpileVisualActions(
-    List<Action> actions,
-    Map<String, String> runtimeVariables,
-  ) {
-    dynamic processValue(dynamic value) {
-      if (value is String) {
-        if (value.contains(r'$')) {
-          // It might contain BDFD inline functions
-          final compileResult = BdfdCompiler(
-            legacyUserVariables:
-                runtimeVariables['bdfd.userVariableSemantics'] == '1',
-          ).compile(value);
-          // If the compilation produced a single action that is just appending text,
-          // we can replace the value with the transpiled text (which now has placeholders).
-          // Action type 'sendMessage' with 'content' is the default for raw text in our compiler.
-          if (!compileResult.hasErrors && compileResult.actions.isNotEmpty) {
-            final firstAction = compileResult.actions.first;
-            if ((firstAction.type == BotCreatorActionType.sendMessage ||
-                    firstAction.type ==
-                        BotCreatorActionType.respondWithMessage) &&
-                firstAction.payload.containsKey('content') &&
-                compileResult.actions.length == 1) {
-              // Fix 4: guard against null content
-              final compiledContent = firstAction.payload['content'];
-              if (compiledContent != null) {
-                return compiledContent;
-              }
-            }
-          }
-        }
-        return value;
-      } else if (value is Map) {
-        return Map<String, dynamic>.from(
-          value.map((k, v) => MapEntry(k.toString(), processValue(v))),
-        );
-      } else if (value is List) {
-        return value.map((item) => processValue(item)).toList();
-      }
-      return value;
-    }
-
-    return actions.map((action) {
-      final newPayload = processValue(action.payload);
-      return Action(
-          type: action.type,
-          key: action.key,
-          enabled: action.enabled,
-          payload: Map<String, dynamic>.from(newPayload as Map),
-        )
-        ..dependOn.addAll(action.dependOn)
-        ..error.addAll(action.error);
-    }).toList();
   }
 
   void _populateLavalinkVariables(

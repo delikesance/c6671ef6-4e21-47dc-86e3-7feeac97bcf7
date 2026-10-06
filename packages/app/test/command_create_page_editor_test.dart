@@ -215,6 +215,8 @@ void main() {
         isNull,
       );
       await tester.ensureVisible(find.text('Add embed').first);
+      // Les blocs refondus sont plus hauts : laisser le défilement se matérialiser.
+      await tester.pump();
       await tester.tap(find.text('Add embed').first);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Add embed'));
@@ -245,6 +247,8 @@ void main() {
         page: const CommandCreatePage(botId: botId, localCommandId: commandId),
       );
       await tester.ensureVisible(find.text('Add embed').first);
+      // Les blocs refondus sont plus hauts : laisser le défilement se matérialiser.
+      await tester.pump();
       await tester.tap(find.text('Add embed').first);
       await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('OK'));
@@ -274,8 +278,9 @@ void main() {
       );
       await tester.tap(find.byTooltip('Command settings'));
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('target'));
-      await tester.tap(find.text('target'));
+      // The live preview repeats the name; the list row is the last match.
+      await tester.ensureVisible(find.text('target').last);
+      await tester.tap(find.text('target').last);
       await tester.pumpAndSettle();
       final description = find.byWidgetPredicate(
         (widget) =>
@@ -283,6 +288,9 @@ void main() {
       );
       await tester.ensureVisible(description);
       await tester.enterText(description, 'Updated option description');
+      await tester.pumpAndSettle();
+      // The option is edited on its own screen; confirm to go back.
+      await tester.tap(find.widgetWithText(FilledButton, 'OK'));
       await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Save'));
       await tester.pumpAndSettle();

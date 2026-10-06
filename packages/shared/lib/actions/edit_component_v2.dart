@@ -24,14 +24,13 @@ Future<Map<String, dynamic>> editComponentV2Action(
 }) async {
   resolve ??= (s) => s;
   try {
-    final definition =
-        (payload['components'] ?? payload['componentV2']) is Map
-            ? ComponentV2Definition.fromJson(
-              Map<String, dynamic>.from(
-                (payload['components'] ?? payload['componentV2']) as Map,
-              ),
-            )
-            : ComponentV2Definition();
+    final definition = (payload['components'] ?? payload['componentV2']) is Map
+        ? ComponentV2Definition.fromJson(
+            Map<String, dynamic>.from(
+              (payload['components'] ?? payload['componentV2']) as Map,
+            ),
+          )
+        : ComponentV2Definition();
 
     final channelId =
         _toSnowflake(resolve((payload['channelId'] ?? '').toString())) ??
@@ -54,10 +53,9 @@ Future<Map<String, dynamic>> editComponentV2Action(
       resolve: resolve,
     );
 
-    await message.edit(CustomMessageUpdateBuilder(
-      components: components,
-      customFlags: 32768,
-    ));
+    await message.edit(
+      CustomMessageUpdateBuilder(components: components, customFlags: 32768),
+    );
     if (botId != null && botId.trim().isNotEmpty) {
       registerComponentWorkflowBindings(
         definition: definition,

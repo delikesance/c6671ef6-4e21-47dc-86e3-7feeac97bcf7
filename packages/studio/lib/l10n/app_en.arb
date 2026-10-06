@@ -1,0 +1,320 @@
+{
+  "@@locale": "en",
+  "navHome": "Home",
+  "navDocs": "Documentation",
+  "navHosting": "Turnkey Bots",
+  "navSettings": "Settings",
+  "navBack": "Back",
+  "navCommands": "Commands",
+  "navCommandsShort": "Cmd",
+  "navCopilot": "AI copilot",
+  "navFlows": "Flow",
+  "navVars": "Vars",
+  "navSched": "Sched",
+  "navHooks": "Inbound webhooks",
+  "navEmojis": "Emoji",
+  "navTeam": "Team",
+  "navGuilds": "Servers",
+  "navDashboard": "Dashboard",
+  "navReplay": "Debugger Replay",
+  "navModules": "Modules",
+  "navBeginner": "Beginner mode",
+  "modulesTitle": "Modules",
+  "modulesSearch": "Search",
+  "modulesGroupCreate": "Create",
+  "modulesGroupAutomation": "Automation",
+  "modulesGroupManagement": "Management",
+  "modulesGroupTools": "Tools",
+  "modulesWorkflows": "Workflows",
+  "modulesVariables": "Variables",
+  "modulesEmojis": "Emojis",
+  "modulesScheduler": "Scheduler",
+  "modulesDescWorkflows": "Automate your actions and events",
+  "modulesDescVariables": "Remembered data: whole bot, server, member…",
+  "modulesDescEmojis": "The bot's application emojis",
+  "modulesDescScheduler": "Runs a workflow every X minutes",
+  "modulesDescHooks": "HTTP calls routed to a workflow",
+  "modulesDescTeam": "Collaborators and team chat",
+  "modulesDescGuilds": "Servers where the bot is present",
+  "modulesDescDashboard": "Command usage over 24 h, 7 d, 30 d",
+  "modulesDescReplay": "Step-by-step replays of command runs",
+  "modulesDescCopilot": "Assistant to build your commands",
+  "beginnerOnHint": "Showing essential tabs only",
+  "beginnerOffHint": "Showing all features",
+  "commonRetry": "Retry",
+  "commonClose": "Close",
+  "commonCancel": "Cancel",
+  "commonRefresh": "Refresh",
+  "statusOnline": "Online",
+  "statusStopped": "Stopped",
+  "loadError": "Loading error",
+  "comingSoonBody": "This section is coming soon to Studio. It is still available in the Bot Creator app.",
+  "comingSoonShort": "Coming soon to Studio.",
+  "appTitle": "Bot Creator Studio",
+  "loginSubtitle": "Sign in with Discord to access your bots. Studio always requires a valid sign-in.",
+  "loginDiscord": "Connect with Discord",
+  "accountTitle": "Account",
+  "accountSignedIn": "Signed in with Discord",
+  "accountSignedInAs": "Signed in with Discord: {name}",
+  "@accountSignedInAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "accountPlanPremium": "Premium plan",
+  "accountPlanFree": "Free plan: manage your subscription from the mobile app.",
+  "accountSignOut": "Sign out",
+  "settingsTitle": "Settings",
+  "settingsLanguage": "Language",
+  "languageSystem": "System",
+  "botsOverline": "My projects",
+  "botsTitle": "My bots",
+  "botsCreate": "Create a bot",
+  "botsManage": "Manage",
+  "botStop": "Stop",
+  "botStart": "Start Bot",
+  "botsEmptyTitle": "You don't have any apps yet.",
+  "botsEmptyHint": "Create your first bot with the “Create a bot” button: it will show up here.",
+  "hostingIncludedTitle": "Hosting included",
+  "hostingIncludedValue": "Unlimited with your subscription",
+  "hostingRemainingTitle": "Time left",
+  "hostingExpired": "Hosting expired",
+  "hostingSessionActive": "Active session",
+  "hostingSessionActiveOnline": "Active session (online)",
+  "hostingPreservedTitle": "Time preserved",
+  "hostingReserve": "Reserve: {time}",
+  "@hostingReserve": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "hostingReserveAvailable": "Banked time (paused)",
+  "hostingPreservedDetail": "Time is preserved while the bot is stopped.",
+  "durationHoursMinutes": "{hours} h {minutes} min",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "durationMinutes": "{minutes} min",
+  "@durationMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "createBotToken": "Discord bot token",
+  "createBotTokenHint": "It is sent over HTTPS to the Bot Creator server and never kept in the browser.",
+  "createBotValidNamed": "Valid token: {name}",
+  "@createBotValidNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "createBotValidId": "Valid token (ID {id})",
+  "@createBotValidId": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "createBotSamplePing": "Add a sample /ping command",
+  "createBotBusy": "Creating the bot: this can take up to two minutes. Do not close this page.",
+  "createBotVerify": "Check token",
+  "createBotSubmit": "Create bot",
+  "createBotSyncBusy": "This bot is already being synchronized. Please wait a few minutes.",
+  "createBotNoId": "Could not read the bot ID from this token.",
+  "overviewLogs": "Logs",
+  "overviewLogsUnavailable": "Logs unavailable: {error}",
+  "@overviewLogsUnavailable": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "overviewNoLogs": "No logs yet.",
+  "commandsSearch": "Search commands...",
+  "commandsEmpty": "No commands yet. Create one from the Bot Creator app.",
+  "commandsNoMatch": "No commands match the current filters.",
+  "premiumHint": "Your account is on the free plan: subscriptions are activated from the mobile app (Studio shows no ads or purchases).",
+  "featureSchedulerTitle": "Scheduler triggers",
+  "featureSchedulerDesc": "Run workflows automatically every X minutes (up to 10 active).",
+  "featureAnalyticsTitle": "Premium analytics",
+  "featureAnalyticsDesc": "Unlock error rate, latency percentiles, and locale insights.",
+  "featureHooksTitle": "Inbound webhooks",
+  "featureHooksDesc": "Create secure webhook endpoints and route calls to workflows.",
+  "featureReplayTitle": "Visual debug replay",
+  "featureReplayDesc": "Record and replay command actions step by step for debugging.",
+  "commonSaved": "Saved",
+  "commonAdd": "Add",
+  "deleteIrreversible": "This action is permanent.",
+  "deleteNamedTitle": "Delete “{name}”?",
+  "@deleteNamedTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "commandNew": "New command",
+  "commandSaved": "Command saved.",
+  "commandChangedElsewhere": "This bot was modified elsewhere (app or another session). Reload the command before saving.",
+  "scriptEdit": "Edit script",
+  "commandTriggerHybrid": "Slash + text message",
+  "workflowNew": "New workflow",
+  "workflowsEmpty": "No workflows. Create one to reuse a sequence of actions or react to an event.",
+  "workflowSaved": "Workflow saved.",
+  "workflowDeleteBody": "Commands that call this workflow will no longer find anything to run.",
+  "workflowTypeGeneral": "General (called by a command)",
+  "workflowCategory": "Category",
+  "workflowScriptNotice": "This workflow is written in {mode}: Studio only edits visual workflows. It stays saved as is.",
+  "@workflowScriptNotice": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "variablesGlobalSubtitle": "Data remembered for the whole bot.",
+  "variablesScopedHint": "A definition sets the default value; each server, channel or member then keeps its own value.",
+  "variableScopedRemoveNote": "The definition is removed; values already stored are not erased.",
+  "copilotNoCredits": "Not enough AI credits. Top them up from the mobile app.",
+  "copilotChatTooLong": "This conversation is too long: start a new one.",
+  "copilotUnavailable": "The Copilot is unavailable right now.",
+  "copilotGenerationFailed": "Generation failed.",
+  "copilotDeleteChat": "Delete conversation",
+  "copilotWants": "The Copilot wants to: {tool}",
+  "@copilotWants": {
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardRuns": "Executions",
+  "dashboardSinceStart": "Since the start",
+  "dashboardLatencyP50P95": "Latency P50 / P95",
+  "dashboardActivity": "Activity",
+  "dashboardLanguages": "Languages",
+  "dashboardNoRuns": "No executions in this period.",
+  "dashboardNoActivity": "No activity in this period.",
+  "dashboardOneExecution": "1 execution",
+  "dashboardAgoDays": "{days} d ago",
+  "@dashboardAgoDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardAgoHours": "{hours} h ago",
+  "@dashboardAgoHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardErrorRateOf": "{rate} % errors",
+  "@dashboardErrorRateOf": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardLatencyPercentiles": "P50 {p50} ms · P95 {p95} ms",
+  "@dashboardLatencyPercentiles": {
+    "placeholders": {
+      "p50": {
+        "type": "int"
+      },
+      "p95": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardLatencyNone": "latency —",
+  "botStopFailed": "Could not stop the bot",
+  "botStartFailed": "Could not start the bot",
+  "refusalNoFreeTimeTitle": "Hosting time used up",
+  "refusalNoFreeTimeBody": "This bot has no free hosting time left. Watch an ad from the mobile app to earn some, or go Premium. Studio offers no ads or purchases.",
+  "authSessionExpired": "Session expired. Please sign in again.",
+  "authDiscordRefused": "Discord sign-in refused ({reason}).",
+  "@authDiscordRefused": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "authInvalidResponse": "Invalid sign-in response. Please try again.",
+  "validationCommandNameFormat": "Invalid name: lowercase letters, digits, “-” and “_” only, no spaces.",
+  "validationDescriptionTooLong": "The description must be at most {max} characters.",
+  "@validationDescriptionTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationWorkflowNameRequired": "The workflow name is required.",
+  "validationWorkflowNameTooLong": "The name must be at most {max} characters.",
+  "@validationWorkflowNameTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationWorkflowTooManyBlocks": "At most {max} blocks per workflow.",
+  "@validationWorkflowTooManyBlocks": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationOptionNameInvalid": "Option “{name}”: lowercase letters, digits, “-” and “_”, 32 characters at most.",
+  "@validationOptionNameInvalid": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "validationOptionDescription": "Option “{name}”: description required (100 characters at most).",
+  "@validationOptionDescription": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "validationOptionRequiredOrder": "Required options must come before optional ones (“{name}”).",
+  "@validationOptionRequiredOrder": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "schedulerPremiumOnly": "The scheduler is reserved for Premium accounts. The subscription is managed in the app.",
+  "webhooksPremiumOnly": "Inbound webhooks are reserved for Premium accounts. The subscription is managed in the app.",
+  "overviewEngine": "Runtime",
+  "overviewLive": "Live"
+}

@@ -111,7 +111,6 @@ const Set<String> _bdfdAutocompleteBareFunctions = <String>{
   'authorusername',
   'authortag',
   'blacklistids',
-  'blacklistroleids',
   'blacklistroles',
   'blacklistrolesids',
   'blacklistservers',

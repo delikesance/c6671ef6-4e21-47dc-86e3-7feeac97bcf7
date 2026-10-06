@@ -1,9 +1,23 @@
 import 'dart:async';
-import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart'
+    show
+        CopilotChatSummary,
+        copilotToolLabel,
+        CopilotComposer,
+        CopilotContextHeader,
+        CopilotDiscussionsPane,
+        CopilotMessageBubble,
+        CopilotSidePanel,
+        CopilotWalletStrip,
+        CopilotWelcome;
 import 'dart:convert';
 import 'dart:io';
 import 'package:bot_creator/core/widgets/app_icon.dart';
+import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command.create.dart';
 import 'package:bot_creator/features/copilot/presentation/copilot_activity.dart';
+import 'package:bot_creator/features/copilot/presentation/copilot_code_preview.dart';
 import 'package:reicon_flutter/reicon_flutter.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
@@ -16,10 +30,11 @@ import 'package:bot_creator/features/subscriptions/presentation/ai_credits_page.
 import 'package:bot_creator/features/subscriptions/logic/ai_credit_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+
+export 'package:bot_creator_ui/bot_creator_ui.dart' show CopilotMarkdown;
 
 class CopilotPage extends StatefulWidget {
   const CopilotPage({
@@ -50,6 +65,9 @@ class _CopilotPageState extends State<CopilotPage> {
   List<Map<String, dynamic>> _history = [];
   final Map<String, String> _botNames = {};
   final Map<String, bool> _toolMutations = {};
+  // Script d'origine des commandes modifiées (aperçu diff), par call_id.
+  final Map<String, String?> _beforeScripts = {};
+  final Set<String> _beforeLoading = {};
   Future<void> _draftQueue = Future.value();
   bool _busy = false, _ready = false, _archives = false, _loading = true;
   bool _historyMore = false, _hasPrompt = false;
@@ -65,6 +83,9 @@ class _CopilotPageState extends State<CopilotPage> {
   bool _streamDone = false;
   bool _summarizing = false;
   int _historyEpoch = 0;
+  // Disposition desktop (discussions | conversation | panneau latéral).
+  static const _wideBreakpoint = 1100.0;
+  bool _wide = false;
   String get _id => _chat!['id'] as String;
   String _copy(String french, String english) =>
       Localizations.localeOf(context).languageCode == 'fr' ? french : english;
@@ -75,6 +96,20 @@ class _CopilotPageState extends State<CopilotPage> {
       (_chat?['messages'] as List? ?? [])
           .map((a) => Map<String, dynamic>.from(a as Map))
           .toList();
+
+  /// Tokens billed for the response ending at [index]: cache misses + output
+  /// (cache hits excluded), summed over the tool loop since the last user turn.
+  int _responseTokens(int index) {
+    final perMessage = (_chat?['message_tokens'] as List? ?? const []);
+    final messages = _messages;
+    var total = 0;
+    for (var i = index; i >= 0 && i < messages.length; i--) {
+      if (messages[i]['role'] == 'user') break;
+      if (i < perMessage.length) total += (perMessage[i] as num? ?? 0).toInt();
+    }
+    return total;
+  }
+
   bool get _hasPendingReads => _actions.any(
     (a) =>
         ['pending', 'executing', 'uncertain'].contains(a['state']) &&
@@ -161,7 +196,10 @@ class _CopilotPageState extends State<CopilotPage> {
           items.add(
             KeyedSubtree(
               key: ValueKey('message-$messageIndex'),
-              child: _messageBubble(message),
+              child: _messageBubble(
+                message,
+                tokens: role == 'assistant' ? _responseTokens(messageIndex) : 0,
+              ),
             ),
           );
         }
@@ -1012,6 +1050,20 @@ class _CopilotPageState extends State<CopilotPage> {
                         : context.tr.copilot_this_device,
                   ),
                   if (args['name'] != null) Text('/${args['name']}'),
+                  if (fn['name'] == 'local_create_command_from_library') ...[
+                    Text(
+                      _copy(
+                        'Basée sur la commande « ${args['library_id']} » de la bibliothèque',
+                        'Based on library command "${args['library_id']}"',
+                      ),
+                    ),
+                    for (final value
+                        in (args['values'] as Map? ?? const {}).entries)
+                      Text('${value.key} → ${value.value}'),
+                    ..._editLines(args['replacements']),
+                  ],
+                  if (fn['name'] == 'local_patch_command_execution')
+                    ..._editLines(args['edits']),
                   if (args['option_name'] != null)
                     Text(
                       '${_copy('Argument', 'Argument')} : ${args['option_name']}',
@@ -1152,24 +1204,27 @@ class _CopilotPageState extends State<CopilotPage> {
     }
   }
 
-  String _label(String name) => switch (name) {
-    'remote_start_bot' ||
-    'local_start_bot' => context.tr.copilot_tool_start_bot,
-    'remote_stop_bot' || 'local_stop_bot' => context.tr.copilot_tool_stop_bot,
-    'local_create_command' => context.tr.copilot_tool_create_command,
-    'local_update_command_execution' => context.tr.copilot_tool_update_command,
-    'local_update_command_options' => context.tr.copilot_tool_options,
-    'local_update_command_settings' => context.tr.copilot_tool_settings,
-    'local_create_workflow' => context.tr.copilot_tool_create_workflow,
-    'local_update_workflow' => context.tr.copilot_tool_update_workflow,
-    'local_update_bot_presence' => context.tr.copilot_tool_presence,
-    'local_update_bot_profile' => context.tr.copilot_tool_profile,
-    'local_set_variable' => context.tr.copilot_tool_variable,
-    'local_update_scheduled_trigger' => context.tr.copilot_tool_schedule,
-    'local_update_inbound_webhook' => context.tr.copilot_tool_webhook,
-    'docs_search' || 'docs_get' => context.tr.copilot_tool_read_docs,
-    _ => context.tr.copilot_tool_inspect_bot,
-  };
+  /// The exact substitutions a patch or a derivation will apply, shown as a small diff.
+  List<Widget> _editLines(Object? edits) {
+    String clip(Object? value) {
+      final text = (value ?? '').toString();
+      return text.length > 200 ? '${text.substring(0, 200)}…' : text;
+    }
+
+    return [
+      if (edits is List)
+        for (final edit in edits.whereType<Map>())
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              '− ${clip(edit['find'])}\n+ ${clip(edit['replace'])}',
+              style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+            ),
+          ),
+    ];
+  }
+
+  String _label(String name) => copilotToolLabel(context, name);
   Future<void> _menu(String action) async {
     if (_chat == null) {
       return;
@@ -1334,11 +1389,12 @@ class _CopilotPageState extends State<CopilotPage> {
       appBar: AppBar(
         title: Text(context.tr.copilot_title),
         actions: [
-          IconButton(
-            tooltip: context.tr.copilot_history_tooltip,
-            icon: AppIcon.fromMaterial(Icons.history_rounded, size: 21),
-            onPressed: _busy ? null : _historySheet,
-          ),
+          if (MediaQuery.sizeOf(context).width < _wideBreakpoint)
+            IconButton(
+              tooltip: context.tr.copilot_history_tooltip,
+              icon: AppIcon.fromMaterial(Icons.history_rounded, size: 21),
+              onPressed: _busy ? null : _historySheet,
+            ),
           IconButton(
             tooltip: context.tr.copilot_new_discussion,
             icon: AppIcon.fromMaterial(Icons.edit_square, size: 21),
@@ -1357,7 +1413,12 @@ class _CopilotPageState extends State<CopilotPage> {
                 value: 'wallet',
                 child: Text(context.tr.copilot_action_credits),
               ),
-              if (_mcp?.desktop == true)
+              PopupMenuItem(
+                value: 'library',
+                child: Text(context.tr.copilot_action_library),
+              ),
+              if (_mcp?.desktop == true &&
+                  MediaQuery.sizeOf(context).width < _wideBreakpoint)
                 PopupMenuItem(
                   value: 'mcp',
                   child: Text(context.tr.copilot_action_mcp_connection),
@@ -1378,112 +1439,124 @@ class _CopilotPageState extends State<CopilotPage> {
         ],
       ),
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 980),
-            child: Column(
-              children: [
-                _contextHeader(bot, location),
-                SizedBox(
-                  height: 4,
-                  child: (_loading || _busy)
-                      ? const LinearProgressIndicator()
-                      : const SizedBox.shrink(),
-                ),
-                Expanded(
-                  child: ListView(
-                    controller: _scroll,
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      if (_catalogMismatch)
-                        Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Text(
-                            _copy(
-                              'Certaines fonctions IA sont indisponibles : les versions de l’application et du serveur diffèrent. Mettez-les à jour pour accéder à tous les outils.',
-                              'Some AI features are unavailable because the app and server versions differ. Update them to access all tools.',
-                            ),
-                          ),
-                        ),
-                      if (_wallet != null) _walletStrip(),
-                      if (_summarizing)
-                        Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Text(
-                            _copy(
-                              'Résumé automatique du contexte… Les messages restent disponibles.',
-                              'Automatically summarizing context… Messages stay available.',
-                            ),
-                          ),
-                        ),
-                      if (_error != null)
-                        Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            children: [
-                              Text(
-                                _error!,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.error,
+        child: LayoutBuilder(
+          builder: (context, box) {
+            final wide = box.maxWidth >= _wideBreakpoint;
+            _wide = wide;
+            final conversation = Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: wide ? 860 : 980),
+                child: Column(
+                  children: [
+                    _contextHeader(bot, location),
+                    SizedBox(
+                      height: 4,
+                      child: (_loading || _busy)
+                          ? const LinearProgressIndicator()
+                          : const SizedBox.shrink(),
+                    ),
+                    Expanded(
+                      child: ListView(
+                        controller: _scroll,
+                        padding: const EdgeInsets.all(16),
+                        children: [
+                          if (_catalogMismatch)
+                            Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Text(
+                                _copy(
+                                  'Certaines fonctions IA sont indisponibles : les versions de l’application et du serveur diffèrent. Mettez-les à jour pour accéder à tous les outils.',
+                                  'Some AI features are unavailable because the app and server versions differ. Update them to access all tools.',
                                 ),
                               ),
-                              Wrap(
+                            ),
+                          if (_wallet != null && !_wide) _walletStrip(),
+                          if (_summarizing)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              child: Text(
+                                _copy(
+                                  'Optimisation du contexte…',
+                                  'Optimizing context…',
+                                ),
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ),
+                          if (_error != null)
+                            Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
                                 children: [
-                                  TextButton(
-                                    onPressed: _busy ? null : _refresh,
-                                    child: Text(
-                                      context.tr.copilot_action_refresh,
+                                  Text(
+                                    _error!,
+                                    style: TextStyle(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.error,
                                     ),
                                   ),
-                                  if (_requestKey != null)
-                                    TextButton(
-                                      onPressed: _busy ? null : _follow,
-                                      child: Text(
-                                        context
-                                            .tr
-                                            .copilot_action_recover_response,
+                                  Wrap(
+                                    children: [
+                                      TextButton(
+                                        onPressed: _busy ? null : _refresh,
+                                        child: Text(
+                                          context.tr.copilot_action_refresh,
+                                        ),
                                       ),
-                                    ),
-                                  if (_pending != null)
-                                    TextButton(
-                                      onPressed: _busy ? null : _send,
-                                      child: Text(
-                                        context.tr.copilot_action_retry,
-                                      ),
-                                    ),
-                                  if (_chat != null)
-                                    TextButton(
-                                      onPressed: _busy
-                                          ? null
-                                          : () => _menu('continue'),
-                                      child: Text(
-                                        context.tr.copilot_action_continue,
-                                      ),
-                                    ),
+                                      if (_requestKey != null)
+                                        TextButton(
+                                          onPressed: _busy ? null : _follow,
+                                          child: Text(
+                                            context
+                                                .tr
+                                                .copilot_action_recover_response,
+                                          ),
+                                        ),
+                                      if (_pending != null)
+                                        TextButton(
+                                          onPressed: _busy ? null : _send,
+                                          child: Text(
+                                            context.tr.copilot_action_retry,
+                                          ),
+                                        ),
+                                      if (_chat != null)
+                                        TextButton(
+                                          onPressed: _busy
+                                              ? null
+                                              : () => _menu('continue'),
+                                          child: Text(
+                                            context.tr.copilot_action_continue,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
-                      if (_chat == null) _welcome(),
-                      if ((_chat?['context_summary'] as String? ?? '')
-                          .isNotEmpty)
-                        ExpansionTile(
-                          title: Text(
-                            _copy('Contexte résumé', 'Summarized context'),
-                          ),
-                          children: [
-                            SelectableText(_chat!['context_summary'] as String),
-                          ],
-                        ),
-                      ..._conversationItems(),
-                    ],
-                  ),
+                            ),
+                          if (_chat == null) _welcome(),
+                          ..._conversationItems(),
+                        ],
+                      ),
+                    ),
+                    _composer(canSend),
+                  ],
                 ),
-                _composer(canSend),
+              ),
+            );
+            if (!wide) return conversation;
+            return Row(
+              children: [
+                SizedBox(width: 272, child: _discussionsPane()),
+                const VerticalDivider(width: 1, color: AppTheme.homeCardBorder),
+                Expanded(child: conversation),
+                const VerticalDivider(width: 1, color: AppTheme.homeCardBorder),
+                SizedBox(width: 304, child: _sidePanel()),
               ],
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
@@ -1500,9 +1573,61 @@ class _CopilotPageState extends State<CopilotPage> {
         );
       case 'mcp':
         await _connection();
+      case 'library':
+        await _libraryDialog();
       default:
         await _menu(choice);
     }
+  }
+
+  /// Opt-out of the shared command library: tested commands this account's assistant creates may
+  /// be added to it (scrubbed of IDs and secrets) unless the account turns this off.
+  Future<void> _libraryDialog() async {
+    final api = _api;
+    if (api == null) return;
+    bool enabled;
+    try {
+      enabled = await api.getAILibraryContribution();
+    } catch (error) {
+      if (mounted) setState(() => _error = _describe(error));
+      return;
+    }
+    if (!mounted) return;
+    var value = enabled;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setLocal) => AlertDialog(
+          title: Text(context.tr.copilot_library_title),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(context.tr.copilot_library_hint),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(context.tr.copilot_library_contribute),
+                value: value,
+                onChanged: (next) async {
+                  try {
+                    final saved = await api.setAILibraryContribution(next);
+                    setLocal(() => value = saved);
+                  } catch (error) {
+                    if (mounted) setState(() => _error = _describe(error));
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(context.tr.copilot_close),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   String _credits(Object? value) => formatAiCredits(
@@ -1510,627 +1635,482 @@ class _CopilotPageState extends State<CopilotPage> {
     locale: Localizations.localeOf(context).toString(),
   );
 
-  Widget _contextHeader(String? bot, String location) {
-    final colors = Theme.of(context).colorScheme;
-    final name = bot == null || bot.isEmpty
-        ? context.tr.copilot_global_discussion
-        : widget.botName ?? _botNames[bot] ?? bot;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 14),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: colors.primaryContainer.withValues(alpha: .55),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: AppIcon(
-                bot == null || bot.isEmpty
-                    ? Reicon.outline.magicStar
-                    : Reicon.outline.cpu,
-                color: colors.primary,
-                size: 18,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _chat?['title'] as String? ??
-                      context.tr.copilot_new_discussion,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (bot != null && bot.isNotEmpty)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-              decoration: BoxDecoration(
-                color: colors.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AppIcon(
-                    location == 'local'
-                        ? Reicon.outline.devices
-                        : Reicon.outline.cloud,
-                    size: 12,
-                    color: colors.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    location == 'local'
-                        ? context.tr.copilot_location_local
-                        : _cloudRunning == false
-                        ? '${context.tr.copilot_location_remote} · ${_copy('arrêté', 'stopped')}'
-                        : _cloudRunning == true
-                        ? '${context.tr.copilot_location_remote} · ${_copy('actif', 'running')}'
-                        : context.tr.copilot_location_remote,
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
-    );
-  }
+  Widget _contextHeader(String? bot, String location) => CopilotContextHeader(
+    isBot: bot != null && bot.isNotEmpty,
+    botName: bot == null || bot.isEmpty
+        ? ''
+        : widget.botName ?? _botNames[bot] ?? bot,
+    title: _chat?['title'] as String?,
+    local: location == 'local',
+    cloudRunning: _cloudRunning,
+  );
 
   Widget _walletStrip() {
-    final colors = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: colors.surfaceContainerLow,
-          border: Border.all(
-            color: colors.outlineVariant.withValues(alpha: .55),
-          ),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Wrap(
-          spacing: 20,
-          runSpacing: 12,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            for (final metric in [
-              (context.tr.copilot_available, _wallet!['available']),
-              (context.tr.copilot_reserved, _wallet!['reserved'] ?? 0),
-              (context.tr.copilot_total, _wallet!['balance']),
-            ])
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    metric.$1,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    _credits(metric.$2),
-                    softWrap: false,
-                    maxLines: 1,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            IconButton(
-              visualDensity: VisualDensity.compact,
-              tooltip: context.tr.copilot_action_credits,
-              onPressed: () => _handleMenu('wallet'),
-              icon: AppIcon(
-                Reicon.outline.arrowRight,
-                size: 18,
-                color: colors.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
+    final reserved = (_wallet!['reserved'] as num? ?? 0);
+    return CopilotWalletStrip(
+      available: _credits(_wallet!['available']),
+      reserved: reserved > 0 ? _credits(reserved) : null,
+      onOpenCredits: () => _handleMenu('wallet'),
     );
   }
 
-  Widget _welcome() {
-    final colors = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            context.tr.copilot_welcome_title,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-              letterSpacing: -.5,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            context.tr.copilot_welcome_subtitle,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: colors.onSurfaceVariant,
-              height: 1.6,
-            ),
-          ),
-          const SizedBox(height: 22),
-          for (final suggestion in [
-            (
-              Reicon.outline.search,
-              context.tr.copilot_suggestion_check_title,
-              context.tr.copilot_suggestion_check_prompt,
-            ),
-            (
-              Reicon.outline.code,
-              context.tr.copilot_suggestion_command_title,
-              context.tr.copilot_suggestion_command_prompt,
-            ),
-            (
-              Reicon.outline.lightbulb,
-              context.tr.copilot_suggestion_feature_title,
-              context.tr.copilot_suggestion_feature_prompt,
-            ),
-          ])
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Material(
-                color: colors.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(14),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(14),
-                  onTap: !_ready
-                      ? null
-                      : () {
-                          _prompt.text = suggestion.$3;
-                        },
-                  child: Padding(
-                    padding: const EdgeInsets.all(15),
-                    child: Row(
-                      children: [
-                        AppIcon(suggestion.$1, size: 19, color: colors.primary),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            suggestion.$2,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ),
-                        AppIcon(
-                          Reicon.outline.arrowUpRight,
-                          size: 15,
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          if (_history.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            Text(
-              context.tr.copilot_history_section_title,
-              style: Theme.of(
-                context,
-              ).textTheme.labelMedium?.copyWith(color: colors.onSurfaceVariant),
-            ),
-            const SizedBox(height: 8),
-            for (final c in _history.take(3))
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-                leading: AppIcon(
-                  Reicon.outline.chatRound,
-                  size: 19,
-                  color: colors.onSurfaceVariant,
-                ),
-                title: Text(
-                  c['title'] as String,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                trailing: AppIcon(Reicon.outline.arrowRight2, size: 18),
-                onTap: () => _open(c['id'] as String),
-              ),
-          ],
-        ],
-      ),
+  /// Colonne des discussions (desktop).
+  Widget _discussionsPane() => CopilotDiscussionsPane(
+    search: _search,
+    history: [
+      for (final c in _history)
+        CopilotChatSummary(id: c['id'] as String, title: c['title'] as String),
+    ],
+    selectedId: _chat?['id'] as String?,
+    busy: _busy,
+    hasMore: _historyMore,
+    onOpen: (id) => unawaited(_open(id)),
+    onSearch: () async {
+      try {
+        await _loadHistory();
+      } catch (e) {
+        if (mounted) setState(() => _error = _describe(e));
+      }
+    },
+    onLoadMore: () async {
+      try {
+        await _loadHistory(more: true);
+      } catch (e) {
+        if (mounted) setState(() => _error = _describe(e));
+      }
+    },
+  );
+
+  /// Panneau latéral desktop : crédits et capacités, sections repliables.
+  Widget _sidePanel() {
+    final tools = <String>{
+      for (final t in _mcp?.tools ?? const <Map<String, dynamic>>[])
+        _label(t['name'] as String),
+    };
+    final bot = _chat?['bot_id'] ?? widget.botId;
+    return CopilotSidePanel(
+      available: _wallet == null ? null : _credits(_wallet!['available']),
+      consumedInDiscussion: _chat == null
+          ? null
+          : _credits(_chat?['consumed_tokens']),
+      onOpenCredits: () => _handleMenu('wallet'),
+      botLabel: bot == null || (bot as String).isEmpty
+          ? context.tr.copilot_global_discussion
+          : widget.botName ?? _botNames[bot] ?? bot,
+      tools: tools,
+      onConnection: _mcp?.desktop == true && !_busy ? _connection : null,
     );
   }
+
+  Widget _welcome() => CopilotWelcome(
+    ready: _ready,
+    history: [
+      for (final c in _history)
+        CopilotChatSummary(id: c['id'] as String, title: c['title'] as String),
+    ],
+    onSuggestion: (prompt) => _prompt.text = prompt,
+    onOpen: _open,
+  );
 
   Widget _messageBubble(
     Map<String, dynamic> message, {
     bool streaming = false,
-  }) {
-    final colors = Theme.of(context).colorScheme,
-        user = message['role'] == 'user',
-        content = (message['content'] ?? '').toString();
-    return Align(
-      alignment: user ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: user ? MediaQuery.sizeOf(context).width * .82 : 850,
-        ),
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: EdgeInsets.symmetric(
-          horizontal: user ? 12 : 2,
-          vertical: user ? 8 : 2,
-        ),
-        decoration: BoxDecoration(
-          color: user
-              ? colors.primaryContainer.withValues(alpha: .32)
-              : Colors.transparent,
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(18),
-            topRight: const Radius.circular(18),
-            bottomLeft: Radius.circular(user ? 18 : 5),
-            bottomRight: Radius.circular(user ? 5 : 18),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                if (!user) ...[
-                  AppIcon(
-                    Reicon.outline.magicStar,
-                    size: 14,
-                    color: colors.primary,
-                  ),
-                  const SizedBox(width: 7),
-                ],
-                Expanded(
-                  child: Text(
-                    user
-                        ? context.tr.copilot_role_you
-                        : context.tr.copilot_role_assistant,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: user ? colors.onSurfaceVariant : colors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                if (streaming)
-                  Text(
-                    context.tr.copilot_generating,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  )
-                else
-                  IconButton(
-                    visualDensity: VisualDensity.compact,
-                    constraints: const BoxConstraints(
-                      minWidth: 24,
-                      minHeight: 24,
-                    ),
-                    padding: EdgeInsets.zero,
-                    tooltip: context.tr.copilot_copy_message,
-                    icon: AppIcon(
-                      Reicon.outline.copy,
-                      size: 14,
-                      color: colors.onSurfaceVariant,
-                    ),
-                    onPressed: () =>
-                        Clipboard.setData(ClipboardData(text: content)),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            CopilotMarkdown(content: content),
-          ],
-        ),
+    int tokens = 0,
+  }) => CopilotMessageBubble(
+    content: (message['content'] ?? '').toString(),
+    user: message['role'] == 'user',
+    streaming: streaming,
+    credits: tokens > 0 ? _credits(tokens) : null,
+  );
+
+  Widget _composer(bool canSend) {
+    final retryPending =
+        _pending != null && !_pendingRejected && _error != null;
+    return CopilotComposer(
+      controller: _prompt,
+      focusNode: _promptFocus,
+      enabled: _ready,
+      canSend: canSend,
+      availableCredits: _wallet == null
+          ? null
+          : _credits(_wallet!['available']),
+      retryPending: retryPending,
+      onSend: () => _send(null, true, retryPending),
+    );
+  }
+
+  Map<String, dynamic>? _callArgs(Map<String, dynamic> a) {
+    try {
+      final fn = (a['call'] as Map)['function'] as Map;
+      final decoded = jsonDecode(fn['arguments'] as String);
+      return decoded is Map ? Map<String, dynamic>.from(decoded) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Script d'origine de la commande, pour le diff de l'aperçu. Lu une seule
+  /// fois par action et seulement tant qu'elle attend la validation : après
+  /// exécution le stockage contient déjà le nouveau script.
+  void _loadBefore(Map<String, dynamic> a, Map<String, dynamic> args) {
+    final id = a['call_id'] as String?;
+    final bot = args['bot_id'], command = args['command_id'];
+    if (id == null ||
+        a['state'] != 'pending' ||
+        _beforeScripts.containsKey(id) ||
+        !_beforeLoading.add(id) ||
+        bot is! String ||
+        command is! String) {
+      return;
+    }
+    unawaited(() async {
+      String? before;
+      try {
+        final stored = await AppManager().getAppCommand(bot, command);
+        var data = Map<String, dynamic>.from(stored['data'] as Map? ?? {});
+        final route = args['route'];
+        if (route is String && data['subcommandWorkflows'] is Map) {
+          final flow = (data['subcommandWorkflows'] as Map)[route];
+          if (flow is Map) data = Map<String, dynamic>.from(flow);
+        }
+        final mode = args['execution_mode'] as String? ?? data['executionMode'];
+        final value = mode == 'javascript'
+            ? data['jsScriptContent']
+            : data['bdfdScriptContent'];
+        if (value is String) before = value;
+      } catch (_) {}
+      _beforeLoading.remove(id);
+      if (mounted) setState(() => _beforeScripts[id] = before);
+    }());
+  }
+
+  Future<void> _openInEditor(Map<String, dynamic> args) async {
+    final bot = args['bot_id'], command = args['command_id'];
+    if (bot is! String || command is! String) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CommandCreatePage(botId: bot, localCommandId: command),
       ),
     );
   }
 
-  Widget _composer(bool canSend) {
-    final colors = Theme.of(context).colorScheme;
-    final retryPending =
-        _pending != null && !_pendingRejected && _error != null;
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(
-          top: BorderSide(color: colors.outlineVariant.withValues(alpha: .4)),
-        ),
-      ),
-      child: Column(
-        children: [
-          if (_chat != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 9),
-              child: Row(
-                children: [
-                  AppIcon(
-                    Reicon.outline.coin,
-                    size: 12,
-                    color: colors.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: 5),
-                  Flexible(
-                    child: Text(
-                      context.tr.copilot_credits_in_discussion(
-                        _credits(_chat?['consumed_tokens']),
-                      ),
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+  Widget _statusLabel(Map<String, dynamic> a, Object? state, bool failed) {
+    final text = switch (state) {
+      'pending' =>
+        _mutating(a)
+            ? context.tr.copilot_status_approval_required
+            : context.tr.copilot_status_ready_to_inspect,
+      'executing' => context.tr.copilot_status_executing,
+      'succeeded' => context.tr.copilot_status_succeeded,
+      'declined' => context.tr.copilot_status_declined,
+      'uncertain' => context.tr.copilot_status_unconfirmed,
+      _ => context.tr.copilot_status_failed,
+    };
+    final waiting = state == 'pending' && _mutating(a);
+    final color = waiting
+        ? AppTheme.statusWarning
+        : failed
+        ? AppTheme.statusErrorText
+        : Theme.of(context).colorScheme.onSurfaceVariant;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (waiting) ...[
           Container(
-            padding: const EdgeInsets.fromLTRB(14, 4, 6, 4),
-            decoration: BoxDecoration(
-              color: colors.surfaceContainerLow,
-              border: Border.all(color: colors.outlineVariant),
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _prompt,
-                    focusNode: _promptFocus,
-                    minLines: 1,
-                    maxLines: 5,
-                    enabled: _ready,
-                    decoration: InputDecoration(
-                      hintText: context.tr.copilot_input_hint,
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      filled: false,
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 10,
-                      ),
-                    ),
-                  ),
-                ),
-                IconButton.filled(
-                  style: IconButton.styleFrom(
-                    minimumSize: const Size(40, 40),
-                    fixedSize: const Size(40, 40),
-                    padding: EdgeInsets.zero,
-                  ),
-                  tooltip: retryPending
-                      ? _copy(
-                          'Réessayer la demande en attente',
-                          'Retry pending request',
-                        )
-                      : context.tr.copilot_send,
-                  onPressed: canSend
-                      ? () => _send(null, true, retryPending)
-                      : null,
-                  icon: Transform.translate(
-                    offset: retryPending
-                        ? Offset.zero
-                        : const Offset(1.5, -0.5),
-                    child: AppIcon.fromMaterial(
-                      retryPending ? Icons.replay_rounded : Icons.send,
-                      size: 18,
-                    ),
-                  ),
-                ),
-              ],
+            width: 6,
+            height: 6,
+            decoration: const BoxDecoration(
+              color: AppTheme.statusWarning,
+              shape: BoxShape.circle,
             ),
           ),
+          const SizedBox(width: 5),
         ],
-      ),
+        Flexible(
+          child: Text(
+            text,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: color,
+              fontWeight: waiting ? FontWeight.w700 : null,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _actionCard(Map<String, dynamic> a) {
     final fn = (a['call'] as Map)['function'] as Map;
+    final name = fn['name'] as String;
     final state = a['state'];
     final colors = Theme.of(context).colorScheme;
     final cloudPending = _pendingCloudCommand(a);
     final failed = state == 'failed' || state == 'uncertain';
+    final args = _callArgs(a);
+    final mode = args?['execution_mode'] as String? ?? 'bdfd_script';
+    final script = args?['script'];
+    final hasCode = copilotActionHasCode(name, script, mode);
+    if (hasCode) _loadBefore(a, args!);
+    final commandName = args?['name'] ?? args?['command_name'];
+    final waiting = state == 'pending' && _mutating(a);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              if (state == 'executing')
-                SizedBox(
-                  width: 14,
-                  height: 14,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 1.5,
-                    color: colors.onSurfaceVariant,
-                  ),
-                )
-              else
-                AppIcon(
-                  state == 'succeeded'
-                      ? Reicon.outline.tickCircle
-                      : failed
-                      ? Reicon.outline.infoCircle
-                      : Reicon.outline.setting4,
-                  size: 14,
-                  color: failed ? colors.error : colors.onSurfaceVariant,
-                ),
-              const SizedBox(width: 7),
-              Expanded(
-                child: Text(
-                  _label(fn['name'] as String),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          if (state != 'succeeded')
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        // Carte discrète : bordure fine, aucun fond relevé.
+        decoration: BoxDecoration(
+          border: Border.all(color: AppTheme.homeCardBorder),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             Padding(
-              padding: const EdgeInsets.only(left: 21, top: 2),
-              child: Text(
-                switch (state) {
-                  'pending' =>
-                    _mutating(a)
-                        ? context.tr.copilot_status_approval_required
-                        : context.tr.copilot_status_ready_to_inspect,
-                  'executing' => context.tr.copilot_status_executing,
-                  'succeeded' => context.tr.copilot_status_succeeded,
-                  'declined' => context.tr.copilot_status_declined,
-                  'uncertain' => context.tr.copilot_status_unconfirmed,
-                  _ => context.tr.copilot_status_failed,
-                },
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: failed ? colors.error : colors.onSurfaceVariant,
-                ),
-              ),
-            ),
-          if (cloudPending != null &&
-              !_cloudRetried.contains(a['call_id'])) ...[
-            Text(
-              cloudPending['created'] == true
-                  ? _copy(
-                      'Créée sur Discord, pas encore active sur le bot',
-                      'Created on Discord, not yet active on the bot',
-                    )
-                  : _copy(
-                      'Enregistrée, pas encore active sur le bot cloud',
-                      'Saved, not yet active on the cloud bot',
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1F222C),
+                      borderRadius: BorderRadius.circular(9),
+                      border: Border.all(color: const Color(0xFF272B36)),
                     ),
-            ),
-            TextButton(
-              onPressed: _busy
-                  ? null
-                  : () async {
-                      setState(() => _busy = true);
-                      final synced = cloudPending['command_id'] is String
-                          ? await _mcp!.syncCloudCommand(
-                              cloudPending['bot_id'] as String,
-                              cloudPending['command_id'] as String,
+                    child: Center(
+                      child: state == 'executing'
+                          ? SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.5,
+                                color: colors.onSurfaceVariant,
+                              ),
                             )
-                          : await _mcp!.retryCloudConfiguration(
-                              cloudPending['bot_id'] as String,
-                            );
-                      if (!mounted) return;
-                      setState(() {
-                        _busy = false;
-                        if (synced) {
-                          _cloudRetried.add(a['call_id'] as String);
-                        } else {
-                          _error = _copy(
-                            'Commande toujours inactive sur le bot cloud',
-                            'Command is still inactive on the cloud bot',
-                          );
-                        }
-                      });
-                    },
-              child: Text(
-                _copy('Réessayer la synchronisation', 'Retry synchronization'),
-              ),
-            ),
-          ],
-          if (state == 'pending')
-            Wrap(
-              children: [
-                FilledButton(
-                  onPressed: _busy || _chat?['archived'] == true
-                      ? null
-                      : () {
-                          FocusScope.of(context).unfocus();
-                          _action(a, true);
-                        },
-                  child: Text(context.tr.copilot_approve),
-                ),
-                if (_mutating(a))
-                  TextButton(
-                    onPressed: _busy || _chat?['archived'] == true
-                        ? null
-                        : () {
-                            FocusScope.of(context).unfocus();
-                            _action(a, false);
-                          },
-                    child: Text(context.tr.copilot_decline),
+                          : AppIcon(
+                              state == 'succeeded'
+                                  ? Reicon.outline.tickCircle
+                                  : failed
+                                  ? Reicon.outline.infoCircle
+                                  : hasCode
+                                  ? Reicon.outline.code
+                                  : Reicon.outline.setting4,
+                              size: 14,
+                              color: failed
+                                  ? AppTheme.statusErrorText
+                                  : const Color(0xFFC9CDD8),
+                            ),
+                    ),
                   ),
-              ],
-            ),
-          if (state == 'uncertain')
-            TextButton(
-              onPressed: _busy
-                  ? null
-                  : () async {
-                      final confirmed = await showDialog<bool>(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: Text(context.tr.copilot_close_without_replay),
-                          content: Text(
-                            context.tr.copilot_close_unconfirmed_warning,
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx, false),
-                              child: Text(context.tr.copilot_cancel),
-                            ),
-                            FilledButton(
-                              onPressed: () => Navigator.pop(ctx, true),
-                              child: Text(context.tr.copilot_close_action),
-                            ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _label(name),
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                              ),
+                        ),
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 10,
+                          children: [
+                            if (commandName is String)
+                              Text(
+                                '/$commandName',
+                                style: const TextStyle(
+                                  fontFamily: 'JetBrainsMono',
+                                  fontSize: 12,
+                                  color: Color(0xFFC9CDD8),
+                                ),
+                              ),
+                            if (state != 'succeeded')
+                              _statusLabel(a, state, failed),
                           ],
                         ),
-                      );
-                      if (confirmed != true) {
-                        return;
-                      }
-                      try {
-                        await _api!.aiAction(_id, a['call_id'] as String, {
-                          'state': 'failed',
-                          'result': {
-                            'isError': true,
-                            'message':
-                                'Execution outcome unconfirmed; user acknowledged after inspection. No replay authorized.',
-                          },
-                        });
-                        await _refresh();
-                      } catch (e) {
-                        if (mounted) {
-                          setState(() => _error = _describe(e));
-                        }
-                      }
-                    },
-              child: Text(context.tr.copilot_close_without_replay),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-        ],
+            if (hasCode)
+              CopilotCodePreview(
+                fileName: commandName is String
+                    ? '$commandName.${mode == 'javascript' ? 'js' : 'bdfd'}'
+                    : (mode == 'javascript' ? 'script.js' : 'script.bdfd'),
+                script: script,
+                before: _beforeScripts[a['call_id']],
+                bdfd: mode != 'javascript',
+                onOpen:
+                    args!['bot_id'] is String && args['command_id'] is String
+                    ? () => _openInEditor(args)
+                    : null,
+                openTooltip: _copy('Ouvrir dans l\'éditeur', 'Open in editor'),
+                regionLabel: _copy(
+                  'Aperçu du code modifié',
+                  'Preview of the changed code',
+                ),
+                validLabel: _copy('Syntaxe valide', 'Valid syntax'),
+                errorLabel: _copy('Erreur de syntaxe', 'Syntax error'),
+              ),
+            if (waiting || failed || cloudPending != null)
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (cloudPending != null &&
+                        !_cloudRetried.contains(a['call_id'])) ...[
+                      Text(
+                        cloudPending['created'] == true
+                            ? _copy(
+                                'Créée sur Discord, pas encore active sur le bot',
+                                'Created on Discord, not yet active on the bot',
+                              )
+                            : _copy(
+                                'Enregistrée, pas encore active sur le bot cloud',
+                                'Saved, not yet active on the cloud bot',
+                              ),
+                      ),
+                      TextButton(
+                        onPressed: _busy
+                            ? null
+                            : () async {
+                                setState(() => _busy = true);
+                                final synced =
+                                    cloudPending['command_id'] is String
+                                    ? await _mcp!.syncCloudCommand(
+                                        cloudPending['bot_id'] as String,
+                                        cloudPending['command_id'] as String,
+                                      )
+                                    : await _mcp!.retryCloudConfiguration(
+                                        cloudPending['bot_id'] as String,
+                                      );
+                                if (!mounted) return;
+                                setState(() {
+                                  _busy = false;
+                                  if (synced) {
+                                    _cloudRetried.add(a['call_id'] as String);
+                                  } else {
+                                    _error = _copy(
+                                      'Commande toujours inactive sur le bot cloud',
+                                      'Command is still inactive on the cloud bot',
+                                    );
+                                  }
+                                });
+                              },
+                        child: Text(
+                          _copy(
+                            'Réessayer la synchronisation',
+                            'Retry synchronization',
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (state == 'pending')
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          FilledButton(
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size(0, 44),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                              ),
+                            ),
+                            onPressed: _busy || _chat?['archived'] == true
+                                ? null
+                                : () {
+                                    FocusScope.of(context).unfocus();
+                                    _action(a, true);
+                                  },
+                            child: Text(context.tr.copilot_approve),
+                          ),
+                          if (_mutating(a))
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                minimumSize: const Size(0, 44),
+                                foregroundColor: const Color(0xFFC9CDD8),
+                              ),
+                              onPressed: _busy || _chat?['archived'] == true
+                                  ? null
+                                  : () {
+                                      FocusScope.of(context).unfocus();
+                                      _action(a, false);
+                                    },
+                              child: Text(context.tr.copilot_decline),
+                            ),
+                        ],
+                      ),
+                    if (state == 'uncertain')
+                      TextButton(
+                        onPressed: _busy
+                            ? null
+                            : () async {
+                                final confirmed = await showDialog<bool>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: Text(
+                                      context.tr.copilot_close_without_replay,
+                                    ),
+                                    content: Text(
+                                      context
+                                          .tr
+                                          .copilot_close_unconfirmed_warning,
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(ctx, false),
+                                        child: Text(context.tr.copilot_cancel),
+                                      ),
+                                      FilledButton(
+                                        onPressed: () =>
+                                            Navigator.pop(ctx, true),
+                                        child: Text(
+                                          context.tr.copilot_close_action,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (confirmed != true) {
+                                  return;
+                                }
+                                try {
+                                  await _api!.aiAction(
+                                    _id,
+                                    a['call_id'] as String,
+                                    {
+                                      'state': 'failed',
+                                      'result': {
+                                        'isError': true,
+                                        'message':
+                                            'Execution outcome unconfirmed; user acknowledged after inspection. No replay authorized.',
+                                      },
+                                    },
+                                  );
+                                  await _refresh();
+                                } catch (e) {
+                                  if (mounted) {
+                                    setState(() => _error = _describe(e));
+                                  }
+                                }
+                              },
+                        child: Text(context.tr.copilot_close_without_replay),
+                      ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -2278,57 +2258,6 @@ class _CopilotPageState extends State<CopilotPage> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class CopilotMarkdown extends StatelessWidget {
-  const CopilotMarkdown({super.key, required this.content});
-  final String content;
-  @override
-  Widget build(BuildContext context) => SelectionArea(
-    child: MarkdownBody(
-      data: content,
-      selectable: false,
-      styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-        blockSpacing: 7,
-        listIndent: 18,
-        p: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.4),
-      ),
-      onTapLink: (text, href, title) {
-        final uri = Uri.tryParse(href ?? '');
-        if (uri != null && ['https', 'http'].contains(uri.scheme)) {
-          unawaited(openAppLink(context, uri));
-        }
-      },
-      builders: {'pre': _CodeBuilder(context.tr.copilot_copy_code)},
-    ),
-  );
-}
-
-class _CodeBuilder extends MarkdownElementBuilder {
-  _CodeBuilder(this.copyTooltip);
-  final String copyTooltip;
-
-  @override
-  Widget? visitElementAfter(element, TextStyle? preferredStyle) {
-    final code = element.textContent;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Text(
-            code,
-            style: preferredStyle?.copyWith(fontFamily: 'monospace'),
-          ),
-        ),
-        IconButton(
-          tooltip: copyTooltip,
-          icon: AppIcon(Reicon.outline.copy, size: 18),
-          onPressed: () => Clipboard.setData(ClipboardData(text: code)),
-        ),
-      ],
     );
   }
 }

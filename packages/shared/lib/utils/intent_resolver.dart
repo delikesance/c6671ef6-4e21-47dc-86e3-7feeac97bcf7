@@ -159,10 +159,9 @@ Set<String> resolveRequiredIntentKeys({
     final trigger = workflow['eventTrigger'];
     if (trigger == null) continue;
 
-    final event =
-        (trigger is Map ? trigger['event'] : trigger.toString())
-            .toString()
-            .trim();
+    final event = (trigger is Map ? trigger['event'] : trigger.toString())
+        .toString()
+        .trim();
     if (event.isEmpty) continue;
 
     final intents = eventToIntentKeys[event];

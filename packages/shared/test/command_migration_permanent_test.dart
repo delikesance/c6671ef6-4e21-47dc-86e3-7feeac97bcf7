@@ -28,7 +28,9 @@ void main() {
       final actions = data['actions'] as List;
       expect(actions.any((a) => a['type'] == 'respondWithMessage'), isTrue);
       expect(
-        actions.firstWhere((a) => a['type'] == 'respondWithMessage')['payload']['content'],
+        actions.firstWhere(
+          (a) => a['type'] == 'respondWithMessage',
+        )['payload']['content'],
         equals('Pong!'),
       );
       // Response should be empty.
@@ -44,7 +46,10 @@ void main() {
           'type': 'normal',
           'text': '',
           'embeds': [],
-          'workflow': {'visibility': 'public', 'conditional': {'enabled': false}},
+          'workflow': {
+            'visibility': 'public',
+            'conditional': {'enabled': false},
+          },
         },
       );
       final result = migrateCommandDataResponsePermanently(data);
@@ -78,7 +83,10 @@ void main() {
         'response': {
           'type': 'normal',
           'text': '',
-          'workflow': {'visibility': 'public', 'conditional': {'enabled': false}},
+          'workflow': {
+            'visibility': 'public',
+            'conditional': {'enabled': false},
+          },
         },
         'subcommandWorkflows': {
           'ban': {
@@ -101,27 +109,33 @@ void main() {
       expect((sub['response'] as Map)['text'], equals(''));
     });
 
-    test('response with existing respondWithMessage — empties response only', () {
-      final data = commandData(
-        response: {
-          'text': 'Pong!',
-          'type': 'normal',
-          'workflow': {'visibility': 'public'},
-        },
-        actions: [
-          {'type': 'respondWithMessage', 'payload': {'content': 'Already here'}},
-        ],
-      );
-      final result = migrateCommandDataResponsePermanently(data);
-      expect(result, isTrue);
-      // Should NOT add a duplicate respondWithMessage.
-      final respondCount = (data['actions'] as List)
-          .where((a) => a['type'] == 'respondWithMessage')
-          .length;
-      expect(respondCount, equals(1));
-      // Response should be empty.
-      expect((data['response'] as Map)['text'], equals(''));
-    });
+    test(
+      'response with existing respondWithMessage — empties response only',
+      () {
+        final data = commandData(
+          response: {
+            'text': 'Pong!',
+            'type': 'normal',
+            'workflow': {'visibility': 'public'},
+          },
+          actions: [
+            {
+              'type': 'respondWithMessage',
+              'payload': {'content': 'Already here'},
+            },
+          ],
+        );
+        final result = migrateCommandDataResponsePermanently(data);
+        expect(result, isTrue);
+        // Should NOT add a duplicate respondWithMessage.
+        final respondCount = (data['actions'] as List)
+            .where((a) => a['type'] == 'respondWithMessage')
+            .length;
+        expect(respondCount, equals(1));
+        // Response should be empty.
+        expect((data['response'] as Map)['text'], equals(''));
+      },
+    );
 
     test('preserves existing non-respond actions after migration', () {
       final data = commandData(
@@ -131,7 +145,10 @@ void main() {
           'workflow': {'visibility': 'public'},
         },
         actions: [
-          {'type': 'setVariable', 'payload': {'name': 'x', 'value': '1'}},
+          {
+            'type': 'setVariable',
+            'payload': {'name': 'x', 'value': '1'},
+          },
         ],
       );
       final result = migrateCommandDataResponsePermanently(data);

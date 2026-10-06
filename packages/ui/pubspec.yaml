@@ -1,0 +1,67 @@
+name: bot_creator_ui
+description: "Design system, traductions et composants visuels partagés entre l'app Bot Creator et le Studio web."
+publish_to: none
+version: 0.1.0
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+  flutter_svg: ^2.3.0
+  reicon_flutter: ^1.0.1
+  bot_creator_shared: any
+  flutter_highlight: ^0.7.0
+  google_fonts: ^6.2.1
+  highlight: ^0.7.0
+  flutter_colorpicker: ^1.1.0
+  http: ^1.6.0
+  provider: ^6.1.5
+  file_picker: 11.0.2
+  re_highlight: ^0.0.3
+  flutter_markdown_plus: ^1.0.12
+  markdown: ^7.3.1
+  crypto: ^3.0.6
+  shared_preferences: ^2.5.5
+  url_launcher: ^6.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  generate: true
+  assets:
+    # google_fonts retrouve les polices embarquées par leur nom de fichier dans
+    # l'AssetManifest (cf. pubspec de l'app) : on les liste aussi comme assets.
+    - assets/js_editor/
+    - assets/fonts/inter/
+    - assets/fonts/jetbrainsmono/
+
+  # Polices partagées (Inter + JetBrains Mono). Hors du paquet, elles se
+  # référencent en `packages/bot_creator_ui/<famille>` (cf. [UiFonts]).
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/inter/Inter-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/inter/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/inter/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/inter/Inter-Bold.ttf
+          weight: 700
+    - family: JetBrainsMono
+      fonts:
+        - asset: assets/fonts/jetbrainsmono/JetBrainsMono-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/jetbrainsmono/JetBrainsMono-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/jetbrainsmono/JetBrainsMono-Bold.ttf
+          weight: 700

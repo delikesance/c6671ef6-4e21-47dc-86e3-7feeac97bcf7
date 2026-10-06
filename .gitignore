@@ -70,3 +70,5 @@ app.*.map.json
 # Embedded JS runner binaries (downloaded in CI via fetch-embedded-runner-js.sh)
 packages/app/assets/embedded-runner-js/*
 !packages/app/assets/embedded-runner-js/.gitkeep
+packages/studio/build/*
+packages/ui/build/*

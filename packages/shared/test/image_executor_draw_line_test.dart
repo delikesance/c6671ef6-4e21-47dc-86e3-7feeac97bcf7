@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:test/test.dart';
 
-import 'package:bot_creator_shared/actions/executors/image_executor.dart';
+import 'package:bot_creator_shared/services/canvas_image_renderer.dart';
 
 void main() {
   group('Image Executor — drawLine', () {
@@ -20,12 +20,7 @@ void main() {
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
-            {
-              'op': 'create',
-              'width': '50',
-              'height': '50',
-              'color': 'black',
-            },
+            {'op': 'create', 'width': '50', 'height': '50', 'color': 'black'},
             {
               'op': 'drawLine',
               'x1': '5',
@@ -52,12 +47,7 @@ void main() {
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
-            {
-              'op': 'create',
-              'width': '100',
-              'height': '50',
-              'color': 'black',
-            },
+            {'op': 'create', 'width': '100', 'height': '50', 'color': 'black'},
             {
               'op': 'drawLine',
               'x1': '10',
@@ -84,12 +74,7 @@ void main() {
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
-            {
-              'op': 'create',
-              'width': '30',
-              'height': '30',
-              'color': 'black',
-            },
+            {'op': 'create', 'width': '30', 'height': '30', 'color': 'black'},
             {
               'op': 'drawLine',
               'x1': '-5',

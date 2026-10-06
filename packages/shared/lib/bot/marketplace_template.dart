@@ -26,12 +26,12 @@ class MarketplaceVariable {
   });
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'description': description,
-        'required': required,
-        if (defaultValue != null) 'defaultValue': defaultValue,
-        'sensitive': sensitive,
-      };
+    'name': name,
+    'description': description,
+    'required': required,
+    if (defaultValue != null) 'defaultValue': defaultValue,
+    'sensitive': sensitive,
+  };
 
   factory MarketplaceVariable.fromJson(Map<String, dynamic> json) {
     return MarketplaceVariable(
@@ -126,25 +126,25 @@ class MarketplaceTemplate {
       globalVariables.where((v) => v.required).toList();
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'description': description,
-        if (descriptionLong != null) 'descriptionLong': descriptionLong,
-        'authorId': authorId,
-        'authorName': authorName,
-        'version': version,
-        'category': category,
-        'tags': tags,
-        'icon': icon,
-        'intents': intents,
-        'commands': commands.map((c) => c.toJson()).toList(),
-        'workflows': workflows,
-        'globalVariables': globalVariables.map((v) => v.toJson()).toList(),
-        'createdAt': createdAt.toIso8601String(),
-        'updatedAt': updatedAt.toIso8601String(),
-        'downloads': downloads,
-        'rating': rating,
-      };
+    'id': id,
+    'name': name,
+    'description': description,
+    if (descriptionLong != null) 'descriptionLong': descriptionLong,
+    'authorId': authorId,
+    'authorName': authorName,
+    'version': version,
+    'category': category,
+    'tags': tags,
+    'icon': icon,
+    'intents': intents,
+    'commands': commands.map((c) => c.toJson()).toList(),
+    'workflows': workflows,
+    'globalVariables': globalVariables.map((v) => v.toJson()).toList(),
+    'createdAt': createdAt.toIso8601String(),
+    'updatedAt': updatedAt.toIso8601String(),
+    'downloads': downloads,
+    'rating': rating,
+  };
 
   factory MarketplaceTemplate.fromJson(Map<String, dynamic> json) {
     return MarketplaceTemplate(
@@ -171,12 +171,15 @@ class MarketplaceTemplate {
           .map((w) => Map<String, dynamic>.from(w))
           .toList(),
       globalVariables: ((json['globalVariables'] as List?) ?? [])
-          .map((v) =>
-              MarketplaceVariable.fromJson(Map<String, dynamic>.from(v)))
+          .map(
+            (v) => MarketplaceVariable.fromJson(Map<String, dynamic>.from(v)),
+          )
           .toList(),
-      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
+      createdAt:
+          DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
           DateTime.now(),
-      updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
+      updatedAt:
+          DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
           DateTime.now(),
       downloads: int.tryParse(json['downloads']?.toString() ?? '') ?? 0,
       rating: double.tryParse(json['rating']?.toString() ?? '') ?? 0.0,
@@ -203,10 +206,10 @@ class BotTemplateCommand {
   });
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'description': description,
-        'data': data,
-      };
+    'name': name,
+    'description': description,
+    'data': data,
+  };
 
   factory BotTemplateCommand.fromJson(Map<String, dynamic> json) {
     return BotTemplateCommand(

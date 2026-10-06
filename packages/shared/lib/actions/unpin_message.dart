@@ -32,10 +32,9 @@ Future<Map<String, String>> unpinMessageAction(
     }
 
     await channel.messages[messageId].unpin(
-      auditLogReason:
-          (payload['reason']?.toString().trim().isNotEmpty == true)
-              ? payload['reason'].toString().trim()
-              : null,
+      auditLogReason: (payload['reason']?.toString().trim().isNotEmpty == true)
+          ? payload['reason'].toString().trim()
+          : null,
     );
     return {'messageId': messageId.toString(), 'status': 'unpinned'};
   } catch (e) {

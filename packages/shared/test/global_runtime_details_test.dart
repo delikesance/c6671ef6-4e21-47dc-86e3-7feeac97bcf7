@@ -216,12 +216,30 @@ void main() {
           'Moderator, Europe',
         ]);
         for (final allowed in [true, false]) {
+          // Native guards resolve role names through the entity fixtures
+          // (guild roles + member roles), not through a name-list variable.
           final result = await testCommandInSandbox({
             'script': r'$onlyForRoles[Moderator, Europe;Access denied.]allowed',
-            'variables': {
-              ...details,
-              if (!allowed)
-                'member.roleNamesJson': '["Junior Moderator, Europe"]',
+            'variables': {'guild.id': '10', 'author.id': '20'},
+            'entities': {
+              'guilds': {
+                '10': {
+                  'roles': [
+                    {'id': '10', 'name': '@everyone', 'position': 0},
+                    {'id': '200', 'name': 'Moderator, Europe', 'position': 1},
+                    {
+                      'id': '201',
+                      'name': 'Junior Moderator, Europe',
+                      'position': 2,
+                    },
+                  ],
+                  'members': {
+                    '20': {
+                      'roles': [allowed ? '200' : '201'],
+                    },
+                  },
+                },
+              },
             },
           });
           expect(result['success'], true, reason: '$result');

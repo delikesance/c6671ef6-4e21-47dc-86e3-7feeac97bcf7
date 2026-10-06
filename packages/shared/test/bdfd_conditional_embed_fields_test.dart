@@ -24,7 +24,6 @@ $if[$boostLevel<3]
 $addField[Next Level;$var[boostsNeeded] boosts remaining for level $var[nextLevel];yes]
 $endif
 $color[#F47FFF]
-$sendEmbedMessage
 ''';
 
 void main() {
@@ -34,10 +33,15 @@ void main() {
       () async {
         final result = await testCommandInSandbox({
           'script': boostScript,
-          'variables': {
-            'guild.premiumTier': '$level',
-            'guild.premiumSubscriptionCount': '${[0, 3, 8, 14][level]}',
-            'guild.name': 'Test Server',
+          'variables': {'guild.id': '10'},
+          'entities': {
+            'guilds': {
+              '10': {
+                'name': 'Test Server',
+                'premium_tier': level,
+                'premium_subscription_count': [0, 3, 8, 14][level],
+              },
+            },
           },
         });
         expect(result['success'], true, reason: '${result['error']}');

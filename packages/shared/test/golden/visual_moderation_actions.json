@@ -1,0 +1,1181 @@
+{
+ "banUser parity bans with an explicit reason and message days #0": {
+  "effects": {
+   "banned": [
+    "222"
+   ],
+   "deleteDuration": "72:00:00.000000",
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": "Spam",
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 2
+  },
+  "results": {
+   "ban": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "banUser parity error modes and disabled actions behave the same #0": {
+  "effects": {
+   "banned": [
+    "222"
+   ],
+   "deleteDuration": "0:00:00.000000",
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": "Ban via BotCreator action",
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 2
+  },
+  "results": {
+   "bad": "Error: Exception: Missing or invalid userId",
+   "good": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing or invalid userId",
+   "error.command": "banUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "banUser parity fails on an invalid user, without a guild and without permission #0": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing or invalid userId",
+   "error.command": "banUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId"
+ },
+ "banUser parity fails on an invalid user, without a guild and without permission #1": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: User action requires a guild context",
+   "error.command": "banUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: User action requires a guild context"
+ },
+ "banUser parity fails on an invalid user, without a guild and without permission #2": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 1
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to ban.",
+   "error.command": "banUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to ban."
+ },
+ "banUser parity keeps the historical default audit reason and clamps days #0": {
+  "effects": {
+   "banned": [
+    "222",
+    "222"
+   ],
+   "deleteDuration": "0:00:00.000000",
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": "Ban via BotCreator action",
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 4
+  },
+  "results": {
+   "action_0": "222",
+   "b": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "banUser parity resolves placeholders and reads earlier results #0": {
+  "effects": {
+   "banned": [
+    "333",
+    "333"
+   ],
+   "deleteDuration": "0:00:00.000000",
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": "again 333",
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 4
+  },
+  "results": {
+   "first": "333",
+   "second": "333"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "target": "333",
+   "lastSentMessageId": "333",
+   "lastMessageId": "333"
+  },
+  "error": null
+ },
+ "kickUser parity checks the command author permission when given #0": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to kick user: Bad state: A valid command author ID is required.",
+   "error.command": "kickUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to kick user: Bad state: A valid command author ID is required."
+ },
+ "kickUser parity kicks with a reason, default reason and placeholders #0": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [
+    "222"
+   ],
+   "kickReason": "Rude",
+   "updates": [],
+   "lookups": 2
+  },
+  "results": {
+   "k": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "kickUser parity kicks with a reason, default reason and placeholders #1": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [
+    "333"
+   ],
+   "kickReason": "Kick via BotCreator action",
+   "updates": [],
+   "lookups": 2
+  },
+  "results": {
+   "action_0": "333"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "who": "333",
+   "lastSentMessageId": "333",
+   "lastMessageId": "333"
+  },
+  "error": null
+ },
+ "kickUser parity reports failures like the historical action #0": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing or invalid userId",
+   "error.command": "kickUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId"
+ },
+ "kickUser parity reports failures like the historical action #1": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 2
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to kick user: Bad state: Discord refused",
+   "error.command": "kickUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to kick user: Bad state: Discord refused"
+ },
+ "kickUser parity reports failures like the historical action #2": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 1
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I cannot kick this user: their highest role is equal to or above mine.",
+   "error.command": "kickUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I cannot kick this user: their highest role is equal to or above mine."
+ },
+ "kickUser parity reports failures like the historical action #3": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [
+    "222"
+   ],
+   "kickReason": "Kick via BotCreator action",
+   "updates": [],
+   "lookups": 2
+  },
+  "results": {
+   "action_0": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "muteUser parity accepts the duration variants and memberId #0": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [
+    {
+     "userId": "222",
+     "communication_disabled_until": "set",
+     "reason": "Timeout via BotCreator action"
+    }
+   ],
+   "lookups": 2
+  },
+  "results": {
+   "action_0": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "muteUser parity accepts the duration variants and memberId #1": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [
+    {
+     "userId": "222",
+     "communication_disabled_until": "set",
+     "reason": "Timeout via BotCreator action"
+    }
+   ],
+   "lookups": 2
+  },
+  "results": {
+   "action_0": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "muteUser parity accepts the duration variants and memberId #2": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [
+    {
+     "userId": "222",
+     "communication_disabled_until": "set",
+     "reason": "Timeout via BotCreator action"
+    }
+   ],
+   "lookups": 2
+  },
+  "results": {
+   "action_0": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "muteUser parity accepts the duration variants and memberId #3": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [
+    {
+     "userId": "222",
+     "communication_disabled_until": "set",
+     "reason": "Timeout via BotCreator action"
+    }
+   ],
+   "lookups": 2
+  },
+  "results": {
+   "action_0": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "muteUser parity accepts the duration variants and memberId #4": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [
+    {
+     "userId": "222",
+     "communication_disabled_until": "set",
+     "reason": "Timeout via BotCreator action"
+    }
+   ],
+   "lookups": 2
+  },
+  "results": {
+   "action_0": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "muteUser parity accepts the duration variants and memberId #5": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [
+    {
+     "userId": "333",
+     "communication_disabled_until": "set",
+     "reason": "Timeout via BotCreator action"
+    }
+   ],
+   "lookups": 2
+  },
+  "results": {
+   "action_0": "333"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "333",
+   "lastMessageId": "333"
+  },
+  "error": null
+ },
+ "muteUser parity mutes with the default duration and reason #0": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [
+    {
+     "userId": "222",
+     "communication_disabled_until": "set",
+     "reason": "Timeout via BotCreator action"
+    }
+   ],
+   "lookups": 2
+  },
+  "results": {
+   "m": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "muteUser parity rejects a malformed until and an invalid user #0": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Invalid until datetime format",
+   "error.command": "muteUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Invalid until datetime format"
+ },
+ "muteUser parity rejects a malformed until and an invalid user #1": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [
+    {
+     "userId": "222",
+     "communication_disabled_until": "set",
+     "reason": "Timeout via BotCreator action"
+    }
+   ],
+   "lookups": 2
+  },
+  "results": {
+   "action_0": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "muteUser parity rejects a malformed until and an invalid user #2": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing or invalid userId/memberId",
+   "error.command": "muteUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/memberId"
+ },
+ "muteUser parity rejects a malformed until and an invalid user #3": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 2
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to timeout user: Bad state: Discord refused timeout",
+   "error.command": "muteUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to timeout user: Bad state: Discord refused timeout"
+ },
+ "muteUser parity uses an explicit until date exactly #0": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [
+    {
+     "userId": "222",
+     "communication_disabled_until": "<timestamp>",
+     "reason": "x"
+    }
+   ],
+   "lookups": 2
+  },
+  "results": {
+   "action_0": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "setNickname parity clears a nickname with an empty value #0": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [
+    {
+     "userId": "222",
+     "nick": "",
+     "reason": null
+    }
+   ],
+   "lookups": 1
+  },
+  "results": {
+   "action_0": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "setNickname parity normalizes the id and resolves placeholders #0": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [
+    {
+     "userId": "333",
+     "nick": "Trin !",
+     "reason": null
+    }
+   ],
+   "lookups": 1
+  },
+  "results": {
+   "action_0": "333"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "who": "333",
+   "name": "Trin",
+   "lastSentMessageId": "333",
+   "lastMessageId": "333"
+  },
+  "error": null
+ },
+ "setNickname parity reports an invalid user, a missing permission and a refusal #0": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Invalid userId",
+   "error.command": "setNickname",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Invalid userId"
+ },
+ "setNickname parity reports an invalid user, a missing permission and a refusal #1": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 1
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to change nicknames. Missing: Permission(134217728).",
+   "error.command": "setNickname",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to change nicknames. Missing: Permission(134217728)."
+ },
+ "setNickname parity reports an invalid user, a missing permission and a refusal #2": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 1
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to set nickname: Bad state: Discord refused timeout",
+   "error.command": "setNickname",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to set nickname: Bad state: Discord refused timeout"
+ },
+ "setNickname parity reports an invalid user, a missing permission and a refusal #3": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: User action requires a guild context",
+   "error.command": "setNickname",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: User action requires a guild context"
+ },
+ "setNickname parity sets the nickname with and without a reason #0": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [
+    {
+     "userId": "222",
+     "nick": "Neo",
+     "reason": null
+    }
+   ],
+   "lookups": 1
+  },
+  "results": {
+   "n": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "setNickname parity sets the nickname with and without a reason #1": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [
+    {
+     "userId": "222",
+     "nick": "Neo",
+     "reason": " Because "
+    }
+   ],
+   "lookups": 1
+  },
+  "results": {
+   "action_0": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "unbanUser parity falls back to the username when the id is invalid #0": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [
+    "444"
+   ],
+   "unbanAttempts": 1,
+   "guildReason": "Unban via BotCreator action",
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 2
+  },
+  "results": {
+   "action_0": "444"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "444",
+   "lastMessageId": "444"
+  },
+  "error": null
+ },
+ "unbanUser parity reports an unknown user, an empty target and a refusal #0": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 1
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Banned user not found",
+   "error.command": "unbanUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Banned user not found"
+ },
+ "unbanUser parity reports an unknown user, an empty target and a refusal #1": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Banned user not found",
+   "error.command": "unbanUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Banned user not found"
+ },
+ "unbanUser parity reports an unknown user, an empty target and a refusal #2": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 1,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 2
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to unban user: Bad state: Discord refused unban",
+   "error.command": "unbanUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to unban user: Bad state: Discord refused unban"
+ },
+ "unbanUser parity reports an unknown user, an empty target and a refusal #3": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: User action requires a guild context",
+   "error.command": "unbanUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: User action requires a guild context"
+ },
+ "unbanUser parity unbans by id with the default and an explicit reason #0": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [
+    "222"
+   ],
+   "unbanAttempts": 1,
+   "guildReason": "Unban via BotCreator action",
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 2
+  },
+  "results": {
+   "u": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "unbanUser parity unbans by id with the default and an explicit reason #1": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [
+    "222"
+   ],
+   "unbanAttempts": 1,
+   "guildReason": "Appeal",
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 2
+  },
+  "results": {
+   "action_0": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "unmuteUser parity falls back to memberId and reports failures #0": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [
+    {
+     "userId": "333",
+     "communication_disabled_until": null,
+     "reason": "ok"
+    }
+   ],
+   "lookups": 2
+  },
+  "results": {
+   "action_0": "333"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "333",
+   "lastMessageId": "333"
+  },
+  "error": null
+ },
+ "unmuteUser parity falls back to memberId and reports failures #1": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing or invalid userId/memberId",
+   "error.command": "unmuteUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/memberId"
+ },
+ "unmuteUser parity falls back to memberId and reports failures #2": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [],
+   "lookups": 1
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to unmute.",
+   "error.command": "unmuteUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to unmute."
+ },
+ "unmuteUser parity removes the timeout #0": {
+  "effects": {
+   "banned": [],
+   "deleteDuration": null,
+   "unbanned": [],
+   "unbanAttempts": 0,
+   "guildReason": null,
+   "kicked": [],
+   "kickReason": null,
+   "updates": [
+    {
+     "userId": "222",
+     "communication_disabled_until": null,
+     "reason": "Remove timeout via BotCreator action"
+    }
+   ],
+   "lookups": 2
+  },
+  "results": {
+   "u": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ }
+}

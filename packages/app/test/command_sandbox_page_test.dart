@@ -120,7 +120,7 @@ void main() {
       MaterialApp(
         home: CommandSandboxPage(
           runner: (request) => pending = testCommandInSandbox(request),
-          script: r'$reply$c[]$sum[((opts.amount));2]',
+          script: r'$reply$c[]$sum[$message[amount];2]',
           options: [
             {'name': 'amount', 'type': 4, 'required': true},
           ],

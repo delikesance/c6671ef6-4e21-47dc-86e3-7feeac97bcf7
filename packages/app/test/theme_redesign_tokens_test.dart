@@ -31,18 +31,18 @@ void main() {
 
     test('couleurs neutralisées de la refonte', () {
       expect(AppTheme.neutralSeed, const Color(0xFF33343B));
-      expect(AppTheme.scaffoldDark, const Color(0xFF111111));
-      expect(AppTheme.homeCard, const Color(0xFF1D1D1D));
-      expect(AppTheme.homeCardBorder, const Color(0xFF292929));
-      expect(AppTheme.homeNavBar, const Color(0xFF101010));
-      expect(AppTheme.homeNavSelected, const Color(0xFF262626));
+      expect(AppTheme.scaffoldDark, const Color(0xFF0E0F13));
+      expect(AppTheme.homeCard, const Color(0xFF16181E));
+      expect(AppTheme.homeCardBorder, const Color(0xFF222631));
+      expect(AppTheme.homeNavBar, const Color(0xFF12141A));
+      expect(AppTheme.homeNavSelected, const Color(0xFF1E212A));
       expect(AppTheme.homeCreateFill, AppTheme.homeNavSelected);
       expect(AppTheme.homeCreateBorder, const Color(0xFFAAAAAA));
-      expect(AppTheme.homeClusterBg, const Color(0xFF151515));
-      expect(AppTheme.homeClusterBorder, const Color(0xFF2B2B2B));
-      expect(AppTheme.homeContainerLowest, const Color(0xFF0C0C0C));
-      expect(AppTheme.homeGhostBorder, const Color(0xFF333333));
-      expect(AppTheme.homeMuted, const Color(0xFF888888));
+      expect(AppTheme.homeClusterBg, const Color(0xFF12141A));
+      expect(AppTheme.homeClusterBorder, const Color(0xFF272B36));
+      expect(AppTheme.homeContainerLowest, const Color(0xFF0B0C10));
+      expect(AppTheme.homeGhostBorder, const Color(0xFF3A3F4F));
+      expect(AppTheme.homeMuted, const Color(0xFF9AA0AF));
       expect(AppTheme.metaText, AppTheme.homeMuted);
       expect(AppTheme.dataAccent, const Color(0xFFDCF0FF));
       expect(AppTheme.online, const Color(0xFF10B981));

@@ -1,0 +1,1901 @@
+{
+ "AutoMod rule blocks parity createAutoModRule builds each trigger and action #0": {
+  "effects": [
+   {
+    "operation": "createRule",
+    "payload": {
+     "name": "Named",
+     "event_type": 1,
+     "trigger_type": 1,
+     "trigger_metadata": {
+      "keyword_filter": [
+       "a",
+       "b"
+      ],
+      "regex_patterns": [
+       "x+"
+      ],
+      "presets": null,
+      "allow_list": [
+       "ok"
+      ],
+      "mention_total_limit": null,
+      "mention_raid_protection_enabled": null
+     },
+     "actions": [
+      {
+       "type": 2,
+       "metadata": {
+        "channel_id": "30"
+       }
+      }
+     ],
+     "enabled": false,
+     "exempt_roles": [
+      "64"
+     ],
+     "exempt_channels": [
+      "30"
+     ]
+    },
+    "reason": "why"
+   },
+   {
+    "operation": "createRule",
+    "payload": {
+     "name": "Presets",
+     "event_type": 1,
+     "trigger_type": 4,
+     "trigger_metadata": {
+      "keyword_filter": null,
+      "regex_patterns": null,
+      "presets": [
+       1,
+       3
+      ],
+      "allow_list": [],
+      "mention_total_limit": null,
+      "mention_raid_protection_enabled": null
+     },
+     "actions": [
+      {
+       "type": 3,
+       "metadata": {
+        "duration_seconds": 120
+       }
+      }
+     ],
+     "enabled": true,
+     "exempt_roles": [],
+     "exempt_channels": []
+    },
+    "reason": null
+   },
+   {
+    "operation": "createRule",
+    "payload": {
+     "name": "Mentions",
+     "event_type": 1,
+     "trigger_type": 5,
+     "trigger_metadata": {
+      "keyword_filter": null,
+      "regex_patterns": null,
+      "presets": null,
+      "allow_list": null,
+      "mention_total_limit": 8,
+      "mention_raid_protection_enabled": null
+     },
+     "actions": [
+      {
+       "type": 1
+      }
+     ],
+     "enabled": true,
+     "exempt_roles": [],
+     "exempt_channels": []
+    },
+    "reason": null
+   },
+   {
+    "operation": "createRule",
+    "payload": {
+     "name": "Spam",
+     "event_type": 1,
+     "trigger_type": 3,
+     "actions": [
+      {
+       "type": 1
+      }
+     ],
+     "enabled": true,
+     "exempt_roles": [],
+     "exempt_channels": []
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "r": "950",
+   "action_1": "950",
+   "action_2": "950",
+   "action_3": "950"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "Named",
+   "r.ruleId": "950",
+   "r.name": "Named",
+   "action_1.ruleId": "950",
+   "action_1.name": "Presets",
+   "action_2.ruleId": "950",
+   "action_2.name": "Mentions",
+   "action_3.ruleId": "950",
+   "action_3.name": "Spam"
+  },
+  "error": null
+ },
+ "AutoMod rule blocks parity createAutoModRule reports its failures #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: createAutoModRule requires a guild context",
+   "error.command": "createAutoModRule",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: createAutoModRule requires a guild context"
+ },
+ "AutoMod rule blocks parity createAutoModRule reports its failures #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to manage automod rules. Missing: Manage Server.",
+   "error.command": "createAutoModRule",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to manage automod rules. Missing: Manage Server."
+ },
+ "AutoMod rule blocks parity createAutoModRule reports its failures #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: name is required for createAutoModRule",
+   "error.command": "createAutoModRule",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: name is required for createAutoModRule"
+ },
+ "AutoMod rule blocks parity createAutoModRule reports its failures #3": {
+  "effects": [
+   {
+    "operation": "createRule",
+    "payload": {
+     "name": "x",
+     "event_type": 1,
+     "trigger_type": 1,
+     "trigger_metadata": {
+      "keyword_filter": [],
+      "regex_patterns": [],
+      "presets": null,
+      "allow_list": [],
+      "mention_total_limit": null,
+      "mention_raid_protection_enabled": null
+     },
+     "actions": [
+      {
+       "type": 1
+      }
+     ],
+     "enabled": true,
+     "exempt_roles": [],
+     "exempt_channels": []
+    },
+    "reason": null
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to create AutoMod rule: Bad state: refused",
+   "error.command": "createAutoModRule",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to create AutoMod rule: Bad state: refused"
+ },
+ "AutoMod rule blocks parity deleteAutoModRule deletes a rule #0": {
+  "effects": [
+   {
+    "operation": "deleteRule",
+    "id": "77",
+    "reason": "x"
+   }
+  ],
+  "results": {
+   "d": "deleted"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "r": "77"
+  },
+  "error": null
+ },
+ "AutoMod rule blocks parity deleteAutoModRule deletes a rule #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: ruleId is required for deleteAutoModRule",
+   "error.command": "deleteAutoModRule",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: ruleId is required for deleteAutoModRule"
+ },
+ "AutoMod rule blocks parity deleteAutoModRule deletes a rule #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: deleteAutoModRule requires a guild context",
+   "error.command": "deleteAutoModRule",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: deleteAutoModRule requires a guild context"
+ },
+ "AutoMod rule blocks parity deleteAutoModRule deletes a rule #3": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to delete automod rules. Missing: Manage Server.",
+   "error.command": "deleteAutoModRule",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to delete automod rules. Missing: Manage Server."
+ },
+ "AutoMod rule blocks parity deleteAutoModRule deletes a rule #4": {
+  "effects": [
+   {
+    "operation": "deleteRule",
+    "id": "1",
+    "reason": null
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to delete AutoMod rule: Bad state: refused",
+   "error.command": "deleteAutoModRule",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to delete AutoMod rule: Bad state: refused"
+ },
+ "AutoMod rule blocks parity error modes and disabled actions behave the same #0": {
+  "effects": [
+   {
+    "operation": "deleteRule",
+    "id": "1",
+    "reason": null
+   }
+  ],
+  "results": {
+   "bad": "Error: Exception: ruleId is required for deleteAutoModRule",
+   "ok": "deleted"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: ruleId is required for deleteAutoModRule",
+   "error.command": "deleteAutoModRule",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": null
+ },
+ "AutoMod rule blocks parity listAutoModRules lists the rules #0": {
+  "effects": [],
+  "results": {
+   "l": "[]"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "l.rulesJson": "[]",
+   "l.count": "0"
+  },
+  "error": null
+ },
+ "AutoMod rule blocks parity listAutoModRules lists the rules #1": {
+  "effects": [],
+  "results": {
+   "l": "[{\"id\":\"1\",\"name\":\"One\",\"enabled\":true,\"triggerType\":1},{\"id\":\"2\",\"name\":\"Two\",\"enabled\":false,\"triggerType\":1}]"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "l.rulesJson": "[{\"id\":\"1\",\"name\":\"One\",\"enabled\":true,\"triggerType\":1},{\"id\":\"2\",\"name\":\"Two\",\"enabled\":false,\"triggerType\":1}]",
+   "l.count": "2"
+  },
+  "error": null
+ },
+ "AutoMod rule blocks parity listAutoModRules lists the rules #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: listAutoModRules requires a guild context",
+   "error.command": "listAutoModRules",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: listAutoModRules requires a guild context"
+ },
+ "AutoMod rule blocks parity listAutoModRules lists the rules #3": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to list automod rules. Missing: Manage Server.",
+   "error.command": "listAutoModRules",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to list automod rules. Missing: Manage Server."
+ },
+ "createPoll parity creates a poll and mirrors its results #0": {
+  "effects": [
+   {
+    "operation": "sendMessage",
+    "channel": "30",
+    "payload": {
+     "poll": {
+      "question": {
+       "text": "Best?"
+      },
+      "answers": [
+       {
+        "poll_media": {
+         "text": "A"
+        }
+       },
+       {
+        "poll_media": {
+         "text": "B"
+        }
+       }
+      ],
+      "duration": 48,
+      "allow_multiselect": true
+     }
+    }
+   }
+  ],
+  "results": {
+   "p": "801"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "p.messageId": "801",
+   "p.pollId": "801"
+  },
+  "error": null
+ },
+ "createPoll parity error modes and disabled actions behave the same #0": {
+  "effects": [
+   {
+    "operation": "sendMessage",
+    "channel": "30",
+    "payload": {
+     "poll": {
+      "question": {
+       "text": "Q"
+      },
+      "answers": [
+       {
+        "poll_media": {
+         "text": "a"
+        }
+       }
+      ],
+      "duration": 24,
+      "allow_multiselect": false
+     }
+    }
+   }
+  ],
+  "results": {
+   "bad": "Error: Exception: channelId is required for createPoll",
+   "ok": "801"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: channelId is required for createPoll",
+   "error.command": "createPoll",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "ok.messageId": "801",
+   "ok.pollId": "801"
+  },
+  "error": null
+ },
+ "createPoll parity later actions read earlier results #0": {
+  "effects": [
+   {
+    "operation": "sendMessage",
+    "channel": "30",
+    "payload": {
+     "poll": {
+      "question": {
+       "text": "One"
+      },
+      "answers": [
+       {
+        "poll_media": {
+         "text": "a"
+        }
+       }
+      ],
+      "duration": 24,
+      "allow_multiselect": false
+     }
+    }
+   },
+   {
+    "operation": "sendMessage",
+    "channel": "30",
+    "payload": {
+     "poll": {
+      "question": {
+       "text": "After 801"
+      },
+      "answers": [
+       {
+        "poll_media": {
+         "text": "a"
+        }
+       }
+      ],
+      "duration": 24,
+      "allow_multiselect": false
+     }
+    }
+   }
+  ],
+  "results": {
+   "one": "801",
+   "two": "802"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "one.messageId": "801",
+   "one.pollId": "801",
+   "two.messageId": "802",
+   "two.pollId": "802"
+  },
+  "error": null
+ },
+ "createPoll parity parses JSON and comma separated answers, clamps the duration #0": {
+  "effects": [
+   {
+    "operation": "sendMessage",
+    "channel": "30",
+    "payload": {
+     "poll": {
+      "question": {
+       "text": "Q"
+      },
+      "answers": [
+       {
+        "poll_media": {
+         "text": "Yes"
+        }
+       },
+       {
+        "poll_media": {
+         "text": "No"
+        }
+       }
+      ],
+      "duration": 168,
+      "allow_multiselect": false
+     }
+    }
+   }
+  ],
+  "results": {
+   "action_0": "801"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "action_0.messageId": "801",
+   "action_0.pollId": "801"
+  },
+  "error": null
+ },
+ "createPoll parity parses JSON and comma separated answers, clamps the duration #1": {
+  "effects": [
+   {
+    "operation": "sendMessage",
+    "channel": "30",
+    "payload": {
+     "poll": {
+      "question": {
+       "text": "Q"
+      },
+      "answers": [
+       {
+        "poll_media": {
+         "text": "Yes"
+        }
+       },
+       {
+        "poll_media": {
+         "text": "No"
+        }
+       },
+       {
+        "poll_media": {
+         "text": "Maybe"
+        }
+       }
+      ],
+      "duration": 24,
+      "allow_multiselect": false
+     }
+    }
+   }
+  ],
+  "results": {
+   "action_0": "801"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "action_0.messageId": "801",
+   "action_0.pollId": "801"
+  },
+  "error": null
+ },
+ "createPoll parity reports its failures like the historical branch #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: channelId is required for createPoll",
+   "error.command": "createPoll",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: channelId is required for createPoll"
+ },
+ "createPoll parity reports its failures like the historical branch #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: question is required for createPoll",
+   "error.command": "createPoll",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: question is required for createPoll"
+ },
+ "createPoll parity reports its failures like the historical branch #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: At least one answer is required for createPoll",
+   "error.command": "createPoll",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: At least one answer is required for createPoll"
+ },
+ "createPoll parity reports its failures like the historical branch #3": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: createPoll supports at most 10 answers",
+   "error.command": "createPoll",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: createPoll supports at most 10 answers"
+ },
+ "createPoll parity reports its failures like the historical branch #4": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Channel is not a text channel",
+   "error.command": "createPoll",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Channel is not a text channel"
+ },
+ "createPoll parity reports its failures like the historical branch #5": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Channel is not a text channel",
+   "error.command": "createPoll",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Channel is not a text channel"
+ },
+ "createPoll parity reports its failures like the historical branch #6": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to create polls. Missing: Send Messages.",
+   "error.command": "createPoll",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to create polls. Missing: Send Messages."
+ },
+ "createPoll parity reports its failures like the historical branch #7": {
+  "effects": [
+   {
+    "operation": "sendMessage",
+    "channel": "30",
+    "payload": {
+     "poll": {
+      "question": {
+       "text": "Q"
+      },
+      "answers": [
+       {
+        "poll_media": {
+         "text": "a"
+        }
+       }
+      ],
+      "duration": 24,
+      "allow_multiselect": false
+     }
+    }
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to create poll: Bad state: refused",
+   "error.command": "createPoll",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to create poll: Bad state: refused"
+ },
+ "createPoll parity resolves placeholders and uses the fallback channel #0": {
+  "effects": [
+   {
+    "operation": "sendMessage",
+    "channel": "30",
+    "payload": {
+     "poll": {
+      "question": {
+       "text": "From var"
+      },
+      "answers": [
+       {
+        "poll_media": {
+         "text": "First"
+        }
+       },
+       {
+        "poll_media": {
+         "text": "B"
+        }
+       }
+      ],
+      "duration": 24,
+      "allow_multiselect": false
+     }
+    }
+   }
+  ],
+  "results": {
+   "action_0": "801"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "q": "From var",
+   "a": "First",
+   "action_0.messageId": "801",
+   "action_0.pollId": "801"
+  },
+  "error": null
+ },
+ "createPoll parity works without a guild context (no permission pre-check) #0": {
+  "effects": [
+   {
+    "operation": "sendMessage",
+    "channel": "30",
+    "payload": {
+     "poll": {
+      "question": {
+       "text": "Q"
+      },
+      "answers": [
+       {
+        "poll_media": {
+         "text": "a"
+        }
+       }
+      ],
+      "duration": 24,
+      "allow_multiselect": false
+     }
+    }
+   }
+  ],
+  "results": {
+   "action_0": "801"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "action_0.messageId": "801",
+   "action_0.pollId": "801"
+  },
+  "error": null
+ },
+ "endPoll parity ends a poll #0": {
+  "effects": [
+   {
+    "operation": "endPoll",
+    "channel": "30",
+    "message": "55"
+   }
+  ],
+  "results": {
+   "e": "ended"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "endPoll parity error modes and disabled actions behave the same #0": {
+  "effects": [
+   {
+    "operation": "endPoll",
+    "channel": "30",
+    "message": "5"
+   }
+  ],
+  "results": {
+   "bad": "Error: Exception: channelId is required for endPoll",
+   "ok": "ended"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: channelId is required for endPoll",
+   "error.command": "endPoll",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": null
+ },
+ "endPoll parity reports its failures like the historical branch #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: channelId is required for endPoll",
+   "error.command": "endPoll",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: channelId is required for endPoll"
+ },
+ "endPoll parity reports its failures like the historical branch #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: messageId is required for endPoll",
+   "error.command": "endPoll",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: messageId is required for endPoll"
+ },
+ "endPoll parity reports its failures like the historical branch #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Channel is not a text channel",
+   "error.command": "endPoll",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Channel is not a text channel"
+ },
+ "endPoll parity reports its failures like the historical branch #3": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to end polls. Missing: Manage Messages.",
+   "error.command": "endPoll",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to end polls. Missing: Manage Messages."
+ },
+ "endPoll parity reports its failures like the historical branch #4": {
+  "effects": [
+   {
+    "operation": "endPoll",
+    "channel": "30",
+    "message": "5"
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to end poll: Bad state: refused",
+   "error.command": "endPoll",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to end poll: Bad state: refused"
+ },
+ "endPoll parity resolves placeholders and uses the fallback channel #0": {
+  "effects": [
+   {
+    "operation": "endPoll",
+    "channel": "30",
+    "message": "77"
+   }
+  ],
+  "results": {
+   "action_0": "ended"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "m": "77"
+  },
+  "error": null
+ },
+ "guild onboarding parity getGuildOnboarding reads the configuration #0": {
+  "effects": [
+   {
+    "operation": "fetchOnboarding"
+   }
+  ],
+  "results": {
+   "o": "{\"guildId\":\"10\",\"enabled\":true,\"defaultChannelIds\":[\"30\"],\"mode\":0,\"prompts\":[{\"id\":\"2\",\"title\":\"Pick\",\"type\":0,\"required\":true,\"singleSelect\":false,\"inOnboarding\":true,\"options\":[{\"id\":\"3\",\"title\":\"Gamer\",\"description\":\"\",\"channelIds\":[\"30\"],\"roleIds\":[\"64\"]}]}]}"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "o.onboardingJson": "{\"guildId\":\"10\",\"enabled\":true,\"defaultChannelIds\":[\"30\"],\"mode\":0,\"prompts\":[{\"id\":\"2\",\"title\":\"Pick\",\"type\":0,\"required\":true,\"singleSelect\":false,\"inOnboarding\":true,\"options\":[{\"id\":\"3\",\"title\":\"Gamer\",\"description\":\"\",\"channelIds\":[\"30\"],\"roleIds\":[\"64\"]}]}]}",
+   "o.enabled": "true"
+  },
+  "error": null
+ },
+ "guild onboarding parity getGuildOnboarding reads the configuration #1": {
+  "effects": [
+   {
+    "operation": "fetchOnboarding"
+   }
+  ],
+  "results": {
+   "o": "{\"guildId\":\"10\",\"enabled\":false,\"defaultChannelIds\":[\"30\"],\"mode\":0,\"prompts\":[{\"id\":\"2\",\"title\":\"Pick\",\"type\":0,\"required\":true,\"singleSelect\":false,\"inOnboarding\":true,\"options\":[{\"id\":\"3\",\"title\":\"Gamer\",\"description\":\"\",\"channelIds\":[\"30\"],\"roleIds\":[\"64\"]}]}]}"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "o.onboardingJson": "{\"guildId\":\"10\",\"enabled\":false,\"defaultChannelIds\":[\"30\"],\"mode\":0,\"prompts\":[{\"id\":\"2\",\"title\":\"Pick\",\"type\":0,\"required\":true,\"singleSelect\":false,\"inOnboarding\":true,\"options\":[{\"id\":\"3\",\"title\":\"Gamer\",\"description\":\"\",\"channelIds\":[\"30\"],\"roleIds\":[\"64\"]}]}]}",
+   "o.enabled": "false"
+  },
+  "error": null
+ },
+ "guild onboarding parity getGuildOnboarding reads the configuration #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: getGuildOnboarding requires a guild context",
+   "error.command": "getGuildOnboarding",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: getGuildOnboarding requires a guild context"
+ },
+ "guild onboarding parity getGuildOnboarding reads the configuration #3": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to view guild onboarding. Missing: Manage Server.",
+   "error.command": "getGuildOnboarding",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to view guild onboarding. Missing: Manage Server."
+ },
+ "guild onboarding parity getGuildOnboarding reads the configuration #4": {
+  "effects": [
+   {
+    "operation": "fetchOnboarding"
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to get guild onboarding: Bad state: refused",
+   "error.command": "getGuildOnboarding",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to get guild onboarding: Bad state: refused"
+ },
+ "guild onboarding parity updateGuildOnboarding fails like the historical branch #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: updateGuildOnboarding is not supported by the current nyxx runtime yet",
+   "error.command": "updateGuildOnboarding",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: updateGuildOnboarding is not supported by the current nyxx runtime yet"
+ },
+ "guild onboarding parity updateGuildOnboarding fails like the historical branch #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: updateGuildOnboarding requires a guild context",
+   "error.command": "updateGuildOnboarding",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: updateGuildOnboarding requires a guild context"
+ },
+ "guild onboarding parity updateGuildOnboarding fails like the historical branch #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to update guild onboarding. Missing: Manage Server.",
+   "error.command": "updateGuildOnboarding",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to update guild onboarding. Missing: Manage Server."
+ },
+ "guild onboarding parity updateGuildOnboarding fails like the historical branch #3": {
+  "effects": [
+   {
+    "operation": "fetchOnboarding"
+   }
+  ],
+  "results": {
+   "bad": "Error: Exception: updateGuildOnboarding is not supported by the current nyxx runtime yet",
+   "ok": "{\"guildId\":\"10\",\"enabled\":true,\"defaultChannelIds\":[\"30\"],\"mode\":0,\"prompts\":[{\"id\":\"2\",\"title\":\"Pick\",\"type\":0,\"required\":true,\"singleSelect\":false,\"inOnboarding\":true,\"options\":[{\"id\":\"3\",\"title\":\"Gamer\",\"description\":\"\",\"channelIds\":[\"30\"],\"roleIds\":[\"64\"]}]}]}"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: updateGuildOnboarding is not supported by the current nyxx runtime yet",
+   "error.command": "updateGuildOnboarding",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "ok.onboardingJson": "{\"guildId\":\"10\",\"enabled\":true,\"defaultChannelIds\":[\"30\"],\"mode\":0,\"prompts\":[{\"id\":\"2\",\"title\":\"Pick\",\"type\":0,\"required\":true,\"singleSelect\":false,\"inOnboarding\":true,\"options\":[{\"id\":\"3\",\"title\":\"Gamer\",\"description\":\"\",\"channelIds\":[\"30\"],\"roleIds\":[\"64\"]}]}]}",
+   "ok.enabled": "true"
+  },
+  "error": null
+ },
+ "updateAutoMod parity creates the keyword and mention rules #0": {
+  "effects": [
+   {
+    "operation": "createRule",
+    "payload": {
+     "name": "BotCreator - Keyword Filter",
+     "event_type": 1,
+     "trigger_type": 1,
+     "trigger_metadata": {
+      "keyword_filter": [
+       "bad",
+       "worse"
+      ],
+      "regex_patterns": null,
+      "presets": null,
+      "allow_list": null,
+      "mention_total_limit": null,
+      "mention_raid_protection_enabled": null
+     },
+     "actions": [
+      {
+       "type": 1
+      }
+     ],
+     "enabled": false,
+     "exempt_roles": [
+      "64"
+     ]
+    },
+    "reason": "r"
+   },
+   {
+    "operation": "createRule",
+    "payload": {
+     "name": "BotCreator - Mention Limit",
+     "event_type": 1,
+     "trigger_type": 5,
+     "trigger_metadata": {
+      "keyword_filter": null,
+      "regex_patterns": null,
+      "presets": null,
+      "allow_list": null,
+      "mention_total_limit": 50,
+      "mention_raid_protection_enabled": null
+     },
+     "actions": [
+      {
+       "type": 1
+      }
+     ],
+     "enabled": false,
+     "exempt_roles": [
+      "64"
+     ]
+    },
+    "reason": "r"
+   }
+  ],
+  "results": {
+   "a": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "updateAutoMod parity error modes and disabled actions behave the same #0": {
+  "effects": [
+   {
+    "operation": "createRule",
+    "payload": {
+     "name": "BotCreator - Mention Limit",
+     "event_type": 1,
+     "trigger_type": 5,
+     "trigger_metadata": {
+      "keyword_filter": null,
+      "regex_patterns": null,
+      "presets": null,
+      "allow_list": null,
+      "mention_total_limit": 5,
+      "mention_raid_protection_enabled": null
+     },
+     "actions": [
+      {
+       "type": 1
+      }
+     ],
+     "enabled": true,
+     "exempt_roles": []
+    },
+    "reason": "Update auto-moderation mention rule"
+   },
+   {
+    "operation": "createRule",
+    "payload": {
+     "name": "BotCreator - Mention Limit",
+     "event_type": 1,
+     "trigger_type": 5,
+     "trigger_metadata": {
+      "keyword_filter": null,
+      "regex_patterns": null,
+      "presets": null,
+      "allow_list": null,
+      "mention_total_limit": 5,
+      "mention_raid_protection_enabled": null
+     },
+     "actions": [
+      {
+       "type": 1
+      }
+     ],
+     "enabled": true,
+     "exempt_roles": []
+    },
+    "reason": "Update auto-moderation mention rule"
+   }
+  ],
+  "results": {
+   "bad": "Error: Exception: Failed to update auto-moderation: Bad state: x",
+   "ok": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to update auto-moderation: Bad state: x",
+   "error.command": "updateAutoMod",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": null
+ },
+ "updateAutoMod parity reports its failures like the historical branch #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing guildId",
+   "error.command": "updateAutoMod",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing guildId"
+ },
+ "updateAutoMod parity reports its failures like the historical branch #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to update automod settings. Missing: Manage Server.",
+   "error.command": "updateAutoMod",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to update automod settings. Missing: Manage Server."
+ },
+ "updateAutoMod parity reports its failures like the historical branch #2": {
+  "effects": [
+   {
+    "operation": "createRule",
+    "payload": {
+     "name": "BotCreator - Mention Limit",
+     "event_type": 1,
+     "trigger_type": 5,
+     "trigger_metadata": {
+      "keyword_filter": null,
+      "regex_patterns": null,
+      "presets": null,
+      "allow_list": null,
+      "mention_total_limit": 5,
+      "mention_raid_protection_enabled": null
+     },
+     "actions": [
+      {
+       "type": 1
+      }
+     ],
+     "enabled": true,
+     "exempt_roles": []
+    },
+    "reason": "Update auto-moderation mention rule"
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to update auto-moderation: Bad state: refused",
+   "error.command": "updateAutoMod",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to update auto-moderation: Bad state: refused"
+ },
+ "updateAutoMod parity updates the existing rules #0": {
+  "effects": [
+   {
+    "operation": "updateRule",
+    "id": "1",
+    "payload": {
+     "name": "BotCreator - Keyword Filter",
+     "event_type": 1,
+     "trigger_metadata": {
+      "keyword_filter": [
+       "x"
+      ],
+      "regex_patterns": null,
+      "presets": null,
+      "allow_list": null,
+      "mention_total_limit": null,
+      "mention_raid_protection_enabled": null
+     },
+     "actions": [
+      {
+       "type": 1
+      }
+     ],
+     "enabled": true,
+     "exempt_roles": []
+    },
+    "reason": null
+   },
+   {
+    "operation": "updateRule",
+    "id": "2",
+    "payload": {
+     "name": "BotCreator - Mention Limit",
+     "event_type": 1,
+     "trigger_metadata": {
+      "keyword_filter": null,
+      "regex_patterns": null,
+      "presets": null,
+      "allow_list": null,
+      "mention_total_limit": 5,
+      "mention_raid_protection_enabled": null
+     },
+     "actions": [
+      {
+       "type": 1
+      }
+     ],
+     "enabled": true,
+     "exempt_roles": []
+    },
+    "reason": null
+   },
+   {
+    "operation": "updateRule",
+    "id": "1",
+    "payload": {
+     "enabled": false,
+     "exempt_roles": []
+    },
+    "reason": null
+   },
+   {
+    "operation": "updateRule",
+    "id": "2",
+    "payload": {
+     "name": "BotCreator - Mention Limit",
+     "event_type": 1,
+     "trigger_metadata": {
+      "keyword_filter": null,
+      "regex_patterns": null,
+      "presets": null,
+      "allow_list": null,
+      "mention_total_limit": 5,
+      "mention_raid_protection_enabled": null
+     },
+     "actions": [
+      {
+       "type": 1
+      }
+     ],
+     "enabled": true,
+     "exempt_roles": []
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "action_0": "OK",
+   "action_1": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "r": "1"
+  },
+  "error": null
+ },
+ "updateGuild parity an empty payload still updates #0": {
+  "effects": [
+   {
+    "operation": "updateGuild",
+    "id": "10",
+    "payload": {},
+    "reason": null
+   }
+  ],
+  "results": {
+   "action_0": "10"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "updateGuild parity error modes and disabled actions behave the same #0": {
+  "effects": [
+   {
+    "operation": "updateGuild",
+    "id": "10",
+    "payload": {
+     "name": "x"
+    },
+    "reason": null
+   },
+   {
+    "operation": "updateGuild",
+    "id": "10",
+    "payload": {
+     "name": "y"
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "bad": "Error: Exception: Failed to update guild: Bad state: x",
+   "ok": "10"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to update guild: Bad state: x",
+   "error.command": "updateGuild",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": null
+ },
+ "updateGuild parity reports its failures like the historical branch #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing guildId",
+   "error.command": "updateGuild",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing guildId"
+ },
+ "updateGuild parity reports its failures like the historical branch #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to update server settings. Missing: Manage Server.",
+   "error.command": "updateGuild",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to update server settings. Missing: Manage Server."
+ },
+ "updateGuild parity reports its failures like the historical branch #2": {
+  "effects": [
+   {
+    "operation": "updateGuild",
+    "id": "10",
+    "payload": {
+     "name": "x"
+    },
+    "reason": null
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to update guild: Bad state: refused",
+   "error.command": "updateGuild",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to update guild: Bad state: refused"
+ },
+ "updateGuild parity updates the settings the payload names #0": {
+  "effects": [
+   {
+    "operation": "updateGuild",
+    "id": "10",
+    "payload": {
+     "name": "New",
+     "verification_level": 2,
+     "default_message_notifications": 1,
+     "explicit_content_filter": 2,
+     "afk_channel_id": "34",
+     "afk_timeout": 300,
+     "system_channel_id": "30",
+     "preferred_locale": "fr",
+     "description": "About",
+     "premium_progress_bar_enabled": true
+    },
+    "reason": "why"
+   }
+  ],
+  "results": {
+   "g": "10"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "New"
+  },
+  "error": null
+ },
+ "voice blocks parity disconnectFromVoice disconnects a member #0": {
+  "effects": [
+   {
+    "operation": "updateMember",
+    "user": "20",
+    "payload": {
+     "channel_id": "0"
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "d": "disconnected"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "u": "20"
+  },
+  "error": null
+ },
+ "voice blocks parity error modes and disabled actions behave the same #0": {
+  "effects": [
+   {
+    "operation": "updateMember",
+    "user": "20",
+    "payload": {
+     "mute": true
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "bad": "Error: Exception: userId is required for serverMuteMember",
+   "ok": "muted"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: userId is required for serverMuteMember",
+   "error.command": "serverMuteMember",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": null
+ },
+ "voice blocks parity moveToVoiceChannel moves a member #0": {
+  "effects": [
+   {
+    "operation": "updateMember",
+    "user": "20",
+    "payload": {
+     "channel_id": "34"
+    },
+    "reason": "Because"
+   }
+  ],
+  "results": {
+   "m": "moved"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "voice blocks parity report their failures like the historical branches #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: moveToVoiceChannel requires a guild context",
+   "error.command": "moveToVoiceChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: moveToVoiceChannel requires a guild context"
+ },
+ "voice blocks parity report their failures like the historical branches #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to move members in voice channels. Missing: Move Members.",
+   "error.command": "moveToVoiceChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to move members in voice channels. Missing: Move Members."
+ },
+ "voice blocks parity report their failures like the historical branches #10": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: userId is required for serverMuteMember",
+   "error.command": "serverMuteMember",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: userId is required for serverMuteMember"
+ },
+ "voice blocks parity report their failures like the historical branches #11": {
+  "effects": [
+   {
+    "operation": "updateMember",
+    "user": "20",
+    "payload": {
+     "mute": true
+    },
+    "reason": null
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to server-mute member: Bad state: refused",
+   "error.command": "serverMuteMember",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to server-mute member: Bad state: refused"
+ },
+ "voice blocks parity report their failures like the historical branches #12": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: serverDeafenMember requires a guild context",
+   "error.command": "serverDeafenMember",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: serverDeafenMember requires a guild context"
+ },
+ "voice blocks parity report their failures like the historical branches #13": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to server-deafen members. Missing: Deafen Members.",
+   "error.command": "serverDeafenMember",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to server-deafen members. Missing: Deafen Members."
+ },
+ "voice blocks parity report their failures like the historical branches #14": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: userId is required for serverDeafenMember",
+   "error.command": "serverDeafenMember",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: userId is required for serverDeafenMember"
+ },
+ "voice blocks parity report their failures like the historical branches #15": {
+  "effects": [
+   {
+    "operation": "updateMember",
+    "user": "20",
+    "payload": {
+     "deaf": true
+    },
+    "reason": null
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to server-deafen member: Bad state: refused",
+   "error.command": "serverDeafenMember",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to server-deafen member: Bad state: refused"
+ },
+ "voice blocks parity report their failures like the historical branches #16": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: userId is required for moveToVoiceChannel",
+   "error.command": "moveToVoiceChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: userId is required for moveToVoiceChannel"
+ },
+ "voice blocks parity report their failures like the historical branches #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: targetChannelId is required for moveToVoiceChannel",
+   "error.command": "moveToVoiceChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: targetChannelId is required for moveToVoiceChannel"
+ },
+ "voice blocks parity report their failures like the historical branches #3": {
+  "effects": [
+   {
+    "operation": "updateMember",
+    "user": "20",
+    "payload": {
+     "channel_id": "34"
+    },
+    "reason": null
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to move member to voice channel: Bad state: refused",
+   "error.command": "moveToVoiceChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to move member to voice channel: Bad state: refused"
+ },
+ "voice blocks parity report their failures like the historical branches #4": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: disconnectFromVoice requires a guild context",
+   "error.command": "disconnectFromVoice",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: disconnectFromVoice requires a guild context"
+ },
+ "voice blocks parity report their failures like the historical branches #5": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to disconnect members from voice. Missing: Move Members.",
+   "error.command": "disconnectFromVoice",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to disconnect members from voice. Missing: Move Members."
+ },
+ "voice blocks parity report their failures like the historical branches #6": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: userId is required for disconnectFromVoice",
+   "error.command": "disconnectFromVoice",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: userId is required for disconnectFromVoice"
+ },
+ "voice blocks parity report their failures like the historical branches #7": {
+  "effects": [
+   {
+    "operation": "updateMember",
+    "user": "20",
+    "payload": {
+     "channel_id": "0"
+    },
+    "reason": null
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to disconnect member from voice: Bad state: refused",
+   "error.command": "disconnectFromVoice",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to disconnect member from voice: Bad state: refused"
+ },
+ "voice blocks parity report their failures like the historical branches #8": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: serverMuteMember requires a guild context",
+   "error.command": "serverMuteMember",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: serverMuteMember requires a guild context"
+ },
+ "voice blocks parity report their failures like the historical branches #9": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to server-mute members. Missing: Mute Members.",
+   "error.command": "serverMuteMember",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to server-mute members. Missing: Mute Members."
+ },
+ "voice blocks parity serverMuteMember and serverDeafenMember toggle #0": {
+  "effects": [
+   {
+    "operation": "updateMember",
+    "user": "20",
+    "payload": {
+     "mute": true
+    },
+    "reason": null
+   },
+   {
+    "operation": "updateMember",
+    "user": "20",
+    "payload": {
+     "mute": false
+    },
+    "reason": null
+   },
+   {
+    "operation": "updateMember",
+    "user": "20",
+    "payload": {
+     "deaf": true
+    },
+    "reason": null
+   },
+   {
+    "operation": "updateMember",
+    "user": "20",
+    "payload": {
+     "deaf": false
+    },
+    "reason": "r"
+   }
+  ],
+  "results": {
+   "a": "muted",
+   "b": "unmuted",
+   "c": "deafened",
+   "d": "undeafened"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ }
+}

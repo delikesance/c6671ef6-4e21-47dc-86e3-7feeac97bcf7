@@ -1,3 +1,31 @@
+Bot Creator v2.9.0
+
+New Features:
+- Meet the AI Copilot: a chat assistant that creates and edits your commands, and always asks for your approval before changing anything. Conversations are saved and previews show the script of a command before it is created
+- AI credits: a wallet where 1 credit = 1,000 tokens, a credits page with the usage of each response, and a rewarded-ad roulette to earn more credits
+- BDFD commands now run on a new native engine, and a built-in command sandbox lets you try a command (with options, context and permissions) before you publish it
+- Visual blocks now run natively too, with many new blocks: moderation, roles, threads, channels, voice and music, polls, AutoMod, webhooks, emojis, images, components, modals and control flow
+- Version history now uses cloud checkpoints, with previews of saved commands and workflows, and a way to delete versions
+- Subscriptions can show offers published remotely by the server
+- Bot Creator Studio, a web version of the editor, shares the app's screens, design and translations
+
+Improvements:
+- A flatter, calmer redesign of the home screen, the editor, the settings and the Copilot panels
+- A top navigation bar on desktop, and a red disconnect button
+- A live hosting countdown on the home bot cards, and the servers row on the bot card
+- A simpler command editor: each option is edited on its own screen, grouped, with a live Discord preview, and lists of commands and workflows are simpler with a collapsible action palette and a Blueprint minimap
+- The in-app documentation renders Discord structured blocks and dual-view previews natively, and respects safe areas on phones
+- BDFD functions were aligned with the BDFD wiki
+- Copilot answers are shorter and more reliable: compact sandbox results, clearer error codes, and a more stable mobile action flow
+
+Bug Fixes:
+- Importing or pulling a bot now updates its status and activities
+- Starting the app no longer disturbs the bots that are running
+- Commands keep their local and Discord identity when you save or restore them, and deleted items stay deleted
+- Webhook URLs are now returned correctly
+- Fixed layout overflows on narrow phones in the option editor and the Copilot
+- Fixed article documentation that could stay out of date after a deployment
+
 Bot Creator v2.3.0
 
 New Features:

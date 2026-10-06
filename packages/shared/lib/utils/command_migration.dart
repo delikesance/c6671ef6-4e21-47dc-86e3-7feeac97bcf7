@@ -120,8 +120,9 @@ bool migrateCommandDataResponsePermanently(Map<String, dynamic> data) {
       // migration would be a no-op, but the response might still hold legacy
       // content.  We still need to empty it.
       final rawActions = data['actions'];
-      final existingActions =
-          rawActions is List ? rawActions.whereType<Map>().toList() : const [];
+      final existingActions = rawActions is List
+          ? rawActions.whereType<Map>().toList()
+          : const [];
       final hasRespondAction = _hasExplicitResponseAction(existingActions);
 
       if (!hasRespondAction) {
@@ -174,8 +175,9 @@ void _migrateResponseBlock(Map<String, dynamic> data) {
 
   // If actions already contain an explicit respond action, do nothing.
   final rawActions = data['actions'];
-  final existingActions =
-      rawActions is List ? rawActions.whereType<Map>().toList() : const [];
+  final existingActions = rawActions is List
+      ? rawActions.whereType<Map>().toList()
+      : const [];
   if (_hasExplicitResponseAction(existingActions)) {
     (data['response'] as Map)['_migrated'] = true;
     return;
@@ -380,8 +382,8 @@ Map<String, dynamic> _buildConditionalIfBlock(
       branchType: whenTrueType,
       branch: 'true',
     ),
-    overrideModal:
-        (conditional['whenTrueModal'] as Map?)?.cast<String, dynamic>(),
+    overrideModal: (conditional['whenTrueModal'] as Map?)
+        ?.cast<String, dynamic>(),
     overrideEphemeral: whenTrueEphemeral,
   );
 
@@ -402,8 +404,8 @@ Map<String, dynamic> _buildConditionalIfBlock(
       branchType: whenFalseType,
       branch: 'false',
     ),
-    overrideModal:
-        (conditional['whenFalseModal'] as Map?)?.cast<String, dynamic>(),
+    overrideModal: (conditional['whenFalseModal'] as Map?)
+        ?.cast<String, dynamic>(),
     overrideEphemeral: whenFalseEphemeral,
   );
 
@@ -426,10 +428,9 @@ Map<String, dynamic>? _resolveConditionalComponents(
   required String branch,
 }) {
   final isV2 = branchType == 'componentV2';
-  final key =
-      isV2
-          ? 'when${branch == 'true' ? 'True' : 'False'}Components'
-          : 'when${branch == 'true' ? 'True' : 'False'}NormalComponents';
+  final key = isV2
+      ? 'when${branch == 'true' ? 'True' : 'False'}Components'
+      : 'when${branch == 'true' ? 'True' : 'False'}NormalComponents';
   final raw = conditional[key];
   if (raw is! Map || raw.isEmpty) return null;
   return raw.cast<String, dynamic>();
@@ -508,8 +509,9 @@ bool _migrateSubcommandWorkflowsPermanently(Map<String, dynamic> data) {
     if (!_isLegacyResponseMigrable(response)) continue;
 
     final rawActions = payloadMap['actions'];
-    final existingActions =
-        rawActions is List ? rawActions.whereType<Map>().toList() : const [];
+    final existingActions = rawActions is List
+        ? rawActions.whereType<Map>().toList()
+        : const [];
     final hasRespondAction = _hasExplicitResponseAction(existingActions);
 
     if (!hasRespondAction) {
@@ -520,7 +522,8 @@ bool _migrateSubcommandWorkflowsPermanently(Map<String, dynamic> data) {
       final injectedActions = _buildRespondActions(response);
 
       final hasHeavyAction = _hasHeavyAction(existingActions);
-      final totalAfterInjection = mutableActions.length + injectedActions.length;
+      final totalAfterInjection =
+          mutableActions.length + injectedActions.length;
       if (hasHeavyAction || totalAfterInjection > _kDeferThreshold) {
         final isEphemeral = _resolveVisibility(response) == 'ephemeral';
         mutableActions.insert(0, _buildDeferAction(isEphemeral: isEphemeral));
@@ -599,8 +602,9 @@ void _migrateSubcommandWorkflows(Map<String, dynamic> data) {
 
     // If actions already contain an explicit respond action, do nothing.
     final rawActions = payloadMap['actions'];
-    final existingActions =
-        rawActions is List ? rawActions.whereType<Map>().toList() : const [];
+    final existingActions = rawActions is List
+        ? rawActions.whereType<Map>().toList()
+        : const [];
     if (_hasExplicitResponseAction(existingActions)) {
       (payloadMap['response'] as Map)['_migrated'] = true;
       rawWorkflows[route] = payloadMap;

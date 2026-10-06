@@ -1,5 +1,5 @@
 name: bot_creator_workspace
-description: Mono-repo workspace for bot_creator app and runner
+description: Mono-repo workspace for bot_creator app, runner and studio
 publish_to: none
 
 environment:
@@ -9,3 +9,5 @@ workspace:
   - packages/app
   - packages/runner
   - packages/shared
+  - packages/studio
+  - packages/ui

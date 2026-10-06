@@ -155,20 +155,14 @@ void main() {
 }
 
 class _FakeComponentData {
-  _FakeComponentData({
-    required this.customId,
-    this.values = const <String>[],
-  });
+  _FakeComponentData({required this.customId, this.values = const <String>[]});
 
   final String customId;
   final List<String> values;
 }
 
 class _FakeInteraction implements Interaction<dynamic> {
-  _FakeInteraction({
-    required this.data,
-    required this.type,
-  });
+  _FakeInteraction({required this.data, required this.type});
 
   @override
   final dynamic data;

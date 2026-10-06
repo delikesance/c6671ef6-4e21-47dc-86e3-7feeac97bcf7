@@ -89,8 +89,9 @@ class PresenceManager {
   ) {
     final min = currentStatus.minIntervalSeconds;
     final max = currentStatus.maxIntervalSeconds;
-    final delaySeconds =
-        max <= min ? min : min + _random.nextInt(max - min + 1);
+    final delaySeconds = max <= min
+        ? min
+        : min + _random.nextInt(max - min + 1);
 
     _rotationTimer?.cancel();
     _rotationTimer = Timer(Duration(seconds: delaySeconds), () {
@@ -141,15 +142,9 @@ class PresenceManager {
           ],
         ),
       );
-      onLog?.call(
-        'Presence applied: ${status.type} $text',
-        botId: botId,
-      );
+      onLog?.call('Presence applied: ${status.type} $text', botId: botId);
     } catch (error) {
-      onDebugLog?.call(
-        'Presence update failed: $error',
-        botId: botId,
-      );
+      onDebugLog?.call('Presence update failed: $error', botId: botId);
     }
   }
 

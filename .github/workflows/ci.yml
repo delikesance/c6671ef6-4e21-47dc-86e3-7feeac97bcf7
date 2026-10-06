@@ -21,6 +21,14 @@ on:
         type: choice
         default: auto
         options: [auto, patch, minor, major]
+      rebuild_runner:
+        description: "Force a Runner image rebuild (base image / dependency maintenance)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref == 'refs/heads/dev' }}
 
 permissions:
   actions: read
@@ -38,15 +46,32 @@ jobs:
   auto-release:
     name: Auto Release & SemVer Tag
     if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))) || (github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'))
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     outputs:
       tag: ${{ steps.version.outputs.tag }}
       version: ${{ steps.version.outputs.version }}
+      commit: ${{ steps.version.outputs.commit }}
+      runner_changed: ${{ steps.runner.outputs.changed }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Compare against the last SUCCESSFULLY published stable Runner, not the
+      # last app release: a failed image build must be retried on the next release.
+      - name: Detect Runner image changes
+        id: runner
+        env:
+          REBUILD_RUNNER: ${{ inputs.rebuild_runner }}
+        run: |
+          set -euo pipefail
+          if [ "$REBUILD_RUNNER" = "true" ]; then
+            CHANGED=true
+          else
+            CHANGED=$(bash scripts/runner-image-changed.sh)
+          fi
+          echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
 
       - name: Compute and Bump SemVer
         id: version
@@ -55,6 +80,7 @@ jobs:
         # laisser faisait échouer le lint du workflow.
         env:
           FORCED_BUMP: ${{ github.event.inputs.bump }}
+          RUNNER_CHANGED: ${{ steps.runner.outputs.changed }}
         run: |
           set -euo pipefail
           if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
@@ -135,19 +161,21 @@ jobs:
             echo "Bump: $BUMP (dernier tag: ${LAST_TAG:-aucun}, $(git rev-list --count "$RANGE") commit(s))"
             echo "Bumping Flutter app version to $NEW_FULL"
             sed -i -E "s/^version: .*/version: $NEW_FULL/" packages/app/pubspec.yaml
-            if [ -f packages/runner/pubspec.yaml ]; then
+            if [ "$RUNNER_CHANGED" = "true" ]; then
               sed -i -E "s/^version: .*/version: $VERSION/" packages/runner/pubspec.yaml
             fi
 
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add packages/app/pubspec.yaml packages/runner/pubspec.yaml
+            git add packages/app/pubspec.yaml
+            if [ "$RUNNER_CHANGED" = "true" ]; then git add packages/runner/pubspec.yaml; fi
             git commit -m "chore(release): bump app version to $NEW_FULL [skip ci]" || echo "No changes to commit"
             git push origin "HEAD:${GITHUB_REF#refs/heads/}"
           fi
 
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           echo "Calculated tag: $TAG ($VERSION)"
 
       - name: Create Git Tag & Release
@@ -155,16 +183,20 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ steps.version.outputs.commit }}
           name: Release ${{ steps.version.outputs.tag }}
           generate_release_notes: true
 
   publish-image:
     name: Publish immutable image
     needs: [auto-release]
-    if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))) || (github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'))
-    runs-on: ubuntu-latest
+    if: needs.auto-release.outputs.runner_changed == 'true'
+    runs-on: [self-hosted, Linux, X64]
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.auto-release.outputs.commit }}
+          fetch-depth: 0
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -195,12 +227,12 @@ jobs:
         with:
           images: |
             ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_IMAGE_NAME }}
-            ${{ env.DOCKERHUB_REGISTRY }}/${{ env.DOCKERHUB_IMAGE_NAME }}
+            ${{ secrets.DOCKER_TOKEN != '' && format('docker.io/{0}', env.DOCKERHUB_IMAGE_NAME) || '' }}
           tags: |
             type=raw,value=${{ needs.auto-release.outputs.tag }}
             type=raw,value=${{ needs.auto-release.outputs.version }}
             type=raw,value=latest,enable={{is_default_branch}}
-            type=sha,prefix=sha-
+            type=raw,value=sha-${{ needs.auto-release.outputs.commit }}
 
       - name: Build image locally for scanning
         uses: docker/build-push-action@v6
@@ -239,3 +271,17 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             CACHEBUST=${{ github.run_id }}-${{ github.run_attempt }}
+
+      # This marker advances only after both image builds and publication succeed.
+      - name: Record published Runner source
+        env:
+          RELEASE_TAG: ${{ needs.auto-release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          MARKER="runner-image/$RELEASE_TAG"
+          if git rev-parse -q --verify "refs/tags/$MARKER" >/dev/null; then
+            test "$(git rev-parse "$MARKER^{commit}")" = "$(git rev-parse HEAD)"
+          else
+            git tag "$MARKER" HEAD
+            git push origin "refs/tags/$MARKER"
+          fi

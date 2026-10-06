@@ -267,7 +267,7 @@ for (var px in masked) {
 
 ## 6. Data Flow
 
-### 6.1 Authoring Flow (BDFD transpiler path)
+### 6.1 Authoring Flow (BDFD native path)
 
 ```
 User writes BDFD script:
@@ -279,7 +279,7 @@ User writes BDFD script:
 
        │
        ▼
-bdfd_ast_transpiler/image_canvas.dart
+BDFD native engine (packages/shared/lib/engine/bdfd/)
   → _canvasCreate()    → start deferred image block, add 'create' op
   → _canvasLoadImage() → add 'loadImage' op
   → _canvasDrawText()  → add 'drawText' op
@@ -326,7 +326,7 @@ Serialization (action_normalization.dart):
 
        │
        ▼
-Same runtime path as transpiler flow above.
+Same runtime path as the BDFD flow above.
 ```
 
 ### 6.3 Variable Resolution Flow
@@ -365,9 +365,7 @@ packages/shared/lib/
 │       ├── variables_executor.dart    # Case runtimeImageBlock → executeRuntimeImageBlock()
 │       └── image_executor.dart        # Operation handlers + helpers
 ├── utils/
-│   └── bdfd_ast_transpiler/
-│       ├── bdfd_ast_transpiler.dart   # Main transpiler (declares _deferredImage* state)
-│       └── image_canvas.dart          # Canvas function transpilation (part of transpiler)
+│   └── bdfd_compiler.dart             # Diagnostics only (no Action compilation)
 └── engine/
     ├── command_executor.dart          # Routes Discord interactions
     └── workflow_executor.dart         # Executes action lists
@@ -391,7 +389,7 @@ packages/app/lib/
 | Component | Responsibility |
 |---|---|
 | `image_executor.dart` | Execute a list of canvas operations sequentially on an `img.Image` buffer. Handles URL resolution, color parsing, font selection, shape masking. |
-| `image_canvas.dart` | BDFD transpiler extension: detects canvas functions in AST, collects operations, emits `runtimeImageBlock` action on flush. |
+| `image_canvas.dart` | Former BDFD transpiler extension (removed; the native engine now handles canvas functions): detected canvas functions in AST, collects operations, emits `runtimeImageBlock` action on flush. |
 | `action_normalization.dart` | Collapses adjacent `canvas*Block` visual sub-actions into a single `runtimeImageBlock` with an `operations` list. |
 | `variables_executor.dart` | Routes `runtimeImageBlock` to `executeRuntimeImageBlock()`. Guards against standalone canvas sub-actions (throws StateError). |
 | `action_type_extension.dart` | Declares `parameterDefinitions` for each canvas block type — which fields the editor shows. |
@@ -422,7 +420,7 @@ These are measured on a typical x86-64 runner. On ARM (Raspberry Pi), expect 2-3
 
 2. **No unnecessary copies**: Operations mutate the canvas in-place (`compositeImage`, `drawText`, etc. all take and return the same `img.Image` reference). Masks create temporary buffers then discard them.
 
-3. **Deferred execution**: The transpiler collects all canvas operations before emitting the block — no partial execution. If the BDFD script encounters a `stopUnless` before the canvas is attached, the image block is never executed (wasted work avoided).
+3. **Deferred execution**: The BDFD engine collects all canvas operations before emitting the block — no partial execution. If the BDFD script encounters a `stopUnless` before the canvas is attached, the image block is never executed (wasted work avoided).
 
 ### 8.3 Future Optimizations
 
@@ -504,10 +502,10 @@ Compositions are defined as named operation lists **in the bot's configuration**
 
 ### 9.3 Implementation Approach for Extensions
 
-All three extensions follow the same pattern: **enrich the operation map before it reaches the executor**. This keeps `image_executor.dart` simple while the transpiler/normalizer handles the higher-level constructs.
+All three extensions follow the same pattern: **enrich the operation map before it reaches the executor**. This keeps `image_executor.dart` simple while the native engine/normalizer handles the higher-level constructs.
 
 ```
-BDFD script → transpiler → enriched operations with loops/conditions
+BDFD script → native engine → enriched operations with loops/conditions
                                │
                                ▼
                        Operation expander
@@ -531,7 +529,7 @@ BDFD script → transpiler → enriched operations with loops/conditions
 
 | System | Integration |
 |---|---|
-| **BDFD Transpiler** | `image_canvas.dart` — detects `$canvas*` functions, emits `runtimeImageBlock` |
+| **BDFD native engine** | `image_canvas.dart` — detects `$canvas*` functions, emits `runtimeImageBlock` |
 | **Command/Workflow Editor** | `canvas*Block` action types appear in action palette, configurable via `ParameterDefinition` |
 | **Action Serialization** | `action_normalization.dart` — collapses visual blocks into runtime format |
 | **Runtime Variables** | Output written to `variables['rtImage_N']` and `variables['rtImage_N.dataUrl']` |
@@ -584,7 +582,7 @@ A 1024×1024 RGBA canvas is ~4 MB. With 2-3 overlays in flight (source + mask + 
 | Risk | Mitigation |
 |---|---|
 | **CPU-bound rendering blocks Nyxx event loop** | Offload to isolate (Dart 3.x isolates have good ergonomics with send/receive ports) |
-| **Large images cause OOM** | Enforce max canvas dimensions (2048×2048) in transpiler; validate in executor |
+| **Large images cause OOM** | Enforce max canvas dimensions (2048×2048) in the engine; validate in executor |
 | **Malicious URLs in `loadImage`** | HTTP client already has 15s timeout; can add content-length check before download |
 | **User expects real-time preview** | Explicitly communicate server-side rendering; preview feature is Phase 2 |
 | **Font limitations** | `image` package ships with 3 bitmap fonts (arial14/24/48). TrueType support requires `flutter` or a native extension |
@@ -608,7 +606,6 @@ A 1024×1024 RGBA canvas is ~4 MB. With 2-3 overlays in flight (source + mask + 
 ## 13. References
 
 - `packages/shared/lib/actions/executors/image_executor.dart` — Runtime executor (465 lines)
-- `packages/shared/lib/utils/bdfd_ast_transpiler/image_canvas.dart` — BDFD transpiler extension (183 lines)
 - `packages/shared/lib/types/action.dart` — Action type enum + model (203 lines)
 - `packages/app/lib/features/bot_editor/logic/action_normalization.dart` — Canvas block → runtime block collapse (159 lines)
 - `packages/app/lib/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_type_extension.dart` — Parameter definitions (3427 lines — canvas blocks at ~L3273)

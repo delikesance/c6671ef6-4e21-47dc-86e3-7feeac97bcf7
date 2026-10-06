@@ -4,12 +4,15 @@ import 'dart:ui' as ui;
 
 import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/action_block.dart';
 import 'package:bot_creator/features/documentation/documentation_article_page.dart';
 import 'package:bot_creator/features/documentation/documentation_hub_page.dart';
 import 'package:bot_creator/features/documentation/documentation_repository.dart';
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/documentation/documentation_preview.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/entry_point_block.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/scratch_block_connector.dart';
 import 'package:bot_creator/features/documentation/native_documentation_view.dart';
 import 'package:bot_creator/features/documentation/web_documentation_view.dart';
 import 'package:flutter/material.dart';
@@ -475,6 +478,50 @@ void main() {
     },
   );
 
+  testWidgets(
+    'ticket permissions use the editor field without mobile overflow',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(320, 850));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(
+        app(
+          Scaffold(
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: DocumentationPreview(
+                  kind: 'bc-block-flow',
+                  data: {
+                    'version': 1,
+                    'blocks': [
+                      {
+                        'action': {
+                          'type': 'editChannelPermissions',
+                          'payload': {
+                            'channelId': '((action.ticket_chan))',
+                            'targetType': 'member',
+                            'targetId': '((user.id))',
+                            'allow': '68608',
+                            'deny': '0',
+                          },
+                        },
+                      },
+                    ],
+                  },
+                  markdown: (text) => Text(text),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(ActionBlock), findsOneWidget);
+      expect(find.text('Allow'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   for (final size in [const Size(320, 780), const Size(1200, 850)]) {
     testWidgets(
       'block script switch and Discord embeds render natively at $size',
@@ -485,6 +532,7 @@ void main() {
           'version': 1,
           'blocks': [
             {
+              'trigger': {'type': 'slash', 'name': 'ping'},
               'title': 'SLASH COMMAND: /ping',
               'badge': 'Trigger',
               'category': 'entrypoint',
@@ -493,6 +541,10 @@ void main() {
               'toggles': [],
             },
             {
+              'action': {
+                'type': 'respondWithMessage',
+                'payload': {'content': 'Pong!', 'ephemeral': true},
+              },
               'title': 'RESPOND TO INTERACTION',
               'badge': 'Terminal',
               'category': 'interactions',
@@ -554,13 +606,38 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        expect(find.text('SLASH COMMAND: /ping'), findsOneWidget);
-        expect(find.text('RESPOND TO INTERACTION'), findsOneWidget);
-        expect(find.byType(Switch), findsOneWidget);
+        expect(find.byType(EntryPointBlock), findsOneWidget);
+        expect(find.byType(ActionBlock), findsOneWidget);
+        expect(find.byType(ScratchBlockConnector), findsOneWidget);
+        final actionBlock = tester.widget<ActionBlock>(
+          find.byType(ActionBlock),
+        );
+        expect(actionBlock.readOnly, isTrue);
+        expect(actionBlock.action.parameters['ephemeral'], isTrue);
+        expect(
+          find.descendant(
+            of: find.byType(ActionBlock),
+            matching: find.byType(PopupMenuButton<String>),
+          ),
+          findsNothing,
+        );
+        final fields = find.descendant(
+          of: find.byType(ActionBlock),
+          matching: find.byType(TextField),
+        );
+        expect(fields, findsWidgets);
+        await tester.tap(fields.first, warnIfMissed: false);
+        await tester.pump();
+        expect(
+          tester.widget<TextField>(fields.first).focusNode?.hasFocus ?? false,
+          isFalse,
+        );
+        expect(tester.takeException(), isNull);
         await screenshot(tester, 'docs-previews-blocks-${size.width.toInt()}');
         await tester.tap(find.text('Script'));
         await tester.pumpAndSettle();
-        expect(find.text('SLASH COMMAND: /ping'), findsNothing);
+        expect(find.byType(EntryPointBlock), findsNothing);
+        expect(find.byType(ActionBlock), findsNothing);
         expect(find.byTooltip('Copier le code'), findsOneWidget);
         await tester.tap(find.byTooltip('Copier le code'));
         await tester.pump();

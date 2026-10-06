@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:test/test.dart';
 
-import 'package:bot_creator_shared/actions/executors/image_executor.dart';
+import 'package:bot_creator_shared/services/canvas_image_renderer.dart';
 
 void main() {
   group('executeAttachImage', () {
@@ -26,25 +26,24 @@ void main() {
       return 'data:image/png;base64,${base64Encode(bytes)}';
     }
 
-    test('stores image as canvas attachment with correct variable key',
-        () async {
-      final dataUrl = generateTestDataUrl(10, 10);
+    test(
+      'stores image as canvas attachment with correct variable key',
+      () async {
+        final dataUrl = generateTestDataUrl(10, 10);
 
-      await executeAttachImage(
-        payload: {
-          'imageName': 'photo',
-          'imageSource': dataUrl,
-        },
-        resultKey: 'attach0',
-        results: results,
-        variables: variables,
-        resolveValue: resolve,
-      );
+        await executeAttachImage(
+          payload: {'imageName': 'photo', 'imageSource': dataUrl},
+          resultKey: 'attach0',
+          results: results,
+          variables: variables,
+          resolveValue: resolve,
+        );
 
-      expect(results['attach0'], equals('attached'));
-      expect(variables.containsKey('temp._canvasAttachment_photo'), isTrue);
-      expect(variables['temp._canvasAttachment_photo'], isNotEmpty);
-    });
+        expect(results['attach0'], equals('attached'));
+        expect(variables.containsKey('temp._canvasAttachment_photo'), isTrue);
+        expect(variables['temp._canvasAttachment_photo'], isNotEmpty);
+      },
+    );
 
     test('handles raw base64 imageSource (not data URL)', () async {
       final canvas = img.Image(width: 10, height: 10);
@@ -52,10 +51,7 @@ void main() {
       final rawBase64 = base64Encode(img.encodePng(canvas));
 
       await executeAttachImage(
-        payload: {
-          'imageName': 'green',
-          'imageSource': rawBase64,
-        },
+        payload: {'imageName': 'green', 'imageSource': rawBase64},
         resultKey: 'attach1',
         results: results,
         variables: variables,
@@ -94,10 +90,7 @@ void main() {
     test('throws when imageSource is empty', () async {
       expect(
         () => executeAttachImage(
-          payload: {
-            'imageName': 'test',
-            'imageSource': '',
-          },
+          payload: {'imageName': 'test', 'imageSource': ''},
           resultKey: 'attach3',
           results: results,
           variables: variables,
@@ -135,62 +128,52 @@ void main() {
       );
     });
 
-    test('resolves template placeholders in imageName and imageSource',
-        () async {
-      variables['myName'] = 'dynamic_photo';
-      final dataUrl = generateTestDataUrl(10, 10);
-      variables['mySource'] = dataUrl;
+    test(
+      'resolves template placeholders in imageName and imageSource',
+      () async {
+        variables['myName'] = 'dynamic_photo';
+        final dataUrl = generateTestDataUrl(10, 10);
+        variables['mySource'] = dataUrl;
 
-      await executeAttachImage(
-        payload: {
-          'imageName': '((myName))',
-          'imageSource': '((mySource))',
-        },
-        resultKey: 'attach5',
-        results: results,
-        variables: variables,
-        resolveValue: (input) {
-          if (input == '((myName))') return 'dynamic_photo';
-          if (input == '((mySource))') return dataUrl;
-          return input;
-        },
-      );
+        await executeAttachImage(
+          payload: {'imageName': '((myName))', 'imageSource': '((mySource))'},
+          resultKey: 'attach5',
+          results: results,
+          variables: variables,
+          resolveValue: (input) {
+            if (input == '((myName))') return 'dynamic_photo';
+            if (input == '((mySource))') return dataUrl;
+            return input;
+          },
+        );
 
-      expect(results['attach5'], equals('attached'));
-      expect(
-        variables.containsKey('temp._canvasAttachment_dynamic_photo'),
-        isTrue,
-      );
-    });
+        expect(results['attach5'], equals('attached'));
+        expect(
+          variables.containsKey('temp._canvasAttachment_dynamic_photo'),
+          isTrue,
+        );
+      },
+    );
 
     test('trims whitespace from resolved imageName', () async {
       final dataUrl = generateTestDataUrl(10, 10);
 
       await executeAttachImage(
-        payload: {
-          'imageName': '  spaces  ',
-          'imageSource': dataUrl,
-        },
+        payload: {'imageName': '  spaces  ', 'imageSource': dataUrl},
         resultKey: 'attach6',
         results: results,
         variables: variables,
         resolveValue: resolve,
       );
 
-      expect(
-        variables.containsKey('temp._canvasAttachment_spaces'),
-        isTrue,
-      );
+      expect(variables.containsKey('temp._canvasAttachment_spaces'), isTrue);
     });
 
     test('preserves imageName special characters', () async {
       final dataUrl = generateTestDataUrl(10, 10);
 
       await executeAttachImage(
-        payload: {
-          'imageName': 'my-image_v2',
-          'imageSource': dataUrl,
-        },
+        payload: {'imageName': 'my-image_v2', 'imageSource': dataUrl},
         resultKey: 'attach7',
         results: results,
         variables: variables,

@@ -142,6 +142,17 @@ class _FakeManager {
       );
     }
 
+    if (path.endsWith('/history/h1')) {
+      if (request.method == 'DELETE') {
+        versions = [];
+        return http.Response('{"ok":true}', 200);
+      }
+      return http.Response(
+        '{"content":{"id":"cmd-1","name":"saved-value","reply":"private-command-content"}}',
+        200,
+      );
+    }
+
     if (path.endsWith('/history')) {
       if (!historyAvailable) {
         return http.Response(
@@ -281,6 +292,56 @@ Future<BotDataRepository> _armedRepository(_FakeManager manager) async {
 }
 
 void main() {
+  testWidgets(
+    'preview reads saved content and deletion requires confirmation',
+    (tester) async {
+      final fr = await AppLocalizations.delegate.load(const Locale('fr'));
+      final manager = _FakeManager(
+        versions: [
+          _version(historyId: 'h1', createdAt: '2026-10-03T10:00:00Z'),
+        ],
+      );
+      final repository = await _armedRepository(manager);
+      await tester.pumpWidget(
+        _sheetApp(
+          locale: 'fr',
+          botId: _botId,
+          commandId: _commandId,
+          repository: repository,
+        ),
+      );
+      await _pumpFrames(tester);
+      await tester.tap(find.widgetWithText(TextButton, fr.history_preview));
+      await _pumpFrames(tester);
+      expect(find.text('saved-value'), findsOneWidget);
+      expect(find.textContaining('private-command-content'), findsNothing);
+      expect(find.byType(SelectableText), findsNothing);
+      expect(manager.requests.where((r) => r.method != 'GET'), isEmpty);
+      await tester.tap(find.byTooltip(fr.common_close).last);
+      await _pumpFrames(tester);
+      await tester.tap(find.byTooltip(fr.common_delete));
+      await _pumpFrames(tester);
+      await tester.tap(find.widgetWithText(OutlinedButton, fr.common_cancel));
+      await _pumpFrames(tester);
+      expect(manager.requests.where((r) => r.method == 'DELETE'), isEmpty);
+      await tester.tap(find.byTooltip(fr.common_delete));
+      await _pumpFrames(tester);
+      await tester.tap(find.widgetWithText(FilledButton, fr.common_delete));
+      await _pumpFrames(tester);
+      expect(
+        manager.requests.where((r) => r.method == 'DELETE').single.url.path,
+        '/api/v2/bots/$_botId/commands/$_commandId/history/h1',
+      );
+      expect(find.text(fr.command_history_empty), findsOneWidget);
+      expect(manager.rollbackCalls, isEmpty);
+      expect(
+        manager.historyCalls,
+        1,
+        reason: 'deletion must not reload the list',
+      );
+    },
+  );
+
   group('(a) la liste des versions', () {
     testWidgets('affiche date localisée, auteur et taille, dans la langue de '
         'l\'interface', (tester) async {

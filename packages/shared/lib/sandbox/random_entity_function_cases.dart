@@ -31,6 +31,9 @@ const _oneRole = {
 };
 
 const _oneMember = {
+  'users': {
+    '80': {'username': 'Visitor'},
+  },
   'guilds': {
     '10': {
       'members': {
@@ -95,8 +98,8 @@ final sandboxRandomEntityFunctionCases = [
     'randomguildid',
     r'$randomGuildID',
     0,
-    '',
-    label: 'no cached guilds returns empty',
+    '10',
+    label: 'no listed guilds falls back to the current guild',
     scenario: {
       'entities': {'guilds': <String, dynamic>{}},
     },

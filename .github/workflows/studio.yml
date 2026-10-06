@@ -1,0 +1,216 @@
+# CI dédiée au Studio (packages/studio, version web Flutter de l'app).
+# Elle ne se déclenche que si le Studio change. Contrairement au reste du monorepo
+# (gate local `make check`), le build web est vérifié à distance : il ne dépend
+# d'aucun plugin natif et protège contre un import `dart:io` qui casserait le web.
+#
+# Sur dev et main, elle publie aussi l'image nginx du Studio (voir
+# packages/studio/Dockerfile). L'URL de l'API est figée dans le build : une image
+# par environnement.
+#   dev          -> https://dev.bot-creator.fr   (studio-dev.bot-creator.fr)
+#   main/master  -> https://api.bot-creator.fr   (studio.bot-creator.fr)
+name: Studio
+
+on:
+  push:
+    branches: [main, master, dev]
+    paths:
+      - "packages/studio/**"
+      - "packages/ui/**"
+      - "pubspec.yaml"
+      - ".github/workflows/studio.yml"
+  pull_request:
+    paths:
+      - "packages/studio/**"
+      - "packages/ui/**"
+      - "pubspec.yaml"
+      - ".github/workflows/studio.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: studio-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: "3.44.1"
+  GHCR_IMAGE_NAME: ${{ github.repository_owner }}/bot-creator-studio
+
+jobs:
+  check:
+    name: Analyze, test & build web
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      # Le workspace est résolu en entier (le résolveur de pub ne sait pas faire autrement),
+      # mais seul le Studio est analysé, testé et compilé ici.
+      - name: Resolve dependencies
+        run: flutter pub get
+        working-directory: packages/studio
+
+      # Les clés copiées de l'app doivent valoir celles de l'app dans chaque langue.
+      - name: Check translations are in sync with the app
+        run: dart run tool/l10n_sync.dart --check
+        working-directory: packages/studio
+
+      # Le design et les éditeurs viennent de packages/ui (partagé avec l'app) : une
+      # erreur dedans casserait aussi le Studio.
+      - name: Analyze shared UI package
+        run: flutter analyze --fatal-infos
+        working-directory: packages/ui
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos
+        working-directory: packages/studio
+
+      - name: Test
+        run: flutter test
+        working-directory: packages/studio
+
+      - name: Build web
+        run: flutter build web --release --wasm
+        working-directory: packages/studio
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: studio-web-${{ github.sha }}
+          path: packages/studio/build/web
+          retention-days: 14
+
+  image:
+    name: Build, smoke-test & publish image
+    needs: [check]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    runs-on: [self-hosted, Linux, X64]
+    permissions:
+      contents: read
+      packages: write
+    env:
+      # L'environnement se déduit de la branche, jamais d'une entrée utilisateur.
+      IS_DEV: ${{ github.ref == 'refs/heads/dev' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Resolve dependencies
+        run: flutter pub get
+        working-directory: packages/studio
+
+      - name: Pick the API for this environment
+        id: env
+        run: |
+          set -euo pipefail
+          if [ "$IS_DEV" = "true" ]; then
+            echo "api_url=https://dev.bot-creator.fr" >> "$GITHUB_OUTPUT"
+            echo "tags=dev-${GITHUB_SHA},dev" >> "$GITHUB_OUTPUT"
+          else
+            echo "api_url=https://api.bot-creator.fr" >> "$GITHUB_OUTPUT"
+            echo "tags=sha-${GITHUB_SHA},latest" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build web for this environment
+        run: >
+          flutter build web --release --wasm
+          --dart-define=STUDIO_API_URL=${{ steps.env.outputs.api_url }}
+        working-directory: packages/studio
+
+      - name: Build image locally
+        run: docker build -t studio:smoke packages/studio
+
+      # Vérifie ce que nginx sert réellement : si une règle de cache, un en-tête
+      # de sécurité ou le repli SPA saute, l'image n'est pas publiée.
+      - name: Smoke-test image
+        run: |
+          set -euo pipefail
+          docker run -d --name studio-smoke -p 18080:8080 studio:smoke
+          for i in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:18080/healthz >/dev/null 2>&1 && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:18080/healthz
+
+          # Chaque réponse est lue EN ENTIER avant d'être filtrée : un
+          # `curl … | head -1 | grep -q` fait échouer `pipefail` (curl 23, écriture
+          # dans un tube déjà fermé) selon le timing, sans rapport avec le serveur.
+          headers() { curl -sS -o /dev/null -D - "http://127.0.0.1:18080$1"; }
+          expect_status() {
+            local r first
+            r="$(headers "$1")"
+            first="$(sed -n 1p <<< "$r")"
+            [[ "$first" == *' 200 '* ]] || { echo "KO $1 : $first"; exit 1; }
+          }
+          expect_header() {
+            grep -qi -- "$2" <<< "$1" || { echo "En-tête absent : $2"; echo "$1"; exit 1; }
+          }
+
+          # Le retour OAuth arrive sur /?code=…&state=… et une route inconnue
+          # doit retomber sur l'application, pas sur un 404.
+          expect_status '/?code=a&state=b'
+          expect_status '/une/route/inconnue'
+
+          # En-têtes de sécurité présents sur la page d'entrée.
+          h="$(headers /index.html)"
+          expect_header "$h" '^x-frame-options: DENY'
+          expect_header "$h" "^content-security-policy: frame-ancestors 'none'"
+          expect_header "$h" '^x-content-type-options: nosniff'
+
+          # Entrée revalidée à chaque visite, sinon une mise à jour n'arrive pas.
+          expect_header "$h" '^cache-control: no-cache'
+          expect_header "$(headers /flutter_bootstrap.js)" '^cache-control: no-cache'
+
+          # Le moteur WebAssembly doit avoir le bon type MIME.
+          expect_header "$(headers /main.dart.wasm)" '^content-type: application/wasm'
+          # Le chargeur du build wasm est un module ES : un MIME non
+          # JavaScript fait échouer le démarrage de l'app dans le navigateur.
+          expect_header "$(headers /main.dart.mjs)" '^content-type: text/javascript'
+
+      - name: Stop smoke container
+        if: always()
+        run: docker rm -f studio-smoke || true
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Compute image tags
+        id: tags
+        run: |
+          set -euo pipefail
+          image="ghcr.io/${GHCR_IMAGE_NAME}"
+          list=""
+          IFS=',' read -ra parts <<< "${{ steps.env.outputs.tags }}"
+          for t in "${parts[@]}"; do list="${list}${image}:${t}"$'\n'; done
+          {
+            echo "list<<EOF"
+            printf '%s' "$list"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      # Les fichiers statiques ne dépendent pas de l'architecture et le
+      # Dockerfile n'a aucune étape RUN : le multi-arch ne coûte rien.
+      - name: Publish image
+        uses: docker/build-push-action@v6
+        with:
+          context: packages/studio
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.tags.outputs.list }}

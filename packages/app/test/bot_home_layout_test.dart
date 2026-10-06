@@ -58,6 +58,7 @@ class _Block extends StatelessWidget {
 }
 
 void main() {
+  _levelFilterTests();
   testWidgets(
     'carte Logs du bot : en-tête sans débordement à 320 dp (mobile, FR)',
     (tester) async {
@@ -79,10 +80,12 @@ void main() {
       expect(tester.takeException(), isNull);
       // Le titre reste rendu.
       expect(find.text('Logs du bot'), findsOneWidget);
-      // Sous le seuil, l'action est réduite à une icône + tooltip.
+      // Sous le seuil (refonte), l'action devient « Afficher tout » + flèche,
+      // le libellé long restant exposé en tooltip.
       expect(find.text('Voir les logs du bot'), findsNothing);
+      expect(find.text('Afficher tout'), findsOneWidget);
       expect(find.byTooltip('Voir les logs du bot'), findsOneWidget);
-      expect(find.byIcon(Icons.open_in_new_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_forward_rounded), findsOneWidget);
     },
   );
 
@@ -459,4 +462,56 @@ class _LegacyLogsHeaderReplica extends StatelessWidget {
       ],
     );
   }
+}
+
+// Refonte : sélecteur de niveau Tout / Infos / Erreurs de la console desktop.
+void _levelFilterTests() {
+  testWidgets('console desktop : le filtre Infos / Erreurs trie les lignes', (
+    tester,
+  ) async {
+    const botId = '777000111222333444';
+    appendBotLog(
+      '[2026-09-30T23:03:12.9Z] [INFO] bot:1 demarrage ok',
+      botId: botId,
+    );
+    appendBotLog(
+      '[2026-09-30T23:03:13.0Z] [ERROR] bot:1 echec connexion',
+      botId: botId,
+    );
+    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      _hostApp(
+        SizedBox(
+          width: 1200,
+          child: BotHomeLiveConsoleCard(
+            botId: botId,
+            isLive: true,
+            showLevelFilter: true,
+            onOpenLogs: () {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.textContaining('demarrage ok'), findsOneWidget);
+    expect(find.textContaining('echec connexion'), findsOneWidget);
+
+    await tester.tap(find.text('Erreurs'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('demarrage ok'), findsNothing);
+    expect(find.textContaining('echec connexion'), findsOneWidget);
+
+    await tester.tap(find.text('Infos'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('demarrage ok'), findsOneWidget);
+    expect(find.textContaining('echec connexion'), findsNothing);
+
+    await tester.tap(find.text('Tout'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('echec connexion'), findsOneWidget);
+  });
 }

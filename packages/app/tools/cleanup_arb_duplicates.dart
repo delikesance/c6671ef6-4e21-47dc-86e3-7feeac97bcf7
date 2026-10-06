@@ -4,17 +4,16 @@ import 'dart:io';
 /// A tool to detect and remove duplicate keys in .arb files.
 /// Usage: dart tools/cleanup_arb_duplicates.dart
 void main() async {
-  final l10nDir = Directory('lib/core/i18n/l10n');
+  final l10nDir = Directory('../ui/lib/src/l10n');
   if (!l10nDir.existsSync()) {
     return;
   }
 
-  final arbFiles =
-      l10nDir
-          .listSync()
-          .whereType<File>()
-          .where((f) => f.path.endsWith('.arb'))
-          .toList();
+  final arbFiles = l10nDir
+      .listSync()
+      .whereType<File>()
+      .where((f) => f.path.endsWith('.arb'))
+      .toList();
 
   if (arbFiles.isEmpty) {
     return;

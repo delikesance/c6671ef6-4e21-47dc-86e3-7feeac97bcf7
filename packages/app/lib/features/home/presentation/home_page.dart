@@ -16,10 +16,9 @@ import 'package:bot_creator/core/platform/run_platform.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/storage/granular_data_layer.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
-import 'package:bot_creator/core/utils/duration_formatter.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/utils/string_sanitizer.dart';
-import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator/core/widgets/flat_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
@@ -30,15 +29,13 @@ import 'package:bot_creator/features/announcements/logic/announcement.dart';
 import 'package:bot_creator/features/announcements/logic/announcement_presenter.dart';
 import 'package:bot_creator/features/announcements/presentation/announcement_banner.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
-import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
-import 'package:bot_creator/features/bot_editor/logic/bot_config_merge.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_reconciliation_service.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_token_auto_recovery.dart';
 import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
-import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_pull_dialog.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_overshrink_dialog.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_identity_scan.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_identity_sync.dart';
@@ -47,8 +44,10 @@ import 'package:bot_creator/features/bot_management/presentation/create_page.dar
 import 'package:bot_creator/features/containers/logic/turnkey_bot_invite.dart';
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
 import 'package:bot_creator/features/containers/presentation/home_turnkey_container_card.dart';
+import 'package:bot_creator/features/copilot/presentation/copilot_page.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:bot_creator/features/home/logic/bot_run_source.dart';
 import 'package:bot_creator/features/home/logic/bot_runtime_affinity.dart';
 import 'package:bot_creator/features/home/logic/bot_start_branch.dart';
@@ -75,6 +74,7 @@ import 'package:nyxx/nyxx.dart' hide Locale, Logger;
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:bot_creator/core/widgets/app_icon.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart' as ui;
 
 /// Détecte si un nom de bot masque son identité réelle (vide, 'Unnamed Bot',
 /// 'Unknown App', égal à son identifiant snowflake, ou composé uniquement de chiffres).
@@ -1582,7 +1582,17 @@ class HomePageState extends State<HomePage>
         await Future.wait(listBotsTasks);
       }
 
-      final bots = botsById.values.toList(growable: false);
+      // Bots deleted on this device whose cloud deletion has not been confirmed must stay gone:
+      // replay the deletion first, and never re-import what is still pending.
+      final stillPendingDeletion = await appManager
+          .retryPendingRemoteBotDeletions(remoteClient);
+      final bots = botsById.values
+          .where(
+            (bot) => !stillPendingDeletion.contains(
+              (bot['bot_id'] ?? '').toString().trim(),
+            ),
+          )
+          .toList(growable: false);
       appendBotDebugLog(
         '[syncAllBotsFromManager] Total merged bot payloads=${bots.length}.',
       );
@@ -1797,61 +1807,11 @@ class HomePageState extends State<HomePage>
                 }
               } catch (_) {}
             }
-            final remoteCommands = extractCommandListFromConfig(
-              remoteConfig['commands'],
-            );
-            await applyManagerRuntimeMetadataToLocal(
-              appManager: appManager,
+            await BotReconciliationService.applyCloudToLocal(
               botId: result.botId,
               remoteConfig: remoteConfig,
+              appManager: appManager,
             );
-            final localCommands = await appManager.listAppCommands(
-              result.botId,
-              forceRefresh: true,
-            );
-            final localWorkflows = await appManager.getWorkflows(result.botId);
-            final remoteWorkflows = remoteConfig['workflows'];
-
-            final hasRemoteData =
-                remoteCommands.isNotEmpty ||
-                (remoteWorkflows is List && remoteWorkflows.isNotEmpty) ||
-                (remoteWorkflows is Map && remoteWorkflows.isNotEmpty);
-
-            if (hasRemoteData) {
-              if (localCommands.isEmpty && localWorkflows.isEmpty) {
-                // Fresh device / newly synced bot: restore all commands and workflows
-                await applyManagerConfigToLocal(
-                  appManager: appManager,
-                  botId: result.botId,
-                  remoteConfig: remoteConfig,
-                  saveAppMetadata: false,
-                );
-                appendBotDebugLog(
-                  '[syncAllBotsFromManager] Restored ${remoteCommands.length} commands for bot ${result.botId} to local DB.',
-                );
-              } else {
-                // Check if remote has newer edits
-                final localNewer = botConfigLocalHasNewerEdits(
-                  localCommands,
-                  remoteCommands,
-                );
-                final diff = computeBotConfigMergeDiff(
-                  localCommands,
-                  remoteCommands,
-                );
-                if (!localNewer && diff.hasChanges) {
-                  await applyManagerConfigToLocal(
-                    appManager: appManager,
-                    botId: result.botId,
-                    remoteConfig: remoteConfig,
-                    saveAppMetadata: false,
-                  );
-                  appendBotDebugLog(
-                    '[syncAllBotsFromManager] Auto-merged updated commands/workflows from remote for bot ${result.botId}.',
-                  );
-                }
-              }
-            }
           } catch (e) {
             developer.log('Failed to sync bot ${result.botId}: $e');
             appendBotDebugLog(
@@ -2349,64 +2309,11 @@ class HomePageState extends State<HomePage>
                   .trim();
               remoteConfig['token'] = existingToken;
 
-              final localCommands = await appManager.listAppCommands(
-                botId,
-                forceRefresh: true,
+              await BotReconciliationService.applyCloudToLocal(
+                botId: botId,
+                remoteConfig: remoteConfig,
+                appManager: appManager,
               );
-              final remoteCommands = extractCommandListFromConfig(
-                remoteConfig['commands'],
-              );
-              final diff = computeBotConfigMergeDiff(
-                localCommands,
-                remoteCommands,
-              );
-              final localNewer = botConfigLocalHasNewerEdits(
-                localCommands,
-                remoteCommands,
-              );
-
-              if (!diff.hasChanges) {
-                appendBotDebugLog(
-                  '[_toggleBot] Pre-launch pull skipped: no remote updates'
-                  '${diff.localOnlyCount > 0 ? ' (local-only commands preserved)' : ''}'
-                  '${localNewer ? ' (local edits are newer)' : ''}',
-                );
-              } else if (localCommands.isEmpty ||
-                  (!localNewer && diff.localOnlyCount == 0)) {
-                await applyManagerConfigToLocal(
-                  appManager: appManager,
-                  botId: botId,
-                  remoteConfig: remoteConfig,
-                );
-                appendBotDebugLog(
-                  '[_toggleBot] Pre-launch config sync auto-applied for $botId',
-                );
-              } else {
-                if (!mounted) return;
-                final confirmed = await showBotConfigPullConfirmDialog(
-                  context: context,
-                  diff: diff,
-                  remoteTimestamp: formatBotConfigTimestamp(remoteConfig),
-                  localTimestamp: await formatLocalBotConfigTimestamp(
-                    appManager,
-                    botId,
-                  ),
-                );
-                if (confirmed) {
-                  await applyManagerConfigToLocal(
-                    appManager: appManager,
-                    botId: botId,
-                    remoteConfig: remoteConfig,
-                  );
-                  appendBotDebugLog(
-                    '[_toggleBot] Pre-launch config sync confirmed and applied for $botId',
-                  );
-                } else {
-                  appendBotDebugLog(
-                    '[_toggleBot] Pre-launch pull declined for $botId',
-                  );
-                }
-              }
             }
           }
         } catch (e) {
@@ -3417,8 +3324,10 @@ class HomePageState extends State<HomePage>
         return LayoutBuilder(
           builder: (context, constraints) {
             final width = constraints.maxWidth;
-            final isWide = width >= AppTheme.desktopBreakpoint;
-            final columns = isWide ? 2 : 1;
+            // Le seuil porte sur la fenêtre (comme le shell de `main.dart`) et
+            // non sur la zone de contenu : le rail desktop (84 px) la réduit.
+            final isWide =
+                MediaQuery.sizeOf(context).width >= AppTheme.desktopBreakpoint;
             // Largeur réellement rendue par [PageContent] : bornée par la
             // largeur commune puis réduite des marges de la zone disponible.
             final contentWidth = width > AppPageLayout.maxContentWidth
@@ -3426,6 +3335,11 @@ class HomePageState extends State<HomePage>
                 : width;
             final innerWidth =
                 contentWidth - 2 * AppPageLayout.horizontalPaddingFor(width);
+            // Grille responsive : autant de colonnes de >= 360 px que la zone
+            // en contient (1 à 3) ; une seule colonne en compact.
+            final columns = isWide
+                ? ((innerWidth + 20) / (360 + 20)).floor().clamp(1, 3)
+                : 1;
 
             void openCreate() {
               Navigator.push(
@@ -3448,11 +3362,9 @@ class HomePageState extends State<HomePage>
                     MaterialPageRoute(builder: (_) => const SettingPage()),
                   );
                 },
-                // Compact: create lives in the dashed CTA. Wide keeps a
-                // header shortcut plus docs/settings (no bottom tabs).
-                showCreate: isWide,
-                showShellActions: isWide,
-                onCreate: openCreate,
+                // Sur desktop, Documentation / Paramètres vivent dans le rail.
+                showShellActions: false,
+                onCreate: isWide ? openCreate : null,
               ),
               const SizedBox(height: 16),
               ValueListenableBuilder<Announcement?>(
@@ -3468,7 +3380,12 @@ class HomePageState extends State<HomePage>
                   );
                 },
               ),
-              _CreateBotCard(onTap: openCreate),
+              // Une seule porte d'entrée : tuile sur mobile, bouton d'en-tête sur
+              // desktop (pas de doublon).
+              if (!isWide) ...[
+                _CreateBotCard(onTap: openCreate),
+                const SizedBox(height: 8),
+              ],
               const SizedBox(height: 20),
             ];
 
@@ -3566,7 +3483,12 @@ class HomePageState extends State<HomePage>
                 if (index > 0) {
                   children.add(const SizedBox(height: 28));
                 }
-                children.add(_HomeSectionTitle(label: sections[index].title));
+                children.add(
+                  _HomeSectionTitle(
+                    label: sections[index].title,
+                    count: sections[index].cards.length,
+                  ),
+                );
                 _addHomeCards(
                   children,
                   sections[index].cards,
@@ -3574,6 +3496,13 @@ class HomePageState extends State<HomePage>
                   innerWidth,
                 );
               }
+            }
+
+            // « Premiers pas » : liens de documentation déjà présents dans l'app
+            // (tutoriel token, guide, docs), desktop uniquement.
+            if (isWide && snapshot.error == null && apps != null) {
+              children.add(const SizedBox(height: 32));
+              children.add(const _GettingStartedSection());
             }
 
             return RefreshIndicator(
@@ -3592,9 +3521,7 @@ class HomePageState extends State<HomePage>
                     0,
                     24,
                     0,
-                    isWide
-                        ? 40
-                        : FloatingGlassNavBar.contentClearanceOf(context) + 24,
+                    isWide ? 40 : FlatNavBar.contentClearanceOf(context) + 16,
                   ),
                   physics: const AlwaysScrollableScrollPhysics(),
                   children: children,
@@ -3618,6 +3545,16 @@ class HomePageState extends State<HomePage>
         onDetail: () => _openTurnkeyContainerDetail(container),
         onInvite: () => _inviteTurnkeyBot(container),
         inviteBusy: _inviteContainerIdInAction == container.id,
+        onCopilot: () => Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (_) => CopilotPage(
+              botId: 'container:${container.id}',
+              botName: turnkeyContainerTitle(container, context.tr),
+              location: 'remote',
+            ),
+          ),
+        ),
       );
 
   /// Range les cartes d'une section : une colonne en compact, la grille à deux
@@ -3831,15 +3768,187 @@ class HomePageState extends State<HomePage>
 /// le MÊME style que le surtitre « MY PROJECTS » ([homeSectionLabelStyle]), donc
 /// aucune hiérarchie visuelle inventée pour la séparation.
 class _HomeSectionTitle extends StatelessWidget {
-  const _HomeSectionTitle({required this.label});
+  const _HomeSectionTitle({required this.label, this.count});
 
   final String label;
 
+  /// Nombre de cartes de la section, affiché dans une puce (`null` = aucune).
+  final int? count;
+
   @override
   Widget build(BuildContext context) {
+    final tokens = HomeTokens.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Text(label, style: homeSectionLabelStyle(context)),
+      child: Row(
+        children: [
+          Text(label.toUpperCase(), style: homeSectionLabelStyle(context)),
+          if (count != null) ...[
+            const SizedBox(width: 8),
+            Container(
+              height: 20,
+              padding: const EdgeInsets.symmetric(horizontal: 7),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: const Color(0xFF1F222C),
+                borderRadius: BorderRadius.circular(11),
+              ),
+              child: Text(
+                '$count',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: tokens.muted,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Liens « Premiers pas » du desktop : uniquement des destinations déjà
+/// proposées ailleurs dans l'app (voir `documentation_urls.dart`).
+class _GettingStartedSection extends StatelessWidget {
+  const _GettingStartedSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = context.tr;
+    final links = <({IconData icon, String title, String url, bool mono})>[
+      (
+        icon: Icons.vpn_key_outlined,
+        title: tr.app_how_to_create_token,
+        url: botTokenTutorialUrl,
+        mono: false,
+      ),
+      (
+        icon: Icons.description_outlined,
+        title: tr.docs_tab_guide,
+        url: guideBaseUrl,
+        mono: true,
+      ),
+      (
+        icon: Icons.menu_book_outlined,
+        title: tr.docs_tab_bot_creator,
+        url: botCreatorDocsBaseUrl,
+        mono: true,
+      ),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _HomeSectionTitle(label: tr.home_getting_started),
+        Wrap(
+          spacing: 16,
+          runSpacing: 16,
+          children: [
+            for (final link in links)
+              SizedBox(
+                width: 340,
+                child: _GettingStartedLink(
+                  icon: link.icon,
+                  title: link.title,
+                  subtitle: link.mono
+                      ? link.url.replaceFirst('https://', '')
+                      : null,
+                  onTap: () => openAppLink(context, Uri.parse(link.url)),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _GettingStartedLink extends StatelessWidget {
+  const _GettingStartedLink({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    this.subtitle,
+  });
+
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = HomeTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Material(
+      color: tokens.card,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 72),
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: tokens.clusterBorder),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: tokens.clusterBg,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: tokens.clusterBorder),
+                ),
+                child: AppIcon.fromMaterial(
+                  icon,
+                  size: 20,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: homeDisplayStyle(
+                        14,
+                        weight: FontWeight.w700,
+                        color: scheme.onSurface,
+                      ),
+                    ),
+                    if (subtitle != null)
+                      Text(
+                        subtitle!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 12,
+                          color: tokens.muted,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              AppIcon.fromMaterial(
+                Icons.arrow_outward_rounded,
+                size: 18,
+                color: tokens.muted,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -3849,17 +3958,20 @@ class _HomeHeader extends StatelessWidget {
     required this.onRefresh,
     required this.onDocs,
     required this.onSettings,
-    required this.onCreate,
-    this.showCreate = true,
+
     this.showShellActions = true,
+    this.onCreate,
   });
 
   final VoidCallback onRefresh;
   final VoidCallback onDocs;
   final VoidCallback onSettings;
-  final VoidCallback onCreate;
-  final bool showCreate;
+
   final bool showShellActions;
+
+  /// Bouton principal « Créer un bot » de l'en-tête (desktop) ; `null` = absent
+  /// (mobile : la tuile sous l'en-tête fait ce travail).
+  final VoidCallback? onCreate;
 
   @override
   Widget build(BuildContext context) {
@@ -3870,22 +3982,23 @@ class _HomeHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                context.tr.home_overline,
+                context.tr.home_overline.toUpperCase(),
                 style: homeSectionLabelStyle(context),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 6),
               FittedBox(
                 fit: BoxFit.scaleDown,
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  context.tr.app_title,
+                  context.tr.home_title_my_bots,
                   maxLines: 1,
                   softWrap: false,
-                  style: GoogleFonts.getFont(
-                    'Alexandria',
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
-                    height: 1.22,
+                  style: GoogleFonts.inter(
+                    fontSize: 30,
+                    // Inter embarquée s'arrête à Bold (700) : pas de w800.
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.6,
+                    height: 1.1,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
@@ -3894,21 +4007,34 @@ class _HomeHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        if (showCreate) ...[
-          HomeHeaderIconButton(
-            icon: Icons.add_rounded,
-            iconSize: 16,
-            tooltip: context.tr.app_create_button,
-            onTap: onCreate,
-          ),
-          const SizedBox(width: 10),
-        ],
+
         HomeHeaderIconButton(
           icon: Icons.sync_rounded,
-          iconSize: 13,
+          iconSize: 18,
           tooltip: context.tr.common_refresh,
           onTap: onRefresh,
         ),
+        if (onCreate != null) ...[
+          const SizedBox(width: 12),
+          FilledButton.icon(
+            onPressed: onCreate,
+            icon: const AppIcon.fromMaterial(Icons.add_rounded, size: 18),
+            label: Text(context.tr.home_create_bot_title),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(0, 44),
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              backgroundColor: HomeTokens.of(context).accent,
+              foregroundColor: HomeTokens.of(context).onAccent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              textStyle: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
         if (showShellActions) ...[
           const SizedBox(width: 10),
           HomeHeaderIconButton(
@@ -3931,519 +4057,6 @@ class _HomeHeader extends StatelessWidget {
 }
 
 // ── Carte bot (collapsible) ───────────────────────────────────────────────────
-
-/// Carte d'accueil d'un bot classique (repliable) : avatar, serveurs, état et
-/// actions (démarrer/arrêter, gérer, logs).
-///
-/// Publique — et non privée — pour que le test de la liste d'accueil monte la
-/// vraie carte d'un bot classique À CÔTÉ de celle d'un conteneur clé en main
-/// ([buildHomeProjectCards]), c'est-à-dire la composition réellement rendue.
-class HomeBotCard extends StatefulWidget {
-  const HomeBotCard({
-    super.key,
-    required this.name,
-    required this.id,
-    required this.avatar,
-    required this.guildCount,
-    required this.isRunning,
-    required this.canToggle,
-    required this.isTogglingThisBot,
-    required this.initiallyExpanded,
-    required this.pulseController,
-    required this.onManage,
-    required this.onToggle,
-    required this.onAddTime,
-    required this.onLogs,
-    required this.showPremiumLabels,
-    required this.freeMinutes,
-    this.onTeam,
-    this.runtimeBadgeLabel,
-    this.showsHostingExpiration = true,
-    this.isTurnkey = false,
-    this.showTeamBadge = false,
-    this.ownerLabel,
-    this.hasLocalToken = true,
-    this.onTokenImported,
-  });
-
-  final String name;
-  final String id;
-  final String? avatar;
-  final int guildCount;
-  final bool isRunning;
-  final bool canToggle;
-  final bool isTogglingThisBot;
-  final bool initiallyExpanded;
-  final String? runtimeBadgeLabel;
-  final int freeMinutes;
-
-  /// Faut-il afficher la ligne d'expiration / de réserve d'hébergement ?
-  ///
-  /// Vrai par défaut (affichage historique, notamment mobile). Un écran d'un
-  /// poste de travail le passe à `false` dès que la source d'exécution n'est pas
-  /// les serveurs Bot Creator : un bot qui tourne ICI ne consomme pas le solde
-  /// cloud, donc afficher « Expire le … » serait un mensonge — c'est exactement
-  /// le défaut signalé par le propriétaire (échéance en 2038 sur un bot local).
-  final bool showsHostingExpiration;
-
-  final AnimationController pulseController;
-  final bool showPremiumLabels;
-  final bool isTurnkey;
-
-  /// Badge « équipe » : vrai sur une carte PARTAGÉE (le bot ne m'appartient pas).
-  /// Faux par défaut, donc une carte à moi ne change pas d'un pixel.
-  final bool showTeamBadge;
-
-  /// Propriétaire du bot, quand la carte doit le nommer (bot partagé). `null`
-  /// quand le serveur ne l'a pas annoncé : la ligne entière disparaît plutôt que
-  /// d'afficher un libellé inventé.
-  final String? ownerLabel;
-
-  final VoidCallback? onManage;
-
-  /// Ouvre le tchat d'équipe du bot. Renseigné sur une carte PARTAGÉE
-  /// uniquement : le collaborateur garde ainsi un chemin vers son équipe même
-  /// sans droit d'édition. `null` sur une carte « à moi », qui garde donc
-  /// exactement ses actions d'avant.
-  final VoidCallback? onTeam;
-
-  final VoidCallback onToggle;
-  final VoidCallback? onAddTime;
-  final VoidCallback? onLogs;
-
-  /// Faux quand ce poste n'a AUCUN jeton utilisable pour ce bot : c'est la
-  /// seule situation où « Importer le jeton depuis mon compte » a quelque
-  /// chose à faire, donc la seule où le bouton est offert.
-  final bool hasLocalToken;
-
-  /// Relais après un import RÉUSSI depuis la carte (l'accueil se recharge).
-  final Future<void> Function()? onTokenImported;
-
-  @override
-  State<HomeBotCard> createState() => HomeBotCardState();
-}
-
-class HomeBotCardState extends State<HomeBotCard> {
-  bool _hovered = false;
-  late bool _expanded = widget.initiallyExpanded;
-  bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
-
-  @override
-  void didUpdateWidget(covariant HomeBotCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Realign on the layout-driven default when the window width changes
-    // (desktop resize / rotation).
-    if (oldWidget.initiallyExpanded != widget.initiallyExpanded) {
-      _expanded = widget.initiallyExpanded;
-    }
-  }
-
-  void _toggleExpanded() => setState(() => _expanded = !_expanded);
-
-  String _startLabel(BuildContext context) {
-    if (widget.isRunning) return context.tr.home_stop;
-    if (!widget.showPremiumLabels) return context.tr.bot_home_start;
-    if (SubscriptionService.isSubscribed) return context.tr.home_start_premium;
-    if (widget.freeMinutes > 0) return context.tr.bot_home_start;
-    return context.tr.home_start_ads;
-  }
-
-  String _serverCountLabel(BuildContext context) {
-    final count = widget.guildCount;
-    return count == 1
-        ? context.tr.home_active_on_servers_one(count)
-        : context.tr.home_active_on_servers_other(count);
-  }
-
-  /// Ajouter du temps n'a de sens que pour un bot réellement en marche, et
-  /// seulement sur les plateformes capables d'héberger la tâche de fond. Un
-  /// poste de travail n'a aucun concept d'hébergement : l'action n'y est jamais
-  /// proposée.
-  bool get _showAddHosting {
-    if (!widget.isRunning) return false;
-    if (!_supportsForegroundTask) return false;
-    return !SubscriptionService.isSubscribed;
-  }
-
-  /// Ligne d'échéance de l'hébergement (« Expire le … ») ou de réserve en pause.
-  ///
-  /// N'est appelée que lorsque la ligne a le droit d'exister : un solde cloud
-  /// converti en date n'a de sens que pour un bot exécuté par les serveurs.
-  String _hostingExpirationLabel(BuildContext context) {
-    if (widget.freeMinutes <= 0) {
-      return context.tr.home_hosting_status_paused;
-    }
-    final expiresAt = DateTime.now().add(Duration(minutes: widget.freeMinutes));
-    return formatSessionExpiration(context, expiresAt);
-  }
-
-  Widget _buildExpandedContent(BuildContext context, ColorScheme scheme) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final tokens = HomeTokens.of(context);
-    // Ligne d'échéance / de réserve : absente du layout dès que la source n'est
-    // pas les serveurs Bot Creator (`null` = rien à afficher, la ligne entière
-    // disparaît — voir `_ServerPresenceRow`).
-    final String? expirationLabel = widget.showsHostingExpiration
-        ? _hostingExpirationLabel(context)
-        : null;
-    // La source vivante (« Ce poste », « Serveurs Bot Creator ») porte l'état ;
-    // sans source, on retombe sur l'ancien libellé mobile.
-    final badge =
-        widget.runtimeBadgeLabel ??
-        (widget.isRunning ? context.tr.home_synced_active : null);
-    final String? statusLabel;
-    if (badge == null) {
-      statusLabel = expirationLabel;
-    } else {
-      statusLabel = expirationLabel == null
-          ? badge
-          : '$badge • $expirationLabel';
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 16),
-        Divider(
-          height: 1,
-          thickness: 1,
-          color: isDark ? tokens.cardBorder : scheme.outlineVariant,
-        ),
-        const SizedBox(height: 16),
-        _ServerPresenceRow(
-          botId: widget.id,
-          guildCount: widget.guildCount,
-          title: _serverCountLabel(context),
-          statusLabel: statusLabel,
-          isRunning: widget.isRunning,
-        ),
-        if (widget.showPremiumLabels && SubscriptionService.isSubscribed) ...[
-          const SizedBox(height: 10),
-          _InfoChip(
-            icon: Icons.all_inclusive_rounded,
-            value: context.tr.hosted_app_subscription_benefit_unlimited,
-            badge: true,
-          ),
-        ],
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: HomeCardActionButton(
-                icon: widget.isRunning
-                    ? Icons.stop_rounded
-                    : Icons.play_arrow_rounded,
-                label: _startLabel(context),
-                onTap: widget.canToggle ? widget.onToggle : null,
-                loading: widget.isTogglingThisBot,
-                accent: widget.isRunning ? AppTheme.danger : null,
-                stopSquare: widget.isRunning,
-              ),
-            ),
-            if (widget.onManage != null) ...[
-              const SizedBox(width: 10),
-              Expanded(
-                child: HomeCardActionButton(
-                  icon: Icons.tune_rounded,
-                  iconSize: 14,
-                  label: context.tr.home_manage,
-                  onTap: widget.onManage,
-                ),
-              ),
-            ],
-            // Chemin vers l'équipe : offert même sans droit d'édition, c'est
-            // l'usage principal d'un collaborateur. MÊME libellé que l'onglet du
-            // même nom dans l'éditeur du bot.
-            if (widget.onTeam != null) ...[
-              const SizedBox(width: 10),
-              Expanded(
-                child: HomeCardActionButton(
-                  icon: Icons.groups_outlined,
-                  iconSize: 14,
-                  label: context.tr.team_tab,
-                  onTap: widget.onTeam,
-                ),
-              ),
-            ],
-          ],
-        ),
-        if (_showAddHosting) ...[
-          const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            child: HomeCardActionButton(
-              icon: Icons.add_rounded,
-              iconSize: 14,
-              label: context.tr.home_add_time,
-              onTap: widget.canToggle ? widget.onAddTime : null,
-            ),
-          ),
-        ],
-        if (widget.onLogs != null) ...[
-          const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            child: HomeCardActionButton(
-              icon: Icons.article_outlined,
-              iconSize: 14,
-              label: context.tr.home_logs_tooltip,
-              onTap: widget.onLogs,
-            ),
-          ),
-        ],
-        // La reprise du jeton est devenue AUTOMATIQUE (synchro + démarrage sur ce poste) :
-        // offrir un bouton « Importer le jeton depuis mon compte » obligeait l'utilisateur
-        // à comprendre un détail d'implémentation pour que son bot démarre. Il ne reste
-        // donc aucun geste à faire ici, pas même quand ce poste n'a aucun jeton.
-      ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final tokens = HomeTokens.of(context);
-    final cardColor = isDark ? tokens.card : scheme.surfaceContainer;
-    final borderColor = isDark ? tokens.cardBorder : scheme.outlineVariant;
-
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 140),
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-          border: Border.all(color: borderColor),
-          boxShadow: _hovered
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.45),
-                    blurRadius: 28,
-                    spreadRadius: -4,
-                    offset: const Offset(0, 14),
-                  ),
-                ]
-              : null,
-        ),
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(
-            onTap: _toggleExpanded,
-            borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      HomeBotAvatar(imageUrl: widget.avatar),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    widget.name,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: homeDisplayStyle(
-                                      16,
-                                      color: scheme.onSurface,
-                                    ),
-                                  ),
-                                ),
-                                if (widget.isTurnkey) ...[
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: scheme.primary.withValues(
-                                        alpha: 0.15,
-                                      ),
-                                      borderRadius: BorderRadius.circular(6),
-                                      border: Border.all(
-                                        color: scheme.primary.withValues(
-                                          alpha: 0.3,
-                                        ),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      context.tr.home_badge_turnkey,
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                        color: scheme.primary,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                                if (widget.showTeamBadge) ...[
-                                  const SizedBox(width: 8),
-                                  const _SharedBotBadge(),
-                                ],
-                              ],
-                            ),
-                            if (widget.ownerLabel != null) ...[
-                              const SizedBox(height: 2),
-                              Text(
-                                widget.ownerLabel!,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.inter(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                  color: isDark
-                                      ? tokens.muted
-                                      : scheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      HomeStatusPill(
-                        isRunning: widget.isRunning,
-                        pulseController: widget.pulseController,
-                      ),
-                      const SizedBox(width: 10),
-                      AppIcon.fromMaterial(
-                        _expanded
-                            ? Icons.keyboard_arrow_up_rounded
-                            : Icons.keyboard_arrow_down_rounded,
-                        color: isDark ? tokens.muted : scheme.onSurfaceVariant,
-                        size: 16,
-                      ),
-                    ],
-                  ),
-                  AnimatedCrossFade(
-                    firstChild: const SizedBox(width: double.infinity),
-                    secondChild: _buildExpandedContent(context, scheme),
-                    crossFadeState: _expanded
-                        ? CrossFadeState.showSecond
-                        : CrossFadeState.showFirst,
-                    duration: const Duration(milliseconds: 200),
-                    sizeCurve: Curves.easeInOut,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Badge « équipe » d'une carte PARTAGÉE : ce bot appartient à quelqu'un d'autre.
-///
-/// Libellé pris dans l'i18n (`team_tab_short`) plutôt qu'écrit en dur : une UI
-/// française n'affiche pas un mot anglais figé.
-class _SharedBotBadge extends StatelessWidget {
-  const _SharedBotBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: AppTheme.discord.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: AppTheme.discord.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const AppIcon.fromMaterial(
-            Icons.groups,
-            size: 11,
-            color: AppTheme.discord,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            context.tr.team_tab_short,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.discord,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoChip extends StatelessWidget {
-  const _InfoChip({
-    required this.icon,
-    required this.value,
-    this.badge = false,
-  });
-
-  final IconData icon;
-  final String value;
-  final bool badge;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final tokens = HomeTokens.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: badge
-            ? tokens.dataAccent.withValues(alpha: 0.12)
-            : scheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-        border: Border.all(
-          color: badge
-              ? tokens.dataAccent.withValues(alpha: 0.35)
-              : scheme.outlineVariant,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AppIcon.fromMaterial(
-            icon,
-            size: 13,
-            color: badge ? tokens.dataAccent : tokens.muted,
-          ),
-          const SizedBox(width: 5),
-          Flexible(
-            child: RichText(
-              maxLines: 1,
-              softWrap: false,
-              overflow: TextOverflow.ellipsis,
-              text: TextSpan(
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w600,
-                  color: tokens.dataAccent,
-                ),
-                text: value,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Empty state avec CTA support ──────────────────────────────────────────
 
 class _EmptyStateWithSupport extends StatelessWidget {
   const _EmptyStateWithSupport();
@@ -4517,203 +4130,204 @@ class CreateBotCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final scheme = Theme.of(context).colorScheme;
     final tokens = HomeTokens.of(context);
-    final fill = isDark
-        ? tokens.accent.withValues(alpha: 0.30)
-        : scheme.surfaceContainerHighest;
-    final border = isDark ? tokens.accent : scheme.primary;
-    final avatarFill = tokens.accent;
-    final avatarIconColor = isDark ? Colors.white : tokens.onAccent;
+    // Rangée NEUTRE surélevée : seule la pastille porte la teinte d'action.
+    final fill = isDark ? tokens.card : scheme.surfaceContainerHighest;
+    final border = isDark ? tokens.clusterBorder : scheme.outlineVariant;
+    final accent = tokens.accent;
+    // Violet doux pour l'icône sur le preset par défaut ; les autres presets
+    // gardent leur propre accent (éclairci en sombre pour rester lisible).
+    final iconColor = !isDark
+        ? tokens.onAccent == Colors.white
+              ? accent
+              : scheme.primary
+        : (accent == AppTheme.actionViolet
+              ? AppTheme.actionVioletSoft
+              : Color.alphaBlend(Colors.white.withValues(alpha: 0.35), accent));
 
-    return Stack(
-      children: [
-        Material(
-          color: fill,
-          borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: avatarFill,
-                      shape: BoxShape.circle,
-                    ),
-                    child: AppIcon.fromMaterial(
-                      Icons.add_rounded,
-                      size: 26,
-                      color: avatarIconColor,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          context.tr.home_create_bot_title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: homeDisplayStyle(16, color: scheme.onSurface),
-                        ),
-                        Text(
-                          context.tr.home_create_bot_subtitle,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: homeDisplayStyle(
-                            12,
-                            weight: FontWeight.w400,
-                            color: isDark
-                                ? Colors.white.withValues(alpha: 0.30)
-                                : scheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  AppIcon.fromMaterial(
-                    Icons.chevron_right_rounded,
-                    size: 18,
-                    color: isDark
-                        ? tokens.muted
-                        : Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ],
+    return Material(
+      color: fill,
+      borderRadius: BorderRadius.circular(16),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 72),
+          padding: const EdgeInsets.fromLTRB(14, 14, 8, 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: border),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: accent.withValues(alpha: 0.40)),
+                ),
+                child: AppIcon.fromMaterial(
+                  Icons.add_rounded,
+                  size: 20,
+                  color: iconColor,
+                ),
               ),
-            ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      context.tr.home_create_bot_title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: homeDisplayStyle(
+                        15,
+                        weight: FontWeight.w700,
+                        color: scheme.onSurface,
+                      ),
+                    ),
+                    Text(
+                      context.tr.home_create_bot_subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: homeDisplayStyle(
+                        12.5,
+                        weight: FontWeight.w400,
+                        color: isDark ? tokens.muted : scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 32,
+                child: AppIcon.fromMaterial(
+                  Icons.chevron_right_rounded,
+                  size: 20,
+                  color: isDark ? tokens.muted : scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
           ),
         ),
-        Positioned.fill(
-          child: IgnorePointer(
-            child: CustomPaint(
-              painter: HomeDashedRoundedRectPainter(
-                color: border,
-                radius: AppTheme.radiusCard,
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
-typedef _CreateBotCard = CreateBotCard;
-
-class _ServerPresenceRow extends StatelessWidget {
-  const _ServerPresenceRow({
-    required this.botId,
+/// Carte d'accueil d'un bot classique : la carte vit dans `bot_creator_ui`
+/// (partagée avec le Studio) ; l'app lui donne l'état d'abonnement, la
+/// plateforme et les vrais avatars des serveurs.
+///
+/// Publique — et non privée — pour que le test de la liste d'accueil monte la
+/// vraie carte d'un bot classique À CÔTÉ de celle d'un conteneur clé en main
+/// ([buildHomeProjectCards]), c'est-à-dire la composition réellement rendue.
+class HomeBotCard extends StatelessWidget {
+  const HomeBotCard({
+    super.key,
+    required this.name,
+    required this.id,
+    required this.avatar,
     required this.guildCount,
-    required this.title,
-    required this.statusLabel,
     required this.isRunning,
+    required this.canToggle,
+    required this.isTogglingThisBot,
+    required this.initiallyExpanded,
+    required this.pulseController,
+    required this.onManage,
+    required this.onToggle,
+    required this.onAddTime,
+    required this.onLogs,
+    required this.showPremiumLabels,
+    required this.freeMinutes,
+    this.onTeam,
+    this.runtimeBadgeLabel,
+    this.showsHostingExpiration = true,
+    this.isTurnkey = false,
+    this.showTeamBadge = false,
+    this.ownerLabel,
+    this.hasLocalToken = true,
+    this.onTokenImported,
   });
 
-  /// Id du bot : sert à résoudre les vrais serveurs (cache gateway puis REST).
-  final String botId;
+  final String name;
+  final String id;
+  final String? avatar;
   final int guildCount;
-  final String title;
-  final String? statusLabel;
   final bool isRunning;
+  final bool canToggle;
+  final bool isTogglingThisBot;
+  final bool initiallyExpanded;
+  final String? runtimeBadgeLabel;
+  final int freeMinutes;
+  final bool showsHostingExpiration;
+  final AnimationController pulseController;
+  final bool showPremiumLabels;
+  final bool isTurnkey;
+  final bool showTeamBadge;
+  final String? ownerLabel;
+  final VoidCallback? onManage;
+  final VoidCallback? onTeam;
+  final VoidCallback onToggle;
+  final VoidCallback? onAddTime;
+  final VoidCallback? onLogs;
+  final bool hasLocalToken;
+  final Future<void> Function()? onTokenImported;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final scheme = Theme.of(context).colorScheme;
     final tokens = HomeTokens.of(context);
-    final clusterBg = isDark ? tokens.clusterBg : scheme.surfaceContainerLow;
-    final clusterBorder = isDark ? tokens.clusterBorder : scheme.outlineVariant;
-    // Serveurs réels du bot qui tourne dans ce processus (synchrone, gratuit).
-    // `null`/vide hors desktop ou bot à l'arrêt : `GuildAvatarStrip` bascule
-    // alors sur la *source partagée de session* (`GuildDirectory`, la même que
-    // la page « Serveurs ») puis sur le repli neutre. Une seule requête HTTP
-    // par bot et par lancement de l'app ; l'état `loading` affiche le repli
-    // discret, et les avatars apparaissent ensuite sans re-fetch.
+    final clusterBg = isDark ? tokens.card : scheme.surfaceContainerLow;
+    // Serveurs réels du bot qui tourne dans ce processus (synchrone, gratuit) ;
+    // sinon `GuildAvatarStrip` bascule sur la source partagée de session.
     final localGuilds = guildAvatarsFromGateway(
-      desktopGatewayForBot(botId),
+      desktopGatewayForBot(id),
       limit: kMaxVisibleGuildAvatars,
     );
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: clusterBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: clusterBorder),
-      ),
-      child: Row(
-        children: [
-          GuildAvatarStrip(
-            botId: botId,
-            guildCount: guildCount,
-            guilds: localGuilds,
-            ringColor: clusterBg,
-            // Source unique de vérité de la session : la page « Serveurs »
-            // écrit dans ce même répertoire, la carte ne refait donc jamais
-            // de requête pour afficher ses avatars.
-            directory: GuildDirectory.instance,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: isDark
-                        ? tokens.dataAccent
-                        : Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-                if (statusLabel != null) ...[
-                  const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isRunning ? AppTheme.online : tokens.muted,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Flexible(
-                        child: Text(
-                          statusLabel!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w400,
-                            color: isDark
-                                ? tokens.muted
-                                : scheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
+    return ui.HomeBotCard(
+      name: name,
+      id: id,
+      avatar: avatar,
+      guildCount: guildCount,
+      isRunning: isRunning,
+      canToggle: canToggle,
+      isTogglingThisBot: isTogglingThisBot,
+      initiallyExpanded: initiallyExpanded,
+      pulseController: pulseController,
+      onManage: onManage,
+      onToggle: onToggle,
+      onAddTime: onAddTime,
+      onLogs: onLogs,
+      showPremiumLabels: showPremiumLabels,
+      freeMinutes: freeMinutes,
+      onTeam: onTeam,
+      runtimeBadgeLabel: runtimeBadgeLabel,
+      showsHostingExpiration: showsHostingExpiration,
+      isTurnkey: isTurnkey,
+      showTeamBadge: showTeamBadge,
+      ownerLabel: ownerLabel,
+      hasLocalToken: hasLocalToken,
+      onTokenImported: onTokenImported,
+      isSubscribed: SubscriptionService.isSubscribed,
+      supportsHostingTime: Platform.isAndroid || Platform.isIOS,
+      serverAvatars: GuildAvatarStrip(
+        botId: id,
+        guildCount: guildCount,
+        guilds: localGuilds,
+        ringColor: clusterBg,
+        directory: GuildDirectory.instance,
       ),
     );
   }
 }
+
+typedef _CreateBotCard = CreateBotCard;
 
 class _BotSyncResult {
   const _BotSyncResult({

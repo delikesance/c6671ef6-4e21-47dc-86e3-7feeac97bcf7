@@ -61,7 +61,6 @@ const Set<String> allBdfdFunctions = <String>{
   'ban',
   'banid',
   'blacklistids',
-  'blacklistroleids',
   'blacklistroles',
   'blacklistrolesids',
   'blacklistservers',

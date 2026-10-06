@@ -38,7 +38,10 @@ void main() {
       final data = commandData(
         response: {'text': 'Pong!', 'type': 'normal'},
         actions: [
-          {'type': 'respondWithMessage', 'payload': {'content': 'Already set'}},
+          {
+            'type': 'respondWithMessage',
+            'payload': {'content': 'Already set'},
+          },
         ],
       );
       migrateCommandDataResponse(data);
@@ -52,7 +55,10 @@ void main() {
           'type': 'normal',
           'text': '',
           'embeds': [],
-          'workflow': {'visibility': 'public', 'conditional': {'enabled': false}},
+          'workflow': {
+            'visibility': 'public',
+            'conditional': {'enabled': false},
+          },
         },
       );
       migrateCommandDataResponse(data);
@@ -94,7 +100,9 @@ void main() {
       final data = commandData(
         response: {
           'text': '',
-          'embeds': [{'title': 'Hello', 'color': 123}],
+          'embeds': [
+            {'title': 'Hello', 'color': 123},
+          ],
           'type': 'normal',
           'workflow': {'visibility': 'public'},
         },
@@ -151,10 +159,7 @@ void main() {
       );
       migrateCommandDataResponse(data);
       final actions = data['actions'] as List;
-      expect(
-        actions.any((a) => a['type'] == 'deferInteraction'),
-        isFalse,
-      );
+      expect(actions.any((a) => a['type'] == 'deferInteraction'), isFalse);
     });
 
     test('> 2 total actions → deferInteraction prepended', () {
@@ -333,10 +338,7 @@ void main() {
       );
       migrateCommandDataResponse(data);
       final actions = data['actions'] as List;
-      expect(
-        actions.any((a) => a['type'] == 'deferInteraction'),
-        isFalse,
-      );
+      expect(actions.any((a) => a['type'] == 'deferInteraction'), isFalse);
     });
   });
 }

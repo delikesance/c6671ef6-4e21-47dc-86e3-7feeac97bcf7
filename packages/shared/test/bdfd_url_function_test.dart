@@ -1,64 +1,32 @@
-import 'package:bot_creator_shared/utils/bdfd_ast.dart';
-import 'package:bot_creator_shared/utils/bdfd_ast_transpiler.dart';
 import 'package:test/test.dart';
 
+import 'helpers/sandbox_helpers.dart';
+
 void main() {
-  group('BdfdAstTranspiler — \$url function', () {
-    test('transpiles \$url[encode;...] at compile-time', () {
-      final result = BdfdAstTranspiler().transpile(
-        const BdfdScriptAst(
-          nodes: [
-            BdfdFunctionCallAst(
-              name: r'$url',
-              arguments: [
-                <BdfdAstNode>[BdfdTextAst('encode')],
-                <BdfdAstNode>[BdfdTextAst('Hello world!!')],
-              ],
-            ),
-          ],
+  test(r'$url encodes and decodes', () async {
+    expect(
+      contentOf(await runScript(r'$url[encode;Hello world!!]')),
+      'Hello+world%21%21',
+    );
+    expect(
+      contentOf(await runScript(r'$url[decode;Hello+world%21%21]')),
+      'Hello world!!',
+    );
+  });
+
+  test(r'$url accepts nested function results and runtime text', () async {
+    expect(
+      contentOf(await runScript(r'$url[encode;$toUpperCase[Hello World]]')),
+      'HELLO+WORLD',
+    );
+    expect(
+      contentOf(
+        await runScript(
+          r'$url[encode;$message]',
+          variables: {'message.content': 'a b&c'},
         ),
-      );
-
-      expect(result.diagnostics, isEmpty);
-      expect(result.actions.single.payload['content'], 'Hello+world%21%21');
-    });
-
-    test('transpiles \$url[decode;...] at compile-time', () {
-      final result = BdfdAstTranspiler().transpile(
-        const BdfdScriptAst(
-          nodes: [
-            BdfdFunctionCallAst(
-              name: r'$url',
-              arguments: [
-                <BdfdAstNode>[BdfdTextAst('decode')],
-                <BdfdAstNode>[BdfdTextAst('Hello+world%21%21')],
-              ],
-            ),
-          ],
-        ),
-      );
-
-      expect(result.diagnostics, isEmpty);
-      expect(result.actions.single.payload['content'], 'Hello world!!');
-    });
-
-    test('emits runtime placeholder for dynamic text', () {
-      final result = BdfdAstTranspiler().transpile(
-        const BdfdScriptAst(
-          nodes: [
-            BdfdFunctionCallAst(
-              name: r'$url',
-              arguments: [
-                <BdfdAstNode>[BdfdTextAst('encode')],
-                <BdfdAstNode>[BdfdTextAst('((input))')],
-              ],
-            ),
-          ],
-        ),
-      );
-
-      expect(result.diagnostics, isEmpty);
-      expect(result.actions.single.payload['content'], '((url[encode;((input))]))');
-    });
+      ),
+      'a+b%26c',
+    );
   });
 }

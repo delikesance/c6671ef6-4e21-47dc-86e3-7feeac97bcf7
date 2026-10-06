@@ -8,20 +8,14 @@ void main() {
         substituteCmsPlaceholders('Hi {{name}}!', {'name': 'Ada'}),
         'Hi Ada!',
       );
-      expect(
-        substituteCmsPlaceholders('Hi {{missing}}!', {}),
-        'Hi !',
-      );
+      expect(substituteCmsPlaceholders('Hi {{missing}}!', {}), 'Hi !');
     });
 
     test('resolveCmsActionTemplate resolves ((guild.cms…)) after curly', () {
       final resolved = resolveCmsActionTemplate(
         'Welcome {{title}} / ((guild.cms.welcome.enabled))',
         moduleId: 'welcome',
-        fieldValues: {
-          'title': 'Server',
-          'enabled': 'true',
-        },
+        fieldValues: {'title': 'Server', 'enabled': 'true'},
       );
       expect(resolved, 'Welcome Server / true');
     });

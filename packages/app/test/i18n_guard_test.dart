@@ -20,7 +20,7 @@ import '../tools/hardcoded_string_guard.dart';
 
 const List<String> _locales = <String>['en', 'fr', 'de', 'ja', 'pt', 'tr'];
 
-const String _arbDir = 'lib/core/i18n/l10n';
+const String _arbDir = '../ui/lib/src/l10n';
 
 const String _commandCreatePath =
     'lib/features/bot_editor/presentation/screens/bot_sub_pages/command.create.dart';
@@ -137,7 +137,9 @@ void main() {
     }
     final breakdown =
         (perFile.entries.toList()..sort((a, b) => b.value.compareTo(a.value)))
-            .map((entry) => '  ${entry.value.toString().padLeft(3)}  ${entry.key}')
+            .map(
+              (entry) => '  ${entry.value.toString().padLeft(3)}  ${entry.key}',
+            )
             .join('\n');
 
     expect(

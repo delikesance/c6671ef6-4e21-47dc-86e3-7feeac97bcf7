@@ -15,13 +15,24 @@ Future<int> syncManagedBotsAfterDiscordLogin({
   required String accessToken,
 }) async {
   final client = MainApiClient(baseUrl: baseUrl, accessToken: accessToken);
+  // Finish the deletions that never reached the cloud BEFORE importing anything: otherwise a bot
+  // deleted offline would be re-created from the manager's list right here.
+  final stillPending = await appManager.retryPendingRemoteBotDeletions(client);
   final bots = await client.listBots();
   var synced = 0;
 
   for (final bot in bots) {
     final botId = (bot['bot_id'] ?? '').toString().trim();
-    if (botId.isEmpty) {
+    if (botId.isEmpty || stillPending.contains(botId)) {
       continue;
+    }
+    try {
+      await appManager.retryPendingCommandDeletions(botId, client);
+    } catch (e) {
+      developer.log(
+        'Queued command deletions not replayed for $botId: $e',
+        name: 'MainApiAccountBootstrap',
+      );
     }
     var botName = (bot['bot_name'] ?? 'Unnamed Bot').toString();
     final token = (bot['bot_token'] ?? '').toString();
@@ -83,11 +94,11 @@ Future<int> syncManagedBotsAfterDiscordLogin({
           'Failed to fetch full remote config for $botId: $e',
           name: 'MainApiAccountBootstrap',
         );
+        continue;
       }
     }
 
     // Rehydrate commands and workflows from remote config if available
-    final remoteCommands = extractCommandListFromConfig(config['commands']);
     try {
       await applyManagerRuntimeMetadataToLocal(
         appManager: appManager,
@@ -101,57 +112,17 @@ Future<int> syncManagedBotsAfterDiscordLogin({
       );
       continue;
     }
-    final remoteWorkflows = config['workflows'];
-    final hasRemoteData =
-        remoteCommands.isNotEmpty ||
-        (remoteWorkflows is List && remoteWorkflows.isNotEmpty) ||
-        (remoteWorkflows is Map && remoteWorkflows.isNotEmpty);
-
-    final localCommands = await appManager.listAppCommands(
-      botId,
-      forceRefresh: true,
-    );
-
-    if (hasRemoteData) {
-      try {
-        if (localCommands.isEmpty) {
-          // Fresh install or no local commands: restore all remote commands
-          await applyManagerConfigToLocal(
-            appManager: appManager,
-            botId: botId,
-            remoteConfig: config,
-            saveAppMetadata: false,
-            deleteMissingLocalCommands: false,
-          );
-        } else {
-          // Both local and remote exist: smartMerge to retain local commands!
-          await BotReconciliationService.smartMerge(
-            pushToCloud: false,
-            botId: botId,
-            remoteConfig: config,
-            client: client,
-            appManager: appManager,
-            botName: botName,
-          );
-        }
-      } catch (e) {
-        developer.log(
-          'Failed to restore commands/workflows during login sync for $botId: $e',
-          name: 'MainApiAccountBootstrap',
-        );
-      }
-    } else if (localCommands.isNotEmpty) {
-      // Remote had no commands but local has commands: push local to remote!
-      try {
-        await BotReconciliationService.keepLocalAndPushToCloud(
-          botId: botId,
-          client: client,
-          botName: botName,
-          appManager: appManager,
-        );
-      } catch (e) {
-        developer.log('Failed to push local commands to remote for $botId: $e');
-      }
+    try {
+      await BotReconciliationService.applyCloudToLocal(
+        botId: botId,
+        remoteConfig: config,
+        appManager: appManager,
+      );
+    } catch (e) {
+      developer.log(
+        'Failed to apply remote configuration for $botId: $e',
+        name: 'MainApiAccountBootstrap',
+      );
     }
 
     synced++;
@@ -163,6 +134,7 @@ Future<int> syncManagedBotsAfterDiscordLogin({
         .map((b) => (b['bot_id'] ?? '').toString().trim())
         .where((id) => id.isNotEmpty)
         .toSet();
+    // A bot whose cloud deletion is still pending is gone locally: it is never re-listed here.
     final localApps = await appManager.getAllApps();
     for (final rawApp in localApps) {
       if (rawApp is! Map) continue;

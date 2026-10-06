@@ -1,14 +1,9 @@
 import 'package:nyxx/nyxx.dart';
 
 import '../../types/action.dart';
-import '../add_role.dart';
-import '../ban_user.dart';
-import '../kick_user.dart';
-import '../mute_user.dart';
-import '../remove_role.dart';
-import '../set_nickname.dart';
-import '../unban_user.dart';
-import '../unmute_user.dart';
+import '../../engine/execution_budget.dart';
+import '../../services/bot_block_discord_actions.dart' show setNicknameAction;
+import '../../services/bot_moderation_blocks.dart';
 
 Future<bool> executeModerationRolesAction({
   required BotCreatorActionType type,
@@ -18,6 +13,7 @@ Future<bool> executeModerationRolesAction({
   required String resultKey,
   required Map<String, String> results,
   required String Function(String input) resolveValue,
+  CommandExecutionBudget? budget,
 }) async {
   switch (type) {
     case BotCreatorActionType.banUser:
@@ -38,42 +34,49 @@ Future<bool> executeModerationRolesAction({
           guildId: guildId,
           payload: payload,
           resolve: resolveValue,
+          budget: budget,
         ),
         BotCreatorActionType.unbanUser => unbanUserAction(
           client,
           guildId: guildId,
           payload: payload,
           resolve: resolveValue,
+          budget: budget,
         ),
         BotCreatorActionType.kickUser => kickUserAction(
           client,
           guildId: guildId,
           payload: payload,
           resolve: resolveValue,
+          budget: budget,
         ),
         BotCreatorActionType.muteUser => muteUserAction(
           client,
           guildId: guildId,
           payload: payload,
           resolve: resolveValue,
+          budget: budget,
         ),
         BotCreatorActionType.unmuteUser => unmuteUserAction(
           client,
           guildId: guildId,
           payload: payload,
           resolve: resolveValue,
+          budget: budget,
         ),
         BotCreatorActionType.addRole => addRoleAction(
           client,
           guildId: guildId,
           payload: payload,
           resolve: resolveValue,
+          budget: budget,
         ),
         BotCreatorActionType.removeRole => removeRoleAction(
           client,
           guildId: guildId,
           payload: payload,
           resolve: resolveValue,
+          budget: budget,
         ),
         BotCreatorActionType.setNickname => setNicknameAction(
           client,

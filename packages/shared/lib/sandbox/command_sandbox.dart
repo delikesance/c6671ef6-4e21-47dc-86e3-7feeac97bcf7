@@ -1,4 +1,24 @@
+import '../services/bot_component_service.dart';
+import '../services/bot_cooldown_service.dart';
+import '../services/bot_timing_service.dart';
+import '../services/bot_webhook_service.dart';
+import '../services/bot_command_query_service.dart';
+import '../services/bot_channel_permission_service.dart';
+import '../services/bot_permission_query_service.dart';
+import '../services/bot_user_query_service.dart';
+import '../services/bot_member_query_service.dart';
+import '../services/bot_guild_query_service.dart';
+import '../services/bot_thread_service.dart';
+import '../services/bot_message_query_service.dart';
+import '../services/bot_reaction_service.dart';
+import '../services/bot_emoji_service.dart';
+import '../services/bot_channel_mutation_service.dart';
+import '../services/bot_channel_query_service.dart';
 import 'dart:async';
+import '../services/bot_moderation_service.dart';
+import '../services/bot_music_service.dart';
+import '../services/bot_role_query_service.dart';
+import '../services/permission_checks.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
@@ -7,16 +27,24 @@ import 'package:nyxx/nyxx.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:image/image.dart' as img;
-import '../actions/executors/http_executor.dart';
+import '../engine/bdfd/visual/http_logic.dart';
+import '../engine/bdfd/execution.dart';
+import '../engine/bdfd/program.dart';
+import '../engine/bdfd/runtime.dart';
+import '../engine/execution_budget.dart';
+import '../engine/discord_entity_fetcher.dart' show DiscordEntityNotFound;
+import '../services/bot_message_service.dart';
+import '../services/http_service.dart';
+import '../services/runtime_temporary_variables.dart';
 import '../actions/send_component_v2.dart';
 import '../actions/respond_modal.dart';
-import '../actions/send_webhook.dart';
+import '../services/bot_webhook_block_service.dart' show buildWebhookMessage;
 import '../types/component.dart';
 import '../actions/execution_policy.dart';
-import '../actions/role_definition_actions.dart';
+import '../services/bot_moderation_blocks.dart'
+    show isRoleDefinitionPayload, parseBdfdRoleColor;
 import '../actions/handler.dart';
 import '../types/action.dart';
-import '../utils/bdfd_compiler.dart';
 import '../utils/bdfd_duration_parser.dart';
 import '../utils/runtime_variables.dart';
 import '../utils/message_runtime.dart';
@@ -24,6 +52,7 @@ import '../utils/global.dart';
 import '../utils/template_resolver.dart';
 import 'sandbox_store.dart';
 import 'entity_fixture_gateway.dart';
+import 'action_simulations.dart';
 import 'music_fixture.dart';
 
 /// Runs only caller-provided fixtures; never reads the application's real store
@@ -87,38 +116,20 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
   }
   final script = (input['script'] ?? '').toString();
   if (script.length > 100000) throw StateError('Script size limit exceeded');
+  final backend = BdfdBackend.parse(input['bdfdBackend']);
+  final nativeScript = input['script'] != null;
   final diagnostics = <Map<String, dynamic>>[];
   final semantics = input['bdfdUserVariableSemantics'] ?? 2;
   if (semantics != 1 && semantics != 2) {
     throw ArgumentError('Unsupported BDFD user variable semantics');
   }
   final List<Action> actions;
-  if (input['actions'] is List) {
+  if (nativeScript) {
+    actions = const [];
+  } else {
     actions = (input['actions'] as List)
         .map((a) => Action.fromJson(Map<String, dynamic>.from(a as Map)))
         .toList();
-  } else {
-    final compiled = BdfdCompiler(
-      legacyUserVariables: semantics == 1,
-    ).compile(script);
-    diagnostics.addAll(
-      compiled.diagnostics.map(
-        (d) => {
-          'message': d.message,
-          'severity': d.severity.name,
-          'line': d.line,
-          'column': d.column,
-        },
-      ),
-    );
-    if (compiled.hasErrors) {
-      return {
-        'success': false,
-        'diagnostics': diagnostics,
-        'error': 'Compilation failed',
-      };
-    }
-    actions = compiled.actions;
   }
   final scopedDefinitions = <Map<String, dynamic>>[];
   final rawDefinitions = input['definitions'];
@@ -235,6 +246,17 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
         }
         if (v['id'] != null) {
           variables['$k.id'] = v['id'].toString();
+        }
+        // `context.author` must mean the same as `context.userId`: the invoking user, whatever
+        // the script reads ($authorID, $userID or the member).
+        if (k == 'author') {
+          if (v['id'] != null) {
+            variables['user.id'] = v['id'].toString();
+            variables['member.id'] = v['id'].toString();
+          }
+          if (v['username'] != null) {
+            variables['user.username'] = v['username'].toString();
+          }
         }
       } else if (v is List) {
         if (k == 'permissions' || k == 'member.permissions') {
@@ -379,23 +401,129 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
     entityGateway: entityGateway,
     musicFixture: musicFixture,
   );
+  variables['bdfd.userVariableSemantics'] = semantics.toString();
   String? error;
   Map<String, String> results = {};
   final logs = <String>[];
   try {
-    results = await handleActions(
-      entityGateway ?? _NoDiscord(),
-      null,
-      actions: actions,
-      store: store,
-      botId: 'sandbox',
+    final budget = CommandExecutionBudget(limit: const Duration(seconds: 2));
+    final context = BdfdContext(
       variables: variables,
-      fallbackGuildId: _snowflake(variables['guild.id']),
-      fallbackChannelId: _snowflake(variables['channel.id']),
-      resolveTemplate: (text) => resolveTemplatePlaceholders(text, variables),
-      executionPolicy: policy,
-      onLog: logs.add,
+      temporaryVariables: RuntimeTemporaryVariables(variables),
+      budget: budget,
+      maxSteps: 10000,
+      onTrace: policy.recordNative,
     );
+    context.onLog = logs.add;
+    context.imageSourceResolver = (source) async {
+      final uri = Uri.tryParse(source);
+      if (uri != null && (uri.scheme == 'http' || uri.scheme == 'https')) {
+        final fixture = policy.imageSources[source]?.toString();
+        if (fixture == null || fixture.length > 128000) {
+          throw StateError(
+            'Sandbox image source must have an explicit local fixture',
+          );
+        }
+        final fixtureUri = Uri.tryParse(fixture);
+        if (fixtureUri != null &&
+            fixtureUri.hasScheme &&
+            fixtureUri.scheme != 'data') {
+          throw StateError(
+            'Sandbox image fixture must be a data URL or base64',
+          );
+        }
+        return fixture;
+      }
+      if (uri != null && uri.hasScheme && uri.scheme != 'data') {
+        throw StateError('Sandbox image source must be a data URL or base64');
+      }
+      return source;
+    };
+    final messages = _SandboxMessages(policy);
+    final moderation = _SandboxModeration(policy, variables);
+    final commandQueries = _SandboxCommandQueries(policy, variables);
+    final components = _SandboxComponents(policy, variables);
+    final timing = SandboxBotTimingService(moderation);
+    final delays = _SandboxDelays(policy);
+    final httpService = HttpService(clientFactory: policy.httpClient);
+    Future<Map<String, String>> runActions(List<Action> nested) =>
+        handleActions(
+          entityGateway ?? _NoDiscord(),
+          null,
+          actions: nested,
+          store: store,
+          botId: 'sandbox',
+          variables: variables,
+          fallbackGuildId: _snowflake(variables['guild.id']),
+          fallbackChannelId: _snowflake(variables['channel.id']),
+          resolveTemplate: (text) =>
+              resolveTemplatePlaceholders(text, variables),
+          executionPolicy: policy,
+          bdfdContext: context,
+          bdfdMessages: messages,
+          bdfdModeration: moderation,
+          bdfdCommandQueries: commandQueries,
+          bdfdComponents: components,
+          bdfdTiming: timing,
+          bdfdDelays: delays,
+          bdfdHttp: httpService,
+          executionBudget: budget,
+          workflowStack: context.activeWorkflows,
+          throwOnError: nativeScript,
+          onLog: logs.add,
+        );
+    if (nativeScript) {
+      final execution = BdfdScriptExecution(
+        store: store,
+        botId: 'sandbox',
+        variables: variables,
+        context: context,
+        messages: messages,
+        moderation: moderation,
+        commandQueries: commandQueries,
+        components: components,
+        timing: timing,
+        delays: delays,
+        http: httpService,
+        music: _SandboxMusic(policy, variables),
+        runVisualWorkflow: (workflow, _) => runActions(
+          ((workflow['actions'] as List?) ?? [])
+              .whereType<Map>()
+              .map((json) => Action.fromJson(Map<String, dynamic>.from(json)))
+              .toList(),
+        ),
+      );
+      final started = Stopwatch()..start();
+      final variablesBefore = Map<String, String>.from(variables);
+      try {
+        final output = await execution.execute(script, backend: backend.id);
+        results = {
+          ...context.results,
+          'output': output ?? '',
+          if (context.stopped) '__stopped__': 'true',
+        };
+      } finally {
+        // This frame covers the native program; visual workflow frames remain
+        // separate. It is not a simulated list of compiled block actions.
+        policy.record({
+          'type': 'bdfdProgram',
+          'backend': backend.id,
+          'durationMs': started.elapsedMilliseconds,
+          'variablesBefore': variablesBefore,
+          'variablesAfter': Map<String, String>.from(variables),
+        });
+      }
+    } else {
+      results = await runActions(actions);
+    }
+    await timing.drain();
+    if (context.response.deferred) {
+      policy.effects.add({
+        'type': 'deferInteraction',
+        'ephemeral': context.response.ephemeral,
+        'simulated': true,
+      });
+    }
     error = variables['error.message'];
     if (error == null &&
         entityGateway != null &&
@@ -404,6 +532,15 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
     }
   } catch (e) {
     error = e.toString();
+    if (e is BdfdNativeError) {
+      diagnostics.add({
+        'message': e.message,
+        'severity': 'error',
+        'line': e.location.line,
+        'column': e.location.column,
+        'function': e.location.functionName,
+      });
+    }
   }
   final images = <String, dynamic>{};
   final probes = (input['pixelProbes'] as List? ?? const [])
@@ -467,10 +604,12 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
   return {
     'success': error == null,
     'bdfdUserVariableSemantics': semantics,
+    'bdfdBackend': backend.id,
     'error': error,
     'diagnostics': diagnostics,
     'responses': policy.responses,
     'trace': policy.frames,
+    'native_trace_dropped': policy.nativeTraceDropped,
     'effects': policy.effects,
     'unused_http_fixtures': policy.httpFixtures.length,
     'entity_requests': entityGateway?.requests ?? [],
@@ -484,6 +623,2001 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
     'execution': 'sandbox',
     'discord_verified': false,
   };
+}
+
+Map? _sandboxMessageChannelRow(EntityFixtureGateway gateway, String id) {
+  final guilds = gateway.fixtures['guilds'];
+  if (guilds is! Map) return null;
+  for (final guild in guilds.values.whereType<Map>()) {
+    final channels = guild['channels'];
+    final threads = guild['threads'];
+    final rows = [
+      if (channels is List) ...channels,
+      if (threads is List) ...threads,
+    ];
+    for (final row in rows.whereType<Map>()) {
+      if (row['id'].toString() == id) return row;
+    }
+  }
+  return null;
+}
+
+/// Serialises staged components exactly as the production send path does.
+List<Map<String, Object?>> _apiComponents(Object? json) {
+  if (json is! Map) return const [];
+  final definition = ComponentV2Definition.fromJson(
+    Map<String, dynamic>.from(json),
+  );
+  if (definition.components.isEmpty) return const [];
+  return buildComponentNodes(
+    definition: definition,
+    resolve: (value) => value,
+  ).map((builder) => builder.build()).toList();
+}
+
+class _SandboxMessages implements BotMessageService {
+  _SandboxMessages(this.policy);
+  final _SandboxPolicy policy;
+
+  @override
+  Future<BotMessageResult> send(
+    BotMessageRequest request, {
+    required CommandExecutionBudget budget,
+    required Map<String, String> variables,
+  }) async {
+    budget.check();
+    policy.actions++;
+    policy.checkBudget();
+    if (request.payload['targetType'] == 'typing') {
+      policy.effects.add({
+        'type': 'typing',
+        'backend': 'native-v1',
+        'channel_id':
+            request.payload['channelId']?.toString() ?? variables['channel.id'],
+        'simulated': true,
+      });
+      return const BotMessageResult();
+    }
+    final id = '${100000 + policy.responses.length}';
+    final channelId =
+        request.payload['channelId']?.toString() ??
+        (request.destination == BotMessageDestination.user
+            ? null
+            : variables['channel.id']);
+    final gateway = policy.entityGateway;
+    if (gateway != null && channelId != null) {
+      final messages =
+          gateway.fixtures.putIfAbsent('messages', () => <String, dynamic>{})
+              as Map;
+      final channelMessages =
+          messages.putIfAbsent(channelId, () => <String, dynamic>{}) as Map;
+      if (channelMessages.containsKey(id)) {
+        throw StateError('Sandbox response ID already exists.');
+      }
+      channelMessages[id] = {
+        'author_id': variables['bot.id'] ?? '0',
+        'author_name': 'Sandbox bot',
+        'channel_id': channelId,
+        'content': request.payload['content'] ?? '',
+        'embeds': request.payload['embeds'] ?? [],
+        'components': _apiComponents(request.payload['components']),
+        'reactions': <dynamic>[],
+      };
+      _sandboxMessageChannelRow(gateway, channelId)?['last_message_id'] = id;
+    }
+    final componentJson = request.payload['components'];
+    final componentDefinition = componentJson is Map
+        ? ComponentV2Definition.fromJson(
+            Map<String, dynamic>.from(componentJson),
+          )
+        : null;
+    final richComponents = componentDefinition?.isRichV2 ?? false;
+    policy.responses.add({
+      'type': richComponents
+          ? (request.destination == BotMessageDestination.response
+                ? 'respondWithComponentV2'
+                : 'sendComponentV2')
+          : request.destination == BotMessageDestination.response
+          ? 'respondWithMessage'
+          : 'sendMessage',
+      'destination': request.destination.name,
+      'backend': 'native-v1',
+      'payload': request.payload,
+      if (componentDefinition != null &&
+          componentDefinition.components.isNotEmpty)
+        'api_components': _apiComponents(componentJson),
+      'simulated': true,
+      'id': id,
+    });
+    return BotMessageResult(
+      messageId: id,
+      channelId: channelId,
+      acknowledged: request.destination == BotMessageDestination.response,
+      originalResponseCompleted:
+          request.destination == BotMessageDestination.response,
+    );
+  }
+}
+
+/// Uses the production permission checks with a read-only fixture gateway.
+/// Mutation is simulated explicitly after authorization, never through Actions.
+class _SandboxModeration
+    implements
+        BotModerationService,
+        BotRoleQueryService,
+        BotChannelQueryService,
+        BotChannelMutationService,
+        BotChannelPermissionService,
+        BotPermissionQueryService,
+        BotUserQueryService,
+        BotMemberQueryService,
+        BotGuildQueryService,
+        BotMessageQueryService,
+        BotReactionService,
+        BotEmojiService,
+        BotWebhookService,
+        BotThreadService {
+  _SandboxModeration(this.policy, this.variables);
+  final _SandboxPolicy policy;
+  final Map<String, String> variables;
+
+  Map get _webhookFixtures {
+    final fixtures = policy.entityGateway?.fixtures;
+    if (fixtures == null) {
+      throw StateError('Native webhooks require entity fixtures.');
+    }
+    return fixtures.putIfAbsent('webhooks', () => <String, dynamic>{}) as Map;
+  }
+
+  Map _webhook(BotWebhookReference ref) {
+    final row = _webhookFixtures[ref.id];
+    if (row is! Map || row['token'] != ref.token) {
+      throw StateError('Webhook fixture is absent or token does not match.');
+    }
+    return row;
+  }
+
+  Future<void> _avatar(String url, CommandExecutionBudget budget) async {
+    if (url.isNotEmpty) {
+      await DiscordBotWebhookService(
+        client: _queries.client,
+        httpClientFactory: policy.httpClient,
+      ).loadAvatar(url, budget);
+    }
+  }
+
+  @override
+  Future<String> create(
+    String channelId,
+    String name,
+    String avatarUrl, {
+    required CommandExecutionBudget budget,
+  }) async {
+    final gateway = policy.entityGateway;
+    final bot = _snowflake(variables['bot.id']);
+    if (gateway == null || bot == null) {
+      throw StateError('Webhook creation requires entity fixtures and bot ID.');
+    }
+    await prepareBotWebhookCreate(
+      _SandboxPermissionGateway(gateway, bot),
+      channelId,
+      name,
+      budget: budget,
+    );
+    final webhooks = _webhookFixtures;
+    if (webhooks.values
+            .whereType<Map>()
+            .where((row) => row['channel_id'] == channelId)
+            .length >=
+        10) {
+      throw StateError('Channel webhook fixture limit reached.');
+    }
+    await _avatar(avatarUrl, budget);
+    budget.check();
+    var counter = 9000 + policy.effects.length + 1;
+    while (webhooks.containsKey('$counter')) {
+      counter++;
+    }
+    final id = '$counter';
+    final ref = BotWebhookReference(id, 'sandbox-token-$id');
+    webhooks[id] = {
+      'channel_id': channelId,
+      'name': name,
+      'avatar_url': avatarUrl,
+      'token': ref.token,
+    };
+    policy.effects.add({
+      'type': 'createWebhook',
+      'webhook_id': id,
+      'channel_id': channelId,
+      'name': name,
+      'simulated': true,
+    });
+    return ref.url;
+  }
+
+  @override
+  Future<void> update(
+    BotWebhookReference webhook, {
+    String? name,
+    String? avatarUrl,
+    required CommandExecutionBudget budget,
+  }) async {
+    budget.check();
+    final row = _webhook(webhook);
+    if (name != null) validateWebhookName(name);
+    if (avatarUrl != null) await _avatar(avatarUrl, budget);
+    budget.check();
+    if (name != null) row['name'] = name;
+    if (avatarUrl != null) row['avatar_url'] = avatarUrl;
+    policy.effects.add({
+      'type': 'editWebhook',
+      'webhook_id': webhook.id,
+      'name': ?name,
+      'avatar_url': ?avatarUrl,
+      'simulated': true,
+    });
+  }
+
+  @override
+  Future<void> delete(
+    BotWebhookReference webhook, {
+    required CommandExecutionBudget budget,
+  }) async {
+    budget.check();
+    _webhook(webhook);
+    _webhookFixtures.remove(webhook.id);
+    policy.effects.add({
+      'type': 'deleteWebhook',
+      'webhook_id': webhook.id,
+      'simulated': true,
+    });
+  }
+
+  @override
+  Future<void> send(
+    BotWebhookReference webhook,
+    Map<String, dynamic> payload, {
+    required CommandExecutionBudget budget,
+  }) async {
+    budget.check();
+    _webhook(webhook);
+    final built = buildBotWebhookMessage(payload).build();
+    policy.effects.add({
+      'type': 'sendWebhook',
+      'webhook_id': webhook.id,
+      'payload': built,
+      'simulated': true,
+    });
+  }
+
+  DiscordBotEmojiService get _emojiQueries => DiscordBotEmojiService(
+    client: _queries.client,
+    guildId: _queries.guildId,
+  );
+  @override
+  Future<BotEmoji?> emoji(
+    String id, {
+    required CommandExecutionBudget budget,
+  }) => _emojiQueries.emoji(id, budget: budget);
+  @override
+  Future<BotEmoji?> emojiByName(
+    String name, {
+    required CommandExecutionBudget budget,
+  }) => _emojiQueries.emojiByName(name, budget: budget);
+  @override
+  Future<List<BotEmoji>> emojis({
+    String? guildId,
+    required CommandExecutionBudget budget,
+  }) => _emojiQueries.emojis(guildId: guildId, budget: budget);
+  @override
+  Future<BotEmoji> createEmoji(
+    BotEmojiCreateRequest request, {
+    required CommandExecutionBudget budget,
+  }) => budget.run(() async {
+    final guildId = _queries.guildId;
+    final prepared = await prepareBotEmojiCreate(
+      _messageGateway,
+      guildId,
+      request,
+      budget: budget,
+    );
+    final image = await HttpBotEmojiImageLoader(
+      clientFactory: policy.httpClient,
+    ).load(request.imageUrl, budget: budget);
+    final guilds = policy.entityGateway!.fixtures['guilds'] as Map;
+    final guild = guilds['$guildId'] as Map;
+    final rows = guild['emojis'];
+    if (rows is! List) throw StateError('Emoji list fixture is required.');
+    var nextId = BigInt.from(300000);
+    for (final guild in guilds.values.whereType<Map>()) {
+      for (final row in (guild['emojis'] as List? ?? []).whereType<Map>()) {
+        budget.check();
+        final id = BigInt.parse(row['id'].toString());
+        if (id >= nextId) nextId = id + BigInt.one;
+      }
+    }
+    if (nextId > BigInt.from(9223372036854775807)) {
+      throw StateError('No available fixture emoji ID.');
+    }
+    final row = <String, dynamic>{
+      'id': '$nextId',
+      'name': prepared.name,
+      'animated': image.format == 'gif',
+      'creator_id': variables['bot.id'],
+    };
+    budget.check();
+    policy.checkBudget();
+    rows.add(row);
+    policy.effects.add({
+      'type': 'createEmoji',
+      'guild_id': '$guildId',
+      'emoji_id': '$nextId',
+      'image_url': request.imageUrl,
+      'image_bytes': image.bytes.length,
+      'after': Map<String, dynamic>.from(row),
+      'simulated': true,
+    });
+    return BotEmoji(
+      id: '$nextId',
+      name: prepared.name,
+      guildId: '$guildId',
+      animated: row['animated'] == true,
+      creatorId: variables['bot.id'],
+    );
+  });
+  @override
+  Future<void> deleteEmoji(
+    String id, {
+    required CommandExecutionBudget budget,
+  }) => budget.run(() async {
+    final guildId = _queries.guildId;
+    final prepared = await prepareBotEmojiDelete(
+      _messageGateway,
+      guildId,
+      id,
+      budget: budget,
+    );
+    final guild =
+        (policy.entityGateway!.fixtures['guilds'] as Map)['$guildId'] as Map;
+    final rows = guild['emojis'] as List;
+    final index = rows.indexWhere(
+      (row) => row is Map && row['id'].toString() == '${prepared.emojiId}',
+    );
+    if (index < 0) throw StateError('Emoji fixture is required.');
+    final before = Map<String, dynamic>.from(rows[index] as Map);
+    budget.check();
+    policy.checkBudget();
+    rows.removeAt(index);
+    policy.effects.add({
+      'type': 'deleteEmoji',
+      'guild_id': '$guildId',
+      'emoji_id': '${prepared.emojiId}',
+      'before': before,
+      'simulated': true,
+    });
+  });
+
+  Map _reactionMessageRow(BotReactionTarget target) {
+    final messages = policy.entityGateway?.fixtures['messages'];
+    final channel = messages is Map
+        ? messages['${int.parse(target.channelId.trim())}']
+        : null;
+    final row = channel is Map
+        ? channel['${int.parse(target.messageId.trim())}']
+        : null;
+    if (row is! Map) throw StateError('Reaction message fixture is required.');
+    return row;
+  }
+
+  List<Map> _reactionRows(Map message) {
+    final rows = message['reactions'];
+    if (rows == null) return <Map>[];
+    if (rows is! List || rows.any((row) => row is! Map)) {
+      throw StateError('Reaction list fixture is required.');
+    }
+    return rows.cast<Map>();
+  }
+
+  bool _reactionMatches(Map row, ReactionBuilder emoji) => emoji.id != null
+      ? row['id']?.toString() == '${emoji.id}'
+      : (row['id'] == null || row['id'].toString() == '0') &&
+            row['emoji']?.toString() == emoji.name;
+
+  @override
+  Future<void> addReactions(
+    BotReactionAddRequest request, {
+    required CommandExecutionBudget budget,
+  }) => budget.run(() async {
+    policy.checkBudget();
+    final prepared = await prepareBotReactionAdd(
+      _messageGateway,
+      request,
+      budget: budget,
+    );
+    final message = _reactionMessageRow(request.target);
+    final rows = _reactionRows(message);
+    final botId = variables['bot.id'];
+    if (botId == null || botId.isEmpty) {
+      throw StateError('Reaction mutation requires a bot ID.');
+    }
+    for (final emoji in prepared.emojis) {
+      budget.check();
+      final existing = rows
+          .where((row) => _reactionMatches(row, emoji))
+          .firstOrNull;
+      if (existing != null && existing['users'] is! List) {
+        throw StateError('Reaction users fixture is required.');
+      }
+    }
+    final mutableRows = [...rows];
+    message['reactions'] = mutableRows;
+    for (final emoji in prepared.emojis) {
+      policy.checkBudget();
+      budget.check();
+      final before = jsonDecode(jsonEncode(mutableRows));
+      var row = mutableRows
+          .where((item) => _reactionMatches(item, emoji))
+          .firstOrNull;
+      if (row == null) {
+        row = <String, dynamic>{
+          'emoji': emoji.name,
+          if (emoji.id != null) 'id': '${emoji.id}',
+          'users': <String>[],
+          'count': 0,
+        };
+        mutableRows.add(row);
+      }
+      final users = List<dynamic>.from(row['users'] as List);
+      if (!users.any((value) => value.toString() == botId)) users.add(botId);
+      row['users'] = users;
+      row['count'] = users.length;
+      policy.effects.add({
+        'type': 'addReaction',
+        'backend': 'native-v1',
+        'channel_id': '${prepared.manager.channelId}',
+        'message_id': '${prepared.messageId}',
+        'emoji': emoji.build(),
+        'before': before,
+        'after': jsonDecode(jsonEncode(mutableRows)),
+        'simulated': true,
+      });
+    }
+  });
+
+  @override
+  Future<void> clearReactions(
+    BotReactionClearRequest request, {
+    required CommandExecutionBudget budget,
+  }) => budget.run(() async {
+    policy.checkBudget();
+    final prepared = await prepareBotReactionClear(
+      _messageGateway,
+      request,
+      budget: budget,
+    );
+    final message = _reactionMessageRow(request.target);
+    final rows = _reactionRows(message);
+    final before = jsonDecode(jsonEncode(rows));
+    final after = <Map>[];
+    for (final row in rows) {
+      budget.check();
+      if (prepared.emoji != null && !_reactionMatches(row, prepared.emoji!)) {
+        after.add(row);
+      }
+    }
+    policy.checkBudget();
+    budget.check();
+    message['reactions'] = after;
+    policy.effects.add({
+      'type': 'clearReactions',
+      'backend': 'native-v1',
+      'channel_id': '${prepared.manager.channelId}',
+      'message_id': '${prepared.messageId}',
+      'emoji': prepared.emoji?.build() ?? '!all',
+      'before': before,
+      'after': jsonDecode(jsonEncode(after)),
+      'simulated': true,
+    });
+  });
+
+  @override
+  Future<List<BotReactionUser>> reactionUsers(
+    BotReactionQuery query, {
+    required CommandExecutionBudget budget,
+  }) {
+    policy.checkBudget();
+    return DiscordBotReactionService(
+      client: _queries.client,
+    ).reactionUsers(query, budget: budget);
+  }
+
+  NyxxGateway get _messageGateway {
+    final gateway = policy.entityGateway;
+    final bot = _snowflake(variables['bot.id']);
+    if (gateway == null || bot == null) {
+      throw StateError('Message mutations require fixtures and a bot ID.');
+    }
+    return _SandboxPermissionGateway(gateway, bot);
+  }
+
+  @override
+  Future<BotMessageChannelSnapshot> messageChannel(
+    String channelId, {
+    required CommandExecutionBudget budget,
+  }) => DiscordBotMessageQueryService(
+    client: _queries.client,
+  ).messageChannel(channelId, budget: budget);
+  @override
+  Future<BotMessageSnapshot> message({
+    required String channelId,
+    required String messageId,
+    required CommandExecutionBudget budget,
+  }) => DiscordBotMessageQueryService(
+    client: _queries.client,
+  ).message(channelId: channelId, messageId: messageId, budget: budget);
+
+  @override
+  Future<void> mutateMessage(
+    MessageMutation change, {
+    required CommandExecutionBudget budget,
+  }) async {
+    final prepared = await DiscordBotMessageQueryService(
+      client: _messageGateway,
+    ).prepareMessageMutation(change, budget: budget);
+    budget.check();
+    policy.checkBudget();
+    final messages = policy.entityGateway!.fixtures['messages'] as Map;
+    final channelId = prepared.channel.id.toString();
+    final messageId = prepared.message.id.toString();
+    final rows = messages[channelId] as Map;
+    final row = rows[messageId] as Map;
+    switch (change.kind) {
+      case MessageMutationKind.delete:
+        rows.remove(messageId);
+      case MessageMutationKind.pin:
+        row['pinned'] = true;
+        _sandboxMessageChannelRow(
+          policy.entityGateway!,
+          channelId,
+        )?['last_pin_timestamp'] = DateTime.now()
+            .toUtc()
+            .millisecondsSinceEpoch;
+      case MessageMutationKind.unpin:
+        row['pinned'] = false;
+        _sandboxMessageChannelRow(
+          policy.entityGateway!,
+          channelId,
+        )?['last_pin_timestamp'] = DateTime.now()
+            .toUtc()
+            .millisecondsSinceEpoch;
+      case MessageMutationKind.publish:
+        row['published'] = true;
+      case MessageMutationKind.edit:
+        final edit = change.edit!;
+        row['content'] = edit.content;
+        row['edited_timestamp'] = DateTime.now().toUtc().toIso8601String();
+        if (edit.replaceEmbed) {
+          row['embeds'] =
+              edit.toBuilder().embeds?.map((e) => e.build()).toList() ?? [];
+        }
+    }
+    policy.effects.add({
+      'type': '${change.kind.name}Message',
+      'channel_id': channelId,
+      'message_id': messageId,
+      'simulated': true,
+    });
+  }
+
+  DiscordBotThreadService get _threadQueries => DiscordBotThreadService(
+    client: _queries.client,
+    guildId: _queries.guildId,
+    channelId: _snowflake(variables['channel.id']),
+  );
+  DiscordBotThreadService get _threadMutations {
+    final gateway = policy.entityGateway;
+    final bot = _snowflake(variables['bot.id']);
+    if (gateway == null || bot == null) {
+      throw StateError(
+        'Thread mutations require entity fixtures and a bot ID.',
+      );
+    }
+    return DiscordBotThreadService(
+      client: _SandboxPermissionGateway(gateway, bot),
+      guildId: _snowflake(variables['guild.id']),
+      channelId: _snowflake(variables['channel.id']),
+    );
+  }
+
+  Map _threadRow(Thread thread) {
+    final guild =
+        (policy.entityGateway!.fixtures['guilds'] as Map)['${thread.guildId}']
+            as Map;
+    return (guild['threads'] as List).whereType<Map>().firstWhere(
+      (row) => row['id'].toString() == '${thread.id}',
+    );
+  }
+
+  @override
+  Future<BotThreadInfo> threadInfo({
+    String? threadId,
+    required CommandExecutionBudget budget,
+  }) {
+    policy.checkBudget();
+    return _threadQueries.threadInfo(threadId: threadId, budget: budget);
+  }
+
+  @override
+  Future<String> startThread(
+    ThreadCreation change, {
+    required CommandExecutionBudget budget,
+  }) => budget.run(() async {
+    policy.checkBudget();
+    final parent = await _threadMutations.prepareThreadCreation(
+      change,
+      budget: budget,
+    );
+    final gateway = policy.entityGateway!;
+    final guilds = gateway.fixtures['guilds'] as Map;
+    final guild = guilds['${parent.guildId}'] as Map;
+    final rows = guild['threads'] == null
+        ? <dynamic>[]
+        : guild['threads'] as List;
+    final existing = <String>{};
+    var nextId = BigInt.from(200000);
+    for (final guild in guilds.values.whereType<Map>()) {
+      for (final row in [
+        ...(guild['channels'] as List? ?? []),
+        ...(guild['threads'] as List? ?? []),
+      ].whereType<Map>()) {
+        budget.check();
+        final id = row['id'].toString();
+        existing.add(id);
+        final parsed = BigInt.parse(id);
+        if (parsed >= nextId) nextId = parsed + BigInt.one;
+      }
+    }
+    final String id;
+    if (change.messageId != null) {
+      final messageId = threadSnowflake(change.messageId!);
+      await (gateway.channels[parent.id] as PartialTextChannel).messages.fetch(
+        messageId,
+      );
+      budget.check();
+      final source =
+          ((gateway.fixtures['messages'] as Map)['${parent.id}']
+                  as Map)['$messageId']
+              as Map;
+      if (source['channel_id'] != null &&
+          source['channel_id'].toString() != '${parent.id}') {
+        throw StateError('Source message belongs to another channel.');
+      }
+      id = '$messageId';
+    } else {
+      if (nextId > (BigInt.one << 64) - BigInt.one) {
+        throw StateError('No available fixture thread ID.');
+      }
+      id = '$nextId';
+    }
+    if (existing.contains(id)) {
+      throw StateError('A thread with this ID already exists.');
+    }
+    final bot = variables['bot.id']!;
+    final row = <String, dynamic>{
+      'id': id,
+      'name': change.name,
+      'parent_id': '${parent.id}',
+      'owner_id': bot,
+      'type': parent is GuildAnnouncementChannel
+          ? 'announcement_thread'
+          : 'public_thread',
+      'archived': false,
+      'locked': false,
+      'auto_archive_duration': change.archiveMinutes,
+      'slowmode': 0,
+      'message_count': 0,
+      'member_count': 1,
+      'members': <String>[bot],
+    };
+    budget.check();
+    policy.checkBudget();
+    guild['threads'] = rows;
+    rows.add(row);
+    policy.effects.add({
+      'type': 'startThread',
+      'guild_id': '${parent.guildId}',
+      'channel_id': '${parent.id}',
+      'thread_id': id,
+      'after': jsonDecode(jsonEncode(row)),
+      'simulated': true,
+    });
+    return id;
+  });
+  @override
+  Future<void> editThread(
+    ThreadModification change, {
+    required CommandExecutionBudget budget,
+  }) => budget.run(() async {
+    policy.checkBudget();
+    final thread = await _threadMutations.prepareThreadModification(
+      change,
+      budget: budget,
+    );
+    final payload = change.toBuilder().build();
+    if (payload.isEmpty) return;
+    final row = _threadRow(thread);
+    final before = jsonDecode(jsonEncode(row));
+    budget.check();
+    policy.checkBudget();
+    for (final entry in payload.entries) {
+      row[entry.key == 'rate_limit_per_user' ? 'slowmode' : entry.key] =
+          entry.value;
+    }
+    policy.effects.add({
+      'type': 'editThread',
+      'guild_id': '${thread.guildId}',
+      'thread_id': '${thread.id}',
+      'before': before,
+      'after': jsonDecode(jsonEncode(row)),
+      'simulated': true,
+    });
+  });
+  Future<void> _changeThreadMember(
+    ThreadMemberChange change,
+    bool remove,
+    CommandExecutionBudget budget,
+  ) => budget.run(() async {
+    policy.checkBudget();
+    final thread = await _threadMutations.prepareThreadMemberChange(
+      change,
+      remove: remove,
+      budget: budget,
+    );
+    final row = _threadRow(thread);
+    final rawMembers = row['members'];
+    if (rawMembers is! List) {
+      throw StateError(
+        'Thread member simulation requires a members list fixture.',
+      );
+    }
+    if (!remove) {
+      await policy.entityGateway!.guilds[thread.guildId].members.fetch(
+        threadSnowflake(change.userId),
+      );
+      budget.check();
+    }
+    final members = rawMembers.map((value) => value.toString()).toSet();
+    final before = jsonDecode(jsonEncode(row));
+    final target = '${threadSnowflake(change.userId)}';
+    if (remove) {
+      members.remove(target);
+    } else {
+      members.add(target);
+    }
+    budget.check();
+    policy.checkBudget();
+    row['members'] = members.toList();
+    row['member_count'] = members.length > 50 ? 50 : members.length;
+    policy.effects.add({
+      'type': remove ? 'threadRemoveMember' : 'threadAddMember',
+      'guild_id': '${thread.guildId}',
+      'thread_id': '${thread.id}',
+      'user_id': target,
+      'before': before,
+      'after': jsonDecode(jsonEncode(row)),
+      'simulated': true,
+    });
+  });
+  @override
+  Future<void> addThreadMember(
+    ThreadMemberChange change, {
+    required CommandExecutionBudget budget,
+  }) => _changeThreadMember(change, false, budget);
+  @override
+  Future<void> removeThreadMember(
+    ThreadMemberChange change, {
+    required CommandExecutionBudget budget,
+  }) => _changeThreadMember(change, true, budget);
+  DiscordBotUserQueryService get _userQueries => DiscordBotUserQueryService(
+    client: _queries.client,
+    guildId: _queries.guildId,
+  );
+  DiscordBotMemberQueryService get _memberQueries =>
+      DiscordBotMemberQueryService(
+        client: _queries.client,
+        guildId: _queries.guildId,
+      );
+  @override
+  Future<List<BotGuildMember>> guildMembers({
+    String? guildId,
+    required CommandExecutionBudget budget,
+  }) {
+    policy.checkBudget();
+    return _memberQueries.guildMembers(guildId: guildId, budget: budget);
+  }
+
+  @override
+  Future<BotGuildMember?> guildMember(
+    String userId, {
+    String? guildId,
+    required CommandExecutionBudget budget,
+  }) async {
+    policy.checkBudget();
+    try {
+      return await _memberQueries.guildMember(
+        userId,
+        guildId: guildId,
+        budget: budget,
+      );
+    } on DiscordEntityNotFound {
+      budget.check();
+      // An absent member is a normal lookup miss; a present member with missing
+      // user data is an incomplete fixture and must not become false absence.
+      final selectedGuild = guildId ?? '${_queries.guildId}';
+      final guild =
+          (policy.entityGateway!.fixtures['guilds'] as Map?)?[selectedGuild];
+      final members = guild is Map ? guild['members'] : null;
+      if (members is Map && members.containsKey(userId)) rethrow;
+      return null;
+    }
+  }
+
+  @override
+  Future<int> allGuildMembersCount({required CommandExecutionBudget budget}) {
+    policy.checkBudget();
+    return _memberQueries.allGuildMembersCount(budget: budget);
+  }
+
+  @override
+  Future<BotUser?> user(
+    String userId, {
+    required CommandExecutionBudget budget,
+  }) async {
+    policy.checkBudget();
+    try {
+      return await _userQueries.user(userId, budget: budget);
+    } on DiscordEntityNotFound {
+      budget.check();
+      return null;
+    }
+  }
+
+  @override
+  Future<BotUserMember?> member(
+    String userId, {
+    required CommandExecutionBudget budget,
+  }) async {
+    policy.checkBudget();
+    try {
+      return await _userQueries.member(userId, budget: budget);
+    } on DiscordEntityNotFound {
+      budget.check();
+      return null;
+    }
+  }
+
+  @override
+  Future<BotGuild?> guild({
+    String? guildId,
+    required CommandExecutionBudget budget,
+  }) {
+    policy.checkBudget();
+    return DiscordBotGuildQueryService(
+      client: _queries.client,
+      guildId: _queries.guildId,
+    ).guild(guildId: guildId, budget: budget);
+  }
+
+  @override
+  Future<List<BotGuild>> guilds({required CommandExecutionBudget budget}) {
+    policy.checkBudget();
+    return DiscordBotGuildQueryService(
+      client: _queries.client,
+      guildId: _queries.guildId,
+    ).guilds(budget: budget);
+  }
+
+  @override
+  Future<BotGuildChannelSettings> guildChannelSettings({
+    String? guildId,
+    required CommandExecutionBudget budget,
+  }) {
+    policy.checkBudget();
+    return _channelQueries.guildChannelSettings(
+      guildId: guildId,
+      budget: budget,
+    );
+  }
+
+  @override
+  Future<int> storedMemberPermissions(
+    String userId, {
+    required CommandExecutionBudget budget,
+  }) {
+    policy.checkBudget();
+    return DiscordBotPermissionQueryService(
+      client: _queries.client,
+      guildId: _queries.guildId,
+    ).storedMemberPermissions(userId, budget: budget);
+  }
+
+  @override
+  Future<BotMemberPermissions> memberPermissions({
+    String? userId,
+    String? channelId,
+    required CommandExecutionBudget budget,
+  }) {
+    policy.checkBudget();
+    final gateway = policy.entityGateway;
+    final bot = _snowflake(variables['bot.id']);
+    if (gateway == null || bot == null) {
+      throw StateError(
+        'Permission queries require entity fixtures and a bot ID.',
+      );
+    }
+    return DiscordBotPermissionQueryService(
+      client: _SandboxPermissionGateway(gateway, bot),
+      guildId: _snowflake(variables['guild.id']),
+    ).memberPermissions(userId: userId, channelId: channelId, budget: budget);
+  }
+
+  DiscordBotRoleQueryService get _queries {
+    final gateway = policy.entityGateway;
+    if (gateway == null) {
+      throw StateError('Role queries require entity fixtures');
+    }
+    return DiscordBotRoleQueryService(
+      client: gateway,
+      guildId: _snowflake(variables['guild.id']),
+    );
+  }
+
+  DiscordBotChannelQueryService get _channelQueries =>
+      DiscordBotChannelQueryService(
+        client: _queries.client,
+        guildId: _queries.guildId,
+      );
+  @override
+  Future<ChannelPermissionResult> editPermissions(
+    ChannelPermissionChange change, {
+    required CommandExecutionBudget budget,
+  }) => budget.run(() async {
+    policy.checkBudget();
+    change.validate();
+    final gateway = policy.entityGateway;
+    final bot = _snowflake(variables['bot.id']);
+    if (gateway == null || bot == null) {
+      throw StateError(
+        'Permission edits require entity fixtures and a bot ID.',
+      );
+    }
+    final prepared = await prepareChannelPermissions(
+      _SandboxPermissionGateway(gateway, bot),
+      change,
+      budget: budget,
+    );
+    final guild =
+        (gateway.fixtures['guilds'] as Map)[prepared.channel.guildId.toString()]
+            as Map;
+    final rows = guild['channels'] as List;
+    final row = rows.whereType<Map>().firstWhere(
+      (r) => r['id'].toString() == '${prepared.channel.id}',
+    );
+    final existing = row['permission_overwrites'];
+    final overwrites = existing == null
+        ? <Map<String, dynamic>>[]
+        : [
+            for (final value in existing as List)
+              Map<String, dynamic>.from(value as Map),
+          ];
+    final overwrite = prepared.builder.build();
+    overwrites.removeWhere(
+      (o) =>
+          o['id'].toString() == '${prepared.builder.id}' &&
+          (o['type'].toString() == prepared.builder.type.value.toString() ||
+              o['type'].toString() ==
+                  (prepared.builder.type == PermissionOverwriteType.role
+                      ? 'role'
+                      : 'member')),
+    );
+    overwrites.add(Map<String, dynamic>.from(overwrite));
+    budget.check();
+    policy.checkBudget();
+    row['permission_overwrites'] = overwrites;
+    policy.effects.add({
+      'type': 'editChannelPermissions',
+      'guild_id': '${prepared.channel.guildId}',
+      'channel_id': '${prepared.channel.id}',
+      'target_id': '${prepared.builder.id}',
+      'overwrite': overwrite,
+      'simulated': true,
+    });
+    return ChannelPermissionResult(
+      '${prepared.channel.id}',
+      '${prepared.builder.id}',
+    );
+  });
+  @override
+  Future<String> createChannel(
+    ChannelCreation change, {
+    required CommandExecutionBudget budget,
+  }) => budget.run(() async {
+    policy.checkBudget();
+    change.validate();
+    final gateway = policy.entityGateway;
+    final bot = _snowflake(variables['bot.id']);
+    if (gateway == null || bot == null) {
+      throw StateError('Creation requires entity fixtures and a bot ID.');
+    }
+    final builder = await prepareChannelCreation(
+      _SandboxPermissionGateway(gateway, bot),
+      change,
+      budget: budget,
+    );
+    final guilds = gateway.fixtures['guilds'] as Map;
+    final guildId = '${Snowflake.parse(change.guildId.trim())}';
+    final guild = guilds[guildId] as Map;
+    final channels = guild['channels'];
+    if (channels is! List) {
+      throw StateError('Channel creation requires guild channel fixtures.');
+    }
+    if (channels
+            .whereType<Map>()
+            .where((row) => row['type'] != 'thread')
+            .length >=
+        500) {
+      throw StateError('Guild channel limit reached.');
+    }
+    final used = <String>{
+      for (final value in guilds.values.whereType<Map>())
+        for (final row in [
+          ...(value['channels'] as List? ?? []),
+          ...(value['threads'] as List? ?? []),
+        ].whereType<Map>())
+          row['id'].toString(),
+    };
+    var next = 60;
+    while (used.contains('$next')) {
+      next++;
+    }
+    final id = '$next';
+    final payload = builder.build();
+    final row = <String, dynamic>{
+      'id': id,
+      'name': payload['name'],
+      'type': change.type,
+      if (payload.containsKey('parent_id')) 'parent_id': payload['parent_id'],
+      if (payload.containsKey('topic')) 'topic': payload['topic'],
+      if (payload.containsKey('nsfw')) 'nsfw': payload['nsfw'],
+      if (payload.containsKey('rate_limit_per_user'))
+        'slowmode': payload['rate_limit_per_user'],
+      if (payload.containsKey('permission_overwrites'))
+        'permission_overwrites': payload['permission_overwrites'],
+    };
+    if (change.categoryId != null && row['permission_overwrites'] == null) {
+      final category = channels.whereType<Map>().firstWhere(
+        (r) =>
+            r['id'].toString() ==
+            '${Snowflake.parse(change.categoryId!.trim())}',
+      );
+      if (category['permission_overwrites'] != null) {
+        row['permission_overwrites'] = [
+          for (final value in category['permission_overwrites'] as List)
+            Map<String, dynamic>.from(value as Map),
+        ];
+      }
+    }
+    budget.check();
+    policy.checkBudget();
+    channels.add(row);
+    policy.effects.add({
+      'type': 'createChannel',
+      'guild_id': guildId,
+      'channel_id': id,
+      'after': Map<String, dynamic>.from(row),
+      'simulated': true,
+      if (change.reason != null) 'reason': change.reason,
+    });
+    return id;
+  });
+  @override
+  Future<void> modifyChannel(
+    ChannelModification change, {
+    required CommandExecutionBudget budget,
+  }) => budget.run(() async {
+    policy.checkBudget();
+    change.validate();
+    final gateway = policy.entityGateway;
+    final bot = _snowflake(variables['bot.id']);
+    if (gateway == null || bot == null) {
+      throw StateError('Modification requires entity fixtures and a bot ID.');
+    }
+    final prepared = await prepareChannelUpdate(
+      _SandboxPermissionGateway(gateway, bot),
+      change,
+      budget: budget,
+    );
+    final payload = prepared.builder.build();
+    if (payload.isEmpty) return;
+    final guild =
+        (gateway.fixtures['guilds'] as Map)[prepared.channel.guildId.toString()]
+            as Map;
+    final rows = [
+      ...(guild['channels'] as List? ?? []),
+      ...(guild['threads'] as List? ?? []),
+    ];
+    final row = rows.whereType<Map>().firstWhere(
+      (r) => r['id'].toString() == '${prepared.channel.id}',
+    );
+    final before = Map<String, dynamic>.from(row);
+    budget.check();
+    policy.checkBudget();
+    const mapping = {
+      'name': 'name',
+      'topic': 'topic',
+      'nsfw': 'nsfw',
+      'position': 'position',
+      'parent_id': 'parent_id',
+      'rate_limit_per_user': 'slowmode',
+      'archived': 'archived',
+      'locked': 'locked',
+      'auto_archive_duration': 'auto_archive_duration',
+    };
+    for (final entry in payload.entries) {
+      final key = mapping[entry.key];
+      if (key == null) {
+        throw StateError('Unsupported simulated channel field: ${entry.key}');
+      }
+      row[key] = entry.value;
+    }
+    policy.effects.add({
+      'type': 'updateChannel',
+      'guild_id': '${prepared.channel.guildId}',
+      'channel_id': '${prepared.channel.id}',
+      'before': before,
+      'after': Map<String, dynamic>.from(row),
+      'simulated': true,
+      if (change.reason != null) 'reason': change.reason,
+    });
+  });
+  @override
+  Future<void> deleteChannel(
+    ChannelDeletion change, {
+    required CommandExecutionBudget budget,
+  }) => budget.run(() async {
+    policy.checkBudget();
+    change.validate();
+    final gateway = policy.entityGateway;
+    final bot = _snowflake(variables['bot.id']);
+    if (gateway == null || bot == null) {
+      throw StateError(
+        'Channel deletion requires entity fixtures and a bot ID.',
+      );
+    }
+    final id = Snowflake.parse(change.channelId.trim());
+    final target = await gateway.channels.fetch(id);
+    budget.check();
+    if (target is! GuildChannel) {
+      throw StateError('Channel deletion requires a guild channel.');
+    }
+    final error = await checkBotChannelPermission(
+      _SandboxPermissionGateway(gateway, bot),
+      channel: target,
+      requiredPermissions: [
+        Permissions.manageChannels,
+        if (target is Thread) Permissions.manageThreads,
+      ],
+      actionLabel: 'delete channels',
+      budget: budget,
+    );
+    if (error != null) throw StateError(error);
+    final guild =
+        (gateway.fixtures['guilds'] as Map)[target.guildId.toString()] as Map;
+    final channels = guild['channels'] as List? ?? [];
+    final threads = guild['threads'] as List? ?? [];
+    budget.check();
+    policy.checkBudget();
+    channels.removeWhere((row) => row is Map && row['id'].toString() == '$id');
+    threads.removeWhere((row) => row is Map && row['id'].toString() == '$id');
+    if (target is GuildCategory) {
+      for (final row in channels.whereType<Map>()) {
+        if (row['parent_id']?.toString() == '$id') row.remove('parent_id');
+      }
+    } else if (target is! Thread) {
+      threads.removeWhere(
+        (row) => row is Map && row['parent_id']?.toString() == '$id',
+      );
+    }
+    policy.effects.add({
+      'type': 'removeChannel',
+      'guild_id': '${target.guildId}',
+      'channel_id': '$id',
+      'simulated': true,
+      if (change.reason != null) 'reason': change.reason,
+    });
+  });
+  @override
+  Future<void> setSlowmode(
+    SlowmodeChange change, {
+    required CommandExecutionBudget budget,
+  }) => budget.run(() async {
+    policy.checkBudget();
+    change.validate();
+    final gateway = policy.entityGateway;
+    final bot = _snowflake(variables['bot.id']);
+    if (gateway == null || bot == null) {
+      throw StateError('Slowmode requires entity fixtures and a bot ID.');
+    }
+    final target = await _channelQueries.channel(
+      change.channelId,
+      budget: budget,
+    );
+    if (target == null ||
+        target.guildId == null ||
+        !const [
+          'text',
+          'announcement',
+          'forum',
+          'thread',
+        ].contains(target.type)) {
+      throw StateError('Slowmode requires a supported guild channel.');
+    }
+    final permissionChannel = await gateway.channels.fetch(
+      Snowflake.parse(target.id),
+    );
+    budget.check();
+    if (permissionChannel is! GuildChannel) {
+      throw StateError('Slowmode requires a guild channel.');
+    }
+    if (permissionChannel is Thread && permissionChannel.isArchived) {
+      throw StateError('Cannot change slowmode on an archived thread.');
+    }
+    final error = await checkBotChannelPermission(
+      _SandboxPermissionGateway(gateway, bot),
+      channel: permissionChannel,
+      requiredPermissions: [
+        Permissions.manageChannels,
+        if (permissionChannel is Thread) Permissions.manageThreads,
+      ],
+      actionLabel: 'set slowmode',
+      budget: budget,
+    );
+    if (error != null) throw StateError(error);
+    final guild = (gateway.fixtures['guilds'] as Map)[target.guildId] as Map;
+    final rows = [
+      ...(guild['channels'] as List? ?? []),
+      ...(guild['threads'] as List? ?? []),
+    ];
+    final row = rows
+        .whereType<Map>()
+        .where((r) => r['id'].toString() == target.id)
+        .firstOrNull;
+    if (row == null) throw StateError('Missing slowmode channel fixture.');
+    budget.check();
+    policy.checkBudget();
+    final before = row['slowmode'] ?? 0;
+    row['slowmode'] = change.seconds;
+    variables['channel[${target.id}].rateLimitPerUser'] = '${change.seconds}';
+    if (variables['channel.id'] == target.id) {
+      variables['channel.rateLimitPerUser'] = '${change.seconds}';
+    }
+    policy.effects.add({
+      'type': 'slowmode',
+      'guild_id': target.guildId,
+      'channel_id': target.id,
+      'before': before,
+      'after': change.seconds,
+      'simulated': true,
+    });
+  });
+  @override
+  Future<int> countChannels({required CommandExecutionBudget budget}) {
+    policy.checkBudget();
+    return _channelQueries.countChannels(budget: budget);
+  }
+
+  @override
+  Future<BotChannel?> channel(
+    String id, {
+    required CommandExecutionBudget budget,
+  }) {
+    policy.checkBudget();
+    return _channelQueries.channel(id, budget: budget);
+  }
+
+  @override
+  Future<List<BotChannel>> channels({
+    String? guildId,
+    bool includeActiveThreads = false,
+    required CommandExecutionBudget budget,
+  }) {
+    policy.checkBudget();
+    return _channelQueries.channels(
+      guildId: guildId,
+      includeActiveThreads: includeActiveThreads,
+      budget: budget,
+    );
+  }
+
+  @override
+  Future<List<BotRole>> roles({
+    String? guildId,
+    required CommandExecutionBudget budget,
+  }) {
+    policy.checkBudget();
+    return _queries.roles(guildId: guildId, budget: budget);
+  }
+
+  @override
+  Future<List<String>> memberRoleIds(
+    String userId, {
+    required CommandExecutionBudget budget,
+  }) {
+    policy.checkBudget();
+    return _queries.memberRoleIds(userId, budget: budget);
+  }
+
+  @override
+  Future<String> moderate(
+    BotModerationRequest request, {
+    required CommandExecutionBudget budget,
+  }) => budget.run(() async {
+    budget.check();
+    policy.actions++;
+    policy.checkBudget();
+    final gateway = policy.entityGateway;
+    final guildId = _snowflake(variables['guild.id']);
+    final botId = _snowflake(variables['bot.id']);
+    final userId = _snowflake(request.userId);
+    final guild = (gateway?.fixtures['guilds'] as Map?)?[guildId?.toString()];
+    switch (request.operation) {
+      case BotModerationOperation.clearMessages:
+        return _simulateClear(request, guildId, guild);
+      case BotModerationOperation.setNickname:
+        return _simulateNickname(request, guildId, guild);
+      case BotModerationOperation.registerGuildCommands:
+      case BotModerationOperation.unregisterGuildCommands:
+        final raw = request.targetGuildId.trim().isEmpty
+            ? guildId?.toString() ?? ''
+            : request.targetGuildId.trim();
+        if (int.tryParse(raw) == null) {
+          throw StateError('Guild command simulation requires a guild ID');
+        }
+        policy.effects.add({
+          'type': request.operation.name,
+          'backend': 'native-v1',
+          'guild_id': raw,
+          'simulated': true,
+        });
+        return '';
+      case BotModerationOperation.isBanned:
+      case BotModerationOperation.banReason:
+        if (gateway == null) {
+          throw StateError('Ban lookups require entity fixtures');
+        }
+        final scope =
+            _snowflake(
+              request.targetGuildId.trim().isEmpty
+                  ? null
+                  : request.targetGuildId,
+            ) ??
+            guildId;
+        if (scope == null || userId == null) {
+          throw StateError('Ban lookups require guild and user IDs');
+        }
+        String? reason;
+        var banned = true;
+        try {
+          reason = (await gateway.guilds.fetchBan(scope, userId)).reason;
+        } on DiscordEntityNotFound {
+          banned = false;
+        }
+        budget.check();
+        variables['member[$userId].isBanned'] = '$banned';
+        final value = banned ? reason ?? '' : '';
+        variables['ban.reason[$userId]'] = value;
+        if (request.targetGuildId.trim().isNotEmpty) {
+          variables['ban.reason[$userId;${request.targetGuildId.trim()}]'] =
+              value;
+        }
+        return request.operation == BotModerationOperation.isBanned
+            ? '$banned'
+            : value;
+      default:
+        break;
+    }
+    if (request.operation == BotModerationOperation.setUserRoles) {
+      return _simulateRoleReplacement(
+        request,
+        budget,
+        gateway,
+        guildId,
+        botId,
+        guild,
+      );
+    }
+    if (request.operation == BotModerationOperation.createRole ||
+        request.operation == BotModerationOperation.updateRole ||
+        request.operation == BotModerationOperation.deleteRole) {
+      return _simulateRoleDefinition(
+        request,
+        budget,
+        gateway,
+        guildId,
+        botId,
+        guild,
+      );
+    }
+    if (request.operation == BotModerationOperation.addRole ||
+        request.operation == BotModerationOperation.removeRole) {
+      return _simulateRole(request, budget, gateway, guildId, botId, guild);
+    }
+    if (request.operation == BotModerationOperation.timeout ||
+        request.operation == BotModerationOperation.untimeout) {
+      return _simulateTimeout(request, budget, gateway, guildId, botId, guild);
+    }
+    if (request.operation == BotModerationOperation.unban) {
+      return _simulateUnban(request, budget, gateway, guildId, botId, guild);
+    }
+    if (gateway == null ||
+        guildId == null ||
+        botId == null ||
+        userId == null ||
+        guild is! Map ||
+        guild['members'] is! Map ||
+        guild['bans'] is! Map ||
+        guild['owner_id'] == null ||
+        guild['roles'] is! List) {
+      throw StateError(
+        'Native moderation requires bot ID, guild owner, roles, members and bans fixtures',
+      );
+    }
+    await checkModerationActorPermission(
+      _SandboxPermissionGateway(gateway, botId),
+      guildId,
+      request,
+      budget,
+    );
+    final error = await checkBotCanModerate(
+      _SandboxPermissionGateway(gateway, botId),
+      guildId: guildId,
+      targetUserId: userId,
+      requiredPermission: request.operation == BotModerationOperation.kick
+          ? Permissions.kickMembers
+          : Permissions.banMembers,
+      actionLabel: request.operation.name,
+      allowNonMember: request.operation == BotModerationOperation.ban,
+    );
+    budget.check();
+    if (error != null) throw StateError(error);
+    final members = guild['members'] as Map;
+    final bans = guild['bans'] as Map;
+    final target = userId.toString();
+    final member = members[target];
+    final before = {
+      'member': member is Map ? Map<String, dynamic>.from(member) : null,
+      'ban_reason': bans[target],
+    };
+    final auditReason = request.auditLogReason ?? '';
+    if (request.operation == BotModerationOperation.ban) {
+      bans[target] = auditReason;
+      variables['member[$target].isBanned'] = 'true';
+      variables['ban.reason[$target]'] = bans[target].toString();
+      variables['ban.reason[$target;$guildId]'] = bans[target].toString();
+    }
+    members.remove(target);
+    policy.effects.add({
+      'type': request.operation == BotModerationOperation.kick
+          ? 'kickUser'
+          : 'banUser',
+      'backend': 'native-v1',
+      'guild_id': guildId.toString(),
+      'user_id': target,
+      'reason': auditReason,
+      'before': before,
+      'after': {'member': null, 'ban_reason': bans[target]},
+      'simulated': true,
+    });
+    return target;
+  });
+  Future<String> _simulateRoleReplacement(
+    BotModerationRequest request,
+    CommandExecutionBudget budget,
+    EntityFixtureGateway? gateway,
+    Snowflake? guildId,
+    Snowflake? botId,
+    dynamic guild,
+  ) async {
+    if (gateway == null ||
+        guildId == null ||
+        botId == null ||
+        guild is! Map ||
+        guild['roles'] is! List ||
+        guild['members'] is! Map) {
+      throw StateError(
+        'Native role replacements require bot ID, roles and members fixtures',
+      );
+    }
+    final userId = _snowflake(request.userId);
+    if (userId == null || userId.value <= 0) {
+      throw StateError('Invalid user ID');
+    }
+    final rawRoles = request.roleReplacement?.roleIds;
+    if (rawRoles == null) throw StateError('Missing role replacement');
+    final ids = <Snowflake>{};
+    for (final raw in rawRoles) {
+      final id = _snowflake(raw);
+      if (id == null || id.value <= 0) throw StateError('Invalid role ID');
+      ids.add(id);
+    }
+    final error = await checkBotCanReplaceRoles(
+      _SandboxPermissionGateway(gateway, botId),
+      guildId: guildId,
+      userId: userId,
+      roleIds: ids.toList(),
+      budget: budget,
+    );
+    budget.check();
+    if (error != null) throw StateError(error);
+    final member = guild['members'][userId.toString()] as Map;
+    final before = Map<String, dynamic>.from(member);
+    member['roles'] = ids.map((id) => id.toString()).toList();
+    variables['member[$userId].roles'] = ids.join(',');
+    policy.effects.add({
+      'type': 'setUserRoles',
+      'backend': 'native-v1',
+      'guild_id': '$guildId',
+      'user_id': '$userId',
+      'role_ids': ids.map((id) => id.toString()).toList(),
+      'reason': request.auditLogReason ?? '',
+      'before': {'member': before},
+      'after': {'member': Map<String, dynamic>.from(member)},
+      'simulated': true,
+    });
+    return userId.toString();
+  }
+
+  Future<String> _simulateRoleDefinition(
+    BotModerationRequest request,
+    CommandExecutionBudget budget,
+    EntityFixtureGateway? gateway,
+    Snowflake? guildId,
+    Snowflake? botId,
+    dynamic guild,
+  ) async {
+    if (gateway == null ||
+        guildId == null ||
+        botId == null ||
+        guild is! Map ||
+        guild['roles'] is! List ||
+        guild['members'] is! Map) {
+      throw StateError(
+        'Native role definitions require bot ID, roles and members fixtures',
+      );
+    }
+    final create = request.operation == BotModerationOperation.createRole;
+    final delete = request.operation == BotModerationOperation.deleteRole;
+    final fields = request.roleDefinition;
+    if (!delete) {
+      if (fields == null) throw StateError('Missing role definition');
+      final invalid = fields.validate(create: create);
+      if (invalid != null) throw StateError(invalid);
+    }
+    final permissions = _SandboxPermissionGateway(gateway, botId);
+    final roleId = _snowflake(request.roleId);
+    if (!create && (roleId == null || roleId.value <= 0)) {
+      throw StateError('Invalid role ID');
+    }
+    final error = create
+        ? await checkBotGuildPermission(
+            permissions,
+            guildId: guildId,
+            requiredPermissions: [Permissions.manageRoles],
+            actionLabel: 'create roles',
+          )
+        : await checkBotCanManageRole(
+            permissions,
+            guildId: guildId,
+            roleId: roleId!,
+            allowEveryone: !delete,
+          );
+    budget.check();
+    if (error != null) throw StateError(error);
+    final roles = guild['roles'] as List;
+    final Map role;
+    final String target;
+    if (create) {
+      // Fixture-only IDs; never claim these synthetic IDs exist on Discord.
+      var next =
+          roles
+              .map((r) => int.tryParse(r['id'].toString()) ?? 0)
+              .fold<int>(0, (a, b) => a > b ? a : b) +
+          1;
+      while (roles.any((r) => r['id'].toString() == next.toString())) {
+        next++;
+      }
+      target = next.toString();
+      role = {
+        'id': target,
+        'name': fields!.name,
+        'color': fields.color,
+        'hoist': fields.hoist ?? false,
+        'mentionable': fields.mentionable ?? false,
+        'position': 1,
+        'permissions': '0',
+      };
+    } else {
+      target = roleId.toString();
+      role = roles.firstWhere((r) => r['id'].toString() == target) as Map;
+    }
+    final before = create ? null : Map<String, dynamic>.from(role);
+    if (!create && !delete && fields!.position != null) {
+      final bot = guild['members'][botId.toString()];
+      final botRoles = (bot['roles'] as List)
+          .map((id) => id.toString())
+          .toSet();
+      final highest = roles
+          .where((r) => botRoles.contains(r['id'].toString()))
+          .map((r) => (r['position'] as num? ?? 0).toInt())
+          .fold<int>(0, (a, b) => a > b ? a : b);
+      if (roleId == guildId || fields.position! >= highest) {
+        throw StateError('Invalid role position: must be below the bot');
+      }
+    }
+    budget.check();
+    if (delete) {
+      roles.remove(role);
+      for (final member in (guild['members'] as Map).values) {
+        if (member is Map && member['roles'] is List) {
+          member['roles'] = (member['roles'] as List)
+              .where((id) => id.toString() != target)
+              .toList();
+        }
+      }
+    } else {
+      if (fields!.name != null) role['name'] = fields.name;
+      if (fields.color != null) role['color'] = fields.color;
+      if (fields.hoist != null) role['hoist'] = fields.hoist;
+      if (fields.mentionable != null) role['mentionable'] = fields.mentionable;
+      if (fields.position != null) role['position'] = fields.position;
+      if (fields.togglePermissions != null) {
+        var mask = int.parse((role['permissions'] ?? '0').toString());
+        for (final flag in fields.togglePermissions!) {
+          mask ^= flag;
+        }
+        role['permissions'] = mask.toString();
+      }
+      if (create) roles.add(role);
+    }
+    policy.effects.add({
+      'type': request.operation.name,
+      'backend': 'native-v1',
+      'guild_id': guildId.toString(),
+      'role_id': target,
+      'reason': request.auditLogReason ?? '',
+      'before': before,
+      'after': delete ? null : Map<String, dynamic>.from(role),
+      'simulated': true,
+    });
+    return target;
+  }
+
+  Future<String> _simulateRole(
+    BotModerationRequest request,
+    CommandExecutionBudget budget,
+    EntityFixtureGateway? gateway,
+    Snowflake? guildId,
+    Snowflake? botId,
+    dynamic guild,
+  ) async {
+    if (gateway == null ||
+        guildId == null ||
+        botId == null ||
+        guild is! Map ||
+        guild['roles'] is! List ||
+        guild['members'] is! Map) {
+      throw StateError(
+        'Native role grants require bot ID, roles and members fixtures',
+      );
+    }
+    final userId = _snowflake(request.userId);
+    final roleId = _snowflake(request.roleId);
+    if (userId == null ||
+        userId.value <= 0 ||
+        roleId == null ||
+        roleId.value <= 0) {
+      throw StateError('Missing or invalid user ID/role ID');
+    }
+    final error = await checkBotCanManageRole(
+      _SandboxPermissionGateway(gateway, botId),
+      guildId: guildId,
+      roleId: roleId,
+    );
+    budget.check();
+    if (error != null) throw StateError(error);
+    // Require a real fixture member, just as Discord requires guild membership.
+    await gateway.guilds.get(guildId).then((g) => g.members.get(userId));
+    budget.check();
+    final member = guild['members'][userId.toString()] as Map;
+    final before = Map<String, dynamic>.from(member);
+    final roles = (member['roles'] as List? ?? [])
+        .map((id) => id.toString())
+        .toSet();
+    if (request.operation == BotModerationOperation.addRole) {
+      roles.add(roleId.toString());
+    } else {
+      roles.remove(roleId.toString());
+    }
+    member['roles'] = roles.toList();
+    variables['member[$userId].roles'] = roles.join(',');
+    policy.effects.add({
+      'type': request.operation.name,
+      'backend': 'native-v1',
+      'guild_id': guildId.toString(),
+      'user_id': userId.toString(),
+      'role_id': roleId.toString(),
+      'reason': request.auditLogReason ?? '',
+      'before': {'member': before},
+      'after': {'member': Map<String, dynamic>.from(member)},
+      'simulated': true,
+    });
+    return userId.toString();
+  }
+
+  Future<String> _simulateTimeout(
+    BotModerationRequest request,
+    CommandExecutionBudget budget,
+    EntityFixtureGateway? gateway,
+    Snowflake? guildId,
+    Snowflake? botId,
+    dynamic guild,
+  ) async {
+    if (gateway == null ||
+        guildId == null ||
+        botId == null ||
+        guild is! Map ||
+        guild['members'] is! Map ||
+        guild['roles'] is! List ||
+        guild['owner_id'] == null) {
+      throw StateError(
+        'Native timeout requires bot ID, owner, roles and members fixtures',
+      );
+    }
+    final userId = _snowflake(request.userId);
+    if (userId == null || userId.value <= 0) {
+      throw StateError('Missing or invalid user ID');
+    }
+    final error = await checkBotCanModerate(
+      _SandboxPermissionGateway(gateway, botId),
+      guildId: guildId,
+      targetUserId: userId,
+      requiredPermission: Permissions.moderateMembers,
+      actionLabel: request.operation.name,
+      disallowAdministrator: true,
+    );
+    budget.check();
+    if (error != null) throw StateError(error);
+    final target = userId.toString();
+    final member = guild['members'][target] as Map;
+    final before = Map<String, dynamic>.from(member);
+    if (request.operation == BotModerationOperation.timeout) {
+      final now = DateTime.now().toUtc();
+      final until = request.timeoutDeadline(now);
+      member['timeout_until'] = until.toIso8601String();
+      member['timeout_seconds'] = until.difference(now).inSeconds;
+      variables['member[$target].isTimedOut'] = 'true';
+    } else {
+      member.remove('timeout_until');
+      member.remove('timeout_seconds');
+      variables['member[$target].isTimedOut'] = 'false';
+    }
+    policy.effects.add({
+      'type': request.operation == BotModerationOperation.timeout
+          ? 'muteUser'
+          : 'unmuteUser',
+      'backend': 'native-v1',
+      'guild_id': guildId.toString(),
+      'user_id': target,
+      'reason': request.auditLogReason ?? '',
+      'before': {'member': before},
+      'after': {'member': Map<String, dynamic>.from(member)},
+      'simulated': true,
+    });
+    return target;
+  }
+
+  String _simulateClear(
+    BotModerationRequest request,
+    Snowflake? guildId,
+    dynamic guild,
+  ) {
+    final channelId = request.channelId;
+    final channels = guild is Map ? guild['messages'] : null;
+    final rows = channels is Map ? channels[channelId] : null;
+    if (rows is! List) {
+      throw StateError(
+        'Message deletion simulation requires channel messages fixtures',
+      );
+    }
+    if (request.count < 1 || request.count > 100) {
+      throw StateError(r'$clear amount must be between 1 and 100');
+    }
+    final selected = rows
+        .where((raw) {
+          if (raw is! Map) return false;
+          if (request.onlyUserId.isNotEmpty &&
+              raw['author_id']?.toString() != request.onlyUserId) {
+            return false;
+          }
+          return request.removePinned || raw['pinned'] != true;
+        })
+        .take(request.count)
+        .map((raw) => (raw as Map)['id'].toString())
+        .toList();
+    final selectedIds = selected.toSet();
+    rows.removeWhere(
+      (raw) => raw is Map && selectedIds.contains(raw['id'].toString()),
+    );
+    policy.effects.add({
+      'type': 'deleteMessages',
+      'backend': 'native-v1',
+      'guild_id': guildId?.toString() ?? '',
+      'channel_id': channelId,
+      'only_user_id': request.onlyUserId,
+      'remove_pinned': request.removePinned,
+      'deleted_ids': selected,
+      'deleted_count': selected.length,
+      'remaining_ids': [
+        for (final raw in rows)
+          if (raw is Map) raw['id'].toString(),
+      ],
+      'simulated': true,
+    });
+    return '';
+  }
+
+  String _simulateNickname(
+    BotModerationRequest request,
+    Snowflake? guildId,
+    dynamic guild,
+  ) {
+    final members = guild is Map ? guild['members'] : null;
+    if (members is! Map) {
+      throw StateError('Nickname simulation requires guild members fixtures');
+    }
+    final userId = request.userId.trim();
+    final member = members[userId];
+    if (int.tryParse(userId) == null || member is! Map) {
+      throw StateError('Nickname simulation requires an existing member ID');
+    }
+    if (request.nickname.length > 32) {
+      throw StateError('Nickname exceeds Discord length limit');
+    }
+    final before = member['nick']?.toString();
+    member['nick'] = request.nickname;
+    variables['member[$userId].nick'] = request.nickname;
+    variables['member[$userId].displayName'] = request.nickname;
+    if (variables['author.id'] == userId) {
+      variables['member.nick'] = request.nickname;
+      variables['member.displayName'] = request.nickname;
+    }
+    policy.effects.add({
+      'type': 'setNickname',
+      'backend': 'native-v1',
+      'guild_id': guildId?.toString() ?? '',
+      'user_id': userId,
+      'before': before,
+      'after': request.nickname,
+      'simulated': true,
+    });
+    return userId;
+  }
+
+  Future<String> _simulateUnban(
+    BotModerationRequest request,
+    CommandExecutionBudget budget,
+    EntityFixtureGateway? gateway,
+    Snowflake? guildId,
+    Snowflake? botId,
+    dynamic guild,
+  ) async {
+    if (gateway == null ||
+        guildId == null ||
+        botId == null ||
+        guild is! Map ||
+        guild['roles'] is! List ||
+        guild['members'] is! Map ||
+        guild['bans'] is! Map) {
+      throw StateError(
+        'Native unban requires bot ID, roles, members and bans fixtures',
+      );
+    }
+    final error = await checkBotGuildPermission(
+      _SandboxPermissionGateway(gateway, botId),
+      guildId: guildId,
+      requiredPermissions: [Permissions.banMembers],
+      actionLabel: 'unban this user',
+    );
+    budget.check();
+    if (error != null) throw StateError(error);
+    final bans = guild['bans'] as Map;
+    final members = guild['members'] as Map;
+    var target = request.userId.trim();
+    if (target.isEmpty) {
+      final usernames = guild['ban_users'];
+      if (usernames is! Map) {
+        throw StateError('Username unban requires ban_users fixtures');
+      }
+      final username = request.username.trim().toLowerCase();
+      for (final id in bans.keys) {
+        if (usernames[id]?.toString().toLowerCase() == username) {
+          target = id.toString();
+          break;
+        }
+      }
+    } else {
+      target = _snowflake(target)?.toString() ?? '';
+    }
+    final targetNumber = int.tryParse(target);
+    if (targetNumber == null || targetNumber <= 0) {
+      throw StateError('Banned user not found');
+    }
+    target = Snowflake(targetNumber).toString();
+    if (target.isEmpty || !bans.containsKey(target)) {
+      throw StateError('Banned user not found');
+    }
+    final member = members[target];
+    final before = {
+      'member': member is Map ? Map<String, dynamic>.from(member) : null,
+      'ban_reason': bans[target],
+    };
+    budget.check();
+    bans.remove(target);
+    variables['member[$target].isBanned'] = 'false';
+    variables['ban.reason[$target]'] = '';
+    variables['ban.reason[$target;$guildId]'] = '';
+    policy.effects.add({
+      'type': 'unbanUser',
+      'backend': 'native-v1',
+      'guild_id': guildId.toString(),
+      'user_id': target,
+      'reason': request.auditLogReason ?? '',
+      'before': before,
+      'after': {
+        'member': member is Map ? Map<String, dynamic>.from(member) : null,
+        'ban_reason': null,
+      },
+      'simulated': true,
+    });
+    return target;
+  }
+}
+
+class _SandboxPermissionGateway implements NyxxGateway {
+  _SandboxPermissionGateway(this.fixtureGateway, this.botId);
+  final EntityFixtureGateway fixtureGateway;
+  final Snowflake botId;
+  @override
+  UserManager get users => fixtureGateway.users;
+  @override
+  GuildManager get guilds => fixtureGateway.guilds;
+  @override
+  ChannelManager get channels => fixtureGateway.channels;
+  @override
+  PartialUser get user => _SandboxBotUser(botId);
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw StateError('Sandbox permission access denied');
+}
+
+class _SandboxBotUser implements PartialUser {
+  _SandboxBotUser(this.id);
+  @override
+  final Snowflake id;
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw StateError('Sandbox bot user access denied');
 }
 
 class _SandboxPolicy implements ActionExecutionPolicy {
@@ -506,6 +2640,96 @@ class _SandboxPolicy implements ActionExecutionPolicy {
   final frames = <Map<String, dynamic>>[];
   int actions = 0;
   final timer = Stopwatch()..start();
+  http.Client httpClient() => MockClient((request) async {
+    checkBudget();
+    final index = httpFixtures.indexWhere(
+      (fixture) =>
+          (fixture['method'] ?? 'GET').toString().toUpperCase() ==
+              request.method &&
+          fixture['url'] == request.url.toString(),
+    );
+    if (index < 0) {
+      throw StateError(
+        'HTTP ${request.method} ${request.url} requires an explicit simulation fixture',
+      );
+    }
+    final fixture = httpFixtures.removeAt(index);
+    effects.add({
+      'type': 'httpRequest',
+      'method': request.method,
+      'url': request.url.toString(),
+      'headers': request.headers,
+      'body': request.body,
+      'simulated': true,
+    });
+    final expected = fixture['expectedRequest'] as Map?;
+    if (expected != null) {
+      if (expected.containsKey('body') && expected['body'] != request.body) {
+        throw StateError(
+          'Simulated HTTP request body did not match fixture expectation',
+        );
+      }
+      for (final entry in (expected['headers'] as Map? ?? {}).entries) {
+        if (request.headers[entry.key.toString()] != entry.value.toString()) {
+          throw StateError(
+            'Simulated HTTP request header ${entry.key} did not match fixture expectation',
+          );
+        }
+      }
+    }
+    if (fixture['error'] != null) {
+      throw StateError(fixture['error'].toString());
+    }
+    final status = fixture['status'] as int? ?? 200;
+    if (status < 100 || status > 599) {
+      throw ArgumentError('Invalid simulated HTTP status');
+    }
+    if (fixture['bodyBase64'] != null) {
+      return http.Response.bytes(
+        base64Decode(fixture['bodyBase64'].toString()),
+        status,
+        headers: (fixture['headers'] as Map? ?? {}).map(
+          (key, value) => MapEntry(key.toString(), value.toString()),
+        ),
+      );
+    }
+    final body = fixture['body'] ?? '';
+    return http.Response(
+      body is String ? body : jsonEncode(body),
+      status,
+      headers: (fixture['headers'] as Map? ?? {}).map(
+        (key, value) => MapEntry(key.toString(), value.toString()),
+      ),
+    );
+  });
+
+  int nativeTraceCount = 0;
+  int nativeTraceDropped = 0;
+  void recordNative(BdfdTraceEvent event) {
+    if (++nativeTraceCount > 1000) {
+      nativeTraceDropped++;
+      return;
+    }
+    final value = event.value;
+    frames.add({
+      'type': 'bdfd${event.kind[0].toUpperCase()}${event.kind.substring(1)}',
+      'backend': 'native-v1',
+      'status': event.status,
+      'line': event.location.line,
+      'column': event.location.column,
+      'function': event.location.functionName,
+      'scriptDepth': event.scriptDepth,
+      'functionDepth': event.functionDepth,
+      if (event.branch != null) 'branch': event.branch,
+      if (event.iteration != null) 'iteration': event.iteration,
+      if (event.durationMicroseconds != null)
+        'durationMicroseconds': event.durationMicroseconds,
+      if (value != null)
+        'value': value.length > 500 ? value.substring(0, 500) : value,
+      if (value != null && value.length > 500) 'valueTruncated': true,
+    });
+  }
+
   @override
   bool get allowDiscordHydration => allowEntityFixtures;
   @override
@@ -560,6 +2784,14 @@ class _SandboxPolicy implements ActionExecutionPolicy {
     BotCreatorActionType.randomChoice,
     BotCreatorActionType.skipActions,
     BotCreatorActionType.jumpToAction,
+    // Variable reads and in-memory listeners/images: no Discord access, run as in production.
+    BotCreatorActionType.queryArray,
+    BotCreatorActionType.listScopedVariableIndex,
+    BotCreatorActionType.listenForButtonClick,
+    BotCreatorActionType.listenForSelectMenu,
+    BotCreatorActionType.listenForModalSubmit,
+    BotCreatorActionType.listenAndExecute,
+    BotCreatorActionType.attachImage,
   };
   static const messages = {
     BotCreatorActionType.respondWithMessage,
@@ -1473,6 +3705,20 @@ class _SandboxPolicy implements ActionExecutionPolicy {
       if (int.tryParse(userId) == null) {
         throw StateError('Moderation simulation requires a valid user ID');
       }
+      if (action.type == BotCreatorActionType.kickUser &&
+          payload['kickPermissionActorId'] != null) {
+        await checkModerationActorPermission(
+          entityGateway!,
+          Snowflake.parse(guildId),
+          BotModerationRequest(
+            operation: BotModerationOperation.kick,
+            userId: userId,
+            kickPermissionActorId: payload['kickPermissionActorId'].toString(),
+          ),
+          null,
+        );
+        checkBudget();
+      }
       final members = guild['members'] as Map;
       final bans = guild['bans'] as Map;
       final member = members[userId];
@@ -1779,62 +4025,9 @@ class _SandboxPolicy implements ActionExecutionPolicy {
     }
 
     if (action.type == BotCreatorActionType.httpRequest) {
-      final client = MockClient((request) async {
-        final index = httpFixtures.indexWhere(
-          (fixture) =>
-              (fixture['method'] ?? 'GET').toString().toUpperCase() ==
-                  request.method &&
-              fixture['url'] == request.url.toString(),
-        );
-        if (index < 0) {
-          throw StateError(
-            'HTTP ${request.method} ${request.url} requires an explicit simulation fixture',
-          );
-        }
-        final fixture = httpFixtures.removeAt(index);
-        effects.add({
-          'type': 'httpRequest',
-          'method': request.method,
-          'url': request.url.toString(),
-          'headers': request.headers,
-          'body': request.body,
-          'simulated': true,
-        });
-        final expected = fixture['expectedRequest'] as Map?;
-        if (expected != null) {
-          if (expected.containsKey('body') &&
-              expected['body'] != request.body) {
-            throw StateError(
-              'Simulated HTTP request body did not match fixture expectation',
-            );
-          }
-          for (final entry in (expected['headers'] as Map? ?? {}).entries) {
-            if (request.headers[entry.key.toString()] !=
-                entry.value.toString()) {
-              throw StateError(
-                'Simulated HTTP request header ${entry.key} did not match fixture expectation',
-              );
-            }
-          }
-        }
-        if (fixture['error'] != null) {
-          throw StateError(fixture['error'].toString());
-        }
-        final status = fixture['status'] as int? ?? 200;
-        if (status < 100 || status > 599) {
-          throw ArgumentError('Invalid simulated HTTP status');
-        }
-        final body = fixture['body'] ?? '';
-        return http.Response(
-          body is String ? body : jsonEncode(body),
-          status,
-          headers: (fixture['headers'] as Map? ?? {}).map(
-            (key, value) => MapEntry(key.toString(), value.toString()),
-          ),
-        );
-      });
+      final client = httpClient();
       try {
-        return await executeHttpAction(
+        return await executeHttp(
           type: action.type,
           payload: action.payload,
           resultKey: resultKey,
@@ -2052,10 +4245,23 @@ class _SandboxPolicy implements ActionExecutionPolicy {
       results[resultKey] = 'Sandbox trace enabled';
       return true;
     }
+    if (sandboxSimulatedAdditionalActions.contains(action.type)) {
+      final guild =
+          (entityGateway?.fixtures['guilds'] as Map?)?[variables['guild.id'] ??
+              ''];
+      return simulateAdditionalAction(
+        type: action.type,
+        payload: Map<String, dynamic>.from(resolve(action.payload) as Map),
+        resultKey: resultKey,
+        results: results,
+        variables: variables,
+        effects: effects,
+        responses: responses,
+        guild: guild is Map ? guild : null,
+      );
+    }
     if (pure.contains(action.type)) return false;
-    throw StateError(
-      'Sandbox action ${action.type.name} requires an explicit simulation fixture',
-    );
+    throw StateError(sandboxMissingFixtureMessage(action.type));
   }
 
   String _simulateRoleDefinition(
@@ -2169,5 +4375,227 @@ class _SandboxPolicy implements ActionExecutionPolicy {
       'simulated': true,
     });
     return roleId;
+  }
+}
+
+/// Command fixtures are explicit, so missing data never looks like an empty bot.
+class _SandboxCommandQueries implements BotCommandQueryService {
+  _SandboxCommandQueries(this.policy, this.variables);
+  final _SandboxPolicy policy;
+  final Map<String, String> variables;
+
+  List<dynamic> _rows(String key, CommandExecutionBudget budget) {
+    budget.check();
+    final rows = policy.entityGateway?.fixtures[key];
+    if (rows is! List) {
+      throw StateError('Native command queries require $key fixtures');
+    }
+    return rows;
+  }
+
+  @override
+  Future<List<BotCommandDefinition>> commands({
+    required CommandExecutionBudget budget,
+  }) async => _rows('commands', budget).map((row) {
+    budget.check();
+    if (row is! Map ||
+        row['name'] is! String ||
+        (row['name'] as String).isEmpty) {
+      throw StateError('Command fixture requires a name');
+    }
+    return BotCommandDefinition(row['name'] as String);
+  }).toList();
+
+  @override
+  Future<List<BotGlobalSlashCommand>> globalSlashCommands({
+    required CommandExecutionBudget budget,
+  }) async => _rows('global_slash_commands', budget).map((row) {
+    budget.check();
+    if (row is! Map ||
+        row['name'] is! String ||
+        (row['name'] as String).isEmpty ||
+        !RegExp(r'^[1-9][0-9]*$').hasMatch('${row['id']}')) {
+      throw StateError('Global slash fixture requires an ID and name');
+    }
+    return BotGlobalSlashCommand(
+      id: '${row['id']}',
+      name: row['name'] as String,
+    );
+  }).toList();
+
+  @override
+  Future<String> invite({required CommandExecutionBudget budget}) async {
+    budget.check();
+    final id = variables['bot.id'] ?? '';
+    if (!RegExp(r'^[1-9][0-9]*$').hasMatch(id)) {
+      throw StateError('Bot invite requires a numeric bot ID');
+    }
+    return Uri.https('discord.com', '/oauth2/authorize', {
+      'client_id': id,
+      'permissions': '8',
+      'scope': 'bot applications.commands',
+    }).toString();
+  }
+
+  @override
+  Future<void> leaveGuild(
+    String? guildId, {
+    required CommandExecutionBudget budget,
+  }) async {
+    budget.check();
+    final id = guildId ?? variables['guild.id'] ?? '';
+    final guilds = policy.entityGateway?.fixtures['guilds'];
+    if (guilds is! Map ||
+        !RegExp(r'^[1-9][0-9]*$').hasMatch(id) ||
+        !guilds.containsKey(id)) {
+      throw StateError('Bot leave requires an existing guild fixture');
+    }
+    guilds.remove(id);
+    policy.effects.add({
+      'type': 'leaveGuild',
+      'guild_id': id,
+      'simulated': true,
+    });
+  }
+}
+
+class _SandboxMusic implements BotMusicService {
+  _SandboxMusic(this.policy, this.variables);
+  final _SandboxPolicy policy;
+  final Map<String, String> variables;
+  @override
+  Future<void> perform(
+    BotMusicRequest request, {
+    required CommandExecutionBudget budget,
+  }) async {
+    budget.check();
+    final fixture = policy.musicFixture;
+    if (fixture == null) {
+      throw StateError('Music simulation requires a music fixture');
+    }
+    final type = switch (request.operation) {
+      BotMusicOperation.join => BotCreatorActionType.joinVoice,
+      BotMusicOperation.leave => BotCreatorActionType.leaveVoice,
+      BotMusicOperation.play => BotCreatorActionType.playMusic,
+      BotMusicOperation.pause => BotCreatorActionType.pauseMusic,
+      BotMusicOperation.resume => BotCreatorActionType.resumeMusic,
+      BotMusicOperation.skip => BotCreatorActionType.skipMusic,
+      BotMusicOperation.stop => BotCreatorActionType.stopMusic,
+      BotMusicOperation.volume => BotCreatorActionType.setMusicVolume,
+      BotMusicOperation.loop => BotCreatorActionType.setMusicLoop,
+      BotMusicOperation.seek => BotCreatorActionType.seekMusic,
+    };
+    policy.actions++;
+    policy.checkBudget();
+    fixture.apply(
+      type,
+      {
+        if (request.query.isNotEmpty) 'query': request.query,
+        if (request.channelId.isNotEmpty) 'channelId': request.channelId,
+        if (request.userId.isNotEmpty) 'userId': request.userId,
+        if (request.volume != null) 'volume': request.volume,
+        if (request.loop.isNotEmpty) 'loop': request.loop,
+        if (request.positionSeconds != null) ...{
+          'position': request.positionSeconds,
+          'positionUnit': 'seconds',
+        },
+      },
+      variables,
+      policy.effects,
+    );
+  }
+}
+
+class _SandboxDelays implements BotDelayService {
+  _SandboxDelays(this.policy);
+  final _SandboxPolicy policy;
+  @override
+  Future<void> delay(
+    Duration duration, {
+    required CommandExecutionBudget budget,
+  }) async {
+    budget.check();
+    policy.effects.add({
+      'type': 'replyIn',
+      'delay_ms': duration.inMilliseconds,
+      'simulated': true,
+    });
+  }
+}
+
+class _SandboxComponents implements BotComponentService {
+  _SandboxComponents(this.policy, this.variables);
+  final _SandboxPolicy policy;
+  final Map<String, String> variables;
+  Map _message(String id) {
+    final row =
+        ((policy.entityGateway?.fixtures['messages']
+                as Map?)?[variables['channel.id']]
+            as Map?)?[id];
+    if (row is! Map || row['author_id'].toString() != variables['bot.id']) {
+      throw StateError(
+        'Component edits require an existing bot-authored message fixture.',
+      );
+    }
+    return row;
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> readComponents(
+    String messageId, {
+    required CommandExecutionBudget budget,
+  }) async {
+    budget.check();
+    _message(messageId);
+    final gateway = policy.entityGateway;
+    if (gateway == null) {
+      throw StateError('Component edits require entity fixtures.');
+    }
+    final bot = _snowflake(variables['bot.id']);
+    if (bot == null) {
+      throw StateError('Component edits require a numeric bot ID.');
+    }
+    return DiscordBotComponentService(
+      client: _SandboxPermissionGateway(gateway, bot),
+      channelId: _snowflake(variables['channel.id']),
+    ).readComponents(messageId, budget: budget);
+  }
+
+  @override
+  Future<void> editComponents(
+    String messageId,
+    List<Map<String, dynamic>> rows, {
+    required CommandExecutionBudget budget,
+  }) async {
+    budget.check();
+    final row = _message(messageId);
+    final raw = rows.map((row) => nativeComponentBuilder(row).build()).toList();
+    row['components'] = raw;
+    policy.effects.add({
+      'type': 'editComponents',
+      'message_id': messageId,
+      'components': raw,
+      'simulated': true,
+    });
+  }
+
+  @override
+  Future<void> sendModal(
+    Map<String, dynamic> definition, {
+    required CommandExecutionBudget budget,
+  }) async {
+    budget.check();
+    if (!{'2', '3'}.contains(variables['interaction.type'])) {
+      throw StateError(
+        'A modal requires a command or component interaction fixture.',
+      );
+    }
+    final raw = nativeModalBuilder(definition).build();
+    policy.responses.add({
+      'type': 'respondWithModal',
+      'payload': raw,
+      'api_modal': raw,
+      'simulated': true,
+    });
   }
 }

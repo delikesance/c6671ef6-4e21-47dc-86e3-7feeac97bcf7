@@ -1,11 +1,11 @@
-import 'package:bot_creator_shared/actions/executors/variables_executor.dart';
+import 'package:bot_creator_shared/engine/bdfd/visual/variable_logic.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:test/test.dart';
 
 import 'helpers/variables_test_helpers.dart';
 
 void main() {
-  group('executeVariablesAction - get scoped variable', () {
+  group('executeVariableAction - get scoped variable', () {
     test(
       'getScopedVariable resolves user scope from fallback runtime identity keys',
       () async {
@@ -22,7 +22,7 @@ void main() {
           'interaction.user.id': 'user-42',
         };
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.getScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -58,7 +58,7 @@ void main() {
         final results = <String, String>{};
         final variables = <String, String>{'userId': 'user-99'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.getScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -74,10 +74,7 @@ void main() {
 
         expect(handled, isTrue);
         expect(results['getProfile'], 'legacy');
-        expect(
-          store.scopedVariables['user']?['user-99']?['profile'],
-          'legacy',
-        );
+        expect(store.scopedVariables['user']?['user-99']?['profile'], 'legacy');
         expect(
           store.scopedVariables['user']?['Unknown User']?['profile'],
           'legacy',
@@ -100,7 +97,7 @@ void main() {
         final results = <String, String>{};
         final variables = <String, String>{'userId': 'user-100'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.getScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -116,10 +113,7 @@ void main() {
 
         expect(handled, isTrue);
         expect(results['getStreak'], '5');
-        expect(
-          store.scopedVariables['user']?['user-100']?['streak'],
-          '5',
-        );
+        expect(store.scopedVariables['user']?['user-100']?['streak'], '5');
         expect(variables['user.bc_streak'], '5');
         expect(variables['user.streak'], '5');
       },
@@ -140,7 +134,7 @@ void main() {
         final results = <String, String>{};
         final variables = <String, String>{'userId': 'user-100'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.getScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -173,13 +167,7 @@ void main() {
         );
 
         // Scenario A: User has empty value in database
-        await store.setScopedVariable(
-          'bot-1',
-          'user',
-          'user-1',
-          'points',
-          '',
-        );
+        await store.setScopedVariable('bot-1', 'user', 'user-1', 'points', '');
 
         // Scenario B: User has non-empty value in database
         await store.setScopedVariable(
@@ -193,7 +181,7 @@ void main() {
         final resultsA = <String, String>{};
         final variablesA = <String, String>{'userId': 'user-1'};
 
-        final handledA = await executeVariablesAction(
+        final handledA = await executeVariableAction(
           type: BotCreatorActionType.getScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -210,15 +198,12 @@ void main() {
         expect(handledA, isTrue);
         // Should upgrade empty string to definition's defaultValue of '100'
         expect(resultsA['getPoints'], '100');
-        expect(
-          store.scopedVariables['user']?['user-1']?['points'],
-          '100',
-        );
+        expect(store.scopedVariables['user']?['user-1']?['points'], '100');
 
         final resultsB = <String, String>{};
         final variablesB = <String, String>{'userId': 'user-2'};
 
-        final handledB = await executeVariablesAction(
+        final handledB = await executeVariableAction(
           type: BotCreatorActionType.getScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -235,10 +220,7 @@ void main() {
         expect(handledB, isTrue);
         // Should preserve existing value '50'
         expect(resultsB['getPoints'], '50');
-        expect(
-          store.scopedVariables['user']?['user-2']?['points'],
-          '50',
-        );
+        expect(store.scopedVariables['user']?['user-2']?['points'], '50');
       },
     );
   });

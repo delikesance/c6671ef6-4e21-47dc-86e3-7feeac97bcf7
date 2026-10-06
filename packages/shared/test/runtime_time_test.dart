@@ -35,15 +35,20 @@ void main() {
       }
     },
   );
-  test('wait really delays the following action', () async {
-    final watch = Stopwatch()..start();
-    final result = await testCommandInSandbox({
-      'script': r'$wait[30ms]$setVar[after;yes]done',
-    });
-    expect(result['success'], true, reason: '$result');
-    expect(watch.elapsedMilliseconds, greaterThanOrEqualTo(30));
-    expect(result['storage_after']['global']['after'], 'yes');
-  });
+  test(
+    'wait is a simulated delay recorded before the following action',
+    () async {
+      final result = await testCommandInSandbox({
+        'script': r'$wait[30ms]$setVar[after;yes]done',
+      });
+      expect(result['success'], true, reason: '$result');
+      final effects = result['effects'] as List;
+      expect(effects.first['type'], 'replyIn');
+      expect(effects.first['delay_ms'], 30);
+      expect(effects.first['simulated'], true);
+      expect(result['storage_after']['global']['after'], 'yes');
+    },
+  );
   test('invalid wait stops before the following storage mutation', () async {
     final result = await testCommandInSandbox({
       'script': r'$wait[2bogus]$setVar[after;bad]done',
@@ -51,14 +56,20 @@ void main() {
     expect(result['success'], false);
     expect(result['storage_after']['global'], isEmpty);
   });
-  test('long waits are terminated by the sandbox deadline', () async {
-    final result = await testCommandInSandbox({
-      'script': r'$wait[15m]$setVar[after;bad]',
-    }, timeout: const Duration(milliseconds: 200));
-    expect(result['success'], false);
-    expect(result['terminated'], true);
-    expect(result['error'], contains('time limit'));
-  });
+  test(
+    'long waits are simulated and never block the sandbox deadline',
+    () async {
+      final watch = Stopwatch()..start();
+      final result = await testCommandInSandbox({
+        'script': r'$wait[15m]$setVar[after;ok]',
+      }, timeout: const Duration(milliseconds: 2000));
+      expect(result['success'], true, reason: '$result');
+      expect(result['terminated'], isNull);
+      expect(watch.elapsed, lessThan(const Duration(seconds: 2)));
+      expect((result['effects'] as List).first['delay_ms'], 15 * 60 * 1000);
+      expect(result['storage_after']['global']['after'], 'ok');
+    },
+  );
   test('injected timestamp stays live throughout an execution', () async {
     final vars = <String, String>{};
     injectAlwaysAvailableVariables(vars, botId: 'bot');

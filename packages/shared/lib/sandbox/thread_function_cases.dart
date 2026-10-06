@@ -3,14 +3,30 @@ import 'function_suite.dart';
 const _threadGuild = {
   'guilds': {
     '10': {
+      'owner_id': '99',
+      'roles': [
+        {'id': '10', 'name': '@everyone', 'position': 0, 'permissions': '0'},
+        {'id': '70', 'name': 'Bot', 'position': 10, 'permissions': '8'},
+      ],
+      'members': {
+        '20': {'roles': <String>[]},
+        '21': {'roles': <String>[]},
+        '22': {'roles': <String>[]},
+        '51': {
+          'roles': ['70'],
+        },
+      },
       'channels': [
         {'id': '30', 'name': 'general', 'type': 'text'},
+      ],
+      'threads': [
         {
           'id': '50',
           'name': 'Discussion',
-          'type': 'thread',
+          'type': 'public_thread',
           'parent_id': '30',
           'message_count': 12,
+          'member_count': 2,
           'members': ['20', '21'],
           'archived': false,
           'locked': false,
@@ -25,25 +41,31 @@ const sandboxThreadFunctionCases = [
     'startthread',
     r'$startThread[Support;30;;;yes]',
     0,
-    '9002',
-    scenario: {'entities': _threadGuild},
+    '200000',
+    scenario: {
+      'variables': {'bot.id': '51'},
+      'entities': _threadGuild,
+    },
     expectedValues: {
-      '/effects/0/type': 'createThread',
-      '/effects/0/thread/name': 'Support',
-      '/variables/thread.lastId': '9002',
+      '/effects/0/type': 'startThread',
+      '/effects/0/thread_id': '200000',
+      '/effects/0/after/name': 'Support',
     },
     label: 'creates a public thread and returns its ID',
   ),
   SandboxFunctionCase(
     'editthread',
-    r'$editThread[50;Renamed;yes;1440;yes;5]',
+    r'$editThread[50;Renamed;no;1440;yes;5]',
     0,
     '',
-    scenario: {'entities': _threadGuild},
+    scenario: {
+      'variables': {'bot.id': '51'},
+      'entities': _threadGuild,
+    },
     expectedValues: {
-      '/effects/0/type': 'updateChannel',
+      '/effects/0/type': 'editThread',
       '/effects/0/after/name': 'Renamed',
-      '/effects/0/after/archived': true,
+      '/effects/0/after/archived': false,
       '/effects/0/after/locked': true,
     },
   ),
@@ -52,10 +74,13 @@ const sandboxThreadFunctionCases = [
     r'$threadAddMember[50;22]',
     0,
     '',
-    scenario: {'entities': _threadGuild},
+    scenario: {
+      'variables': {'bot.id': '51'},
+      'entities': _threadGuild,
+    },
     expectedValues: {
-      '/effects/0/type': 'addThreadMember',
-      '/effects/0/after': ['20', '21', '22'],
+      '/effects/0/type': 'threadAddMember',
+      '/effects/0/after/members': ['20', '21', '22'],
     },
   ),
   SandboxFunctionCase(
@@ -63,10 +88,13 @@ const sandboxThreadFunctionCases = [
     r'$threadRemoveMember[50;21]',
     0,
     '',
-    scenario: {'entities': _threadGuild},
+    scenario: {
+      'variables': {'bot.id': '51'},
+      'entities': _threadGuild,
+    },
     expectedValues: {
-      '/effects/0/type': 'removeThreadMember',
-      '/effects/0/after': ['20'],
+      '/effects/0/type': 'threadRemoveMember',
+      '/effects/0/after/members': ['20'],
     },
   ),
   SandboxFunctionCase(
@@ -75,7 +103,8 @@ const sandboxThreadFunctionCases = [
     0,
     '12',
     scenario: {
-      'variables': {'thread.messageCount': '12'},
+      'entities': _threadGuild,
+      'variables': {'bot.id': '51', 'channel.id': '50'},
     },
     label: 'reads the count extracted from the current thread',
   ),
@@ -85,7 +114,8 @@ const sandboxThreadFunctionCases = [
     0,
     '2',
     scenario: {
-      'variables': {'thread.memberCount': '2'},
+      'entities': _threadGuild,
+      'variables': {'bot.id': '51', 'channel.id': '50'},
     },
     label: 'reads the approximate member count from the current thread',
   ),

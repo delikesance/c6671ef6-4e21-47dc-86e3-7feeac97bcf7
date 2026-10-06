@@ -2,14 +2,13 @@ import 'dart:async';
 
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/storage/database.dart';
-import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
-import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
-import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
 
 import 'package:bot_creator/core/widgets/app_icon.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart'
+    show GuildRowData, GuildsBody, confirmLeaveGuild;
 
 /// Page « Serveurs » d'un bot.
 ///
@@ -57,27 +56,8 @@ class _GuildsPageState extends State<GuildsPage> {
   /// rafraîchit l'entrée partagée pour que la session redevienne exacte.
   Future<void> _leaveGuild(GuildAvatarInfo info) async {
     final name = info.name ?? info.id;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(context.tr.guilds_leave_title),
-        content: Text(context.tr.guilds_leave_confirm(name)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(context.tr.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(
-              context.tr.delete,
-              style: const TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) return;
+    final confirmed = await confirmLeaveGuild(context, name);
+    if (!confirmed || !mounted) return;
 
     setState(() => _leavingGuilds.add(info.id));
     try {
@@ -124,16 +104,10 @@ class _GuildsPageState extends State<GuildsPage> {
     return ValueListenableBuilder<GuildsLoadState>(
       valueListenable: _directory.watch(widget.botId),
       builder: (context, state, _) {
-        final cs = Theme.of(context).colorScheme;
         return Scaffold(
           appBar: AppBar(
             title: Text(context.tr.guilds_tab),
             actions: [
-              if (state.guilds.isNotEmpty)
-                Text(
-                  context.tr.guilds_server_count_other(state.guilds.length),
-                  style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
-                ),
               const SizedBox(width: 8),
               IconButton(
                 icon: const AppIcon.fromMaterial(Icons.refresh, size: 20),
@@ -144,126 +118,35 @@ class _GuildsPageState extends State<GuildsPage> {
           ),
           // Largeur et marges communes à toutes les pages (contrat AppPageLayout) ;
           // `_buildBody` conserve sa réserve basse (barre de navigation flottante).
-          body: PageContent(child: _buildBody(context, state)),
+          body: _buildBody(context, state),
         );
       },
     );
   }
 
   Widget _buildBody(BuildContext context, GuildsLoadState state) {
-    final cs = Theme.of(context).colorScheme;
-    final guilds = _sortedByName(state.guilds);
-
-    // Des serveurs sont connus (y compris pendant un rafraîchissement) : on
-    // garde la liste affichée plutôt que de repasser par un spinner.
-    if (guilds.isNotEmpty) {
-      return RefreshIndicator(
-        onRefresh: _refresh,
-        child: ListView.separated(
-          padding: EdgeInsets.only(
-            top: 8,
-            bottom: FloatingGlassNavBar.contentClearanceOf(context) + 24,
-          ),
-          physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: guilds.length,
-          separatorBuilder: (_, i2) => const Divider(height: 1),
-          itemBuilder: (ctx, i) {
-            final guild = guilds[i];
-            final isLeaving = _leavingGuilds.contains(guild.id);
-            return ListTile(
-              leading: HomeBotAvatar(
-                imageUrl: guild.iconUrl,
-                size: 40,
-                fallbackLabel: guildAvatarInitial(guild.name),
-              ),
-              title: Text(guild.name ?? guild.id),
-              subtitle: Text(
-                [
-                  'ID: ${guild.id}',
-                  if (guild.memberCount != null)
-                    context.tr.guilds_members_count_other(guild.memberCount!),
-                  if (guild.isOwner) context.tr.guilds_owner_label,
-                ].join(' · '),
-                style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
-              ),
-              trailing: IconButton(
-                icon: isLeaving
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const AppIcon.fromMaterial(
-                        Icons.exit_to_app,
-                        color: Colors.red,
-                      ),
-                tooltip: context.tr.guilds_leave_tooltip,
-                onPressed: isLeaving ? null : () => _leaveGuild(guild),
-              ),
-            );
-          },
+    final guilds = [
+      for (final g in state.guilds)
+        GuildRowData(
+          id: g.id,
+          name: g.name,
+          iconUrl: g.iconUrl,
+          memberCount: g.memberCount,
+          isOwner: g.isOwner,
         ),
-      );
-    }
-
-    // Aucun serveur affichable : chargement initial, échec (jamais mis en
-    // cache, donc « Réessayer » retente réellement), ou liste réellement vide.
-    if (state.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (state.status == GuildsLoadStatus.error) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppIcon.fromMaterial(
-              Icons.error_outline,
-              size: 48,
-              color: cs.error,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              context.tr.error_with_details(state.errorMessage ?? ''),
-              style: TextStyle(color: cs.error),
-            ),
-            const SizedBox(height: 12),
-            FilledButton.tonal(
-              onPressed: () => unawaited(_refresh()),
-              child: Text(context.tr.common_retry),
-            ),
-          ],
-        ),
-      );
-    }
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AppIcon.fromMaterial(
-            Icons.dns_outlined,
-            size: 48,
-            color: cs.onSurfaceVariant,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            context.tr.guilds_empty_state,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: cs.onSurfaceVariant),
-          ),
-        ],
-      ),
+    ];
+    return GuildsBody(
+      guilds: guilds,
+      loading: state.isLoading,
+      errorMessage: state.status == GuildsLoadStatus.error
+          ? (state.errorMessage ?? '')
+          : null,
+      leaving: _leavingGuilds,
+      onLeave: (row) {
+        final info = state.guilds.firstWhere((g) => g.id == row.id);
+        unawaited(_leaveGuild(info));
+      },
+      onRefresh: _refresh,
     );
-  }
-
-  /// Ordre d'affichage alphabétique de la page. La carte bot de la Home, elle,
-  /// garde l'ordre déterministe par id du répertoire (avatars superposés).
-  List<GuildAvatarInfo> _sortedByName(List<GuildAvatarInfo> guilds) {
-    final sorted = <GuildAvatarInfo>[...guilds];
-    sorted.sort(
-      (a, b) => (a.name ?? a.id).toLowerCase().compareTo(
-        (b.name ?? b.id).toLowerCase(),
-      ),
-    );
-    return sorted;
   }
 }

@@ -107,7 +107,7 @@ extension _AppHomePageSync on _AppHomePageState {
   }
 
   Future<void> _pushToRemote({required bool showSnack}) async {
-    if (_isPushingApp) {
+    if (_isPushingApp || _isPullingApp) {
       return;
     }
 
@@ -186,6 +186,7 @@ extension _AppHomePageSync on _AppHomePageState {
           '[_pushToRemote] Payload built: commands=$cmdCount workflows=$wfCount',
         );
 
+        await mainClient.checkpointBotConfig(botId);
         final pushed = await _pushPayloadToManager(
           client: mainClient,
           botId: botId,
@@ -200,6 +201,12 @@ extension _AppHomePageSync on _AppHomePageState {
           // ce lot corrige.
           return;
         }
+        await BotReconciliationService.applyCloudToLocal(
+          botId: botId,
+          remoteConfig: await mainClient.getBotConfig(botId),
+          appManager: appManager,
+        );
+        await _reloadAppLocally();
         appendBotDebugLog(
           '[_pushToRemote] Pushed canonical config to Manager for $botId',
         );
@@ -314,7 +321,7 @@ extension _AppHomePageSync on _AppHomePageState {
   // ─── Pull from Cloud ────────────────────────────────────────────
 
   Future<void> _pullFromRemote({required bool showSnack}) async {
-    if (_isPullingApp) return;
+    if (_isPullingApp || _isPushingApp) return;
 
     _setState(() => _isPullingApp = true);
     try {
@@ -371,24 +378,13 @@ extension _AppHomePageSync on _AppHomePageState {
         return;
       }
 
-      // 5. Apply merge
-      appendBotDebugLog('[_pullFromRemote] Applying merge...');
-      await _applyMerge(botId, diff, remoteCommands);
-      await applyManagerWorkflowsToLocal(
-        appManager: appManager,
+      final checkpoint = await mainClient.checkpointBotConfig(botId);
+      await BotReconciliationService.applyCloudToLocal(
         botId: botId,
-        remoteConfig: remoteConfig,
+        remoteConfig: checkpoint,
+        appManager: appManager,
       );
-
-      // 6. Update app metadata
-      final app = await appManager.getApp(botId);
-      await appManager.createOrUpdateApp(
-        id: user.id,
-        username: user.username,
-        avatarHash: user.avatarHash,
-        discriminator: user.discriminator.toString(),
-        token: (app['token'] ?? '').toString(),
-      );
+      await _reloadAppLocally();
 
       appendBotDebugLog('[_pullFromRemote] DONE — success');
       if (showSnack && mounted) {
@@ -512,24 +508,6 @@ extension _AppHomePageSync on _AppHomePageState {
       unchangedCount: unchangedCount,
       localOnlyCount: localById.length,
     );
-  }
-
-  Future<void> _applyMerge(
-    String botId,
-    _MergeDiff diff,
-    List<Map<String, dynamic>> remoteCommands,
-  ) async {
-    for (final cmd in diff.newCommands) {
-      final cmdId = (cmd['id'] ?? cmd['name'] ?? '').toString();
-      if (cmdId.isEmpty) continue;
-      await appManager.saveAppCommand(botId, cmdId, cmd);
-    }
-
-    for (final cmd in diff.updatedCommands) {
-      final cmdId = (cmd['id'] ?? cmd['name'] ?? '').toString();
-      if (cmdId.isEmpty) continue;
-      await appManager.saveAppCommand(botId, cmdId, cmd);
-    }
   }
 
   // ─── Pull confirmation dialog ───────────────────────────────────
@@ -667,7 +645,7 @@ extension _AppHomePageSync on _AppHomePageState {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          '${diff.localOnlyCount} ${context.tr.bot_home_pull_dialog_local_preserved}',
+                          context.tr.bot_config_versions_remote_authority,
                           style: TextStyle(
                             fontSize: 12,
                             color: colorScheme.secondary,
@@ -992,6 +970,10 @@ extension _AppHomePageSync on _AppHomePageState {
       _runtimeCapabilities = capabilities;
     });
     await appManager.refreshApps();
+    // La fusion distante s'écrit sans notifier le runtime : un bot qui tourne
+    // sur ce poste gardait donc son ancien statut / activité jusqu'au prochain
+    // redémarrage. Sans session locale, le rechargement ne fait rien.
+    applyDesktopRuntimeSettings(botId: botId, appData: app);
   }
 
   Future<void> _showReconciliationConflictDialog({
