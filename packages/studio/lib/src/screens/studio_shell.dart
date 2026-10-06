@@ -125,6 +125,9 @@ class _StudioShellState extends State<StudioShell> {
     }
     return Scaffold(
       body: Row(
+        // Étirée : sinon la page défilante reçoit une hauteur libre, se réduit à
+        // son contenu et la `Row` la centre verticalement au milieu de l'écran.
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (bot == null) _homeRail() else _editorRail(bot),
           Expanded(child: body),

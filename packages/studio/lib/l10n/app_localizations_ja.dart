@@ -221,8 +221,7 @@ class StudioLocalizationsJa extends StudioLocalizations {
   String get botsEmptyTitle => 'まだアプリがありません。';
 
   @override
-  String get botsEmptyHint =>
-      'Create your first bot from the Bot Creator app: it will show up here.';
+  String get botsEmptyHint => '「ボットを作成」から最初のボットを作成すると、ここに表示されます。';
 
   @override
   String get hostingIncludedTitle => 'ホスティング込み';

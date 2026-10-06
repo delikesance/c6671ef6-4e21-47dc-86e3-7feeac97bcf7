@@ -54,6 +54,7 @@
   "botStop": "Parar",
   "botStart": "Iniciar Bot",
   "botsEmptyTitle": "Nenhuma aplicação encontrada",
+  "botsEmptyHint": "Crie seu primeiro bot com o botão “Criar um bot”: ele aparecerá aqui.",
   "hostingIncludedTitle": "Alojamento incluído",
   "hostingIncludedValue": "Ilimitado com a tua subscrição",
   "hostingRemainingTitle": "Tempo restante",

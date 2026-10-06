@@ -223,7 +223,7 @@ class StudioLocalizationsPt extends StudioLocalizations {
 
   @override
   String get botsEmptyHint =>
-      'Create your first bot from the Bot Creator app: it will show up here.';
+      'Crie seu primeiro bot com o botão “Criar um bot”: ele aparecerá aqui.';
 
   @override
   String get hostingIncludedTitle => 'Alojamento incluído';

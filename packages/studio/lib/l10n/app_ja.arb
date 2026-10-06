@@ -54,6 +54,7 @@
   "botStop": "停止",
   "botStart": "ボット起動",
   "botsEmptyTitle": "まだアプリがありません。",
+  "botsEmptyHint": "「ボットを作成」から最初のボットを作成すると、ここに表示されます。",
   "hostingIncludedTitle": "ホスティング込み",
   "hostingIncludedValue": "サブスクリプションで無制限",
   "hostingRemainingTitle": "残り時間",

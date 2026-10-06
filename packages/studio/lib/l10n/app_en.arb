@@ -76,7 +76,7 @@
   "botStop": "Stop",
   "botStart": "Start Bot",
   "botsEmptyTitle": "You don't have any apps yet.",
-  "botsEmptyHint": "Create your first bot from the Bot Creator app: it will show up here.",
+  "botsEmptyHint": "Create your first bot with the “Create a bot” button: it will show up here.",
   "hostingIncludedTitle": "Hosting included",
   "hostingIncludedValue": "Unlimited with your subscription",
   "hostingRemainingTitle": "Time left",
