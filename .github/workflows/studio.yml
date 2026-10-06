@@ -142,28 +142,40 @@ jobs:
           done
           curl -fsS http://127.0.0.1:18080/healthz
 
+          # Chaque réponse est lue EN ENTIER avant d'être filtrée : un
+          # `curl … | head -1 | grep -q` fait échouer `pipefail` (curl 23, écriture
+          # dans un tube déjà fermé) selon le timing, sans rapport avec le serveur.
           headers() { curl -sS -o /dev/null -D - "http://127.0.0.1:18080$1"; }
+          expect_status() {
+            local r first
+            r="$(headers "$1")"
+            first="$(sed -n 1p <<< "$r")"
+            [[ "$first" == *' 200 '* ]] || { echo "KO $1 : $first"; exit 1; }
+          }
+          expect_header() {
+            grep -qi -- "$2" <<< "$1" || { echo "En-tête absent : $2"; echo "$1"; exit 1; }
+          }
 
           # Le retour OAuth arrive sur /?code=…&state=… et une route inconnue
           # doit retomber sur l'application, pas sur un 404.
-          headers '/?code=a&state=b' | head -1 | grep -q ' 200 '
-          headers '/une/route/inconnue' | head -1 | grep -q ' 200 '
+          expect_status '/?code=a&state=b'
+          expect_status '/une/route/inconnue'
 
           # En-têtes de sécurité présents sur la page d'entrée.
           h="$(headers /index.html)"
-          echo "$h" | grep -qi '^x-frame-options: DENY'
-          echo "$h" | grep -qi "^content-security-policy: frame-ancestors 'none'"
-          echo "$h" | grep -qi '^x-content-type-options: nosniff'
+          expect_header "$h" '^x-frame-options: DENY'
+          expect_header "$h" "^content-security-policy: frame-ancestors 'none'"
+          expect_header "$h" '^x-content-type-options: nosniff'
 
           # Entrée revalidée à chaque visite, sinon une mise à jour n'arrive pas.
-          echo "$h" | grep -qi '^cache-control: no-cache'
-          headers /flutter_bootstrap.js | grep -qi '^cache-control: no-cache'
+          expect_header "$h" '^cache-control: no-cache'
+          expect_header "$(headers /flutter_bootstrap.js)" '^cache-control: no-cache'
 
           # Le moteur WebAssembly doit avoir le bon type MIME.
-          headers /main.dart.wasm | grep -qi '^content-type: application/wasm'
+          expect_header "$(headers /main.dart.wasm)" '^content-type: application/wasm'
           # Le chargeur du build wasm est un module ES : un MIME non
           # JavaScript fait échouer le démarrage de l'app dans le navigateur.
-          headers /main.dart.mjs | grep -qi '^content-type: text/javascript'
+          expect_header "$(headers /main.dart.mjs)" '^content-type: text/javascript'
 
       - name: Stop smoke container
         if: always()
