@@ -3,6 +3,7 @@ import '../editor/host/editor_host.dart' show EditorDiagnostic;
 import '../editor/models/app_emoji.dart';
 import 'package:bot_creator_shared/utils/bdfd_autocomplete.dart';
 import 'package:bot_creator_shared/utils/bdfd_lexer.dart';
+import 'package:bot_creator_shared/utils/bdfd_parser.dart';
 import 'package:bot_creator_shared/utils/bdfd_signature_hints.dart';
 
 /// Caractères de la barre de touches rapides BDFD (mobile).
@@ -296,10 +297,27 @@ class BdfdScriptLanguage implements ScriptEditorLanguage {
   }
 }
 
-/// Diagnostics BDFD, fournis par l'hôte : le compilateur BDFD vit côté moteur
-/// et ne se compile pas pour le web (l'app y branche `bdfdDiagnosticsFor` ; sans
-/// branchement, l'éditeur n'affiche aucun diagnostic).
+/// Diagnostics BDFD. Par défaut : l'analyse lexicale et syntaxique du moteur,
+/// qui ne dépend que de Dart pur (donc disponible sur le web) — parenthèses et
+/// crochets non fermés, fonctions mal formées. L'app y substitue la validation
+/// complète du moteur natif (arguments attendus de chaque fonction), qui ne se
+/// compile pas pour le web.
 abstract final class BdfdEditorHooks {
   static List<EditorDiagnostic> Function(String source, String backend)
-  diagnostics = (source, backend) => const [];
+  diagnostics = syntaxDiagnostics;
+
+  static List<EditorDiagnostic> syntaxDiagnostics(
+    String source,
+    String backend,
+  ) {
+    if (source.trim().isEmpty) return const [];
+    final lexer = BdfdLexer().tokenize(source);
+    final parser = BdfdParser().parseTokens(lexer.tokens);
+    return [
+      for (final d in lexer.diagnostics)
+        EditorDiagnostic(message: d.message, line: d.line, column: d.column),
+      for (final d in parser.diagnostics)
+        EditorDiagnostic(message: d.message, line: d.line, column: d.column),
+    ];
+  }
 }
