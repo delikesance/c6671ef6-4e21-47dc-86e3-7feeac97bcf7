@@ -32,8 +32,8 @@ abstract final class StudioTheme {
   static const monoFamily = 'JetBrainsMono';
 
   /// Thème sombre de l'app, tel quel (Inter par-dessus pour le web).
-  static ThemeData dark() {
-    final base = AppTheme.darkTheme();
+  static ThemeData dark({AppAppearanceConfig? appearance}) {
+    final base = AppTheme.darkTheme(appearance: appearance);
     return base.copyWith(
       textTheme: base.textTheme.apply(fontFamily: fontFamily),
       primaryTextTheme: base.primaryTextTheme.apply(fontFamily: fontFamily),

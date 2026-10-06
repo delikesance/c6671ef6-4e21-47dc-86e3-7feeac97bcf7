@@ -127,3 +127,6 @@ export 'src/editor/forms/image_editor_page.dart';
 export 'src/editor/forms/canvas_preview_widget.dart';
 export 'src/editor/lists/publish_template_view.dart';
 export 'src/widgets/guild_avatar_stack.dart';
+export 'src/theme/theme_provider.dart';
+export 'src/settings/appearance_settings_section.dart';
+export 'src/settings/text_scale_settings_section.dart';

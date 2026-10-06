@@ -1,5 +1,6 @@
 import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'auth/auth_controller.dart';
 import 'l10n_ext.dart';
@@ -23,6 +24,7 @@ class StudioApp extends StatefulWidget {
 class _StudioAppState extends State<StudioApp> {
   late final AuthController _auth = widget.auth ?? AuthController();
   late final LocaleController _locale = widget.locale ?? LocaleController();
+  late final ThemeProvider _theme = ThemeProvider();
 
   @override
   void initState() {
@@ -33,37 +35,44 @@ class _StudioAppState extends State<StudioApp> {
 
   @override
   Widget build(BuildContext context) {
-    return LocaleScope(
-      controller: _locale,
-      child: ListenableBuilder(
-        listenable: _locale,
-        builder: (context, _) => MaterialApp(
-          onGenerateTitle: (context) => context.l10n.appTitle,
-          debugShowCheckedModeBanner: false,
-          themeMode: ThemeMode.dark,
-          darkTheme: StudioTheme.dark(),
-          locale: _locale.locale,
-          localizationsDelegates: const [
-            ...StudioLocalizations.localizationsDelegates,
-            AppLocalizations.delegate,
-          ],
-          supportedLocales: StudioLocalizations.supportedLocales,
-          home: ListenableBuilder(
-            listenable: _auth,
-            builder: (context, _) {
-              // Aucune route de travail sans session validée par le serveur.
-              switch (_auth.status) {
-                case AuthStatus.signedIn:
-                  return StudioShell(auth: _auth);
-                case AuthStatus.loading:
-                  return const Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
-                  );
-                case AuthStatus.signedOut:
-                case AuthStatus.error:
-                  return LoginPage(auth: _auth);
-              }
-            },
+    return ChangeNotifierProvider<ThemeProvider>.value(
+      value: _theme,
+      child: LocaleScope(
+        controller: _locale,
+        child: ListenableBuilder(
+          listenable: Listenable.merge([_locale, _theme]),
+          builder: (context, _) => MaterialApp(
+            onGenerateTitle: (context) => context.l10n.appTitle,
+            debugShowCheckedModeBanner: false,
+            themeMode: ThemeMode.dark,
+            builder: (context, child) => AppTextScale(
+              factor: _theme.appearance.textScale,
+              child: child ?? const SizedBox.shrink(),
+            ),
+            darkTheme: StudioTheme.dark(appearance: _theme.appearance),
+            locale: _locale.locale,
+            localizationsDelegates: const [
+              ...StudioLocalizations.localizationsDelegates,
+              AppLocalizations.delegate,
+            ],
+            supportedLocales: StudioLocalizations.supportedLocales,
+            home: ListenableBuilder(
+              listenable: _auth,
+              builder: (context, _) {
+                // Aucune route de travail sans session validée par le serveur.
+                switch (_auth.status) {
+                  case AuthStatus.signedIn:
+                    return StudioShell(auth: _auth);
+                  case AuthStatus.loading:
+                    return const Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    );
+                  case AuthStatus.signedOut:
+                  case AuthStatus.error:
+                    return LoginPage(auth: _auth);
+                }
+              },
+            ),
           ),
         ),
       ),
