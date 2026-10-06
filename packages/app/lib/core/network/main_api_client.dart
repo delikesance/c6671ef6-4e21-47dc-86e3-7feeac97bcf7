@@ -4,6 +4,14 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart'
+    show
+        ContainerInfo,
+        DiscordBotIdentity,
+        HostedAppClaimAdResult,
+        HostedAppEligibility,
+        RegistryAuthInput,
+        RegistryCredential;
 import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator/core/network/bot_data_models.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
@@ -18,6 +26,19 @@ import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+// Modèles des applications hébergées : ils vivent dans `bot_creator_ui`
+// (partagés avec le Studio) ; réexportés ici pour les imports existants.
+export 'package:bot_creator_ui/bot_creator_ui.dart'
+    show
+        ContainerInfo,
+        DiscordBotIdentity,
+        HostedAppAdTopUpResult,
+        HostedAppClaimAdResult,
+        HostedAppEligibility,
+        RegistryAuthInput,
+        RegistryCredential,
+        detectRegistryHostFromImage;
 
 class MainApiClientException implements Exception {
   const MainApiClientException(this.message, {this.statusCode, this.code});
@@ -1686,6 +1707,26 @@ class MainApiClient implements RemoteRuntimeClient {
     });
   }
 
+  /// Verifie un achat consommable (pack de credits IA) aupres du store, cote
+  /// serveur, puis credite le compte UNE seule fois. Le montant vient du
+  /// catalogue publie, jamais de cette requete ; rejouer le meme achat ne
+  /// credite rien de plus.
+  Future<Map<String, dynamic>> verifyConsumableBilling({
+    required String platform,
+    required String serverVerificationData,
+    required String productId,
+    String? localTransactionId,
+    String? appAccountToken,
+  }) async {
+    return _post('/billing/consumable/verify', <String, dynamic>{
+      'platform': platform,
+      'serverVerificationData': serverVerificationData,
+      'productId': productId,
+      'localTransactionId': ?_normalize(localTransactionId),
+      'appAccountToken': ?_normalize(appAccountToken),
+    });
+  }
+
   @override
   Future<void> startBot(String botId, {String? botName}) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
@@ -1802,9 +1843,18 @@ class MainApiClient implements RemoteRuntimeClient {
       throw const MainApiClientException('No config URL returned');
     }
 
-    // Download the config JSON from the public R2 URL (no auth needed)
+    // Bypass intermediary caches so a post-push read sees the current document.
+    final configUri = Uri.parse(configUrl);
     final response = await _http
-        .get(Uri.parse(configUrl))
+        .get(
+          configUri.replace(
+            queryParameters: {
+              ...configUri.queryParameters,
+              '_fresh': DateTime.now().microsecondsSinceEpoch.toString(),
+            },
+          ),
+          headers: {'Cache-Control': 'no-cache'},
+        )
         .timeout(const Duration(seconds: 15));
     if (response.statusCode != 200) {
       throw MainApiClientException(
@@ -1816,6 +1866,56 @@ class MainApiClient implements RemoteRuntimeClient {
       throw const MainApiClientException('Invalid config format');
     }
     return Map<String, dynamic>.from(decoded);
+  }
+
+  /// Archive and return the authoritative remote config for a manual cloud action.
+  Future<Map<String, dynamic>> checkpointBotConfig(String botId) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final result = await _post(
+      '/gateway/bots/$encodedBotId/versions/checkpoint',
+      const <String, dynamic>{},
+      retryOnFailure: false,
+    );
+    return Map<String, dynamic>.from(result['config'] as Map);
+  }
+
+  Future<Map<String, dynamic>> previewBotConfigVersion(
+    String botId,
+    String key,
+  ) async {
+    final result = await _get(
+      '/gateway/bots/${Uri.encodeComponent(botId)}/versions/content',
+      query: {'key': key},
+    );
+    return Map<String, dynamic>.from(result['content'] as Map);
+  }
+
+  Future<void> deleteBotConfigVersion(String botId, String key) async {
+    await _delete(
+      '/gateway/bots/${Uri.encodeComponent(botId)}/versions',
+      query: {'key': key},
+    );
+  }
+
+  Future<Map<String, dynamic>> previewCommandVersionV2(
+    String botId,
+    String commandId,
+    String historyId,
+  ) async {
+    final result = await _get(
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/commands/${Uri.encodeComponent(commandId)}/history/${Uri.encodeComponent(historyId)}',
+    );
+    return Map<String, dynamic>.from(result['content'] as Map);
+  }
+
+  Future<void> deleteCommandVersionV2(
+    String botId,
+    String commandId,
+    String historyId,
+  ) async {
+    await _delete(
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/commands/${Uri.encodeComponent(commandId)}/history/${Uri.encodeComponent(historyId)}',
+    );
   }
 
   /// Lists available config versions for a bot from R2 storage.
@@ -2634,6 +2734,30 @@ class MainApiClient implements RemoteRuntimeClient {
     retryOnFailure: false,
     logBody: false,
   );
+  // Shared library of tested, AI-generated commands (see the copilot's library_* tools).
+  Future<Map<String, dynamic>> searchAILibrary(
+    String query, {
+    String? mode,
+    int? limit,
+  }) => _get(
+    '/gateway/ai/library/search',
+    query: {'q': query, 'mode': mode, 'limit': limit?.toString()},
+  );
+  Future<Map<String, dynamic>> getAILibraryEntry(String id) =>
+      _get('/gateway/ai/library/${Uri.encodeComponent(id)}');
+  Future<Map<String, dynamic>> markAILibraryUsed(String id) => _post(
+    '/gateway/ai/library/${Uri.encodeComponent(id)}/use',
+    const {},
+    retryOnFailure: false,
+    logBody: false,
+  );
+  Future<bool> getAILibraryContribution() async =>
+      (await _get('/gateway/ai/library/contribution'))['enabled'] == true;
+  Future<bool> setAILibraryContribution(bool enabled) async =>
+      (await _put('/gateway/ai/library/contribution', {
+        'enabled': enabled,
+      }))['enabled'] ==
+      true;
   Future<Map<String, dynamic>> getAILedger({int offset = 0, String? source}) =>
       _get(
         '/gateway/ai/ledger',
@@ -3030,238 +3154,6 @@ String? _normalize(String? value) {
   return trimmed.isEmpty ? null : trimmed;
 }
 
-/// Information about a hosted container.
-class RegistryCredential {
-  const RegistryCredential({
-    required this.id,
-    required this.label,
-    required this.registryHost,
-    required this.username,
-  });
-
-  final String id;
-  final String label;
-  final String registryHost;
-  final String username;
-
-  factory RegistryCredential.fromJson(Map<String, dynamic> json) {
-    return RegistryCredential(
-      id: (json['id'] ?? '').toString(),
-      label: (json['label'] ?? '').toString(),
-      registryHost: (json['registry_host'] ?? '').toString(),
-      username: (json['username'] ?? '').toString(),
-    );
-  }
-}
-
-class RegistryAuthInput {
-  const RegistryAuthInput({
-    required this.username,
-    required this.password,
-    this.registry,
-  });
-
-  final String? registry;
-  final String username;
-  final String password;
-
-  Map<String, dynamic> toJson() => <String, dynamic>{
-    if (registry != null && registry!.isNotEmpty) 'registry': registry,
-    'username': username,
-    'password': password,
-  };
-}
-
-String detectRegistryHostFromImage(String image) {
-  final trimmed = image.trim();
-  if (trimmed.isEmpty) return '';
-  var first = trimmed;
-  final at = trimmed.indexOf('@');
-  if (at > 0) first = trimmed.substring(0, at);
-  final slash = first.indexOf('/');
-  if (slash > 0) {
-    final head = first.substring(0, slash);
-    if (head.contains('.') || head == 'localhost') {
-      return head.toLowerCase();
-    }
-  }
-  return 'docker.io';
-}
-
-/// Information about a hosted container.
-class ContainerInfo {
-  final String id;
-  final String ownerId;
-  final String swarmServiceId;
-  final String image;
-  final int cpuMillis;
-  final int memoryMb;
-  final int memoryUsageBytes;
-  final int storageGb;
-  final Map<String, String> env;
-  final String state;
-  final int hostPort;
-  final String nodeIp;
-  final String? registryCredentialId;
-  final String registryHost;
-  final String registryUsername;
-  final String healthStatus;
-  final String statusCode;
-  final String statusMessage;
-  final DateTime expiresAt;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-
-  /// Identifiant d'application Discord du bot que fait tourner ce conteneur,
-  /// quand le serveur l'a déjà résolu (`discord_application_id`).
-  ///
-  /// ABSENT (`null`) pour les conteneurs déployés avant que le serveur ne
-  /// mémorise l'identité : l'appelant fait alors résoudre l'identité par le
-  /// serveur (`POST /containers/{id}/discord-identity`). C'est l'absence, et
-  /// non une valeur vide, qui déclenche cette résolution.
-  final String? discordApplicationId;
-  final String? discordBotName;
-  final String? discordBotAvatar;
-
-  const ContainerInfo({
-    required this.id,
-    required this.ownerId,
-    this.swarmServiceId = '',
-    required this.image,
-    required this.cpuMillis,
-    required this.memoryMb,
-    this.memoryUsageBytes = 0,
-    required this.storageGb,
-    this.env = const <String, String>{},
-    required this.state,
-    this.hostPort = 0,
-    this.nodeIp = '',
-    this.registryCredentialId,
-    this.registryHost = '',
-    this.registryUsername = '',
-    this.healthStatus = '',
-    this.statusCode = '',
-    this.statusMessage = '',
-    this.discordApplicationId,
-    this.discordBotName,
-    this.discordBotAvatar,
-    required this.expiresAt,
-    required this.createdAt,
-    required this.updatedAt,
-  });
-
-  factory ContainerInfo.fromJson(Map<String, dynamic> json) {
-    return ContainerInfo(
-      id: (json['id'] ?? '').toString(),
-      ownerId: (json['owner_id'] ?? '').toString(),
-      swarmServiceId: (json['swarm_service_id'] ?? '').toString(),
-      image: (json['image'] ?? '').toString(),
-      cpuMillis: _parseInt(json['cpu_millis'], 0),
-      memoryMb: _parseInt(json['memory_mb'], 0),
-      memoryUsageBytes: _parseInt(json['memory_usage_bytes'], 0),
-      storageGb: _parseInt(json['storage_gb'], 0),
-      env: (json['env'] is Map<String, dynamic>
-          ? (json['env'] as Map<String, dynamic>).map(
-              (k, v) => MapEntry(k, v.toString()),
-            )
-          : <String, String>{}),
-      state: (json['state'] ?? '').toString(),
-      hostPort: _parseInt(json['host_port'], 0),
-      nodeIp: (json['node_ip'] ?? '').toString(),
-      registryCredentialId: json['registry_credential_id']?.toString(),
-      registryHost: (json['registry_host'] ?? '').toString(),
-      registryUsername: (json['registry_username'] ?? '').toString(),
-      healthStatus: (json['health_status'] ?? '').toString(),
-      statusCode: (json['status_code'] ?? '').toString(),
-      statusMessage: (json['status_message'] ?? '').toString(),
-      discordApplicationId: _parseOptionalId(json['discord_application_id']),
-      discordBotName: json['discord_bot_name']?.toString(),
-      discordBotAvatar: json['discord_bot_avatar']?.toString(),
-      expiresAt: _parseDateTime(json['expires_at']),
-      createdAt: _parseDateTime(json['created_at']),
-      updatedAt: _parseDateTime(json['updated_at']),
-    );
-  }
-
-  String? get discordBotAvatarUrl {
-    final avatar = discordBotAvatar?.trim() ?? '';
-    if (avatar.isEmpty) return null;
-    if (avatar.startsWith('http://') || avatar.startsWith('https://')) {
-      return avatar;
-    }
-    final appId = discordApplicationId?.trim() ?? '';
-    if (appId.isNotEmpty) {
-      return 'https://cdn.discordapp.com/avatars/$appId/$avatar.png?size=1024';
-    }
-    return null;
-  }
-
-  bool get isRunning => state == 'RUNNING';
-  bool get isPending => state == 'PENDING';
-  bool get isProvisioning => state == 'PROVISIONING' || state == 'PENDING';
-  bool get isStopped => state == 'STOPPED' || state == 'STOPPING';
-  bool get isFailed => state == 'FAILED';
-  bool get isTerminal => isStopped || isFailed;
-  bool get usesPrivateRegistry =>
-      registryHost.isNotEmpty || registryUsername.isNotEmpty;
-
-  static int parseInt(dynamic v, int fallback) {
-    if (v is int) return v;
-    if (v is double) return v.toInt();
-    if (v is String) return int.tryParse(v) ?? fallback;
-    return fallback;
-  }
-
-  static int _parseInt(dynamic v, int fallback) => parseInt(v, fallback);
-
-  /// Identifiant technique optionnel : `null` quand le serveur ne le renvoie
-  /// pas, jamais une chaîne vide (voir [ContainerInfo.discordApplicationId]).
-  static String? _parseOptionalId(dynamic v) {
-    final value = v?.toString().trim() ?? '';
-    return value.isEmpty ? null : value;
-  }
-
-  static DateTime _parseDateTime(dynamic v) {
-    if (v is String) return DateTime.tryParse(v) ?? DateTime(0);
-    if (v is int) return DateTime.fromMillisecondsSinceEpoch(v);
-    return DateTime(0);
-  }
-}
-
-/// Identité Discord du bot que fait tourner un conteneur, telle que le serveur
-/// la résout (`POST /containers/{id}/discord-identity`) : de quoi l'inviter
-/// dans un serveur, `invite_url` étant prête à ouvrir.
-class DiscordBotIdentity {
-  const DiscordBotIdentity({
-    required this.botId,
-    this.username = '',
-    this.avatar = '',
-    this.inviteUrl = '',
-  });
-
-  /// ID Discord du bot (le `client_id` de l'URL d'invitation).
-  final String botId;
-
-  final String username;
-  final String avatar;
-
-  /// URL d'invitation composée par le serveur ; vide s'il ne l'a pas fournie.
-  final String inviteUrl;
-
-  factory DiscordBotIdentity.fromJson(Map<String, dynamic> json) {
-    // Certaines routes enveloppent la charge utile sous `data` : on accepte les
-    // deux formes plutôt que de rendre une identité vide sur une réponse saine.
-    final nested = json['data'];
-    final source = nested is Map ? Map<String, dynamic>.from(nested) : json;
-    return DiscordBotIdentity(
-      botId: (source['bot_id'] ?? '').toString().trim(),
-      username: (source['username'] ?? '').toString(),
-      avatar: (source['avatar'] ?? '').toString(),
-      inviteUrl: (source['invite_url'] ?? '').toString().trim(),
-    );
-  }
-}
-
 /// Jeton d'un bot tel que le compte le rend
 /// (`POST /gateway/bots/{id}/token`).
 ///
@@ -3382,100 +3274,6 @@ class PlanCatalogInfo {
       currentTierCode: current is Map
           ? _normalize(current['tier_code']?.toString())
           : null,
-    );
-  }
-}
-
-class HostedAppEligibility {
-  const HostedAppEligibility({
-    required this.premium,
-    required this.hostingMinutesBalance,
-    required this.activeContainers,
-    required this.canDeploy,
-    required this.maxContainers,
-    required this.adRewardMinutes,
-    this.deployBlockedReason,
-    this.allowTurnkey = true,
-    this.planTierCode,
-    this.hostingExpiresAt,
-    this.hostingPermanent = false,
-  });
-
-  final bool premium;
-  final int hostingMinutesBalance;
-  final int activeContainers;
-  final bool canDeploy;
-
-  /// Plafond de conteneurs, fixé par la formule du compte côté serveur (elle
-  /// prime sur l'abonnement store) : c'est exactement le chiffre appliqué au
-  /// démarrage, donc celui que l'écran doit montrer.
-  final int maxContainers;
-  final int adRewardMinutes;
-
-  /// La formule inclut-elle le clé en main / les applications hébergées ?
-  final bool allowTurnkey;
-
-  /// Code de la formule servie par le serveur (ex. `FREE`, `STARTER`, `PRO`).
-  final String? planTierCode;
-
-  /// Fin de la couverture hébergement, quand le serveur la connaît (échéance d'un
-  /// abonnement ou du dernier octroi qui couvre).
-  final DateTime? hostingExpiresAt;
-
-  /// Vrai seulement quand le serveur dit que la couverture n'a PAS d'échéance
-  /// (un octroi permanent). Les deux champs sont nuls/faux quand l'information
-  /// manque : le client ne doit alors rien affirmer sur la durée.
-  final bool hostingPermanent;
-
-  /// `container_limit` | `no_minutes` | `plan_not_included` | null when
-  /// [canDeploy] is true.
-  final String? deployBlockedReason;
-
-  bool get isBlockedByContainerLimit =>
-      deployBlockedReason == 'container_limit';
-  bool get isBlockedByNoMinutes => deployBlockedReason == 'no_minutes';
-  bool get isBlockedByPlan => deployBlockedReason == 'plan_not_included';
-
-  factory HostedAppEligibility.fromJson(Map<String, dynamic> json) {
-    return HostedAppEligibility(
-      premium: json['premium'] == true,
-      hostingMinutesBalance: ContainerInfo.parseInt(
-        json['hosting_minutes_balance'],
-        0,
-      ),
-      activeContainers: ContainerInfo.parseInt(json['active_containers'], 0),
-      canDeploy: json['can_deploy'] == true,
-      maxContainers: ContainerInfo.parseInt(json['max_containers'], 1),
-      adRewardMinutes: ContainerInfo.parseInt(json['ad_reward_minutes'], 60),
-      deployBlockedReason: _normalize(
-        json['deploy_blocked_reason']?.toString(),
-      ),
-      allowTurnkey: json['allow_turnkey'] != false,
-      planTierCode: _normalize(json['plan_tier_code']?.toString()),
-      hostingExpiresAt: DateTime.tryParse(
-        json['hosting_expires_at']?.toString() ?? '',
-      )?.toUtc(),
-      hostingPermanent: json['hosting_permanent'] == true,
-    );
-  }
-}
-
-class HostedAppClaimAdResult {
-  const HostedAppClaimAdResult({
-    required this.grantedMinutes,
-    required this.hostingMinutesBalance,
-  });
-
-  final int grantedMinutes;
-  final int hostingMinutesBalance;
-
-  factory HostedAppClaimAdResult.fromJson(Map<String, dynamic> json) {
-    return HostedAppClaimAdResult(
-      grantedMinutes: ContainerInfo.parseInt(json['granted_minutes'], 0),
-      hostingMinutesBalance: ContainerInfo.parseInt(
-        json['hosting_minutes_balance'],
-        0,
-      ),
     );
   }
 }

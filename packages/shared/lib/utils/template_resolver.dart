@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'math_parser.dart';
+import '../services/text_operations.dart';
 import 'runtime_cooldowns.dart';
 
 final _random = Random();
@@ -1078,24 +1079,22 @@ dynamic _applyBdfdBracketFunction(
         return jsonEncode(arg(0).split(arg(1)));
       }
       final decoded = jsonDecode(updates['temp._bdfd_textsplit'] ?? '[]');
-      final parts = (decoded as List).map((value) => value.toString()).toList();
-      if (name == 'bdfdtextsplitlength') return parts.length.toString();
-      if (name == 'bdfdtextsplitindex') {
-        final index = parts.indexOf(arg(0));
-        return index < 0 ? '-1' : (index + 1).toString();
-      }
-      if (name == 'bdfdtextsplitjoin') return parts.join(arg(0));
+      final state = TextSplitState(
+        (decoded as List).map((value) => value.toString()),
+      );
+      if (name == 'bdfdtextsplitlength') return state.length.toString();
+      if (name == 'bdfdtextsplitindex') return state.indexOf(arg(0)).toString();
+      if (name == 'bdfdtextsplitjoin') return state.join(arg(0));
+      if (name == 'bdfdtextsplitget') return state.at(arg(0));
       final index = int.tryParse(arg(0).trim());
-      final valid = index != null && index >= 1 && index <= parts.length;
-      if (name == 'bdfdtextsplitget') return valid ? parts[index - 1] : '';
-      if (valid) {
+      if (index != null) {
         if (name == 'bdfdtextsplitedit') {
-          parts[index - 1] = arg(1);
+          state.edit(index, arg(1));
         } else {
-          parts.removeAt(index - 1);
+          state.remove(index);
         }
       }
-      return jsonEncode(parts);
+      return jsonEncode(state.values);
     case 'checkcontains':
       final args = rawArgs
           .map((arg) => resolveTemplatePlaceholders(arg, updates))
@@ -1130,18 +1129,7 @@ dynamic _applyBdfdBracketFunction(
       final sample = args.length > 1 ? args[1] : '';
       final replacement = args.length > 2 ? args[2] : '';
       final count = int.tryParse(args.length > 3 ? args[3].trim() : '') ?? 1;
-      if (sample.isEmpty) return text;
-      if (count == -1) return text.replaceAll(sample, replacement);
-      var result = text;
-      for (var i = 0; i < count; i++) {
-        final index = result.indexOf(sample);
-        if (index == -1) break;
-        result =
-            result.substring(0, index) +
-            replacement +
-            result.substring(index + sample.length);
-      }
-      return result;
+      return replaceTextOccurrences(text, sample, replacement, amount: count);
     case 'calculate':
       if (rawArgs.isEmpty) {
         return null;

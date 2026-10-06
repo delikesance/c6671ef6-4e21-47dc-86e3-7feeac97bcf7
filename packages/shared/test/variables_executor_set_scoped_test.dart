@@ -1,4 +1,4 @@
-import 'package:bot_creator_shared/actions/executors/variables_executor.dart';
+import 'package:bot_creator_shared/engine/bdfd/visual/variable_logic.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:nyxx/nyxx.dart';
@@ -7,7 +7,7 @@ import 'package:test/test.dart';
 import 'helpers/variables_test_helpers.dart';
 
 void main() {
-  group('executeVariablesAction - set scoped variable', () {
+  group('executeVariableAction - set scoped variable', () {
     test(
       'setScopedVariable falls back to merged variables/results for placeholders',
       () async {
@@ -17,7 +17,7 @@ void main() {
         };
         final variables = <String, String>{'guildId': 'guild-1'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.setScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -31,8 +31,7 @@ void main() {
           results: results,
           variables: variables,
           // Simulate a resolver that does not know action results.
-          resolveValue:
-              (input) => input == '((rtJson_0.json_0))' ? '' : input,
+          resolveValue: (input) => input == '((rtJson_0.json_0))' ? '' : input,
           guildId: Snowflake.parse('1'),
           fallbackChannelId: null,
           interaction: null,
@@ -43,14 +42,8 @@ void main() {
           store.scopedVariables['guild']?['guild-1']?['items_db'],
           '{"items":["sword"]}',
         );
-        expect(
-          variables['guild.bc_items_db'],
-          '{"items":["sword"]}',
-        );
-        expect(
-          variables['setItems.persisted'],
-          '{"items":["sword"]}',
-        );
+        expect(variables['guild.bc_items_db'], '{"items":["sword"]}');
+        expect(variables['setItems.persisted'], '{"items":["sword"]}');
         expect(results['setItems'], 'OK');
       },
     );
@@ -59,12 +52,10 @@ void main() {
       'setScopedVariable resolves .dataUrl dynamically from merged context',
       () async {
         final store = MemoryBotDataStore();
-        final results = <String, String>{
-          'rtImage_0': 'Zm9vYmFy',
-        };
+        final results = <String, String>{'rtImage_0': 'Zm9vYmFy'};
         final variables = <String, String>{'guildId': 'guild-1'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.setScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -77,11 +68,10 @@ void main() {
           resultKey: 'setDataUrl',
           results: results,
           variables: variables,
-          resolveValue: (input) =>
-              resolveTemplatePlaceholders(input, <String, String>{
-                ...variables,
-                ...results,
-              }),
+          resolveValue: (input) => resolveTemplatePlaceholders(
+            input,
+            <String, String>{...variables, ...results},
+          ),
           guildId: Snowflake.parse('1'),
           fallbackChannelId: null,
           interaction: null,
@@ -104,7 +94,7 @@ void main() {
         };
         final variables = <String, String>{'guildId': 'guild-1'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.setScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -129,10 +119,7 @@ void main() {
           store.scopedVariables['guild']?['guild-1']?['items_db'],
           '{"items":["epee"]}',
         );
-        expect(
-          variables['guild.bc_items_db'],
-          '{"items":["epee"]}',
-        );
+        expect(variables['guild.bc_items_db'], '{"items":["epee"]}');
         expect(results['setItems2'], 'OK');
       },
     );
@@ -141,12 +128,10 @@ void main() {
       'setScopedVariable falls back to rtJson root when json index key is missing',
       () async {
         final store = MemoryBotDataStore();
-        final results = <String, String>{
-          'rtJson_0': '{"items":["axe"]}',
-        };
+        final results = <String, String>{'rtJson_0': '{"items":["axe"]}'};
         final variables = <String, String>{'guildId': 'guild-1'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.setScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -160,8 +145,7 @@ void main() {
           results: results,
           variables: variables,
           // Simulate a resolver that does not know action results.
-          resolveValue:
-              (input) => input == '((rtJson_0.json_9))' ? '' : input,
+          resolveValue: (input) => input == '((rtJson_0.json_9))' ? '' : input,
           guildId: Snowflake.parse('1'),
           fallbackChannelId: null,
           interaction: null,
@@ -188,7 +172,7 @@ void main() {
         };
         final variables = <String, String>{'guildId': 'guild-1'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.setScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -202,8 +186,7 @@ void main() {
           results: results,
           variables: variables,
           // Simulate a resolver that does not know action results.
-          resolveValue:
-              (input) => input == '((rtJson_0.json_0))' ? '' : input,
+          resolveValue: (input) => input == '((rtJson_0.json_0))' ? '' : input,
           guildId: Snowflake.parse('1'),
           fallbackChannelId: null,
           interaction: null,
@@ -214,10 +197,7 @@ void main() {
           store.scopedVariables['guild']?['guild-1']?['items_db'],
           '{"items":["bow"]}',
         );
-        expect(
-          variables['setItems4.directFallback'],
-          '{"items":["bow"]}',
-        );
+        expect(variables['setItems4.directFallback'], '{"items":["bow"]}');
         expect(variables['setItems4.persisted'], '{"items":["bow"]}');
         expect(results['setItems4'], 'OK');
       },
@@ -234,7 +214,7 @@ void main() {
         };
         final variables = <String, String>{'guildId': 'guild-1'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.setScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -258,10 +238,7 @@ void main() {
           store.scopedVariables['guild']?['guild-1']?['items_db'],
           '{"items":["shield"]}',
         );
-        expect(
-          variables['setItems6.persisted'],
-          '{"items":["shield"]}',
-        );
+        expect(variables['setItems6.persisted'], '{"items":["shield"]}');
         expect(results['setItems6'], 'OK');
       },
     );
@@ -270,12 +247,10 @@ void main() {
       r'setScopedVariable resolves literal $jsonStringify from runtime json results',
       () async {
         final store = MemoryBotDataStore();
-        final results = <String, String>{
-          'rtJson_0': '{"items":["hammer"]}',
-        };
+        final results = <String, String>{'rtJson_0': '{"items":["hammer"]}'};
         final variables = <String, String>{'guildId': 'guild-1'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.setScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -288,8 +263,7 @@ void main() {
           resultKey: 'setItems5',
           results: results,
           variables: variables,
-          resolveValue: (input) =>
-              input == r'$jsonStringify' ? '' : input,
+          resolveValue: (input) => input == r'$jsonStringify' ? '' : input,
           guildId: Snowflake.parse('1'),
           fallbackChannelId: null,
           interaction: null,
@@ -300,10 +274,7 @@ void main() {
           store.scopedVariables['guild']?['guild-1']?['items_db'],
           '{"items":["hammer"]}',
         );
-        expect(
-          variables['setItems5.persisted'],
-          '{"items":["hammer"]}',
-        );
+        expect(variables['setItems5.persisted'], '{"items":["hammer"]}');
         expect(results['setItems5'], 'OK');
       },
     );

@@ -55,11 +55,11 @@ final RegExp _namedLiteralPattern = RegExp(
 /// `lib/routes/app/workflows.page.dart`) ne correspondaient à AUCUN chemin :
 /// elles ne masquaient rien et laissaient croire que ces dossiers étaient
 /// couverts. `lib/l10n/` désignait l'ancien emplacement des localisations
-/// GÉNÉRÉES, qui vivent maintenant sous `lib/core/i18n/l10n/` — c'est ce chemin
+/// GÉNÉRÉES, qui vivent maintenant sous `../ui/lib/src/l10n/` — c'est ce chemin
 /// qui doit être exclu, sinon un changement de forme du générateur (un
 /// `title: '...'` dans les fichiers produits) ferait remonter des milliers de
 /// faux positifs et noierait la vraie dette.
-const Set<String> _skipFiles = <String>{'lib/core/i18n/l10n/'};
+const Set<String> _skipFiles = <String>{'../ui/lib/src/l10n/'};
 
 const List<String> _skipSnippets = <String>[
   r'((${',
@@ -115,6 +115,14 @@ class AllowListEntry {
 }
 
 const List<AllowListEntry> allowListedPatterns = <AllowListEntry>[
+  // ── Moteur BDFD : nom technique de backend et diagnostics du compilateur ──
+  AllowListEntry(
+    pathFragment: 'lib/features/bot_editor/presentation/screens/bot_sub_pages/',
+    snippetPattern: r"BDFD legacy|diagnostic\.message",
+    reason:
+        'Nom technique du backend BDFD et message de diagnostic produit par '
+        'le compilateur, pas des libellés traduisibles.',
+  ),
   // ── Logs / technique : messages internes, jamais des libellés d'UI ──
   AllowListEntry(
     pathFragment: 'lib/core/diagnostics/recovery_manager.dart',
@@ -297,6 +305,18 @@ const List<AllowListEntry> allowListedPatterns = <AllowListEntry>[
     pathFragment: 'lib/features/copilot/presentation/copilot_page.dart',
     snippetPattern: r"\$\{fn\['name'\]\}",
     reason: 'Détails bruts des arguments d’appels d’outils du copilote.',
+  ),
+  AllowListEntry(
+    pathFragment: 'lib/features/copilot/presentation/copilot_page.dart',
+    snippetPattern: r"Text\('\$\{value\.key\} → \$\{value\.value\}'\)",
+    reason:
+        'Paire clé → valeur brute d’un argument d’outil, données et non prose.',
+  ),
+  AllowListEntry(
+    pathFragment: 'lib/features/copilot/presentation/copilot_page.dart',
+    snippetPattern: r"'− \$\{clip\(edit\['find'\]\)\}",
+    reason:
+        'Diff brut (− ancien / + nouveau) d’un remplacement proposé, données et non prose.',
   ),
   // ── Texte COMPOSÉ depuis une traduction ──────────────────────────────────────
   AllowListEntry(

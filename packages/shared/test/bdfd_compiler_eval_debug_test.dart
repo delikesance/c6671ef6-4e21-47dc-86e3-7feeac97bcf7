@@ -1,336 +1,133 @@
-import 'dart:convert';
-
-import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/awaited_registration.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
-import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:test/test.dart';
+
+import 'helpers/sandbox_helpers.dart';
+
+Map<String, dynamic> _scoped(Map<String, dynamic> result, String scope) =>
+    Map<String, dynamic>.from(
+      ((result['storage_after'] as Map)['scoped'] as Map)[scope] as Map? ?? {},
+    );
 
 void main() {
   group(r'$eval', () {
-    test('emits runBdfdScript action with script content', () {
-      final result = BdfdCompiler().compile(r'$eval[$username]');
-      expect(result.hasErrors, isFalse);
-      expect(result.actions, hasLength(1));
-      expect(result.actions[0].type, BotCreatorActionType.runBdfdScript);
-      expect(result.actions[0].payload['scriptContent'], r'((user.username))');
-    });
-
-    test('passes through runtime placeholders in script content', () {
-      final result = BdfdCompiler().compile(r'$eval[((opts.script))]');
-      expect(result.hasErrors, isFalse);
-      expect(result.actions, hasLength(1));
-      expect(result.actions[0].type, BotCreatorActionType.runBdfdScript);
-      expect(result.actions[0].payload['scriptContent'], '((opts.script))');
-    });
-
-    test('flushes pending response before eval', () {
-      final result = BdfdCompiler().compile(
-        'Hello\n'
-        r'$eval[$username]',
+    test('runs the evaluated BDFD at runtime', () async {
+      expect(contentOf(await runScript(r'$eval[$username]')), 'Test user');
+      expect(
+        contentOf(await runScript(r'$eval[Hello $username]')),
+        'Hello Test user',
       );
-      expect(result.hasErrors, isFalse);
-      expect(result.actions, hasLength(2));
-      expect(result.actions[0].type, BotCreatorActionType.respondWithMessage);
-      expect(result.actions[0].payload['content'], contains('Hello'));
-      expect(result.actions[1].type, BotCreatorActionType.runBdfdScript);
     });
 
-    test('eval with complex BDFD content', () {
-      final result = BdfdCompiler().compile(
-        r'$eval[$reply$c[]Hello $username]',
+    test('text before the eval is kept in order', () async {
+      final result = await runScript('Hello\n\$eval[\$username]');
+      expect(payloads(result).map((p) => p['content']), [
+        'Hello\n',
+        'Test user',
+      ]);
+    });
+
+    test('empty argument evaluates to nothing', () async {
+      expect(contentOf(await runScript(r'$eval[]x')), 'x');
+    });
+
+    test('compiles without diagnostics', () {
+      expect(
+        BdfdCompiler().compile(r'$eval[$reply$c[]Hello $username]').hasErrors,
+        isFalse,
       );
-      expect(result.hasErrors, isFalse);
-      expect(result.actions, hasLength(1));
-      expect(result.actions[0].type, BotCreatorActionType.runBdfdScript);
-    });
-
-    test('eval with empty argument', () {
-      final result = BdfdCompiler().compile(r'$eval[]');
-      expect(result.hasErrors, isFalse);
-      expect(result.actions, hasLength(1));
-      expect(result.actions[0].type, BotCreatorActionType.runBdfdScript);
-      expect(result.actions[0].payload['scriptContent'], '');
     });
   });
 
-  group(r'$debug', () {
-    test('emits debugProfile action', () {
-      final result = BdfdCompiler().compile(r'$debug');
-      expect(result.hasErrors, isFalse);
-      expect(result.actions, hasLength(1));
-      expect(result.actions[0].type, BotCreatorActionType.debugProfile);
-    });
-
-    test('flushes pending response before debug', () {
-      final result = BdfdCompiler().compile(
-        'Hello\n'
-        r'$debug',
+  group('loops', () {
+    test(r'$for repeats a channel message with its iteration index', () async {
+      final result = await runScript(
+        '\$for[3]\n  \$channelSendMessage[\$channelID;iter \$i]\n\$endfor',
       );
-      expect(result.hasErrors, isFalse);
-      expect(result.actions, hasLength(2));
-      expect(result.actions[0].type, BotCreatorActionType.respondWithMessage);
-      expect(result.actions[0].payload['content'], contains('Hello'));
-      expect(result.actions[1].type, BotCreatorActionType.debugProfile);
+      expectOk(result);
+      expect(payloads(result).map((p) => p['content']), [
+        'iter 0',
+        'iter 1',
+        'iter 2',
+      ]);
     });
+  });
 
-    test('produces correct action sequence with other functions', () {
-      final result = BdfdCompiler().compile(
-        r'$debug'
-        '\n'
-        r'$reply$c[]pong',
+  group(r'$awaitFunc', () {
+    test('registers the pending function for the author and channel', () async {
+      final result = await runScript(
+        r'$message$awaitFunc[say]',
+        variables: {'message.content': 'hi'},
       );
-      expect(result.hasErrors, isFalse);
-      expect(result.actions, hasLength(2));
-      expect(result.actions[0].type, BotCreatorActionType.debugProfile);
-      expect(result.actions[1].type, BotCreatorActionType.sendMessage);
-      expect(result.actions[1].payload['targetType'], 'reply');
-    });
-
-    test('carries compilation timing metadata', () {
-      final result = BdfdCompiler().compile(r'$debug');
-      expect(result.hasErrors, isFalse);
-      final debugAction = result.actions[0];
-      expect(debugAction.payload['compilationMs'], isA<int>());
-      expect(debugAction.payload['sourceLength'], equals(6));
-      expect(debugAction.payload['actionCount'], equals(1));
-    });
-
-    test('loop actions carry iteration metadata', () {
-      final result = BdfdCompiler().compile(
-        r'$debug'
-        '\n'
-        r'$for[3]'
-        '\n'
-        r'  $channelSendMessage[$channelID;iter $i]'
-        '\n'
-        r'$endfor',
+      expect(contentOf(result), 'hi');
+      final registration = Map<String, dynamic>.from(
+        _scoped(result, 'user')['20']['await_say'],
       );
-      expect(result.hasErrors, isFalse);
-      // debugProfile + 3 sendMessage
-      expect(result.actions, hasLength(4));
-      expect(result.actions[0].type, BotCreatorActionType.debugProfile);
-      for (var i = 1; i <= 3; i++) {
-        final a = result.actions[i];
-        expect(a.type, BotCreatorActionType.sendMessage);
-        expect(a.payload['_debugLoopDepth'], equals(1));
-        expect(a.payload['_debugLoopIteration'], equals(i - 1));
+      expect(registration['name'], 'say');
+      expect(registration['userId'], '20');
+      expect(registration['channelId'], '30');
+    });
+
+    test('user and channel can be given explicitly', () async {
+      final result = await runScript(r'$awaitFunc[Follow Up;21;30]ready');
+      expect(contentOf(result), 'ready');
+      final registration = _scoped(result, 'user')['21']['await_follow_up'];
+      expect(registration['userId'], '21');
+      expect(registration['channelId'], '30');
+    });
+
+    test('every execution produces a distinct registration snapshot', () async {
+      const script = r'$message$awaitFunc[say]';
+      Future<String> snapshot() async {
+        final result = await runScript(script);
+        return awaitedRegistrationSnapshot(
+          _scoped(result, 'user')['20']['await_say'],
+        );
       }
+
+      final first = await snapshot();
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+      expect(
+        await snapshot(),
+        isNot(first),
+        reason: 're-arming an awaited function must be detectable',
+      );
     });
 
-    test(
-      'recursive awaitFunc produces different snapshots on each compilation',
-      () async {
-        // Simulate a callback command that echoes and re-arms:
-        //   $message
-        //   $awaitFunc[say]
-        const script = r'$message$awaitFunc[say]';
+    test('an empty name is rejected', () async {
+      final result = await runScript(r'$awaitFunc[]');
+      expect(result['success'], false);
+    });
+  });
 
-        // First compilation (initial command execution)
-        final first = BdfdCompiler().compile(script);
-        expect(first.hasErrors, isFalse);
-        final firstSet = first.actions.firstWhere(
-          (a) => a.type == BotCreatorActionType.setScopedVariable,
-        );
-        expect(firstSet.payload['key'], 'await_say');
-        expect(firstSet.payload['valueType'], 'json');
-        final firstJson = firstSet.payload['jsonValue'] as String;
-        final firstResolved = resolveTemplatePlaceholders(firstJson, {
-          'author.id': '111',
-          'channel.id': '222',
-        });
-        final firstValue = jsonDecode(firstResolved) as Map<String, dynamic>;
-        final firstSnapshot = awaitedRegistrationSnapshot(firstValue);
+  group('scoped user variables', () {
+    Future<Map<String, dynamic>> member(String script) async {
+      final result = await runScript(script);
+      expectOk(result);
+      return _scoped(result, 'guildMember');
+    }
 
-        // Tiny delay so DateTime.now() differs
-        await Future<void>.delayed(const Duration(milliseconds: 2));
-
-        // Second compilation (callback re-arms)
-        BdfdCompiler.clearCache();
-        final second = BdfdCompiler().compile(script);
-        expect(second.hasErrors, isFalse);
-        final secondSet = second.actions.firstWhere(
-          (a) => a.type == BotCreatorActionType.setScopedVariable,
-        );
-        final secondJson = secondSet.payload['jsonValue'] as String;
-        final secondResolved = resolveTemplatePlaceholders(secondJson, {
-          'author.id': '111',
-          'channel.id': '222',
-        });
-        final secondValue = jsonDecode(secondResolved) as Map<String, dynamic>;
-        final secondSnapshot = awaitedRegistrationSnapshot(secondValue);
-
-        // Snapshots MUST differ for re-arm to be detected
-        expect(
-          secondSnapshot,
-          isNot(firstSnapshot),
-          reason:
-              'Each compilation must produce a unique createdAt so that '
-              'the re-arm check detects the change.',
-        );
-      },
-    );
-
-    test(
-      'pre-compiled awaitFunc actions produce identical snapshots (no re-arm)',
-      () {
-        // When using workflow-mode (pre-compiled actions), the same action
-        // JSON is reused. The createdAt is static → snapshots are identical
-        // → re-arm is NOT detected.
-        const script = r'$awaitFunc[echo]';
-        final compiled = BdfdCompiler().compile(script);
-        expect(compiled.hasErrors, isFalse);
-        final action = compiled.actions.single;
-        // Serialize to JSON and deserialize (simulating workflow-mode storage)
-        final actionJson = action.toJson();
-
-        final firstResolved = resolveTemplatePlaceholders(
-          (actionJson['payload'] as Map)['jsonValue'] as String,
-          {'author.id': '111', 'channel.id': '222'},
-        );
-        final firstSnapshot = awaitedRegistrationSnapshot(
-          jsonDecode(firstResolved),
-        );
-
-        // Reuse same serialized action JSON (workflow mode)
-        final secondResolved = resolveTemplatePlaceholders(
-          (actionJson['payload'] as Map)['jsonValue'] as String,
-          {'author.id': '111', 'channel.id': '222'},
-        );
-        final secondSnapshot = awaitedRegistrationSnapshot(
-          jsonDecode(secondResolved),
-        );
-
-        // Same static payload → identical snapshots → no re-arm!
-        expect(
-          secondSnapshot,
-          equals(firstSnapshot),
-          reason:
-              'Pre-compiled actions have a static createdAt, so '
-              'snapshots are identical and re-arm is not detected.',
-        );
-      },
-    );
-
-    test(r'$deleteMessage and $deleteIn compile correctly', () {
-      final compiler = BdfdCompiler();
-      final result = compiler.compile(r'$deleteMessage[123;456]');
-      expect(result.hasErrors, isFalse);
-      expect(result.actions, hasLength(1));
-      expect(result.actions[0].type, BotCreatorActionType.deleteMessages);
-      expect(result.actions[0].payload['channelId'], '123');
-      expect(result.actions[0].payload['messageId'], '456');
-
-      final result2 = compiler.compile(r'$deleteIn[5s]Hello!');
-      expect(result2.hasErrors, isFalse);
-      expect(result2.actions, hasLength(1));
-      expect(result2.actions[0].type, BotCreatorActionType.respondWithMessage);
-      expect(result2.actions[0].payload['content'], 'Hello!');
-      expect(result2.actions[0].payload['deleteAfter'], '5s');
-
-      final result3 = compiler.compile(r'$clear');
-      expect(result3.hasErrors, isFalse);
-      expect(result3.actions, hasLength(1));
-      expect(result3.actions[0].type, BotCreatorActionType.deleteMessages);
-      expect(result3.actions[0].payload['channelId'], '((channel.id))');
-      expect(result3.actions[0].payload['count'], '((args.1))');
-      expect(result3.actions[0].payload['bdfdClear'], true);
-      expect(result3.actions[0].payload.containsKey('onlyUserId'), isFalse);
-      expect(result3.actions[0].payload.containsKey('removePinned'), isFalse);
-
-      final result4 = compiler.compile(r'$clear[50]');
-      expect(result4.hasErrors, isFalse);
-      expect(result4.actions, hasLength(1));
-      expect(result4.actions[0].type, BotCreatorActionType.deleteMessages);
-      expect(result4.actions[0].payload['channelId'], '((channel.id))');
-      expect(result4.actions[0].payload['count'], '50');
-      expect(result4.actions[0].payload.containsKey('onlyUserId'), isFalse);
-      expect(result4.actions[0].payload.containsKey('removePinned'), isFalse);
-
-      final result5 = compiler.compile(r'$clear[50;77777;false]');
-      expect(result5.hasErrors, isFalse);
-      expect(result5.actions, hasLength(1));
-      expect(result5.actions[0].type, BotCreatorActionType.deleteMessages);
-      expect(result5.actions[0].payload['channelId'], '((channel.id))');
-      expect(result5.actions[0].payload['count'], '50');
-      expect(result5.actions[0].payload['onlyUserId'], '77777');
-      expect(result5.actions[0].payload['removePinned'], 'false');
+    test('setUserVar uses the author and current guild by default', () async {
+      expect(await member(r'$setUserVar[money;100]'), {
+        '10:20': {'money': '100'},
+      });
     });
 
-    group('scoped variable operations', () {
-      test('setUserVar with 2 or 3 arguments uses the current guild', () {
-        final compiler = BdfdCompiler();
-        final result = compiler.compile(r'$setUserVar[money;100]');
-        expect(result.hasErrors, isFalse);
-        expect(result.actions, hasLength(1));
-        expect(result.actions[0].type, BotCreatorActionType.setScopedVariable);
-        expect(result.actions[0].payload['scope'], 'guildMember');
-        expect(result.actions[0].payload['key'], 'money');
-        expect(result.actions[0].payload['value'], '100');
-        expect(
-          result.actions[0].payload['contextId'],
-          '((guild.id)):((author.id))',
-        );
-
-        final result2 = compiler.compile(r'$setUserVar[money;100;12345]');
-        expect(result2.hasErrors, isFalse);
-        expect(result2.actions, hasLength(1));
-        expect(result2.actions[0].type, BotCreatorActionType.setScopedVariable);
-        expect(result2.actions[0].payload['scope'], 'guildMember');
-        expect(result2.actions[0].payload['key'], 'money');
-        expect(result2.actions[0].payload['value'], '100');
-        expect(result2.actions[0].payload['contextId'], '((guild.id)):12345');
+    test('setUserVar accepts a user id and a guild id', () async {
+      expect(await member(r'$setUserVar[money;100;12345]'), {
+        '10:12345': {'money': '100'},
       });
-
-      test('setUserVar with 4 arguments compiles to scope guildMember', () {
-        final compiler = BdfdCompiler();
-        final result = compiler.compile(r'$setUserVar[money;100;12345;67890]');
-        expect(result.hasErrors, isFalse);
-        expect(result.actions, hasLength(1));
-        expect(result.actions[0].type, BotCreatorActionType.setScopedVariable);
-        expect(result.actions[0].payload['scope'], 'guildMember');
-        expect(result.actions[0].payload['key'], 'money');
-        expect(result.actions[0].payload['value'], '100');
-        expect(result.actions[0].payload['contextId'], '67890:12345');
-
-        final result2 = compiler.compile(r'$setUserVar[money;100;;67890]');
-        expect(result2.hasErrors, isFalse);
-        expect(result2.actions, hasLength(1));
-        expect(result2.actions[0].type, BotCreatorActionType.setScopedVariable);
-        expect(result2.actions[0].payload['scope'], 'guildMember');
-        expect(result2.actions[0].payload['key'], 'money');
-        expect(result2.actions[0].payload['value'], '100');
-        expect(result2.actions[0].payload['contextId'], '67890:((author.id))');
+      expect(await member(r'$setUserVar[money;100;12345;67890]'), {
+        '67890:12345': {'money': '100'},
       });
-
-      test('setGuildMemberVar compiles to scope guildMember', () {
-        final compiler = BdfdCompiler();
-        final result = compiler.compile(
-          r'$setGuildMemberVar[money;100;12345;67890]',
-        );
-        expect(result.hasErrors, isFalse);
-        expect(result.actions, hasLength(1));
-        expect(result.actions[0].type, BotCreatorActionType.setScopedVariable);
-        expect(result.actions[0].payload['scope'], 'guildMember');
-        expect(result.actions[0].payload['key'], 'money');
-        expect(result.actions[0].payload['value'], '100');
-        expect(result.actions[0].payload['contextId'], '67890:12345');
+      expect(await member(r'$setUserVar[money;100;;67890]'), {
+        '67890:20': {'money': '100'},
       });
+    });
 
-      test('resetUserVar with 3 arguments compiles to scope guildMember', () {
-        final compiler = BdfdCompiler();
-        final result = compiler.compile(r'$resetUserVar[money;12345;67890]');
-        expect(result.hasErrors, isFalse);
-        expect(result.actions, hasLength(1));
-        expect(
-          result.actions[0].type,
-          BotCreatorActionType.removeScopedVariable,
-        );
-        expect(result.actions[0].payload['scope'], 'guildMember');
-        expect(result.actions[0].payload['key'], 'money');
-        expect(result.actions[0].payload['resetAllContexts'], isTrue);
-        expect(result.actions[0].payload['resetGuildId'], '67890');
-        expect(result.actions[0].payload['resetUserId'], '12345');
+    test('setGuildMemberVar takes the member and the guild', () async {
+      expect(await member(r'$setGuildMemberVar[money;100;12345;67890]'), {
+        '67890:12345': {'money': '100'},
       });
     });
   });

@@ -22,10 +22,7 @@ const sandboxUserFunctionCases = [
     0,
     '21',
     scenario: {'entities': _users},
-    expectedValues: {
-      '/entity_requests/0/operation': 'members.search',
-      '/variables/userFind[bob;no].id': '21',
-    },
+    expectedValues: {'/entity_requests/0/operation': 'members.list'},
   ),
   SandboxFunctionCase(
     'finduser',
@@ -59,7 +56,6 @@ const sandboxUserFunctionCases = [
     scenario: {'entities': _users},
     expectedValues: {
       '/entity_requests/0': {'operation': 'users.fetch', 'user_id': '21'},
-      '/variables/user[21].exists': 'true',
     },
   ),
   SandboxFunctionCase(
@@ -69,24 +65,31 @@ const sandboxUserFunctionCases = [
     'false',
     label: 'missing Discord user',
     scenario: {'entities': _users},
-    expectedValues: {'/variables/user[99].exists': 'false'},
+    expectedValues: {
+      '/entity_requests/0': {'operation': 'users.fetch', 'user_id': '99'},
+    },
   ),
   SandboxFunctionCase(
     'userexists',
     r'$userExists[invalid]',
     0,
-    'false',
-    label: 'invalid user ID',
+    '',
+    label: 'invalid user ID is rejected without a lookup',
     scenario: {'entities': _users},
-    expectedValues: {'/entity_requests': []},
+    expectedValues: {
+      '/success': false,
+      '/error': r'BDFD L1:1 $userExists: Invalid user ID.',
+      '/entity_requests': [],
+    },
   ),
   SandboxFunctionCase(
     'userexists',
-    r'$userExists[((opts.user))]',
+    r'$userExists[$message[user]]',
     0,
     'true',
     label: 'runtime user ID',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'entities': _users,
       'options': {'user': '20'},
     },
@@ -153,12 +156,17 @@ const sandboxUserFunctionCases = [
   ),
   SandboxFunctionCase(
     'userinfo',
-    r'$userInfo[20]',
+    r'$userInfo[Username: {username} | ID: {ID} | Bot: {BOT} | Tag: {discriminator}]',
     0,
-    'Alice Info',
+    '',
     scenario: {
-      'variables': {'user[20].info': 'Alice Info'},
+      'entities': _users,
+      'variables': {'message.mentions[0]': '21'},
     },
-    label: 'returns user summary info',
+    expectedValues: {
+      '/responses/0/payload/embeds/0/description':
+          'Username: bob | ID: 21 | Bot: true | Tag: 0',
+    },
+    label: 'formats the first mentioned user into the embed description',
   ),
 ];

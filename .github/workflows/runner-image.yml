@@ -1,0 +1,79 @@
+name: Runner image
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - 'packages/runner/**'
+      - 'packages/shared/**'
+      - 'Dockerfile'
+      - '.dockerignore'
+      - '.github/workflows/runner-image.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: runner-image-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish-dev-image:
+    name: Publish staging image (Manager webhook deploys)
+    if: github.ref == 'refs/heads/dev'
+    runs-on: [self-hosted, Linux, X64]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # No latest/SemVer tag on dev. A successful workflow_run lets the
+      # staging Manager deploy exactly dev-<head_sha> through its GitHub webhook.
+      - name: Build image for scanning
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: false
+          load: true
+          tags: local/staging:scan
+          cache-from: type=gha,scope=dev
+          cache-to: type=gha,mode=max,scope=dev
+
+      - name: Scan staging image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: local/staging:scan
+          format: table
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+
+      - name: Publish immutable staging image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/bot-creator-runner:dev-${{ github.sha }}
+          cache-from: type=gha,scope=dev
+          cache-to: type=gha,mode=max,scope=dev

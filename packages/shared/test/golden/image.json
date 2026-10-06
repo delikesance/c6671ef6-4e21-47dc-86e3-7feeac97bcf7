@@ -1,0 +1,328 @@
+{
+  "creates, draws and publishes the named attachment#0": {
+    "effects": [],
+    "results": {
+      "img": "digest:836:2dcd7e0f8ba03859"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "name": "Ana",
+      "img": "digest:836:2dcd7e0f8ba03859",
+      "temp._canvasAttachment_card": "digest:836:2dcd7e0f8ba03859"
+    },
+    "error": null
+  },
+  "without an image name no attachment variable#0": {
+    "effects": [],
+    "results": {
+      "img": "iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAEElEQVR4nGP5z4AALAxEcQA1CQEQXuqynAAAAABJRU5ErkJggg=="
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "img": "iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAEElEQVR4nGP5z4AALAxEcQA1CQEQXuqynAAAAABJRU5ErkJggg=="
+    },
+    "error": null
+  },
+  "no operations or no canvas gives an empty result#0": {
+    "effects": [],
+    "results": {
+      "none": "",
+      "nocanvas": ""
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "none": "",
+      "nocanvas": ""
+    },
+    "error": null
+  },
+  "loads and composites from URL, data URL and raw base64#0": {
+    "effects": [
+      "/a.png"
+    ],
+    "results": {
+      "mix": "iVBORw0KGgoAAAANSUhEUgAAAAYAAAAECAIAAAAiZtkUAAAAFElEQVR4nGNhYPjPgApYGDAAcUIAS/sBECA2Hz0AAAAASUVORK5CYII="
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "base": "http://BASE",
+      "mix": "iVBORw0KGgoAAAANSUhEUgAAAAYAAAAECAIAAAAiZtkUAAAAFElEQVR4nGNhYPjPgApYGDAAcUIAS/sBECA2Hz0AAAAASUVORK5CYII=",
+      "temp._canvasAttachment_mix": "iVBORw0KGgoAAAANSUhEUgAAAAYAAAAECAIAAAAiZtkUAAAAFElEQVR4nGNhYPjPgApYGDAAcUIAS/sBECA2Hz0AAAAASUVORK5CYII="
+    },
+    "error": null
+  },
+  "an unreachable source follows the executor behaviour#0": {
+    "effects": [
+      "/missing.png",
+      "/missing.png"
+    ],
+    "results": {
+      "bad": "",
+      "after": "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAEElEQVR4nGP5zwACLGCSAQANVQEIKt5GuAAAAABJRU5ErkJggg=="
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "bad": "",
+      "after": "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAEElEQVR4nGP5zwACLGCSAQANVQEIKt5GuAAAAABJRU5ErkJggg==",
+      "temp._canvasAttachment_after": "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAEElEQVR4nGP5zwACLGCSAQANVQEIKt5GuAAAAABJRU5ErkJggg=="
+    },
+    "error": null
+  },
+  "result placeholders of earlier actions and variables resolve#0": {
+    "effects": [],
+    "results": {
+      "first": "attached",
+      "second": "iVBORw0KGgoAAAANSUhEUgAAAAYAAAEsCAIAAABv7lX7AAAAKklEQVR4nO3IoQEAAAgDIMP+f1m7niBE0rXljFJKKaWUUkoppZRSSqmXNaM/BbCdx0p0AAAAAElFTkSuQmCC"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "w": "6",
+      "temp._canvasAttachment_first": "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAEklEQVR4nGNhZGJmYGBgYQADAACoAA/8+QkiAAAAAElFTkSuQmCC",
+      "second": "iVBORw0KGgoAAAANSUhEUgAAAAYAAAEsCAIAAABv7lX7AAAAKklEQVR4nO3IoQEAAAgDIMP+f1m7niBE0rXljFJKKaWUUkoppZRSSqmXNaM/BbCdx0p0AAAAAElFTkSuQmCC",
+      "temp._canvasAttachment_second": "iVBORw0KGgoAAAANSUhEUgAAAAYAAAEsCAIAAABv7lX7AAAAKklEQVR4nO3IoQEAAAgDIMP+f1m7niBE0rXljFJKKaWUUkoppZRSSqmXNaM/BbCdx0p0AAAAAElFTkSuQmCC"
+    },
+    "error": null
+  },
+  "error modes of the block: continue, skip, stop#0": {
+    "effects": [],
+    "results": {
+      "e1": "Error: Exception: attachImage: imageName is required",
+      "ok": "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAEElEQVR4nGP5zwACLGCSAQANVQEIKt5GuAAAAABJRU5ErkJggg=="
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: attachImage: imageName is required",
+      "error.command": "attachImage",
+      "error.source": "",
+      "error.row": "",
+      "error.column": "",
+      "ok": "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAEElEQVR4nGP5zwACLGCSAQANVQEIKt5GuAAAAABJRU5ErkJggg==",
+      "temp._canvasAttachment_ok": "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAEElEQVR4nGP5zwACLGCSAQANVQEIKt5GuAAAAABJRU5ErkJggg=="
+    },
+    "error": null
+  },
+  "error modes of the block: continue, skip, stop#1": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: attachImage: imageSource is required",
+      "error.command": "attachImage",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: attachImage: imageSource is required"
+  },
+  "inside a protected execution (throwOnError)#0": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: attachImage: imageSource is required",
+      "error.command": "attachImage",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: attachImage: imageSource is required"
+  },
+  "stores a data URL, raw base64 and URL source#0": {
+    "effects": [
+      "/pic.png"
+    ],
+    "results": {
+      "one": "attached",
+      "two": "attached",
+      "three": "attached"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "n": "dyn",
+      "base": "http://BASE",
+      "temp._canvasAttachment_one": "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAEklEQVR4nGPh5ORkYGBgYQADAAGmACTDJ8EBAAAAAElFTkSuQmCC",
+      "temp._canvasAttachment_dyn": "iVBORw0KGgoAAAANSUhEUgAAAAMAAAABCAIAAACUgoPjAAAADklEQVR4nGNhZWVlAAMAAKoAFOfPuOEAAAAASUVORK5CYII=",
+      "temp._canvasAttachment_url": "iVBORw0KGgoAAAANSUhEUgAAAAYAAAAECAIAAAAiZtkUAAAAFElEQVR4nGNhYPjPgApYGDAAcUIAS/sBECA2Hz0AAAAASUVORK5CYII="
+    },
+    "error": null
+  },
+  "missing name or source, undecodable and 404 sources#0": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: attachImage: imageName is required",
+      "error.command": "attachImage",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: attachImage: imageName is required"
+  },
+  "missing name or source, undecodable and 404 sources#1": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: attachImage: imageSource is required",
+      "error.command": "attachImage",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: attachImage: imageSource is required"
+  },
+  "missing name or source, undecodable and 404 sources#2": {
+    "effects": [
+      "/missing.png"
+    ],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: attachImage: failed to load image from source",
+      "error.command": "attachImage",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: attachImage: failed to load image from source"
+  },
+  "missing name or source, undecodable and 404 sources#3": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: attachImage: failed to load image from source",
+      "error.command": "attachImage",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: attachImage: failed to load image from source"
+  },
+  "a disabled action stays a no-op#0": {
+    "effects": [],
+    "results": {},
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500"
+    },
+    "error": null
+  },
+  "never executable on their own, with the historical error#0": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Bad state: Canvas block type canvasCreateBlock must be nested inside an Image Manipulation Block (runtimeImageBlock) and cannot be executed standalone.",
+      "error.command": "canvasCreateBlock",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "digest:163:508fa309c8c2107d"
+  },
+  "never executable on their own, with the historical error#1": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Bad state: Canvas block type canvasLoadImageBlock must be nested inside an Image Manipulation Block (runtimeImageBlock) and cannot be executed standalone.",
+      "error.command": "canvasLoadImageBlock",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "digest:166:768a4257cd35a20e"
+  },
+  "never executable on their own, with the historical error#2": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Bad state: Canvas block type canvasDrawTextBlock must be nested inside an Image Manipulation Block (runtimeImageBlock) and cannot be executed standalone.",
+      "error.command": "canvasDrawTextBlock",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "digest:165:4da3a12924a8c8f0"
+  },
+  "never executable on their own, with the historical error#3": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Bad state: Canvas block type canvasDrawCircleBlock must be nested inside an Image Manipulation Block (runtimeImageBlock) and cannot be executed standalone.",
+      "error.command": "canvasDrawCircleBlock",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "digest:167:5d9a4345fc4e86ff"
+  },
+  "never executable on their own, with the historical error#4": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Bad state: Canvas block type canvasDrawRectBlock must be nested inside an Image Manipulation Block (runtimeImageBlock) and cannot be executed standalone.",
+      "error.command": "canvasDrawRectBlock",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "digest:165:79a8dbdf5d5ba69d"
+  },
+  "never executable on their own, with the historical error#5": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Bad state: Canvas block type canvasDrawLineBlock must be nested inside an Image Manipulation Block (runtimeImageBlock) and cannot be executed standalone.",
+      "error.command": "canvasDrawLineBlock",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "digest:165:12207c900407845"
+  },
+  "error mode continue lets the next action run#0": {
+    "effects": [],
+    "results": {
+      "c": "Error: Bad state: Canvas block type canvasCreateBlock must be nested inside an Image Manipulation Block (runtimeImageBlock) and cannot be executed standalone.",
+      "k": "attached"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Bad state: Canvas block type canvasCreateBlock must be nested inside an Image Manipulation Block (runtimeImageBlock) and cannot be executed standalone.",
+      "error.command": "canvasCreateBlock",
+      "error.source": "",
+      "error.row": "",
+      "error.column": "",
+      "temp._canvasAttachment_k": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGNhZGQEAAAaAAhlnHI3AAAAAElFTkSuQmCC"
+    },
+    "error": null
+  }
+}

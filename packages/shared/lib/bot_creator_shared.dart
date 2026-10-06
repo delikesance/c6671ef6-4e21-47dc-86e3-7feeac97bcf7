@@ -4,7 +4,6 @@ export 'package:bot_creator_shared/utils/template_resolver.dart';
 export 'package:bot_creator_shared/utils/bdfd_lexer.dart';
 export 'package:bot_creator_shared/utils/bdfd_ast.dart';
 export 'package:bot_creator_shared/utils/bdfd_parser.dart';
-export 'package:bot_creator_shared/utils/bdfd_ast_transpiler.dart';
 export 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 export 'package:bot_creator_shared/utils/workflow_call.dart';
 export 'package:bot_creator_shared/utils/intent_resolver.dart';
@@ -38,4 +37,3 @@ export 'package:bot_creator_shared/types/workflow_event_definition.dart';
 export 'package:bot_creator_shared/utils/event_catalog.dart';
 export 'package:bot_creator_shared/utils/allowed_mentions_parser.dart';
 export 'package:bot_creator_shared/utils/command_migration.dart';
-

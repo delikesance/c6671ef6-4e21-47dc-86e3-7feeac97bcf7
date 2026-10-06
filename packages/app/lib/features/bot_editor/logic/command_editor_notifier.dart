@@ -1,10 +1,10 @@
+import 'package:bot_creator/core/bdfd_editor/bdfd_validation.dart';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
 import 'package:bot_creator/core/models/types/app_emoji.dart';
 import 'package:bot_creator/features/bot_editor/logic/command_editor_state.dart';
-import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:nyxx/nyxx.dart';
 
 /// Notifier for [CommandEditorState] — replaces the mutable fields and
@@ -16,10 +16,7 @@ import 'package:nyxx/nyxx.dart';
 /// final name = context.select((CommandEditorNotifier n) => n.state.commandName);
 /// ```
 class CommandEditorNotifier extends ChangeNotifier {
-  CommandEditorNotifier({BdfdCompiler? bdfdCompiler})
-    : _bdfdCompiler = bdfdCompiler ?? BdfdCompiler();
-
-  final BdfdCompiler _bdfdCompiler;
+  CommandEditorNotifier();
 
   CommandEditorState _state = const CommandEditorState();
   CommandEditorState get state => _state;
@@ -160,12 +157,12 @@ class CommandEditorNotifier extends ChangeNotifier {
   }
 
   void updateBdfdScriptContent(String content) {
-    final result = _bdfdCompiler.compile(content);
-    _state = _state.copyWith(
-      bdfdScriptContent: content,
-      bdfdCompileResult: result,
-    );
-    notifyListeners();
+    refreshBdfdCompileResult(content);
+  }
+
+  void updateBdfdBackend(String backend) {
+    _state = _state.copyWith(bdfdBackend: backend);
+    refreshBdfdCompileResult(_state.bdfdScriptContent);
   }
 
   void setJsScriptContent(String content) {
@@ -174,10 +171,11 @@ class CommandEditorNotifier extends ChangeNotifier {
   }
 
   void refreshBdfdCompileResult(String source) {
-    final result = _bdfdCompiler.compile(source);
+    final diagnostics = bdfdDiagnosticsFor(source, backend: _state.bdfdBackend);
     _state = _state.copyWith(
       bdfdScriptContent: source,
-      bdfdCompileResult: result,
+      clearBdfdCompileResult: true,
+      bdfdNativeDiagnostics: diagnostics,
     );
     notifyListeners();
   }
@@ -306,6 +304,9 @@ class CommandEditorNotifier extends ChangeNotifier {
       'description': s.effectiveCommandDescription,
       'commandType': _commandTypeToText(s.commandType),
       'folder': s.folder.trim(),
+      'executionMode': s.executionMode,
+      'bdfdBackend': s.bdfdBackend,
+      'bdfdScriptContent': s.bdfdScriptContent,
       'integrationTypes': integrationTypes,
       'contexts': contexts,
     };

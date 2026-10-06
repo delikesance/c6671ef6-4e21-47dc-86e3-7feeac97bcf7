@@ -1,3 +1,5 @@
+import 'package:bot_creator_shared/engine/bdfd/context_functions.dart';
+import 'package:bot_creator_shared/engine/bdfd/runtime.dart';
 import 'package:bot_creator_shared/events/event_contexts.dart';
 import 'package:bot_creator_shared/utils/global.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
@@ -385,7 +387,7 @@ void main() {
       );
     });
 
-    test('extracts modal fields values', () {
+    test('extracts modal fields values', () async {
       final variables = buildInteractionRuntimeVariables(
         _FakeInteraction(
               data: _FakeModalData(
@@ -404,7 +406,14 @@ void main() {
       );
 
       expect(variables['modal.customId'], 'modal:feedback');
+      expect(variables['interaction.isSlash'], 'false');
       expect(variables['modal.title'], 'Hello');
+      expect(
+        await BdfdRuntime(
+          functions: bdfdContextFunctions(),
+        ).execute(r'$input[title]', context: BdfdContext(variables: variables)),
+        'Hello',
+      );
       expect(variables['opts.title'], 'Hello');
       expect(variables['arg.title'], 'Hello');
       expect(variables['workflow.arg.title'], 'Hello');
@@ -415,7 +424,7 @@ void main() {
       expect(variables['interaction.userId'], '77');
     });
 
-    test('extracts V2 modal fields values (wrapped in LabelNode)', () {
+    test('extracts V2 modal fields values (wrapped in LabelNode)', () async {
       final variables = buildInteractionRuntimeVariables(
         _FakeInteraction(
               data: _FakeModalData(
@@ -432,7 +441,14 @@ void main() {
       );
 
       expect(variables['modal.customId'], 'modal:feedback');
+      expect(variables['interaction.isSlash'], 'false');
       expect(variables['modal.title'], 'Hello V2');
+      expect(
+        await BdfdRuntime(
+          functions: bdfdContextFunctions(),
+        ).execute(r'$input[title]', context: BdfdContext(variables: variables)),
+        'Hello V2',
+      );
       expect(variables['opts.title'], 'Hello V2');
       expect(variables['arg.title'], 'Hello V2');
       expect(variables['workflow.arg.title'], 'Hello V2');
@@ -444,6 +460,34 @@ void main() {
     });
   });
 
+  test(
+    'native slash flag distinguishes application command subtypes',
+    () async {
+      for (final type in [
+        ApplicationCommandType.chatInput,
+        ApplicationCommandType.user,
+        ApplicationCommandType.message,
+      ]) {
+        final interaction = _FakeApplicationCommandInteraction(
+          data: _FakeApplicationCommandInteractionData(
+            name: 'example',
+            id: Snowflake(111),
+            options: [],
+            type: type,
+          ),
+          type: InteractionType.applicationCommand,
+        );
+        final variables = buildInteractionRuntimeVariables(interaction);
+        final output = await BdfdRuntime(
+          functions: bdfdContextFunctions(),
+        ).execute(r'$isSlash', context: BdfdContext(variables: variables));
+        expect(
+          output,
+          type == ApplicationCommandType.chatInput ? 'true' : 'false',
+        );
+      }
+    },
+  );
   group('generateKeyValues command options prefixing', () {
     test('extracts slash command options under all three namespaces', () async {
       final fakeData = _FakeApplicationCommandInteractionData(
@@ -529,6 +573,7 @@ class _FakeApplicationCommandInteractionData
     required this.name,
     required this.id,
     required this.options,
+    this.type = ApplicationCommandType.chatInput,
   });
 
   @override
@@ -538,7 +583,7 @@ class _FakeApplicationCommandInteractionData
   @override
   final List<InteractionOption> options;
   @override
-  final ApplicationCommandType type = ApplicationCommandType.chatInput;
+  final ApplicationCommandType type;
   @override
   final Snowflake? targetId = null;
   @override

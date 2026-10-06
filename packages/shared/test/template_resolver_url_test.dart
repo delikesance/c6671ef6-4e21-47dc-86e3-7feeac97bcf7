@@ -19,10 +19,7 @@ void main() {
 
     test('resolves nested placeholders in url bracket expression', () {
       expect(
-        resolveTemplatePlaceholders(
-          '((url[encode;((var))]))',
-          {'var': 'a b'},
-        ),
+        resolveTemplatePlaceholders('((url[encode;((var))]))', {'var': 'a b'}),
         'a+b',
       );
     });
@@ -33,13 +30,10 @@ void main() {
         'a+b',
       );
     });
-    
+
     test('handles invalid decode gracefully', () {
       // %zz is invalid hex
-      expect(
-        resolveTemplatePlaceholders('((url[decode;%zz]))', {}),
-        '%zz',
-      );
+      expect(resolveTemplatePlaceholders('((url[decode;%zz]))', {}), '%zz');
     });
   });
 }

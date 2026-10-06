@@ -120,11 +120,8 @@ Future<Map<String, String>> sendCmsModuleActionMessage({
     fields.addAll(extraPlaceholders);
   }
 
-  String resolve(String input) => resolveCmsActionTemplate(
-        input,
-        moduleId: moduleId,
-        fieldValues: fields,
-      );
+  String resolve(String input) =>
+      resolveCmsActionTemplate(input, moduleId: moduleId, fieldValues: fields);
 
   final content = resolve((action['content'] ?? '').toString());
   final payload = <String, dynamic>{

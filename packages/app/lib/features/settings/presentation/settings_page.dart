@@ -4,7 +4,9 @@ import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/core/diagnostics/diagnostics_logs_page.dart';
-import 'package:bot_creator/features/settings/presentation/code_editor_settings_page.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart' as ui;
+import 'package:bot_creator_ui/bot_creator_ui.dart'
+    show CodeEditorSettingsCard, dangerOutlinedButtonStyle;
 import 'package:bot_creator/features/settings/presentation/appearance_settings_section.dart';
 import 'package:bot_creator/features/settings/presentation/widgets/app_version_and_updates_card.dart';
 import 'package:bot_creator/features/onboarding/presentation/onboarding_page.dart';
@@ -27,7 +29,7 @@ import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.da
 import 'package:bot_creator/core/storage/runtime_preferences.dart';
 import 'package:bot_creator/features/notifications/logic/notification_service.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
-import 'package:bot_creator/features/subscriptions/logic/hosted_app_subscription_service.dart';
+import 'package:bot_creator/features/subscriptions/presentation/app_subscriptions_host.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscriptions_hub_page.dart';
 import 'package:bot_creator/core/storage/drive.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
@@ -1320,6 +1322,7 @@ class _SettingPageState extends State<SettingPage> {
                 onPressed: isBusy || !accountConnected
                     ? null
                     : _disconnectMainApi,
+                style: dangerOutlinedButtonStyle(),
                 icon: _disconnectingMainApi
                     ? const SizedBox(
                         width: 14,
@@ -2308,22 +2311,7 @@ class _SettingPageState extends State<SettingPage> {
                 ),
                 const SizedBox(height: 24),
                 // ── Code editor customization card ──────────────────
-                Card(
-                  child: ListTile(
-                    leading: AppIcon.fromMaterial(
-                      Icons.code_outlined,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    title: Text(context.tr.code_editor_settings_title),
-                    subtitle: Text(context.tr.code_editor_settings_subtitle),
-                    trailing: const AppIcon.fromMaterial(Icons.chevron_right),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const CodeEditorSettingsPage(),
-                      ),
-                    ),
-                  ),
-                ),
+                const CodeEditorSettingsCard(),
                 const SizedBox(height: 24),
                 // ── Notifications card ──────────────────────────────
                 Card(
@@ -3674,13 +3662,8 @@ class _SupportDiscordCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [_discordColor, AppTheme.discordLight],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        // Surface plate (pas de dégradé) : couleur de marque Discord unie.
+        decoration: const BoxDecoration(color: _discordColor),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -3776,97 +3759,20 @@ class _SupportDiscordCard extends StatelessWidget {
 
 // ── Subscriptions entry ─────────────────────────────────────────────────────
 
-class _SubscriptionsSettingsCard extends StatefulWidget {
+/// La carte « Abonnements et facturation » est celle du paquet `bot_creator_ui`
+/// (la même que dans le Studio) ; l'app la masque quand la plateforme n'a pas de
+/// facturation native (le hub n'y est pas ouvrable).
+class _SubscriptionsSettingsCard extends StatelessWidget {
   const _SubscriptionsSettingsCard();
-
-  @override
-  State<_SubscriptionsSettingsCard> createState() =>
-      _SubscriptionsSettingsCardState();
-}
-
-class _SubscriptionsSettingsCardState
-    extends State<_SubscriptionsSettingsCard> {
-  @override
-  void initState() {
-    super.initState();
-    unawaited(_refresh());
-  }
-
-  Future<void> _refresh() async {
-    await Future.wait([
-      SubscriptionService.resolveEffectivePremiumStatus(forceRefresh: true),
-      HostedAppSubscriptionService.resolveEffectiveHostedAppStatus(
-        forceRefresh: true,
-      ),
-    ]);
-    if (mounted) setState(() {});
-  }
-
-  String _summary(BuildContext context) {
-    final tr = context.tr;
-    final bot = SubscriptionService.isSubscribed;
-    final hosted = HostedAppSubscriptionService.isSubscribed;
-    if (bot && hosted) {
-      return tr.subscriptions_hub_summary_both;
-    }
-    if (bot) {
-      return tr.subscriptions_hub_summary_bot_only;
-    }
-    if (hosted) {
-      return tr.subscriptions_hub_summary_hosted_only;
-    }
-    return tr.subscriptions_hub_summary_none;
-  }
 
   @override
   Widget build(BuildContext context) {
     if (!SubscriptionService.supportsNativeBilling) {
       return const SizedBox.shrink();
     }
-
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () async {
-          await SubscriptionsHubPage.open(context);
-          if (mounted) {
-            await _refresh();
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              const AppIcon.fromMaterial(
-                Icons.subscriptions_outlined,
-                size: 28,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.tr.subscriptions_hub_open_settings,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _summary(context),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const AppIcon.fromMaterial(Icons.chevron_right),
-            ],
-          ),
-        ),
-      ),
+    return ui.SubscriptionsSettingsCard(
+      host: const AppSubscriptionsHost(),
+      onOpen: SubscriptionsHubPage.open,
     );
   }
 }

@@ -1,12 +1,8 @@
 import 'package:nyxx/nyxx.dart';
 
+import '../../services/bot_webhook_block_service.dart';
 import '../../types/action.dart';
-import '../delete_webhook.dart';
-import '../edit_webhook.dart';
-import '../get_webhook.dart';
-import '../list_webhooks.dart';
 import '../permission_checks.dart';
-import '../send_webhook.dart';
 
 Future<bool> executeWebhooksAction({
   required BotCreatorActionType type,
@@ -19,23 +15,21 @@ Future<bool> executeWebhooksAction({
   required String Function(String input) resolveValue,
   BotPermissionCache? permissionCache,
 }) async {
+  final service = DiscordBotWebhookBlockService(client);
   switch (type) {
     case BotCreatorActionType.sendWebhook:
     case BotCreatorActionType.editWebhook:
     case BotCreatorActionType.deleteWebhook:
       final result = await switch (type) {
-        BotCreatorActionType.sendWebhook => sendWebhookAction(
-          client,
+        BotCreatorActionType.sendWebhook => service.send(
           payload: payload,
           resolve: resolveValue,
         ),
-        BotCreatorActionType.editWebhook => editWebhookAction(
-          client,
+        BotCreatorActionType.editWebhook => service.edit(
           payload: payload,
           resolve: resolveValue,
         ),
-        BotCreatorActionType.deleteWebhook => deleteWebhookAction(
-          client,
+        BotCreatorActionType.deleteWebhook => service.delete(
           payload: payload,
           resolve: resolveValue,
         ),
@@ -60,8 +54,7 @@ Future<bool> executeWebhooksAction({
           throw Exception(permError);
         }
       }
-      final result = await listWebhooksAction(
-        client,
+      final result = await service.list(
         payload: payload,
         fallbackChannelId: fallbackChannelId,
         fallbackGuildId: fallbackGuildId,
@@ -74,11 +67,7 @@ Future<bool> executeWebhooksAction({
       return true;
 
     case BotCreatorActionType.getWebhook:
-      final result = await getWebhookAction(
-        client,
-        payload: payload,
-        resolve: resolveValue,
-      );
+      final result = await service.get(payload: payload, resolve: resolveValue);
       if (result['error'] != null) {
         throw Exception(result['error']);
       }

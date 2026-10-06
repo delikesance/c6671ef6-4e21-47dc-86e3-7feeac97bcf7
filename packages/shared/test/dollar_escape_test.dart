@@ -10,8 +10,7 @@ import 'package:test/test.dart';
 /// inside function arguments.
 void main() {
   group(r'$$ escape sequence', () {
-    List<BdfdToken> lex(String source) =>
-        BdfdLexer().tokenize(source).tokens;
+    List<BdfdToken> lex(String source) => BdfdLexer().tokenize(source).tokens;
 
     void expectTokens(String source, List<String> expectedLexemes) {
       final tokens = lex(source);
@@ -44,24 +43,27 @@ void main() {
 
     // -- $$ inside function argument (the original bug scenario) -----------
 
-    test(r'$description[$$getVar[x]] — bracket inside description survives', () {
-      final result = BdfdLexer().tokenize(r'$description[$$getVar[x]]');
-      final types = result.tokens
-          .where((t) => t.type != BdfdTokenType.eof)
-          .map((t) => t.type.name)
-          .toList();
-      expect(types, [
-        'function',      // $description
-        'openBracket',
-        'text',          // $
-        'function',      // $getVar
-        'openBracket',
-        'text',          // x
-        'closeBracket',
-        'closeBracket',
-      ]);
-      expect(result.diagnostics, isEmpty);
-    });
+    test(
+      r'$description[$$getVar[x]] — bracket inside description survives',
+      () {
+        final result = BdfdLexer().tokenize(r'$description[$$getVar[x]]');
+        final types = result.tokens
+            .where((t) => t.type != BdfdTokenType.eof)
+            .map((t) => t.type.name)
+            .toList();
+        expect(types, [
+          'function', // $description
+          'openBracket',
+          'text', // $
+          'function', // $getVar
+          'openBracket',
+          'text', // x
+          'closeBracket',
+          'closeBracket',
+        ]);
+        expect(result.diagnostics, isEmpty);
+      },
+    );
 
     // -- $$ not followed by identifier stays as literal text --------------
 
@@ -70,21 +72,28 @@ void main() {
       expectTokens(r'$$', ['\$\$']);
     });
 
-    test(r'$$zzz — zzz starts with identifier letter -> $zzz is a function', () {
-      // "zzz" starts with 'z' (identifier-start), so after $$ escape
-      // the second $ + zzz forms function token $zzz (even if unknown).
-      expectTokens(r'$$zzz', [r'$', r'$zzz']);
-    });
+    test(
+      r'$$zzz — zzz starts with identifier letter -> $zzz is a function',
+      () {
+        // "zzz" starts with 'z' (identifier-start), so after $$ escape
+        // the second $ + zzz forms function token $zzz (even if unknown).
+        expectTokens(r'$$zzz', [r'$', r'$zzz']);
+      },
+    );
 
     // -- $$ inside markdown link pattern ----------------------------------
 
     test(r'**[$$getVar[val]\]** -> literal dollar + function + escaped ]', () {
       // '**[' are text, then $$ handler writes first $ (text = '**[$$'),
       // second $ breaks via _isFunctionStart -> text token is '**[$'.
-      expectTokens(
-        r'**[$$getVar[val]\]**',
-        [r'**[$', r'$getVar', '[', 'val', ']', ']**'],
-      );
+      expectTokens(r'**[$$getVar[val]\]**', [
+        r'**[$',
+        r'$getVar',
+        '[',
+        'val',
+        ']',
+        ']**',
+      ]);
     });
 
     // -- $$$ with known function text -------------------------------------
@@ -95,7 +104,6 @@ void main() {
   });
 
   group(r'\] escape — literal bracket balance', () {
-
     // Regression: the \] escape handler wrote ] to the buffer but did NOT
     // decrement literalBracketDepth, so a paired [ ... \] inside function
     // arguments left literalBracketDepth permanently > 0.  The outer ]
@@ -109,10 +117,10 @@ void main() {
           .map((t) => t.type.name)
           .toList();
       expect(types, [
-        'function',      // $description
+        'function', // $description
         'openBracket',
-        'text',          // a]b
-        'closeBracket',  // ← the final ] must be a closeBracket, not text
+        'text', // a]b
+        'closeBracket', // ← the final ] must be a closeBracket, not text
       ]);
     });
 
@@ -126,7 +134,7 @@ void main() {
       expect(types, [
         'function',
         'openBracket',
-        'text',          // a]b]c
+        'text', // a]b]c
         'closeBracket',
       ]);
     });
@@ -141,17 +149,23 @@ void main() {
       expect(types, [
         'function',
         'openBracket',
-        'text',          // text]
+        'text', // text]
         'closeBracket',
       ]);
     });
 
-    test(r'$description[**[$$getVar[val]\]($getVar[link])**] — full markdown',
-        () {
-      final r = BdfdLexer().tokenize(
-          r'$description[**[$$getVar[val]\]($getVar[link])**]');
-      expect(r.diagnostics, isEmpty,
-          reason: 'outer bracket must close — no Unclosed bracket diagnostic');
-    });
+    test(
+      r'$description[**[$$getVar[val]\]($getVar[link])**] — full markdown',
+      () {
+        final r = BdfdLexer().tokenize(
+          r'$description[**[$$getVar[val]\]($getVar[link])**]',
+        );
+        expect(
+          r.diagnostics,
+          isEmpty,
+          reason: 'outer bracket must close — no Unclosed bracket diagnostic',
+        );
+      },
+    );
   });
 }

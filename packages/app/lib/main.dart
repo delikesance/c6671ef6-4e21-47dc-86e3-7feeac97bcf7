@@ -11,6 +11,20 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:bot_creator/core/ui_hooks.dart';
+import 'package:bot_creator/core/network/image_disk_cache.dart';
+import 'package:bot_creator/features/documentation/web_documentation_view.dart';
+import 'package:bot_creator/core/utils/external_link.dart';
+import 'package:bot_creator/features/bot_editor/presentation/app_editor_host.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart'
+    show
+        AvatarImageSource,
+        CopilotMarkdown,
+        DocumentationWebViewHost,
+        EditorHostScope,
+        ExternalLinkOpener,
+        ThemeProvider,
+        UiDiagnostics;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nyxx/nyxx.dart' hide Locale, Builder;
 import 'package:bot_creator/features/home/presentation/home_page.dart';
@@ -42,16 +56,18 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/runner/embedded_js_runner_service.dart';
 import 'package:bot_creator/features/subscriptions/logic/hosted_app_subscription_service.dart';
+import 'package:bot_creator/features/subscriptions/logic/consumable_purchase_service.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
 import 'package:bot_creator/core/code_editor/code_editor_settings_provider.dart';
-import 'package:bot_creator/core/theme/app_appearance.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/theme/app_text_scale.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:bot_creator/core/widgets/desktop_title_bar.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator/core/widgets/flat_nav_bar.dart';
+import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/auth/presentation/mobile_account_gate_shell.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:bot_creator/features/documentation/documentation_hub_page.dart';
@@ -59,6 +75,7 @@ import 'package:bot_creator/features/documentation/webview_platform_bootstrap.da
 import 'package:bot_creator/features/settings/presentation/settings_page.dart';
 import 'package:bot_creator/features/containers/logic/account_sync_worker.dart';
 import 'package:desktop_webview_window/desktop_webview_window.dart';
+export 'package:bot_creator_ui/bot_creator_ui.dart' show ThemeProvider;
 
 @pragma('vm:entry-point')
 AppManager? _appManager;
@@ -188,6 +205,14 @@ Future<void> main(List<String> args) async {
       cache.maximumSizeBytes = 50 << 20; // 50 MB
 
       await AppDiagnostics.initialize();
+      AvatarImageSource.defaultSource = ImageDiskCache.instance;
+      ExternalLinkOpener.current = openExternalUrl;
+      CopilotMarkdown.linkOpener = openAppLink;
+      bindUiPackageHooks();
+      DocumentationWebViewHost.builder = (url) =>
+          WebDocumentationView(initialUrl: url);
+      UiDiagnostics.onInfo = (message) =>
+          unawaited(AppDiagnostics.logInfo(message));
       AppDiagnostics.installGlobalErrorHandlers();
       try {
         FlutterForegroundTask.initCommunicationPort();
@@ -423,6 +448,13 @@ Future<void> _warmUpServicesAfterLaunch() async {
     action: () async {
       await HostedAppSubscriptionService.initialize();
     },
+  );
+
+  await _runStartupTask(
+    label: 'AI credit pack purchases',
+    operation: 'startup_consumable_purchases',
+    timeout: const Duration(seconds: 10),
+    action: ConsumablePurchaseService.start,
   );
 
   await _runStartupTask(
@@ -714,11 +746,14 @@ class _MyAppState extends State<MyApp> {
       navigatorObservers: [PosthogObserver(), DesktopTitleBarNotifier.instance],
       builder: (context, child) {
         final content = child ?? const SizedBox.shrink();
-        return AppTextScale(
-          factor: themeProvider.appearance.textScale,
-          child: ResponsiveHelper.isDesktopPlatform()
-              ? DesktopAppShell(child: content)
-              : content,
+        return EditorHostScope(
+          host: const AppEditorHost(),
+          child: AppTextScale(
+            factor: themeProvider.appearance.textScale,
+            child: ResponsiveHelper.isDesktopPlatform()
+                ? DesktopAppShell(child: content)
+                : content,
+          ),
         );
       },
       onGenerateTitle: (context) => context.tr.app_title,
@@ -842,12 +877,28 @@ class _MyMainPageState extends State<MyMainPage> {
         MediaQuery.sizeOf(context).width >= AppTheme.desktopBreakpoint;
 
     if (isWide) {
+      final managing = _managingBotId != null;
+      final content = SafeArea(
+        bottom: false,
+        // La barre du haut gère déjà la zone de sécurité haute.
+        top: managing && !ResponsiveHelper.isDesktopPlatform(),
+        child: _homeOrManage(),
+      );
       return Scaffold(
-        body: SafeArea(
-          bottom: false,
-          top: !ResponsiveHelper.isDesktopPlatform(),
-          child: _homeOrManage(),
-        ),
+        // Barre de navigation en haut sur l'accueil ; l'éditeur d'un bot
+        // embarqué garde toute la hauteur et sa propre navigation.
+        body: managing
+            ? content
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  FlatNavTopBar(
+                    leading: const _RailBrandMark(),
+                    items: _railNavItems(context),
+                  ),
+                  Expanded(child: content),
+                ],
+              ),
       );
     }
 
@@ -874,10 +925,10 @@ class _MyMainPageState extends State<MyMainPage> {
           ),
           if (_managingBotId == null)
             Positioned(
-              left: FloatingGlassNavBar.margin,
-              right: FloatingGlassNavBar.margin,
-              bottom: FloatingGlassNavBar.bottomOffsetOf(context),
-              child: FloatingGlassNavBar(items: _shellNavItems(context)),
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: FlatNavBar(items: _shellNavItems(context)),
             ),
         ],
       ),
@@ -893,11 +944,41 @@ class _MyMainPageState extends State<MyMainPage> {
   /// cumuler les deux ajouterait un vide en fin de liste.
   Widget _aboveFloatingNav(Widget child) {
     return Padding(
-      padding: EdgeInsets.only(
-        bottom: FloatingGlassNavBar.contentClearanceOf(context),
-      ),
+      padding: EdgeInsets.only(bottom: FlatNavBar.contentClearanceOf(context)),
       child: child,
     );
+  }
+
+  /// Rail desktop : Accueil (page courante) ; Documentation et Paramètres
+  /// ouvrent leur page par-dessus, comme les anciens boutons d'en-tête.
+  List<FloatingGlassNavItem> _railNavItems(BuildContext context) {
+    final tr = context.tr;
+    return [
+      FloatingGlassNavItem(
+        icon: Icons.home_outlined,
+        selectedIcon: Icons.home_rounded,
+        label: tr.home_tab,
+        selected: true,
+        onTap: () {},
+      ),
+      FloatingGlassNavItem(
+        icon: Icons.menu_book_outlined,
+        selectedIcon: Icons.menu_book_rounded,
+        label: tr.docs_hub_title,
+        selected: false,
+        onTap: () => openDocumentationHub(context, showDiscordJsTab: true),
+      ),
+      FloatingGlassNavItem(
+        icon: Icons.settings_outlined,
+        selectedIcon: Icons.settings_rounded,
+        label: tr.settings_tab,
+        selected: false,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const SettingPage()),
+        ),
+      ),
+    ];
   }
 
   /// Les 3 destinations du shell : Accueil / Documentation / Réglages.
@@ -929,116 +1010,35 @@ class _MyMainPageState extends State<MyMainPage> {
   }
 }
 
-/// Apparence de l'application : mode clair/sombre, preset de couleurs et
-/// personnalisations (graine + accent), persistés en JSON.
-///
-/// Deux clés de `SharedPreferences` cohabitent le temps de la migration :
-///   * `app_appearance` — configuration complète (JSON), écrite par ce
-///     provider ;
-///   * `theme_mode` — ANCIENNE clé (mode seul) : lue une dernière fois au
-///     démarrage pour initialiser le mode, puis supprimée.
-class ThemeProvider extends ChangeNotifier {
-  /// Clé de la configuration d'apparence complète.
-  static const _key = 'app_appearance';
+/// Sigle de marque (non traduisible).
+const String _railBrandLabel = 'BC';
 
-  /// Ancienne clé, conservée uniquement pour la migration.
-  static const _legacyKey = 'theme_mode';
+/// Marque « BC » en tête du rail desktop : pastille d'action neutre (14 %).
+class _RailBrandMark extends StatelessWidget {
+  const _RailBrandMark();
 
-  AppAppearanceConfig _appearance = AppAppearanceConfig.defaults;
-
-  /// Config d'apparence courante (mode + couleurs).
-  AppAppearanceConfig get appearance => _appearance;
-
-  /// Mode clair/sombre/système (raccourci consommé par `MaterialApp`).
-  ThemeMode get themeMode => _appearance.mode;
-
-  ThemeProvider() {
-    _load();
-  }
-
-  Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getString(_key);
-    if (saved != null) {
-      _appearance = AppAppearanceConfig.decode(saved);
-      // Migration déjà faite : l'ancienne clé de mode n'a plus de raison d'être.
-      if (prefs.containsKey(_legacyKey)) {
-        await prefs.remove(_legacyKey);
-      }
-    } else {
-      // Migration : la seule information disponible est l'ancien mode.
-      final legacyMode = _legacyModeFrom(prefs);
-      _appearance = _appearance.copyWith(mode: legacyMode);
-      if (prefs.containsKey(_legacyKey)) {
-        await _persist();
-        await prefs.remove(_legacyKey);
-      }
-    }
-    notifyListeners();
-  }
-
-  /// Mode lu dans l'ancienne clé `theme_mode` (cette version ne l'écrit plus) ;
-  /// toute valeur absente ou inconnue vaut sombre, comme avant.
-  ThemeMode _legacyModeFrom(SharedPreferences prefs) =>
-      prefs.getString(_legacyKey) == 'light' ? ThemeMode.light : ThemeMode.dark;
-
-  Future<void> setMode(ThemeMode mode) =>
-      _update(_appearance.copyWith(mode: mode));
-
-  /// Applique un preset : graine et accent reprennent ses couleurs (les
-  /// personnalisations précédentes sont donc remplacées). L'accent persisté
-  /// est la variante CLAIRE ([AppAppearancePreset.accentLight]) — référence
-  /// stable du preset, indépendante du mode : la variante peinte suit le mode
-  /// courant (`AppAppearanceConfig.accentFor`).
-  Future<void> setPreset(AppAppearancePreset preset) => _update(
-    _appearance.copyWith(
-      presetId: preset.id,
-      seedColor: preset.seed,
-      accentColor: preset.accentLight,
-    ),
-  );
-
-  /// Personnalisation de l'accent d'action (boutons, focus, états actifs).
-  Future<void> setAccent(Color accentColor) =>
-      _update(_appearance.copyWith(accentColor: accentColor));
-
-  /// Personnalisation de la graine (teinte des surfaces du thème).
-  Future<void> setSeed(Color seedColor) =>
-      _update(_appearance.copyWith(seedColor: seedColor));
-
-  Future<void> setTextScale(double factor) =>
-      _update(_appearance.copyWith(textScale: factor));
-
-  /// Bascule clair ↔ sombre (bouton de la page Paramètres).
-  Future<void> toggleTheme() => setMode(
-    _appearance.mode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light,
-  );
-
-  /// Réinitialise l'apparence aux valeurs d'usine (graphite sombre).
-  Future<void> resetToDefaults() async {
-    _appearance = AppAppearanceConfig.defaults;
-    notifyListeners();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_key);
-    // Sans cela, l'ancienne clé de mode rejouerait un mode après la
-    // réinitialisation, au prochain démarrage.
-    await prefs.remove(_legacyKey);
-  }
-
-  /// Ancien nom de [resetToDefaults] — `settings_page.dart` l'appelle encore
-  /// (la page Apparence le remplacera).
-  Future<void> resetToDefault() => resetToDefaults();
-
-  /// Applique [config] en mémoire, notifie puis la persiste.
-  Future<void> _update(AppAppearanceConfig config) async {
-    _appearance = config;
-    notifyListeners();
-    await _persist();
-  }
-
-  Future<void> _persist() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, _appearance.encode());
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 44,
+      height: 44,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppTheme.actionViolet.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: AppTheme.actionViolet.withValues(alpha: 0.40),
+        ),
+      ),
+      child: const Text(
+        _railBrandLabel,
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w800,
+          color: AppTheme.actionVioletSoft,
+        ),
+      ),
+    );
   }
 }
 

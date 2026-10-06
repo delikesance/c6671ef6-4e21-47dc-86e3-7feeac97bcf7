@@ -10,7 +10,8 @@ EventExecutionContext buildChannelUpdateEventContext(ChannelUpdateEvent event) {
     userId: null,
     extra: {
       ..._channelExtra(channel),
-      if (event.oldChannel != null) ..._channelExtra(event.oldChannel, prefix: 'channel.old'),
+      if (event.oldChannel != null)
+        ..._channelExtra(event.oldChannel, prefix: 'channel.old'),
     },
   );
 }

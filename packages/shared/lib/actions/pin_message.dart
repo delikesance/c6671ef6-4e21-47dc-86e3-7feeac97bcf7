@@ -1,4 +1,4 @@
-﻿import 'package:nyxx/nyxx.dart';
+import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator_shared/utils/global.dart';
 
 Snowflake? _toSnowflake(dynamic value) {
@@ -29,10 +29,9 @@ Future<Map<String, String>> pinMessageAction(
     final message = await channel.messages.fetch(messageId);
     final reason = payload['reason']?.toString().trim();
     await message.pin(
-      auditLogReason:
-          (reason != null && reason.isNotEmpty)
-              ? reason
-              : 'Pin via BotCreator action',
+      auditLogReason: (reason != null && reason.isNotEmpty)
+          ? reason
+          : 'Pin via BotCreator action',
     );
 
     return {'messageId': message.id.toString(), 'status': 'pinned'};

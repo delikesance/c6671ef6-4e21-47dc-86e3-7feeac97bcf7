@@ -20,6 +20,7 @@ enum BotCreatorActionType {
   updateGuild,
   listMembers,
   getMember,
+
   /// Deprecated: use [respondWithComponentV2] instead.
   sendComponentV2,
   editComponentV2,
@@ -54,6 +55,7 @@ enum BotCreatorActionType {
   respondWithModal,
   editInteractionMessage,
   respondWithAutocomplete,
+
   /// Defers the interaction response (acknowledge), preventing Discord timeout.
   /// Injected automatically by CommandMigration when needed.
   deferInteraction,
@@ -180,12 +182,13 @@ class Action {
     return Action(
         type: BotCreatorActionType.values.firstWhere(
           (e) => e.name == json['type'],
-          orElse:
-              () => throw ArgumentError('Invalid action type: ${json['type']}'),
+          orElse: () =>
+              throw ArgumentError('Invalid action type: ${json['type']}'),
         ),
         key: json['key'] as String?,
         enabled: json['enabled'] as bool? ?? true,
-        payload: (json['payload'] as Map?)?.cast<String, dynamic>() ??
+        payload:
+            (json['payload'] as Map?)?.cast<String, dynamic>() ??
             <String, dynamic>{},
       )
       ..dependOn.addAll(List<String>.from(json['depend_on'] ?? []))

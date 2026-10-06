@@ -1,14 +1,15 @@
 library;
 
-import 'dart:async';
-import 'dart:convert';
-
-import 'package:bot_creator_shared/actions/lavalink_music.dart';
+import 'package:bot_creator_shared/services/bot_music_service.dart';
 import 'package:bot_creator_shared/services/lavalink_service.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:nyxx/nyxx.dart';
 
-/// Execute Lavalink music actions.
+export 'package:bot_creator_shared/services/bot_music_service.dart'
+    show applyLavalinkResult;
+
+/// Historical dispatch of the Lavalink music actions; delegates to
+/// [DiscordBotMusicService] (the logic lives in services/).
 /// Returns true if the action type was handled, false otherwise.
 Future<bool> executeLavalinkAction({
   required BotCreatorActionType type,
@@ -19,105 +20,38 @@ Future<bool> executeLavalinkAction({
   required String resultKey,
   required LavalinkService lavalinkService,
 }) async {
-  Map<String, String> result;
-
+  final service = DiscordBotMusicService(
+    client: client,
+    guildId: guildId,
+    lavalink: lavalinkService,
+  );
+  final Map<String, String> result;
   switch (type) {
-    case BotCreatorActionType.playMusic:
-      result = await playMusicAction(
-        client: client,
-        guildId: guildId,
-        payload: payload,
-        lavalinkService: lavalinkService,
-      );
-    case BotCreatorActionType.pauseMusic:
-      result = await pauseMusicAction(
-        client: client,
-        guildId: guildId,
-        payload: payload,
-        lavalinkService: lavalinkService,
-      );
-    case BotCreatorActionType.resumeMusic:
-      result = await resumeMusicAction(
-        client: client,
-        guildId: guildId,
-        payload: payload,
-        lavalinkService: lavalinkService,
-      );
-    case BotCreatorActionType.skipMusic:
-      result = await skipMusicAction(
-        client: client,
-        guildId: guildId,
-        payload: payload,
-        lavalinkService: lavalinkService,
-      );
-    case BotCreatorActionType.stopMusic:
-      result = await stopMusicAction(
-        client: client,
-        guildId: guildId,
-        payload: payload,
-        lavalinkService: lavalinkService,
-      );
-    case BotCreatorActionType.setMusicVolume:
-      result = await setMusicVolumeAction(
-        client: client,
-        guildId: guildId,
-        payload: payload,
-        lavalinkService: lavalinkService,
-      );
-    case BotCreatorActionType.setMusicLoop:
-      result = await setMusicLoopAction(
-        client: client,
-        guildId: guildId,
-        payload: payload,
-        lavalinkService: lavalinkService,
-      );
-    case BotCreatorActionType.seekMusic:
-      result = await seekMusicAction(
-        client: client,
-        guildId: guildId,
-        payload: payload,
-        lavalinkService: lavalinkService,
-      );
     case BotCreatorActionType.getMusicInfo:
-      result = await getMusicInfoAction(
-        client: client,
-        guildId: guildId,
-        payload: payload,
-        lavalinkService: lavalinkService,
-      );
+      result = await service.info(payload);
+    case BotCreatorActionType.playMusic:
+      result = await service.execute(BotMusicOperation.play, payload);
+    case BotCreatorActionType.pauseMusic:
+      result = await service.execute(BotMusicOperation.pause, payload);
+    case BotCreatorActionType.resumeMusic:
+      result = await service.execute(BotMusicOperation.resume, payload);
+    case BotCreatorActionType.skipMusic:
+      result = await service.execute(BotMusicOperation.skip, payload);
+    case BotCreatorActionType.stopMusic:
+      result = await service.execute(BotMusicOperation.stop, payload);
+    case BotCreatorActionType.setMusicVolume:
+      result = await service.execute(BotMusicOperation.volume, payload);
+    case BotCreatorActionType.setMusicLoop:
+      result = await service.execute(BotMusicOperation.loop, payload);
+    case BotCreatorActionType.seekMusic:
+      result = await service.execute(BotMusicOperation.seek, payload);
     case BotCreatorActionType.joinVoice:
-      result = await joinVoiceAction(
-        client: client,
-        guildId: guildId,
-        payload: payload,
-        lavalinkService: lavalinkService,
-      );
+      result = await service.execute(BotMusicOperation.join, payload);
     case BotCreatorActionType.leaveVoice:
-      result = await leaveVoiceAction(
-        client: client,
-        guildId: guildId,
-        payload: payload,
-        lavalinkService: lavalinkService,
-      );
+      result = await service.execute(BotMusicOperation.leave, payload);
     default:
       return false;
   }
-
-  // If there's an error, propagate it as the main result so callers can detect it.
-  if (result.containsKey('error')) {
-    results[resultKey] = 'Error: ${result['error']}';
-  } else if (result.isEmpty) {
-    // Actions like pause/resume/stop/skip return an empty map on success.
-    results[resultKey] = 'OK';
-  } else {
-    // Encode the full result as JSON so ((action.<key>)) gives valid, parseable JSON.
-    results[resultKey] = jsonEncode(result);
-  }
-
-  // Store each property individually so ((action.<key>.<prop>)) works directly.
-  // e.g. ((action.play.title)), ((action.play.author)), ((action.play.duration))
-  for (final entry in result.entries) {
-    results['$resultKey.${entry.key}'] = entry.value;
-  }
+  applyLavalinkResult(result, results, resultKey);
   return true;
 }

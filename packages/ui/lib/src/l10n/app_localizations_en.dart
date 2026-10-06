@@ -1,0 +1,11338 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get docs_search => 'Search documentation';
+
+  @override
+  String get docs_reset_filters => 'Reset filters';
+
+  @override
+  String docs_result_count(int count) {
+    return '$count articles';
+  }
+
+  @override
+  String get docs_category => 'Category';
+
+  @override
+  String get docs_mode => 'Mode';
+
+  @override
+  String get docs_no_results => 'No matching articles';
+
+  @override
+  String get docs_cached_offline => 'Cached version: network unavailable';
+
+  @override
+  String get docs_contents => 'Contents';
+
+  @override
+  String get variables_migration_title => 'BDFD variable migration';
+
+  @override
+  String get variables_migration_confirmation =>
+      'Keep user values shared across all servers. Archive and adapt legacy BDFD scripts, then activate official per-server user functions. No variable values or expirations are moved.';
+
+  @override
+  String get variables_migration_stop_bot =>
+      'Stop the bot before migrating variables.';
+
+  @override
+  String variables_migration_result(int commands, int workflows, int calls) {
+    return '$commands commands, $workflows workflow groups, $calls calls adapted';
+  }
+
+  @override
+  String get app_update_dialog_title => 'New version available';
+
+  @override
+  String app_update_dialog_message(String version, String installed) {
+    return 'Version $version is available on the store (you have $installed). Update to get the latest fixes.';
+  }
+
+  @override
+  String get app_update_later => 'Later';
+
+  @override
+  String get app_update_update_now => 'Update';
+
+  @override
+  String get app_update_store_open_failed =>
+      'The store page could not be opened.';
+
+  @override
+  String get app_update_download_started =>
+      'Downloading in the background — you can keep using the app.';
+
+  @override
+  String get bot_token_import_btn => 'Import the token from my account';
+
+  @override
+  String get bot_token_import_missing =>
+      'This bot does not exist on your account.';
+
+  @override
+  String get bot_token_import_network =>
+      'Could not reach the server: check your connection and try again.';
+
+  @override
+  String get bot_token_import_no_account =>
+      'No account is connected on this device: sign in to import the token.';
+
+  @override
+  String get bot_token_import_not_stored =>
+      'No token is stored on your account: enter it once here.';
+
+  @override
+  String get bot_token_import_server_cannot_read =>
+      'The server cannot read the stored token.';
+
+  @override
+  String get bot_token_import_server_unsupported =>
+      'This server does not offer token import yet — update or redeploy it.';
+
+  @override
+  String get bot_token_import_success =>
+      'Token imported from your account: the connection is restored.';
+
+  @override
+  String get container_invite_server_unsupported =>
+      'This server does not offer bot invite yet — update or redeploy it.';
+
+  @override
+  String get container_invite_missing =>
+      'This container no longer exists on the server — reload the container list.';
+
+  @override
+  String get settings_app_update_title => 'Updates';
+
+  @override
+  String settings_app_update_installed_version(String version, String build) {
+    return '$version (build $build)';
+  }
+
+  @override
+  String settings_app_version_value(String version) {
+    return 'App: $version';
+  }
+
+  @override
+  String settings_runner_version_value(String version) {
+    return 'Runner: $version';
+  }
+
+  @override
+  String get settings_app_update_check_button => 'Check for updates';
+
+  @override
+  String get settings_app_update_checking => 'Checking…';
+
+  @override
+  String get settings_app_update_up_to_date =>
+      'You are running the latest version.';
+
+  @override
+  String settings_app_update_available(String version) {
+    return 'Version $version is available on the store.';
+  }
+
+  @override
+  String get settings_app_update_unavailable =>
+      'Could not check for updates right now.';
+
+  @override
+  String get settings_app_update_unsupported =>
+      'Updates can only be checked in the Android or iOS app.';
+
+  @override
+  String get settings_app_update_open_store => 'Open store page';
+
+  @override
+  String get action_add_else_if => 'Add ELSE IF';
+
+  @override
+  String get action_add_header => 'Add header';
+
+  @override
+  String get action_add_new_item => 'Add new item';
+
+  @override
+  String get action_advanced_settings => 'Advanced settings';
+
+  @override
+  String action_and_more(int count) {
+    return '… and $count more';
+  }
+
+  @override
+  String get action_bulk_import_hint =>
+      'Bulk import (Paste headers like Key: Value)';
+
+  @override
+  String get action_cannot_format_json => 'Cannot format: Invalid JSON';
+
+  @override
+  String get action_category_channels => 'Channels';
+
+  @override
+  String get action_category_components => 'Components';
+
+  @override
+  String get action_category_guild_members => 'Guild & Members';
+
+  @override
+  String get action_category_http_variables => 'HTTP & Variables';
+
+  @override
+  String get action_category_interactions => 'Interactions';
+
+  @override
+  String get action_category_logic_flow => 'Logic & Flow';
+
+  @override
+  String get action_category_messages => 'Messages';
+
+  @override
+  String get action_category_moderation => 'Moderation';
+
+  @override
+  String get action_category_music => 'Music';
+
+  @override
+  String get action_category_reactions => 'Reactions';
+
+  @override
+  String get action_category_webhooks => 'Webhooks';
+
+  @override
+  String get action_category_workflows => 'Workflows';
+
+  @override
+  String action_choose_param(String name) {
+    return 'Choose $name';
+  }
+
+  @override
+  String get action_clear_all => 'Clear all';
+
+  @override
+  String get action_condition_value => 'Condition Value';
+
+  @override
+  String get action_condition_variable => 'Condition Variable';
+
+  @override
+  String get action_description_addReaction =>
+      'Add an emoji reaction to a message';
+
+  @override
+  String get action_description_addRole => 'Assign a role to a member';
+
+  @override
+  String get action_description_addThreadMember => 'Add a member to a thread';
+
+  @override
+  String get action_description_appendArrayElement =>
+      'Append a new element into a global or scoped JSON array';
+
+  @override
+  String get action_description_attachImage =>
+      'Attach an image file to the message response (URL, data URL, or base64)';
+
+  @override
+  String get action_description_banUser =>
+      'Permanently ban a user from the server';
+
+  @override
+  String get action_description_calculate =>
+      'Perform math operations and store result';
+
+  @override
+  String get action_description_canvasCreateBlock =>
+      'Create a blank image canvas';
+
+  @override
+  String get action_description_canvasDrawCircleBlock =>
+      'Draw a circle on the image canvas';
+
+  @override
+  String get action_description_canvasDrawLineBlock =>
+      'Draw a line on the canvas';
+
+  @override
+  String get action_description_canvasDrawRectBlock =>
+      'Draw a rectangle on the image canvas';
+
+  @override
+  String get action_description_canvasDrawTextBlock =>
+      'Draw text on the image canvas with styling options';
+
+  @override
+  String get action_description_canvasLoadImageBlock =>
+      'Load an image from a URL or source into canvas';
+
+  @override
+  String get action_description_clearAllReactions =>
+      'Remove all reactions from a message';
+
+  @override
+  String get action_description_cooldown =>
+      'Apply a command cooldown for the user or server';
+
+  @override
+  String get action_description_createAutoModRule =>
+      'Create a guild auto-moderation rule';
+
+  @override
+  String get action_description_createChannel => 'Create a new channel';
+
+  @override
+  String get action_description_createEmoji =>
+      'Create a guild emoji from image data';
+
+  @override
+  String get action_description_createInvite =>
+      'Create a new invite link for a channel';
+
+  @override
+  String get action_description_createPoll =>
+      'Create a poll message in a channel';
+
+  @override
+  String get action_description_createThread =>
+      'Create a thread in a supported text channel';
+
+  @override
+  String get action_description_debugProfile =>
+      'Generate execution profile and diagnostics info';
+
+  @override
+  String get action_description_deferInteraction =>
+      'Defer the interaction response to prevent Discord timeout';
+
+  @override
+  String get action_description_deleteAutoModRule =>
+      'Delete an auto-moderation rule';
+
+  @override
+  String get action_description_deleteChannelPermission =>
+      'Delete a channel permission overwrite';
+
+  @override
+  String get action_description_deleteEmoji => 'Delete a guild emoji';
+
+  @override
+  String get action_description_deleteInvite =>
+      'Delete an existing invite by code';
+
+  @override
+  String get action_description_deleteMessages => 'Delete one or more messages';
+
+  @override
+  String get action_description_deleteTrigger =>
+      'Delete the message that triggered this command';
+
+  @override
+  String get action_description_deleteWebhook => 'Delete a webhook';
+
+  @override
+  String get action_description_disconnectFromVoice =>
+      'Disconnect a member from voice';
+
+  @override
+  String get action_description_editChannelPermissions =>
+      'Create or update channel permission overwrites';
+
+  @override
+  String get action_description_editComponentV2 => 'Edit existing components';
+
+  @override
+  String get action_description_editInteractionMessage =>
+      'Edit the deferred or original interaction response';
+
+  @override
+  String get action_description_editMessage => 'Edit an existing message';
+
+  @override
+  String get action_description_editWebhook => 'Edit an existing Webhook';
+
+  @override
+  String get action_description_endPoll =>
+      'End an active poll message immediately';
+
+  @override
+  String get action_description_forLoop =>
+      'Loop through a range of numbers (for loop)';
+
+  @override
+  String get action_description_getGlobalVariable =>
+      'Read a global variable and inject into runtime variables';
+
+  @override
+  String get action_description_getGuildOnboarding =>
+      'Fetch current guild onboarding configuration';
+
+  @override
+  String get action_description_getInvite => 'Fetch invite information by code';
+
+  @override
+  String get action_description_getMember => 'Get member information';
+
+  @override
+  String get action_description_getMessage =>
+      'Fetch a message and expose its fields';
+
+  @override
+  String get action_description_getMusicInfo =>
+      'Retrieve info about the currently playing track';
+
+  @override
+  String get action_description_getScopedVariable =>
+      'Read a scoped variable and inject into runtime variables';
+
+  @override
+  String get action_description_getWebhook => 'Get Webhook information by ID';
+
+  @override
+  String get action_description_httpRequest =>
+      'Send HTTP request with dynamic URL, method, headers and body';
+
+  @override
+  String get action_description_ifBlock =>
+      'Conditional branching: run different actions based on a condition';
+
+  @override
+  String get action_description_jumpToAction =>
+      'Jump to a specific action by key, ID, or position';
+
+  @override
+  String get action_description_joinVoice => 'Join a voice channel';
+
+  @override
+  String get action_description_jsonForEachLoop =>
+      'Loop through each element of a JSON array or object (forEach)';
+
+  @override
+  String get action_description_kickUser => 'Kick a member from the server';
+
+  @override
+  String get action_description_leaveGuild =>
+      'Make the bot leave the guild/server';
+
+  @override
+  String get action_description_leaveVoice =>
+      'Leave the voice channel and destroy the player';
+
+  @override
+  String get action_description_listAutoModRules =>
+      'List all auto-moderation rules in guild';
+
+  @override
+  String get action_description_listMembers =>
+      'List members in a guild with options';
+
+  @override
+  String get action_description_listScopedVariableIndex =>
+      'List indexed scoped values sorted by value with offset and limit';
+
+  @override
+  String get action_description_listWebhooks =>
+      'List all Webhooks in a channel or guild';
+
+  @override
+  String get action_description_listenAndExecute =>
+      'Register a workflow to run when a button is clicked, select menu is used, or modal is submitted';
+
+  @override
+  String get action_description_listenForButtonClick =>
+      'Register a workflow to run when a button is clicked';
+
+  @override
+  String get action_description_listenForModalSubmit =>
+      'Register a workflow to run when a modal is submitted';
+
+  @override
+  String get action_description_listenForSelectMenu =>
+      'Register a workflow to run when a select menu is used';
+
+  @override
+  String get action_description_log =>
+      'Print or store diagnostic message to action logs';
+
+  @override
+  String get action_description_moveToVoiceChannel =>
+      'Move a member to a specific voice channel';
+
+  @override
+  String get action_description_muteUser =>
+      'Temporarily exclude (timeout) a member';
+
+  @override
+  String get action_description_pauseMusic => 'Pause the current track';
+
+  @override
+  String get action_description_pinMessage => 'Pin a message in a channel';
+
+  @override
+  String get action_description_playMusic =>
+      'Play a track by search query or URL';
+
+  @override
+  String get action_description_queryArray =>
+      'Filter, sort and page any runtime JSON array';
+
+  @override
+  String get action_description_randomChoice =>
+      'Pick a random item from a list and store it in a variable';
+
+  @override
+  String get action_description_registerGuildCommands =>
+      'Register application commands to a guild';
+
+  @override
+  String get action_description_removeArrayElement =>
+      'Remove one element from a global or scoped JSON array by index';
+
+  @override
+  String get action_description_removeChannel => 'Delete a channel';
+
+  @override
+  String get action_description_removeGlobalVariable =>
+      'Delete a global variable';
+
+  @override
+  String get action_description_removeReaction =>
+      'Remove a reaction from a message';
+
+  @override
+  String get action_description_removeRole => 'Remove a role from a member';
+
+  @override
+  String get action_description_removeScopedVariable =>
+      'Delete a scoped variable';
+
+  @override
+  String get action_description_removeThreadMember =>
+      'Remove a member from a thread';
+
+  @override
+  String get action_description_renameScopedVariable =>
+      'Rename a scoped variable key';
+
+  @override
+  String get action_description_respondWithAutocomplete =>
+      'Reply to a Discord autocomplete interaction with up to 25 dynamic choices';
+
+  @override
+  String get action_description_respondWithComponentV2 =>
+      'Reply to command with buttons/select menus';
+
+  @override
+  String get action_description_respondWithMessage =>
+      'Reply to command with a normal message';
+
+  @override
+  String get action_description_respondWithModal =>
+      'Show a modal dialog to the user';
+
+  @override
+  String get action_description_resumeMusic => 'Resume a paused track';
+
+  @override
+  String get action_description_runBdfdScript =>
+      'Compile and run a BDFD script inline as workflow actions';
+
+  @override
+  String get action_description_runWorkflow =>
+      'Execute a saved workflow (supports entry point + arguments)';
+
+  @override
+  String get action_description_runtimeImageBlock =>
+      'Run block of image canvas processing actions';
+
+  @override
+  String get action_description_runtimeJsonBlock =>
+      'Run block of JSON processing actions';
+
+  @override
+  String get action_description_seekMusic =>
+      'Seek to a position in the current track';
+
+  @override
+  String get action_description_sendComponentV2 =>
+      'Send interactive components';
+
+  @override
+  String get action_description_sendDm =>
+      'Send a private message to a specific user';
+
+  @override
+  String get action_description_sendMessage =>
+      'Send a message to a specific channel';
+
+  @override
+  String get action_description_sendWebhook => 'Send message via Webhook';
+
+  @override
+  String get action_description_serverDeafenMember =>
+      'Server-deafen or undeafen a member';
+
+  @override
+  String get action_description_serverMuteMember =>
+      'Server-mute or unmute a member';
+
+  @override
+  String get action_description_setGlobalVariable =>
+      'Create or update a global variable for this bot';
+
+  @override
+  String get action_description_setMusicLoop =>
+      'Enable or disable looping of the queue';
+
+  @override
+  String get action_description_setMusicVolume =>
+      'Set the player volume (0 to 200)';
+
+  @override
+  String get action_description_setNickname =>
+      'Change a server member\'s nickname';
+
+  @override
+  String get action_description_setScopedVariable =>
+      'Create or update a scoped variable (guild/user/channel/guildMember/message)';
+
+  @override
+  String get action_description_setTemporaryVariable =>
+      'Create or update a temporary variable in local execution';
+
+  @override
+  String get action_description_skipActions =>
+      'Skip a specified number of subsequent actions';
+
+  @override
+  String get action_description_skipMusic =>
+      'Skip to the next track in the queue';
+
+  @override
+  String get action_description_slowmode =>
+      'Set the slowmode duration for a channel';
+
+  @override
+  String get action_description_stop =>
+      'Immediately stop the execution of the current workflow';
+
+  @override
+  String get action_description_stopMusic =>
+      'Stop playback and clear the queue';
+
+  @override
+  String get action_description_stopUnless =>
+      'Stop the workflow if a condition is not met (guard/filter)';
+
+  @override
+  String get action_description_unbanUser => 'Revoke a user\'s ban';
+
+  @override
+  String get action_description_unmuteUser =>
+      'Remove temporary exclusion from a member';
+
+  @override
+  String get action_description_unpinMessage => 'Unpin a message in a channel';
+
+  @override
+  String get action_description_unregisterGuildCommands =>
+      'Unregister application commands from a guild';
+
+  @override
+  String get action_description_updateAutoMod =>
+      'Update auto-moderation settings';
+
+  @override
+  String get action_description_updateChannel => 'Update channel settings';
+
+  @override
+  String get action_description_updateEmoji =>
+      'Update guild emoji name or role access';
+
+  @override
+  String get action_description_updateGuild => 'Update guild settings';
+
+  @override
+  String get action_description_updateGuildOnboarding =>
+      'Update guild onboarding configuration';
+
+  @override
+  String get action_description_updateSelfUser =>
+      'Update current bot user profile (username/avatar)';
+
+  @override
+  String get action_description_wait =>
+      'Pause the workflow execution for a specific duration';
+
+  @override
+  String get action_dynamic => 'Dynamic';
+
+  @override
+  String get action_dynamic_bool_hint => 'true/false or ((variable))';
+
+  @override
+  String action_dynamic_id_hint(String type) {
+    return 'Dynamic $type (supports ((...)))';
+  }
+
+  @override
+  String get action_dynamic_multiselect_hint =>
+      'Dynamic value (supports ((...)))';
+
+  @override
+  String get action_dynamic_numeric => 'Dynamic numeric suggestions';
+
+  @override
+  String get action_dynamic_variable => 'Dynamic variable suggestions';
+
+  @override
+  String action_edit_nested(int count) {
+    return 'Edit $count';
+  }
+
+  @override
+  String action_edit_nested_parens(int count) {
+    return 'Edit ($count)';
+  }
+
+  @override
+  String action_edit_param(String name) {
+    return 'Edit $name';
+  }
+
+  @override
+  String get action_edit_raw_json => 'Edit Raw JSON';
+
+  @override
+  String action_else_if_label(int index) {
+    return 'ELSE IF $index — actions';
+  }
+
+  @override
+  String get action_error_continue => 'Continue';
+
+  @override
+  String get action_error_stop => 'Stop';
+
+  @override
+  String get action_expression => 'Expression';
+
+  @override
+  String get action_format_json => 'Format JSON';
+
+  @override
+  String get action_hint_color => '#FFFFFF or rgb(255,255,255)';
+
+  @override
+  String get action_hint_condition_value => 'Value to compare against';
+
+  @override
+  String get action_hint_condition_var =>
+      'Use ((variableName)) or a runtime value';
+
+  @override
+  String get action_hint_cooldown_error =>
+      'Message to send if on cooldown (supports %time%)';
+
+  @override
+  String get action_hint_cooldown_time => 'Duration (e.g. 10s, 5m)';
+
+  @override
+  String get action_hint_duration => 'e.g., 5m, 1h, 30s';
+
+  @override
+  String get action_hint_emoji => 'Emoji (e.g. 🪜) or <:name:id>';
+
+  @override
+  String action_hint_enter_type(String type) {
+    return 'Enter $type';
+  }
+
+  @override
+  String get action_hint_random_choices => 'List of choices (separated by ;)';
+
+  @override
+  String get action_hint_random_var => 'Variable name to store the result';
+
+  @override
+  String get action_hint_variable_key => 'Select variable key';
+
+  @override
+  String get action_hint_workflow => 'Saved workflow name';
+
+  @override
+  String get action_http_headers_title => 'HTTP Headers (Key/Value pairs)';
+
+  @override
+  String action_http_paths_parsed(int count) {
+    return '$count paths parsed';
+  }
+
+  @override
+  String get action_http_response_body => 'Response Body (Raw):';
+
+  @override
+  String action_http_status(int status) {
+    return 'Status: $status';
+  }
+
+  @override
+  String get action_http_test_button =>
+      'Send Test Request & Auto-Detect Routes';
+
+  @override
+  String get action_http_test_title => 'Test Request Results';
+
+  @override
+  String get action_json_editor_hint =>
+      'JSON object editor (supports nested objects/arrays)';
+
+  @override
+  String get action_key_field => 'Action Key';
+
+  @override
+  String get action_key_value_pairs => 'Key / Value pairs';
+
+  @override
+  String get action_literal => 'Literal';
+
+  @override
+  String get action_loading_keys => 'Loading keys...';
+
+  @override
+  String get action_manage_variable_keys => 'Manage Variable Keys';
+
+  @override
+  String get action_name_addReaction => 'Add Reaction';
+
+  @override
+  String get action_name_addRole => 'Add Role';
+
+  @override
+  String get action_name_addThreadMember => 'Add Thread Member';
+
+  @override
+  String get action_name_appendArrayElement => 'Append Array Element';
+
+  @override
+  String get action_name_attachImage => 'Attach Image';
+
+  @override
+  String get action_name_banUser => 'Ban User';
+
+  @override
+  String get action_name_calculate => 'Calculate';
+
+  @override
+  String get action_name_canvasCreateBlock => 'Create Canvas';
+
+  @override
+  String get action_name_canvasDrawCircleBlock => 'Draw Circle';
+
+  @override
+  String get action_name_canvasDrawLineBlock => 'Draw Line';
+
+  @override
+  String get action_name_canvasDrawRectBlock => 'Draw Rectangle';
+
+  @override
+  String get action_name_canvasDrawTextBlock => 'Draw Text';
+
+  @override
+  String get action_name_canvasLoadImageBlock => 'Load Image';
+
+  @override
+  String get action_name_clearAllReactions => 'Clear All Reactions';
+
+  @override
+  String get action_name_cooldown => 'Cooldown';
+
+  @override
+  String get action_name_createAutoModRule => 'Create AutoMod Rule';
+
+  @override
+  String get action_name_createChannel => 'Create Channel';
+
+  @override
+  String get action_name_createEmoji => 'Create Emoji';
+
+  @override
+  String get action_name_createInvite => 'Create Invite';
+
+  @override
+  String get action_name_createPoll => 'Create Poll';
+
+  @override
+  String get action_name_createThread => 'Create Thread';
+
+  @override
+  String get action_name_debugProfile => 'Debug Profile';
+
+  @override
+  String get action_name_deferInteraction => 'Defer Interaction';
+
+  @override
+  String get action_name_deleteAutoModRule => 'Delete AutoMod Rule';
+
+  @override
+  String get action_name_deleteChannelPermission => 'Delete Channel Permission';
+
+  @override
+  String get action_name_deleteEmoji => 'Delete Emoji';
+
+  @override
+  String get action_name_deleteInvite => 'Delete Invite';
+
+  @override
+  String get action_name_deleteMessages => 'Delete Messages';
+
+  @override
+  String get action_name_deleteTrigger => 'Delete Trigger Message';
+
+  @override
+  String get action_name_deleteWebhook => 'Delete Webhook';
+
+  @override
+  String get action_name_disconnectFromVoice => 'Disconnect from Voice';
+
+  @override
+  String get action_name_editChannelPermissions => 'Edit Channel Permissions';
+
+  @override
+  String get action_name_editComponentV2 => 'Edit Component V2';
+
+  @override
+  String get action_name_editInteractionMessage => 'Edit Interaction Message';
+
+  @override
+  String get action_name_editMessage => 'Edit Message';
+
+  @override
+  String get action_name_editWebhook => 'Edit Webhook';
+
+  @override
+  String get action_name_endPoll => 'End Poll';
+
+  @override
+  String get action_name_forLoop => 'For Loop';
+
+  @override
+  String get action_name_getGlobalVariable => 'Get variable (whole bot)';
+
+  @override
+  String get action_name_getGuildOnboarding => 'Get Guild Onboarding';
+
+  @override
+  String get action_name_getInvite => 'Get Invite';
+
+  @override
+  String get action_name_getMember => 'Get Member';
+
+  @override
+  String get action_name_getMessage => 'Get Message';
+
+  @override
+  String get action_name_getMusicInfo => 'Get Music Info';
+
+  @override
+  String get action_name_getScopedVariable =>
+      'Get variable (per server, member…)';
+
+  @override
+  String get action_name_getWebhook => 'Get Webhook';
+
+  @override
+  String get action_name_httpRequest => 'HTTP Request';
+
+  @override
+  String get action_name_ifBlock => 'IF / ELSE Block';
+
+  @override
+  String get action_name_jumpToAction => 'Jump to Action';
+
+  @override
+  String get action_name_joinVoice => 'Join Voice Channel';
+
+  @override
+  String get action_name_jsonForEachLoop => 'JSON For Each Loop';
+
+  @override
+  String get action_name_kickUser => 'Kick User';
+
+  @override
+  String get action_name_leaveGuild => 'Leave Server';
+
+  @override
+  String get action_name_leaveVoice => 'Leave Voice Channel';
+
+  @override
+  String get action_name_listAutoModRules => 'List AutoMod Rules';
+
+  @override
+  String get action_name_listMembers => 'List Members';
+
+  @override
+  String get action_name_listScopedVariableIndex =>
+      'List a variable’s values (per server, member…)';
+
+  @override
+  String get action_name_listWebhooks => 'List Webhooks';
+
+  @override
+  String get action_name_listenAndExecute => 'Listen and Execute';
+
+  @override
+  String get action_name_listenForButtonClick => 'Listen for Button Click';
+
+  @override
+  String get action_name_listenForModalSubmit => 'Listen for Modal Submit';
+
+  @override
+  String get action_name_listenForSelectMenu => 'Listen for Select Menu';
+
+  @override
+  String get action_name_log => 'Log Message';
+
+  @override
+  String get action_name_moveToVoiceChannel => 'Move to Voice Channel';
+
+  @override
+  String get action_name_muteUser => 'Mute User';
+
+  @override
+  String get action_name_pauseMusic => 'Pause Music';
+
+  @override
+  String get action_name_pinMessage => 'Pin Message';
+
+  @override
+  String get action_name_playMusic => 'Play Music';
+
+  @override
+  String get action_name_queryArray => 'Query Array';
+
+  @override
+  String get action_name_randomChoice => 'Random Choice';
+
+  @override
+  String get action_name_registerGuildCommands => 'Register Guild Commands';
+
+  @override
+  String get action_name_removeArrayElement => 'Remove Array Element';
+
+  @override
+  String get action_name_removeChannel => 'Remove Channel';
+
+  @override
+  String get action_name_removeGlobalVariable => 'Remove variable (whole bot)';
+
+  @override
+  String get action_name_removeReaction => 'Remove Reaction';
+
+  @override
+  String get action_name_removeRole => 'Remove Role';
+
+  @override
+  String get action_name_removeScopedVariable =>
+      'Remove variable (per server, member…)';
+
+  @override
+  String get action_name_removeThreadMember => 'Remove Thread Member';
+
+  @override
+  String get action_name_renameScopedVariable =>
+      'Rename variable (per server, member…)';
+
+  @override
+  String get action_name_respondWithAutocomplete => 'Respond with Autocomplete';
+
+  @override
+  String get action_name_respondWithComponentV2 => 'Respond with Component V2';
+
+  @override
+  String get action_name_respondWithMessage => 'Respond with Message';
+
+  @override
+  String get action_name_respondWithModal => 'Respond with Modal';
+
+  @override
+  String get action_name_resumeMusic => 'Resume Music';
+
+  @override
+  String get action_name_runBdfdScript => 'Run BDFD Script';
+
+  @override
+  String get action_name_runWorkflow => 'Run Workflow';
+
+  @override
+  String get action_name_runtimeImageBlock => 'Execute Image Canvas';
+
+  @override
+  String get action_name_runtimeJsonBlock => 'Execute JSON Operations';
+
+  @override
+  String get action_name_seekMusic => 'Seek Music Position';
+
+  @override
+  String get action_name_sendComponentV2 => 'Send Component V2';
+
+  @override
+  String get action_name_sendDm => 'Send Direct Message';
+
+  @override
+  String get action_name_sendMessage => 'Send Message';
+
+  @override
+  String get action_name_sendWebhook => 'Send Webhook';
+
+  @override
+  String get action_name_serverDeafenMember => 'Server Deafen Member';
+
+  @override
+  String get action_name_serverMuteMember => 'Server Mute Member';
+
+  @override
+  String get action_name_setGlobalVariable => 'Set variable (whole bot)';
+
+  @override
+  String get action_name_setMusicLoop => 'Set Music Loop';
+
+  @override
+  String get action_name_setMusicVolume => 'Set Music Volume';
+
+  @override
+  String get action_name_setNickname => 'Set Nickname';
+
+  @override
+  String get action_name_setScopedVariable =>
+      'Set variable (per server, member…)';
+
+  @override
+  String get action_name_setTemporaryVariable => 'Set Temporary Variable';
+
+  @override
+  String get action_name_skipActions => 'Skip Actions';
+
+  @override
+  String get action_name_skipMusic => 'Skip Music';
+
+  @override
+  String get action_name_slowmode => 'Slowmode';
+
+  @override
+  String get action_name_stop => 'Stop Execution';
+
+  @override
+  String get action_name_stopMusic => 'Stop Music';
+
+  @override
+  String get action_name_stopUnless => 'Stop Unless Condition';
+
+  @override
+  String get action_name_unbanUser => 'Unban User';
+
+  @override
+  String get action_name_unmuteUser => 'Unmute User';
+
+  @override
+  String get action_name_unpinMessage => 'Unpin Message';
+
+  @override
+  String get action_name_unregisterGuildCommands => 'Unregister Guild Commands';
+
+  @override
+  String get action_name_updateAutoMod => 'Update AutoMod';
+
+  @override
+  String get action_name_updateChannel => 'Update Channel';
+
+  @override
+  String get action_name_updateEmoji => 'Update Emoji';
+
+  @override
+  String get action_name_updateGuild => 'Update Guild';
+
+  @override
+  String get action_name_updateGuildOnboarding => 'Update Guild Onboarding';
+
+  @override
+  String get action_name_updateSelfUser => 'Update Self User (Bot Profile)';
+
+  @override
+  String get action_name_wait => 'Wait';
+
+  @override
+  String get action_no_actions_yet => 'No actions in this branch yet.';
+
+  @override
+  String get action_no_args_tap_edit => 'No arguments - tap edit to add';
+
+  @override
+  String get action_no_else_if_yet =>
+      'No ELSE IF branches yet. Add one to test more conditions before ELSE.';
+
+  @override
+  String get action_no_headers_tap_edit => 'No headers - tap edit to add';
+
+  @override
+  String get action_no_items_tap_edit => 'No items - tap edit to add';
+
+  @override
+  String get action_no_properties_tap_edit =>
+      'No properties - tap edit to configure';
+
+  @override
+  String get action_no_saved_keys =>
+      'No saved keys found. Keys are created automatically on first access.';
+
+  @override
+  String get action_on_error => 'On Error';
+
+  @override
+  String get action_options_tooltip => 'Action options';
+
+  @override
+  String get action_or_type_workflow => 'Or type workflow name';
+
+  @override
+  String get action_order_tip => 'Tip: use arrows to change action order.';
+
+  @override
+  String action_position(int index, int total) {
+    return 'Action $index/$total';
+  }
+
+  @override
+  String get action_preview_json => 'Preview Highlighted JSON';
+
+  @override
+  String get action_provide_valid_url => 'Please provide a valid URL.';
+
+  @override
+  String get action_refresh_keys => 'Refresh keys';
+
+  @override
+  String get action_remove_confirm =>
+      'This action will be removed from the workflow. Continue?';
+
+  @override
+  String get action_remove_else_if => 'Remove ELSE IF';
+
+  @override
+  String get action_remove_menu => 'Remove action';
+
+  @override
+  String get action_remove_title => 'Remove action';
+
+  @override
+  String get action_root_must_json => 'Root must be a JSON object';
+
+  @override
+  String get action_select_saved_key => 'Select a saved key';
+
+  @override
+  String get action_select_stored_key =>
+      'Select a stored key (bc_ prefix is optional)';
+
+  @override
+  String get action_static_badge => '(static)';
+
+  @override
+  String get action_status_disabled => 'Disabled';
+
+  @override
+  String get action_status_enabled => 'Enabled';
+
+  @override
+  String get action_store_results => 'Store results in variables';
+
+  @override
+  String actions_active_route(String label) {
+    return 'Active route: $label';
+  }
+
+  @override
+  String get actions_add_label => 'Add Action';
+
+  @override
+  String get actions_add_new_title => 'Add New Action';
+
+  @override
+  String actions_build_button(int count) {
+    return 'Build Actions ($count)';
+  }
+
+  @override
+  String get actions_empty_subtitle =>
+      'Add an action, then open it to configure details.';
+
+  @override
+  String get actions_empty_title => 'No actions yet';
+
+  @override
+  String get actions_builder_title => 'Actions Builder';
+
+  @override
+  String get actions_description => 'Build runtime actions for this command';
+
+  @override
+  String get actions_global_variables => 'Variables';
+
+  @override
+  String actions_key_label(String key) {
+    return 'Key: $key';
+  }
+
+  @override
+  String actions_missing_field_content(String action, String field) {
+    return '\"$action\": \"$field\" is required.';
+  }
+
+  @override
+  String get actions_missing_field_title => 'Missing Field';
+
+  @override
+  String get actions_no_matches => 'No matches found';
+
+  @override
+  String actions_save_count(int count) {
+    return 'Save $count actions';
+  }
+
+  @override
+  String get actions_save_tooltip => 'Save Actions';
+
+  @override
+  String get actions_save_workflow_title => 'Save as Workflow';
+
+  @override
+  String get actions_search_hint => 'Search actions...';
+
+  @override
+  String get actions_search_sequence_hint => 'Search sequence...';
+
+  @override
+  String actions_sequence_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count actions',
+      one: '1 action',
+      zero: 'No actions',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String actions_step_label(int index, int total) {
+    return 'Step $index of $total';
+  }
+
+  @override
+  String actions_summary_bdfd(int lines, int diagnostics) {
+    return 'BDFD script | $lines line(s) | $diagnostics diagnostic(s)';
+  }
+
+  @override
+  String actions_summary_configured(int count) {
+    return '$count action(s) configured';
+  }
+
+  @override
+  String actions_summary_dart(int lines, int diagnostics) {
+    return 'Dart script | $lines line(s) | $diagnostics diagnostic(s)';
+  }
+
+  @override
+  String actions_summary_routes(int count, int routes) {
+    return '$count action(s) on active route | $routes route(s)';
+  }
+
+  @override
+  String get actions_title => 'Actions';
+
+  @override
+  String get actions_workflow_name_label => 'Workflow name';
+
+  @override
+  String get actions_workflows => 'Workflows';
+
+  @override
+  String get ads_consent_accept => 'I accept';
+
+  @override
+  String get ads_consent_message =>
+      'To comply with GDPR, we need your consent before showing ads. You can continue using the app even if you refuse.';
+
+  @override
+  String get ads_consent_refuse => 'I refuse';
+
+  @override
+  String get ads_consent_refused_info =>
+      'Ad consent declined. The bot will still start normally.';
+
+  @override
+  String get ads_consent_title => 'Ads consent';
+
+  @override
+  String get app_bot_token => 'Bot Token';
+
+  @override
+  String get app_create_button => 'Create Application';
+
+  @override
+  String get app_create_hero_desc =>
+      'A guided setup to open the right pages, copy your token and import the bot safely.';
+
+  @override
+  String get app_create_hero_title => 'Connect your Discord bot';
+
+  @override
+  String get app_create_new => 'Create a new App';
+
+  @override
+  String get app_create_page_title => 'Create Application';
+
+  @override
+  String get app_enter_token => 'Enter your bot token here';
+
+  @override
+  String get app_external_link_badge => 'External link';
+
+  @override
+  String get app_hide_token => 'Hide token';
+
+  @override
+  String get app_how_to_create_token => 'How to create a Bot Token?';
+
+  @override
+  String get app_loading_error => 'Loading error';
+
+  @override
+  String get app_no_apps => 'You don\'t have any apps yet.';
+
+  @override
+  String get app_note =>
+      'Note: You need to create a new App in the Discord Developer Portal and get your bot token.';
+
+  @override
+  String get app_open_discord_portal => 'Open Discord Developer Portal';
+
+  @override
+  String get app_open_discord_portal_desc =>
+      'Create your application and enable the bot section.';
+
+  @override
+  String get app_open_link_error => 'Unable to open this external page.';
+
+  @override
+  String get app_open_token_tutorial => 'Read the token tutorial';
+
+  @override
+  String get app_open_token_tutorial_desc =>
+      'A step-by-step guide to generate and copy your bot token.';
+
+  @override
+  String get app_resources_desc =>
+      'These actions open the official pages you need before saving your bot here.';
+
+  @override
+  String get app_resources_title => 'Guided setup';
+
+  @override
+  String get app_save => 'Save Changes';
+
+  @override
+  String get app_save_bot => 'Add bot';
+
+  @override
+  String get app_show_token => 'Show token';
+
+  @override
+  String get app_sync_manager_connect => 'Connect Discord';
+
+  @override
+  String get app_sync_manager_desc =>
+      'This bot is already stored on Bot Creator Manager. Connect with Discord to sync all your bots automatically?';
+
+  @override
+  String get app_sync_manager_manual => 'Keep local';
+
+  @override
+  String get app_sync_manager_title => 'Bot already managed';
+
+  @override
+  String get app_title => 'Bot Creator';
+
+  @override
+  String get app_token_invalid_content =>
+      'The token appears to have been reset. Please provide the new token from the Discord Developer Portal.';
+
+  @override
+  String get app_token_invalid_title => 'Token Reset Detected';
+
+  @override
+  String get app_token_field_helper =>
+      'Paste the token exactly as provided by Discord.';
+
+  @override
+  String get app_token_section_desc =>
+      'Once the token is copied, paste it below to add your bot to the app.';
+
+  @override
+  String get app_token_section_title => 'Paste your bot token';
+
+  @override
+  String get app_token_security_hint =>
+      'Keep this token private. Anyone with it can control your bot.';
+
+  @override
+  String get appearance_preset_graphite => 'Graphite';
+
+  @override
+  String get appearance_preset_graphite_desc =>
+      'Neutral gray surfaces, the historic default look.';
+
+  @override
+  String get appearance_preset_violet_bc => 'Violet Bot Creator';
+
+  @override
+  String get appearance_preset_violet_bc_desc =>
+      'The Bot Creator brand signature, tinted surfaces included.';
+
+  @override
+  String get appearance_preset_discord => 'Discord';
+
+  @override
+  String get appearance_preset_discord_desc =>
+      'Discord\'s blurple, for a familiar feel.';
+
+  @override
+  String get appearance_preset_ocean => 'Ocean';
+
+  @override
+  String get appearance_preset_ocean_desc => 'Cyan tones, like deep water.';
+
+  @override
+  String get appearance_preset_forest => 'Forest';
+
+  @override
+  String get appearance_preset_forest_desc => 'Deep green, calm and natural.';
+
+  @override
+  String get appearance_preset_amber => 'Amber';
+
+  @override
+  String get appearance_preset_amber_desc => 'Warm orange for a vivid look.';
+
+  @override
+  String get appearance_preset_rose => 'Rose';
+
+  @override
+  String get appearance_preset_rose_desc => 'Magenta pink, bold and modern.';
+
+  @override
+  String get appearance_preset_high_contrast => 'High contrast';
+
+  @override
+  String get appearance_preset_high_contrast_desc =>
+      'Maximum readability for the interface.';
+
+  @override
+  String get autocomplete_dynamic => 'Dynamic Autocomplete';
+
+  @override
+  String get autocomplete_dynamic_desc =>
+      'Resolve choices from a workflow instead of static values.';
+
+  @override
+  String get autocomplete_filter_hint =>
+      'Suggestions are filtered by what the user types.';
+
+  @override
+  String get autocomplete_loading => 'Loading workflows…';
+
+  @override
+  String get autocomplete_no_workflows => 'No saved workflows found';
+
+  @override
+  String get autocomplete_select_workflow => 'Select a saved workflow';
+
+  @override
+  String get autocomplete_type_name => 'Or type workflow name';
+
+  @override
+  String get autocomplete_workflow_label => 'Autocomplete Workflow';
+
+  @override
+  String backup_completed(String id) {
+    return 'Backup completed: $id';
+  }
+
+  @override
+  String backup_failed(String error) {
+    return 'Backup failed: $error';
+  }
+
+  @override
+  String bdfd_compile_error_detailed(String summary) {
+    return 'This BDFD script could not be compiled:\n$summary';
+  }
+
+  @override
+  String get bdfd_compile_error_simple =>
+      'This BDFD script could not be compiled.';
+
+  @override
+  String get bdfd_compiled_no_actions =>
+      'This BDFD script compiled successfully but did not produce any action.';
+
+  @override
+  String get bdfd_editor_auto_indent => '• Smart auto indentation on Enter';
+
+  @override
+  String get bdfd_editor_diagnostics_toggle => 'Toggle diagnostics panel';
+
+  @override
+  String get bdfd_editor_docs => 'Documentation';
+
+  @override
+  String get bdfd_editor_empty =>
+      'Empty script — start typing to see diagnostics.';
+
+  @override
+  String get bdfd_editor_includes => 'Includes:';
+
+  @override
+  String get bdfd_editor_indent_guides => '• Live indentation guides';
+
+  @override
+  String get bdfd_editor_quick_keys => '• Mobile quick-keys for BDFD symbols';
+
+  @override
+  String get bdfd_editor_tap_hint => 'Tap to open editor';
+
+  @override
+  String get bdfd_editor_title => 'BDFD Editor';
+
+  @override
+  String get bdfd_editor_toggle_indent => 'Toggle indentation guides';
+
+  @override
+  String get bdfd_editor_ux_title => 'Editor UX';
+
+  @override
+  String get bdfd_editor_wrap_toggle => 'Toggle line wrapping';
+
+  @override
+  String get bdfd_runtime_execution_error =>
+      'An error occurred while executing this BDFD script.';
+
+  @override
+  String get bot_home_create_command => 'Create my first command';
+
+  @override
+  String get bot_home_customize => 'Customize my bot';
+
+  @override
+  String get bot_home_delete => 'Delete App';
+
+  @override
+  String get bot_home_delete_confirm =>
+      'Are you sure you want to delete this app?';
+
+  @override
+  String get bot_home_invite => 'Invite Bot';
+
+  @override
+  String get bot_home_invite_error => 'Could not open invite link';
+
+  @override
+  String get bot_home_ios_notice_content =>
+      'In local mode, iOS may suspend the app in the background. The bot can start, but keeping the Discord connection alive is not guaranteed like it is with a Runner.';
+
+  @override
+  String get bot_home_ios_notice_title => 'Local iOS constraint';
+
+  @override
+  String get bot_home_log_desktop_stop => 'Desktop bot stop requested';
+
+  @override
+  String get bot_home_log_start => 'Bot start requested';
+
+  @override
+  String get bot_home_log_stop => 'Bot stop requested';
+
+  @override
+  String get bot_home_notif_required =>
+      'Notification permission is required to start the bot service.';
+
+  @override
+  String get bot_home_section_danger => 'DANGER ZONE';
+
+  @override
+  String get bot_home_section_getting_started => 'GETTING STARTED';
+
+  @override
+  String get bot_home_section_modules => 'MODULES';
+
+  @override
+  String get bot_home_section_monitoring => 'MONITORING';
+
+  @override
+  String get bot_home_section_tools => 'TOOLS';
+
+  @override
+  String get bot_home_service_not_started =>
+      'Foreground service did not start.';
+
+  @override
+  String get bot_home_start => 'Start Bot';
+
+  @override
+  String bot_home_start_error(String error) {
+    return 'Could not start: $error';
+  }
+
+  @override
+  String get bot_home_starting => 'Starting…';
+
+  @override
+  String get bot_home_restart => 'Restart';
+
+  @override
+  String get bot_home_stop => 'Stop Bot';
+
+  @override
+  String get bot_home_sync => 'Sync App';
+
+  @override
+  String get bot_home_sync_success => 'App synced successfully';
+
+  @override
+  String get bot_home_pull => 'Pull from Cloud';
+
+  @override
+  String get bot_home_push => 'Push to Cloud';
+
+  @override
+  String get bot_home_pull_success => 'App pulled from cloud successfully';
+
+  @override
+  String get bot_home_push_success => 'App pushed to cloud successfully';
+
+  @override
+  String get bot_home_version_history => 'Version History';
+
+  @override
+  String get bot_config_versions_title => 'Version History';
+
+  @override
+  String get bot_config_versions_empty => 'No previous versions found';
+
+  @override
+  String get bot_config_versions_restore => 'Restore';
+
+  @override
+  String get bot_config_versions_restore_confirm =>
+      'Restore this version? Your current config will be backed up first.';
+
+  @override
+  String get bot_config_versions_restored =>
+      'Configuration restored locally and in the cloud.';
+
+  @override
+  String get bot_config_versions_error => 'Failed to load versions';
+
+  @override
+  String get bot_config_versions_restore_error => 'Failed to restore version';
+
+  @override
+  String get bot_home_pull_dialog_changes => 'Changes to apply:';
+
+  @override
+  String get bot_home_pull_dialog_local => 'Local (Device)';
+
+  @override
+  String get bot_home_pull_dialog_local_only => 'local-only (kept)';
+
+  @override
+  String get bot_home_pull_dialog_local_preserved =>
+      'local command(s) not on remote will be preserved.';
+
+  @override
+  String get bot_home_pull_dialog_new_commands => 'new command(s)';
+
+  @override
+  String get bot_home_pull_dialog_remote => 'Remote (Cloud)';
+
+  @override
+  String get bot_home_pull_dialog_unchanged => 'unchanged';
+
+  @override
+  String get bot_home_pull_dialog_up_to_date =>
+      'Already up to date — no changes needed.';
+
+  @override
+  String get bot_home_pull_dialog_updated_commands => 'updated command(s)';
+
+  @override
+  String get bot_home_push_refused_empty =>
+      'Refusing to push: local config is empty or corrupted. Check your commands.';
+
+  @override
+  String get bot_home_token_invalid_content =>
+      'The token seems to have been reset. Please provide the new token from the Discord Developer Portal. Do you want to start the bot anyway?';
+
+  @override
+  String get bot_home_token_invalid_title => 'Token seems to have been reset';
+
+  @override
+  String get bot_home_view_logs => 'View bot logs';
+
+  @override
+  String get bot_home_view_replay => 'View debugger replays';
+
+  @override
+  String get bot_home_view_stats => 'View bot stats';
+
+  @override
+  String get bot_logs_copied => 'Logs copied';
+
+  @override
+  String get bot_logs_disable_debug => 'Disable debug logs';
+
+  @override
+  String get bot_logs_empty => 'No logs yet';
+
+  @override
+  String get bot_logs_enable_debug => 'Enable debug logs';
+
+  @override
+  String get bot_logs_filter_count => 'Number of displayed logs';
+
+  @override
+  String get bot_logs_go_to_bottom => 'Go to bottom';
+
+  @override
+  String get bot_logs_go_to_latest => 'Go to latest log';
+
+  @override
+  String get bot_logs_newest_first => 'Show newest first';
+
+  @override
+  String get bot_logs_oldest_first => 'Show oldest first';
+
+  @override
+  String bot_logs_ram(String memory) {
+    return 'Bot process RAM: $memory';
+  }
+
+  @override
+  String bot_logs_ram_estimated(String memory) {
+    return 'Estimated bot RAM: $memory';
+  }
+
+  @override
+  String get bot_logs_raw_mode => 'Compact raw logs';
+
+  @override
+  String get bot_logs_rich_mode => 'Rich formatted logs';
+
+  @override
+  String get bot_logs_server_empty =>
+      'The Bot Creator servers returned no logs for this bot.';
+
+  @override
+  String get bot_logs_server_read_failed =>
+      'Could not read the logs from the Bot Creator servers.';
+
+  @override
+  String get bot_logs_show_all => 'Show all';
+
+  @override
+  String get bot_logs_show_less => 'Show less';
+
+  @override
+  String get bot_logs_show_more => 'Show more';
+
+  @override
+  String bot_logs_show_n(int count) {
+    return 'Show $count logs';
+  }
+
+  @override
+  String get bot_logs_title => 'Bot Logs';
+
+  @override
+  String get bot_offline_token_desc =>
+      'Token invalid or missing. Enter a new Discord bot token to restore the connection.';
+
+  @override
+  String get bot_settings_activity_state_label => 'Activity state (optional)';
+
+  @override
+  String get bot_settings_activity_url_label => 'Stream URL (for streaming)';
+
+  @override
+  String get bot_settings_add_status => 'Add activity';
+
+  @override
+  String get bot_settings_app_flags => 'Application Flags';
+
+  @override
+  String get bot_settings_avatar_clear_selection => 'Clear selection';
+
+  @override
+  String get bot_settings_avatar_important_note =>
+      'Important: Profile changes (username and avatar) will only be applied to Discord when you click \'Save profile and statuses\' at the bottom.';
+
+  @override
+  String get bot_settings_avatar_local_path => 'Avatar local file path';
+
+  @override
+  String get bot_settings_avatar_none_selected =>
+      'No new image selected. Click Browse to choose one.';
+
+  @override
+  String get bot_settings_avatar_path_hint => '/absolute/path/to/avatar.png';
+
+  @override
+  String get bot_settings_avatar_preview_error => 'Unable to preview image';
+
+  @override
+  String get bot_settings_avatar_preview_label => 'Avatar preview';
+
+  @override
+  String get bot_settings_avatar_selected => 'Selected image:';
+
+  @override
+  String bot_settings_avatar_selected_file(String path) {
+    return 'Selected file: $path';
+  }
+
+  @override
+  String bot_settings_avatar_unsupported_format(String ext, String formats) {
+    return 'Unsupported avatar format: $ext. Supported formats: $formats.';
+  }
+
+  @override
+  String get bot_settings_browse => 'Browse';
+
+  @override
+  String get bot_settings_cancel_token_edit_btn => 'Cancel token edit';
+
+  @override
+  String get bot_settings_danger_zone => 'Danger Zone';
+
+  @override
+  String get bot_settings_delete_bot => 'Delete Bot';
+
+  @override
+  String get bot_settings_delete_bot_btn => 'Delete Permanently';
+
+  @override
+  String get bot_settings_delete_bot_desc =>
+      'This action is irreversible. All local data and remote configurations will be permanently removed.';
+
+  @override
+  String bot_settings_delete_desc(String id) {
+    return 'Are you sure you want to delete bot $id? All data will be lost.';
+  }
+
+  @override
+  String get bot_settings_delete_title => 'Confirm Deletion';
+
+  @override
+  String get bot_settings_edit_token_btn => 'Edit token';
+
+  @override
+  String get bot_settings_export_import => 'Export / Import';
+
+  @override
+  String get bot_settings_export_import_desc =>
+      'Export or import your bot configuration as a ZIP file.';
+
+  @override
+  String get bot_settings_gateway_intents => 'Gateway Intents Configuration';
+
+  @override
+  String get bot_settings_gateway_intents_desc =>
+      'Select which intents your bot needs. Configure these in the Discord Developer Portal.';
+
+  @override
+  String get bot_settings_intents_saved => 'Intents saved successfully';
+
+  @override
+  String get bot_settings_intents_auto_enabled =>
+      'Privileged gateway intents were enabled automatically in the Developer Portal.';
+
+  @override
+  String get bot_settings_intents_verified_bot_manual =>
+      'This verified bot requires manual privileged intent setup in the Discord Developer Portal.';
+
+  @override
+  String get bot_settings_intents_auto_enable_failed =>
+      'Token saved, but privileged intents could not be enabled automatically. Enable them in the Discord Developer Portal.';
+
+  @override
+  String get bot_settings_lavalink_add_fallback => 'Add a fallback server';
+
+  @override
+  String get bot_settings_lavalink_choose_server => 'Choose a public server...';
+
+  @override
+  String get bot_settings_lavalink_enable_subtitle =>
+      'The bot tries the public servers on its own; no server choice is needed.';
+
+  @override
+  String get bot_settings_lavalink_enable_title => 'Music (Lavalink)';
+
+  @override
+  String get bot_settings_lavalink_fallback_desc =>
+      'Public servers are tried first. Your servers are used as a fallback when none answers.';
+
+  @override
+  String get bot_settings_lavalink_fallback_title => 'My fallback servers';
+
+  @override
+  String get bot_settings_lavalink_host => 'Host';
+
+  @override
+  String get bot_settings_lavalink_host_hint =>
+      'localhost or Lavalink server IP';
+
+  @override
+  String get bot_settings_lavalink_invalid_server =>
+      'Enter a host and a port between 1 and 65535.';
+
+  @override
+  String get bot_settings_lavalink_no_fallback => 'No fallback server yet.';
+
+  @override
+  String get bot_settings_lavalink_password => 'Password';
+
+  @override
+  String get bot_settings_lavalink_password_hint => 'youshallnotpass';
+
+  @override
+  String get bot_settings_lavalink_port => 'Port';
+
+  @override
+  String get bot_settings_lavalink_port_hint => '2333';
+
+  @override
+  String get bot_settings_lavalink_premium_banner_desc =>
+      'Unlock Lavalink audio support for your bot.';
+
+  @override
+  String get bot_settings_lavalink_premium_banner_title =>
+      '🔒 Available with Bot Creator PREMIUM';
+
+  @override
+  String get bot_settings_lavalink_public_servers => 'Public servers';
+
+  @override
+  String get bot_settings_lavalink_remove_fallback => 'Remove';
+
+  @override
+  String get bot_settings_lavalink_save_btn => 'Save';
+
+  @override
+  String get bot_settings_lavalink_save_caption =>
+      'Save so the bot tries the public servers first, then your fallback servers.';
+
+  @override
+  String get bot_settings_lavalink_section_title => 'Lavalink Server';
+
+  @override
+  String bot_settings_lavalink_server_number(int index) {
+    return 'Fallback server $index';
+  }
+
+  @override
+  String get bot_settings_lavalink_server_picker_title =>
+      'Public Lavalink Servers';
+
+  @override
+  String bot_settings_lavalink_server_subtitle(String port, String version) {
+    return 'Port $port — $version';
+  }
+
+  @override
+  String bot_settings_lavalink_servers_available(int count) {
+    return '$count servers available';
+  }
+
+  @override
+  String get bot_settings_lavalink_ssl => 'Use SSL/TLS';
+
+  @override
+  String get bot_settings_lavalink_ssl_subtitle => 'Secure wss:// connection';
+
+  @override
+  String get bot_settings_lavalink_success => 'Connection successful!';
+
+  @override
+  String get bot_settings_lavalink_test_btn => 'Test connection';
+
+  @override
+  String get bot_settings_lavalink_testing => 'Testing...';
+
+  @override
+  String get bot_settings_lavalink_view_offers => 'View offers';
+
+  @override
+  String get bot_settings_no_activities => 'No activities configured';
+
+  @override
+  String get bot_settings_presence_dnd => 'Do Not Disturb';
+
+  @override
+  String get bot_settings_presence_idle => 'Idle (Away)';
+
+  @override
+  String get bot_settings_presence_invisible => 'Invisible';
+
+  @override
+  String get bot_settings_presence_online => 'Online';
+
+  @override
+  String get bot_settings_presence_status_label => 'Presence';
+
+  @override
+  String get bot_settings_presence_status_title => 'Bot Presence Status';
+
+  @override
+  String get bot_settings_profile_saved =>
+      'Profile/statuses applied successfully';
+
+  @override
+  String get bot_settings_profile_title => 'Bot Profile';
+
+  @override
+  String get bot_settings_remove_status => 'Remove activity';
+
+  @override
+  String get bot_settings_save_intents_btn => 'Save intents';
+
+  @override
+  String get bot_settings_save_intents_caption =>
+      'This only updates gateway intents configuration.';
+
+  @override
+  String get bot_settings_save_profile_caption =>
+      'This applies username/avatar instantly and saves status rotation.';
+
+  @override
+  String get bot_settings_save_profile_status_btn =>
+      'Save profile and statuses';
+
+  @override
+  String get bot_settings_save_success => 'Settings saved successfully';
+
+  @override
+  String get bot_settings_save_token_btn => 'Save token and intents';
+
+  @override
+  String get bot_settings_save_token_caption =>
+      'Token changes are protected. Click \"Edit token\" first, then save.';
+
+  @override
+  String get bot_settings_save_token_first =>
+      'Please save the token first before applying profile/status changes.';
+
+  @override
+  String get bot_settings_save_token_only_btn => 'Save token';
+
+  @override
+  String bot_settings_status_item_title(int index) {
+    return 'Activity $index';
+  }
+
+  @override
+  String get bot_settings_status_max_interval => 'Max interval (s)';
+
+  @override
+  String get bot_settings_status_min_interval => 'Min interval (s)';
+
+  @override
+  String get bot_settings_status_rotation_desc =>
+      'Add one or more activities. Each activity needs a type, name, and min/max interval (seconds).';
+
+  @override
+  String get bot_settings_status_rotation_title => 'Activities Rotation';
+
+  @override
+  String get bot_settings_status_text_label => 'Activity name';
+
+  @override
+  String get bot_settings_status_type_competing => 'Competing';
+
+  @override
+  String get bot_settings_status_type_label => 'Type';
+
+  @override
+  String get bot_settings_status_type_listening => 'Listening';
+
+  @override
+  String get bot_settings_status_type_playing => 'Playing';
+
+  @override
+  String get bot_settings_status_type_streaming => 'Streaming';
+
+  @override
+  String get bot_settings_status_type_watching => 'Watching';
+
+  @override
+  String get bot_settings_tab_advanced => 'Advanced & Maintenance';
+
+  @override
+  String get bot_settings_tab_general => 'General';
+
+  @override
+  String get bot_settings_tab_intents => 'Intents & Privileges';
+
+  @override
+  String get bot_settings_tab_lavalink => 'Lavalink';
+
+  @override
+  String get bot_settings_tab_database => 'Database';
+
+  @override
+  String get bot_settings_database_section_title => 'External Database';
+
+  @override
+  String get bot_settings_database_type_label => 'Database Type';
+
+  @override
+  String get bot_settings_database_type_none => 'None (Disabled)';
+
+  @override
+  String get bot_settings_database_type_postgres =>
+      'PostgreSQL (keyword: pgsql)';
+
+  @override
+  String get bot_settings_database_type_mysql => 'MySQL (keyword: sql)';
+
+  @override
+  String get bot_settings_database_type_mongo => 'MongoDB (keyword: mongo)';
+
+  @override
+  String get bot_settings_database_info_postgres =>
+      'Available in your scripts via the global keyword \"pgsql\" (e.g. await pgsql.query(\"SELECT * FROM users\")).';
+
+  @override
+  String get bot_settings_database_info_mysql =>
+      'Available in your scripts via the global keyword \"sql\" (e.g. await sql.query(\"SELECT * FROM users\")).';
+
+  @override
+  String get bot_settings_database_info_mongo =>
+      'Available in your scripts via the global keyword \"mongo\" (e.g. await mongo.collection(\"users\").find()).';
+
+  @override
+  String get bot_settings_database_uri_label => 'Connection String (URI)';
+
+  @override
+  String get bot_settings_database_show_discrete_fields =>
+      'Configure individual fields (Host, Port, etc.)';
+
+  @override
+  String get bot_settings_database_hide_discrete_fields =>
+      'Hide individual fields';
+
+  @override
+  String get bot_settings_database_host => 'Host';
+
+  @override
+  String get bot_settings_database_host_hint => 'localhost or IP address';
+
+  @override
+  String get bot_settings_database_port => 'Port';
+
+  @override
+  String get bot_settings_database_name => 'Database Name';
+
+  @override
+  String get bot_settings_database_name_hint => 'e.g. bot_db';
+
+  @override
+  String get bot_settings_database_user => 'Username';
+
+  @override
+  String get bot_settings_database_user_hint => 'e.g. root or postgres';
+
+  @override
+  String get bot_settings_database_password => 'Password';
+
+  @override
+  String get bot_settings_database_ssl => 'Enable SSL / TLS';
+
+  @override
+  String get bot_settings_database_save_btn => 'Save Database Configuration';
+
+  @override
+  String get bot_settings_tab_presence => 'Presence & Status';
+
+  @override
+  String get bot_settings_title => 'Customize Bot / Profile';
+
+  @override
+  String get bot_settings_token_hidden_desc =>
+      'Token input is hidden by default for safety.';
+
+  @override
+  String get bot_settings_token_hint => 'Enter your bot token here';
+
+  @override
+  String get bot_settings_token_mismatch_confirm => 'Replace token anyway';
+
+  @override
+  String bot_settings_token_mismatch_content(String newId, String oldId) {
+    return 'This token belongs to bot $newId, but the current data is for bot $oldId. Commands and settings may not match. Continue anyway?';
+  }
+
+  @override
+  String get bot_settings_token_mismatch_title => 'Different bot detected';
+
+  @override
+  String get bot_settings_token_required => 'Bot token is required.';
+
+  @override
+  String get bot_settings_token_saved => 'Token saved successfully';
+
+  @override
+  String get bot_settings_token_title => 'Bot Token';
+
+  @override
+  String get bot_settings_update_token => 'Update Bot Token';
+
+  @override
+  String get bot_settings_username_hint =>
+      'Leave empty to keep current username';
+
+  @override
+  String get bot_settings_username_override => 'Username override';
+
+  @override
+  String get bot_settings_workflow_docs => 'Documentation';
+
+  @override
+  String get bot_settings_workflow_docs_desc =>
+      'Guides, BDFD reference, and discord.js docs';
+
+  @override
+  String get bot_stats_collecting => 'Collecting…';
+
+  @override
+  String get bot_stats_cpu => 'Bot process CPU';
+
+  @override
+  String get bot_stats_notes =>
+      'Notes: CPU available on Android/Linux. Storage = bot data files in the app.';
+
+  @override
+  String get bot_stats_ram_estimated => 'Bot RAM only (estimated)';
+
+  @override
+  String get bot_stats_ram_process => 'Bot process RAM';
+
+  @override
+  String get bot_stats_source_local_hosting => 'Source: Local Hosting';
+
+  @override
+  String get bot_stats_source_runner_api => 'Source: Runner API';
+
+  @override
+  String get bot_stats_storage => 'Bot storage (app data)';
+
+  @override
+  String get bot_stats_title => 'Bot Stats';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get cmd_bdfd_autocomplete_hint =>
+      'Type \$ and start writing a function name to get quick script suggestions.';
+
+  @override
+  String get cmd_bdfd_autocomplete_title => 'BDFD prefix autocomplete';
+
+  @override
+  String get cmd_bdfd_diagnostics_clean =>
+      'No issue detected in the current script.';
+
+  @override
+  String get cmd_bdfd_diagnostics_error => 'Error';
+
+  @override
+  String get cmd_bdfd_diagnostics_title => 'BDFD diagnostics';
+
+  @override
+  String get cmd_bdfd_diagnostics_warning => 'Warning';
+
+  @override
+  String get cmd_bdfd_script_empty_error => 'BDFD script body cannot be empty.';
+
+  @override
+  String get cmd_bdfd_script_hint =>
+      '\$nomention\\n\$if[\$hasPerms[\$authorID;administrator]==true]\\nHello from Bot Creator';
+
+  @override
+  String get cmd_bdfd_script_label => 'BDFD script body';
+
+  @override
+  String get cmd_bdfd_script_validation_error =>
+      'This BDFD script still contains diagnostics:';
+
+  @override
+  String get cmd_create_tooltip => 'Create command';
+
+  @override
+  String get cmd_dart_diagnostics_clean =>
+      'No issue detected in the current Dart script.';
+
+  @override
+  String get cmd_dart_diagnostics_error => 'Error';
+
+  @override
+  String get cmd_dart_diagnostics_title => 'Dart diagnostics';
+
+  @override
+  String get cmd_dart_diagnostics_warning => 'Warning';
+
+  @override
+  String get cmd_dart_script_hint => 'return \"Hello from Dart Direct\";';
+
+  @override
+  String get cmd_dart_script_label => 'Dart script body';
+
+  @override
+  String cmd_batch_delete_confirm(int count) {
+    return 'Delete $count commands?';
+  }
+
+  @override
+  String cmd_batch_delete_success(Object count) {
+    return '$count commands deleted';
+  }
+
+  @override
+  String cmd_delete_confirm(Object name) {
+    return 'Delete command \"$name\"?';
+  }
+
+  @override
+  String cmd_delete_success(Object name) {
+    return 'Command \"$name\" deleted';
+  }
+
+  @override
+  String get cmd_delete_tooltip => 'Delete command';
+
+  @override
+  String get cmd_deploy_close_button => 'Close';
+
+  @override
+  String get cmd_deploy_cloud_sync_subtitle =>
+      'Secure synchronization with your online space';
+
+  @override
+  String get cmd_deploy_cloud_sync_title => 'Cloud Backup';
+
+  @override
+  String cmd_deploy_config_subtitle(String name) {
+    return 'Configuration of /$name';
+  }
+
+  @override
+  String get cmd_deploy_discord_sync_subtitle =>
+      'Publishing command to Discord API';
+
+  @override
+  String get cmd_deploy_discord_sync_title => 'Discord Sync';
+
+  @override
+  String get cmd_deploy_failed_title => 'Deployment failed';
+
+  @override
+  String get cmd_deploy_hot_reload_subtitle =>
+      'Instant update of your bot runner';
+
+  @override
+  String get cmd_deploy_hot_reload_title => 'Hot Reload';
+
+  @override
+  String get cmd_deploy_in_progress_title => 'Deployment in progress...';
+
+  @override
+  String get cmd_deploy_local_save_subtitle => 'Saving command to device';
+
+  @override
+  String get cmd_deploy_local_save_title => 'Local Save';
+
+  @override
+  String get cmd_deploy_reload_bot_subtitle =>
+      'Applying hot reload configuration';
+
+  @override
+  String get cmd_deploy_reload_bot_title => 'Reloading Bot';
+
+  @override
+  String get cmd_deploy_retry_button => 'Retry';
+
+  @override
+  String get cmd_deploy_success_title => 'Deployment successful!';
+
+  @override
+  String cmd_deploy_success_toast(String name) {
+    return 'Command \"$name\" deployed and active!';
+  }
+
+  @override
+  String get cmd_editor_mode_advanced => 'Advanced mode';
+
+  @override
+  String get cmd_editor_mode_advanced_desc =>
+      'Full editor with custom response, options, and action builder.';
+
+  @override
+  String get cmd_editor_mode_locked =>
+      'Advanced mode is locked for this command.';
+
+  @override
+  String get cmd_editor_mode_simple => 'Simplified mode';
+
+  @override
+  String get cmd_editor_mode_simple_desc =>
+      'Build a command quickly with guided options and preconfigured actions.';
+
+  @override
+  String get cmd_editor_mode_switch_adv => 'Switch to advanced mode';
+
+  @override
+  String get cmd_editor_mode_switch_adv_confirm => 'Switch';
+
+  @override
+  String get cmd_editor_mode_switch_adv_content =>
+      'This switch is one-way for this command. You won’t be able to return to simplified mode.';
+
+  @override
+  String get cmd_editor_mode_switch_adv_title => 'Switch to advanced mode?';
+
+  @override
+  String get cmd_editor_mode_title => 'Editing mode';
+
+  @override
+  String get cmd_error_fill_fields => 'Please fill all fields';
+
+  @override
+  String get cmd_execution_mode_bdfd => 'BDFD Script mode';
+
+  @override
+  String get cmd_execution_mode_bdfd_desc =>
+      'Write the command body as BDFD-style script while keeping command definition visual.';
+
+  @override
+  String get cmd_execution_mode_bdfd_note =>
+      'The script is compiled to internal actions. Diagnostics are shown while editing; invalid scripts fail when the command runs.';
+
+  @override
+  String get cmd_execution_mode_dart => 'Dart Direct mode';
+
+  @override
+  String get cmd_execution_mode_dart_desc =>
+      'Write the command body directly in Dart with runtime diagnostics.';
+
+  @override
+  String get cmd_execution_mode_dart_note =>
+      'Dart code is compiled at runtime through the sandboxed engine. Keep scripts deterministic and return a value when needed.';
+
+  @override
+  String get cmd_execution_mode_javascript => 'JavaScript';
+
+  @override
+  String get cmd_execution_mode_javascript_desc =>
+      'Write custom JS code for this command.';
+
+  @override
+  String get cmd_execution_mode_javascript_note =>
+      'All BDFD functions are available as async JS functions. Use ctx.authorId, ctx.channelId, vars[\'key\'] to access context and variables.';
+
+  @override
+  String get cmd_execution_mode_desc =>
+      'Command metadata stays in the visual builder. Choose how the command body should run.';
+
+  @override
+  String get cmd_execution_mode_title => 'Execution mode';
+
+  @override
+  String get cmd_execution_mode_workflow => 'Workflow mode';
+
+  @override
+  String get cmd_execution_mode_workflow_desc =>
+      'Use the existing visual response and action builder.';
+
+  @override
+  String get cmd_execution_mode_workflow_note =>
+      'Workflow mode is the current production path and remains fully supported.';
+
+  @override
+  String get cmd_migrate_bdfd_to_dart_action => 'Migrate';
+
+  @override
+  String get cmd_migrate_bdfd_to_dart_desc =>
+      'Generate a Dart migration scaffold from your current BDFD script.';
+
+  @override
+  String get cmd_offline_incomplete_warning =>
+      'This command could not be fully loaded (offline or token invalid). Connect a valid token to edit.';
+
+  @override
+  String get cmd_show_variables => 'Open variable documentation';
+
+  @override
+  String get cmd_simple_action_add_role => 'Add role';
+
+  @override
+  String get cmd_simple_action_add_role_desc =>
+      'Give the selected /role to the selected /user.';
+
+  @override
+  String get cmd_simple_action_ban => 'Ban user';
+
+  @override
+  String get cmd_simple_action_ban_delete_days_hint =>
+      '0 to 7 days of recent messages to delete';
+
+  @override
+  String get cmd_simple_action_ban_delete_days_label =>
+      'Ban delete message days';
+
+  @override
+  String get cmd_simple_action_ban_desc =>
+      'Ban the selected /user from the server.';
+
+  @override
+  String get cmd_simple_action_create_invite => 'Create invite';
+
+  @override
+  String get cmd_simple_action_create_invite_desc =>
+      'Create an invite for the current channel or an optional /channel.';
+
+  @override
+  String get cmd_simple_action_create_poll => 'Create poll';
+
+  @override
+  String get cmd_simple_action_create_poll_desc =>
+      'Create a poll with a dynamic /question and fixed answer choices.';
+
+  @override
+  String get cmd_simple_action_delete => 'Delete messages';
+
+  @override
+  String get cmd_simple_action_delete_default_count_hint =>
+      'Used when /count is not provided';
+
+  @override
+  String get cmd_simple_action_delete_default_count_label =>
+      'Default delete count';
+
+  @override
+  String get cmd_simple_action_delete_desc =>
+      'Delete messages in the current channel (optional /count).';
+
+  @override
+  String get cmd_simple_action_kick => 'Kick user';
+
+  @override
+  String get cmd_simple_action_kick_desc =>
+      'Kick the selected /user from the server.';
+
+  @override
+  String get cmd_simple_action_mute => 'Mute user';
+
+  @override
+  String get cmd_simple_action_mute_desc =>
+      'Temporarily mute the selected /user.';
+
+  @override
+  String get cmd_simple_action_mute_duration_hint =>
+      'Examples: 10m, 2h, 1d, or raw seconds';
+
+  @override
+  String get cmd_simple_action_mute_duration_label => 'Mute duration';
+
+  @override
+  String get cmd_simple_action_pin => 'Pin message';
+
+  @override
+  String get cmd_simple_action_pin_desc =>
+      'Pin a message in the current channel using /message_id.';
+
+  @override
+  String get cmd_simple_action_reason_hint =>
+      'Optional reason shared by moderation actions';
+
+  @override
+  String get cmd_simple_action_reason_label => 'Audit log reason';
+
+  @override
+  String get cmd_simple_action_remove_role => 'Remove role';
+
+  @override
+  String get cmd_simple_action_remove_role_desc =>
+      'Remove the selected /role from the selected /user.';
+
+  @override
+  String get cmd_simple_action_send_message => 'Send message';
+
+  @override
+  String get cmd_simple_action_send_message_desc =>
+      'Send an additional message in the current channel.';
+
+  @override
+  String get cmd_simple_action_send_message_hint =>
+      'Message sent by the Send Message action';
+
+  @override
+  String get cmd_simple_action_send_message_label => 'Action message';
+
+  @override
+  String get cmd_simple_action_unban => 'Unban user';
+
+  @override
+  String get cmd_simple_action_unban_desc =>
+      'Unban a user with a provided /user_id string.';
+
+  @override
+  String get cmd_simple_action_unmute => 'Unmute user';
+
+  @override
+  String get cmd_simple_action_unmute_desc =>
+      'Remove the timeout from the selected /user.';
+
+  @override
+  String get cmd_simple_action_unpin => 'Unpin message';
+
+  @override
+  String get cmd_simple_action_unpin_desc =>
+      'Unpin a message in the current channel using /message_id.';
+
+  @override
+  String get cmd_simple_actions_desc =>
+      'Select what this command should do. Options are generated automatically.';
+
+  @override
+  String get cmd_simple_actions_title => 'Simplified actions';
+
+  @override
+  String get cmd_simple_conflict_ban_unban =>
+      'Ban user and Unban user cannot be enabled together in simplified mode.';
+
+  @override
+  String get cmd_simple_conflict_mute_unmute =>
+      'Mute user and Unmute user cannot be enabled together in simplified mode.';
+
+  @override
+  String get cmd_simple_conflict_pin_unpin =>
+      'Pin message and Unpin message cannot be enabled together in simplified mode.';
+
+  @override
+  String get cmd_simple_execution_desc =>
+      'Fine-tune the generated actions without leaving simplified mode.';
+
+  @override
+  String get cmd_simple_execution_title => 'Execution settings';
+
+  @override
+  String get cmd_simple_generated_none =>
+      'No options generated yet. Select at least one action.';
+
+  @override
+  String get cmd_simple_generated_options => 'Generated command options';
+
+  @override
+  String get cmd_simple_group_messages_desc =>
+      'Message and channel actions that work in the current context.';
+
+  @override
+  String get cmd_simple_group_messages_title => 'Messages';
+
+  @override
+  String get cmd_simple_group_moderation_desc =>
+      'Member and moderation actions with guided options.';
+
+  @override
+  String get cmd_simple_group_moderation_title => 'Moderation';
+
+  @override
+  String get cmd_simple_group_utility_desc =>
+      'Helpful extras such as invites and polls.';
+
+  @override
+  String get cmd_simple_group_utility_title => 'Utility';
+
+  @override
+  String get cmd_simple_invite_max_age_hint => '0 for no expiry, up to 604800';
+
+  @override
+  String get cmd_simple_invite_max_age_invalid =>
+      'Invite expiry must be a number between 0 and 604800 seconds.';
+
+  @override
+  String get cmd_simple_invite_max_age_label => 'Invite expiry (seconds)';
+
+  @override
+  String get cmd_simple_invite_max_uses_hint => '0 for unlimited uses';
+
+  @override
+  String get cmd_simple_invite_max_uses_invalid =>
+      'Invite max uses must be a number between 0 and 1000000.';
+
+  @override
+  String get cmd_simple_invite_max_uses_label => 'Max uses';
+
+  @override
+  String get cmd_simple_invite_settings_desc =>
+      'Defaults used by the generated Create Invite action.';
+
+  @override
+  String get cmd_simple_invite_settings_title => 'Invite settings';
+
+  @override
+  String get cmd_simple_invite_temporary_desc =>
+      'Members are removed if they leave before getting a role.';
+
+  @override
+  String get cmd_simple_invite_temporary_label => 'Temporary membership';
+
+  @override
+  String get cmd_simple_invite_unique_desc =>
+      'Always create a new invite instead of reusing an existing one.';
+
+  @override
+  String get cmd_simple_invite_unique_label => 'Force unique invite';
+
+  @override
+  String get cmd_simple_option_channel => '/channel (Channel)';
+
+  @override
+  String get cmd_simple_option_channel_desc =>
+      'Optional channel override for invite creation';
+
+  @override
+  String get cmd_simple_option_count => '/count (Integer)';
+
+  @override
+  String get cmd_simple_option_count_desc => 'Number of messages to delete';
+
+  @override
+  String get cmd_simple_option_message_id => '/message_id (Text)';
+
+  @override
+  String get cmd_simple_option_message_id_desc => 'Message ID to target';
+
+  @override
+  String get cmd_simple_option_question => '/question (Text)';
+
+  @override
+  String get cmd_simple_option_question_desc => 'Poll question';
+
+  @override
+  String get cmd_simple_option_role => '/role (Role)';
+
+  @override
+  String get cmd_simple_option_role_desc => 'Target role';
+
+  @override
+  String get cmd_simple_option_user => '/user (User)';
+
+  @override
+  String get cmd_simple_option_user_desc => 'Target user';
+
+  @override
+  String get cmd_simple_option_user_id => '/user_id (Text)';
+
+  @override
+  String get cmd_simple_option_user_id_desc => 'User ID to unban';
+
+  @override
+  String get cmd_simple_poll_answers_hint =>
+      'One answer per line, or use commas. Minimum 2, maximum 10.';
+
+  @override
+  String get cmd_simple_poll_answers_invalid =>
+      'Poll answers must contain between 2 and 10 non-empty choices.';
+
+  @override
+  String get cmd_simple_poll_answers_label => 'Poll answers';
+
+  @override
+  String get cmd_simple_poll_duration_hint => 'From 1 to 168 hours';
+
+  @override
+  String get cmd_simple_poll_duration_invalid =>
+      'Poll duration must be a number between 1 and 168 hours.';
+
+  @override
+  String get cmd_simple_poll_duration_label => 'Poll duration (hours)';
+
+  @override
+  String get cmd_simple_poll_multiselect_desc =>
+      'Users can select more than one choice.';
+
+  @override
+  String get cmd_simple_poll_multiselect_label => 'Allow multiple answers';
+
+  @override
+  String get cmd_simple_poll_settings_desc =>
+      'Defaults used by the generated Create Poll action.';
+
+  @override
+  String get cmd_simple_poll_settings_title => 'Poll settings';
+
+  @override
+  String get cmd_simple_response_desc =>
+      'Message sent back to the user after actions are executed.';
+
+  @override
+  String get cmd_simple_response_embeds_desc =>
+      'Optional embeds sent with the final response.';
+
+  @override
+  String get cmd_simple_response_embeds_title => 'Response embeds';
+
+  @override
+  String get cmd_simple_response_hint => 'Done ✅';
+
+  @override
+  String get cmd_simple_response_title => 'Final response';
+
+  @override
+  String get cmd_simple_response_visibility_ephemeral => 'Ephemeral';
+
+  @override
+  String get cmd_simple_response_visibility_label => 'Response visibility';
+
+  @override
+  String get cmd_simple_response_visibility_public => 'Public';
+
+  @override
+  String get cmd_simple_send_message_required =>
+      'Please fill the action message before saving.';
+
+  @override
+  String get cmd_variables_title => 'Command Variables';
+
+  @override
+  String get code_editor_settings_title => 'Code editor';
+
+  @override
+  String get code_editor_settings_subtitle =>
+      'Theme, font and editing behaviour for the BDFD and JavaScript editors';
+
+  @override
+  String get code_editor_settings_reset_tooltip => 'Reset to defaults';
+
+  @override
+  String get code_editor_settings_reset_title => 'Reset configuration';
+
+  @override
+  String get code_editor_settings_reset_confirm =>
+      'Restore all editor settings to their default values?';
+
+  @override
+  String get code_editor_settings_reset_action => 'Reset';
+
+  @override
+  String get code_editor_settings_reset_done =>
+      'Editor settings restored to defaults';
+
+  @override
+  String get code_editor_settings_preview_title => 'Live preview';
+
+  @override
+  String get code_editor_settings_section_theme_title =>
+      'Syntax highlighting theme';
+
+  @override
+  String get code_editor_settings_section_theme_subtitle =>
+      'Choose the visual style applied to BDFD and JavaScript';
+
+  @override
+  String get code_editor_settings_theme_mode_dark => 'Dark mode';
+
+  @override
+  String get code_editor_settings_theme_mode_light => 'Light mode';
+
+  @override
+  String get code_editor_settings_section_font_title => 'Font & typography';
+
+  @override
+  String get code_editor_settings_section_font_subtitle =>
+      'Adjust the font family and text size';
+
+  @override
+  String get code_editor_settings_font_family => 'Font family';
+
+  @override
+  String get code_editor_settings_font_system => 'System monospace';
+
+  @override
+  String get code_editor_settings_font_jetbrains_mono => 'JetBrains Mono';
+
+  @override
+  String get code_editor_settings_font_fira_code => 'Fira Code';
+
+  @override
+  String get code_editor_settings_font_consolas => 'Consolas';
+
+  @override
+  String get code_editor_settings_font_size => 'Font size';
+
+  @override
+  String get code_editor_settings_line_height => 'Line height (spacing)';
+
+  @override
+  String get code_editor_settings_section_display_title =>
+      'Display & visual guides';
+
+  @override
+  String get code_editor_settings_section_display_subtitle =>
+      'Line numbers, indent guides and word wrap';
+
+  @override
+  String get code_editor_settings_line_numbers => 'Line numbers';
+
+  @override
+  String get code_editor_settings_line_numbers_desc =>
+      'Show numbering in the left gutter';
+
+  @override
+  String get code_editor_settings_indent_guides => 'Indent guides';
+
+  @override
+  String get code_editor_settings_indent_guides_desc =>
+      'Vertical lines to visualize code blocks';
+
+  @override
+  String get code_editor_settings_word_wrap => 'Word wrap';
+
+  @override
+  String get code_editor_settings_word_wrap_desc =>
+      'Wrap long lines instead of scrolling horizontally';
+
+  @override
+  String get code_editor_settings_quick_chars =>
+      'Quick characters bar (Mobile)';
+
+  @override
+  String get code_editor_settings_quick_chars_desc =>
+      'Quick buttons to insert the BDFD prefix, arguments, separators and brackets above the keyboard';
+
+  @override
+  String get code_editor_settings_section_editing_title => 'Editing behaviour';
+
+  @override
+  String get code_editor_settings_section_editing_subtitle =>
+      'Auto-closing and spacing';
+
+  @override
+  String get code_editor_settings_auto_close => 'Automatic symbol closing';
+
+  @override
+  String get code_editor_settings_auto_close_desc =>
+      'Automatically close brackets, braces, parentheses and quotes';
+
+  @override
+  String get code_editor_settings_tab_size => 'Tab size (spaces)';
+
+  @override
+  String get code_editor_settings_tab_size_desc =>
+      'Number of spaces inserted when indenting';
+
+  @override
+  String get command_alias_label => 'Alias';
+
+  @override
+  String get command_alias_hint => '!p';
+
+  @override
+  String get command_alias_help =>
+      'The command also responds to these trigger words.';
+
+  @override
+  String get command_alias_duplicate => 'This alias is already used.';
+
+  @override
+  String command_alias_limit(int max) {
+    return 'Maximum $max aliases.';
+  }
+
+  @override
+  String command_alias_collision(String command) {
+    return 'Already used by the command $command.';
+  }
+
+  @override
+  String get command_awaited_error => 'Error';
+
+  @override
+  String get command_awaited_filter_hint =>
+      'Example: <numeric> or <yes/no/cancel>';
+
+  @override
+  String get command_awaited_filter_label => 'Filter (optional)';
+
+  @override
+  String get command_awaited_name_hint => 'Example: say';
+
+  @override
+  String get command_awaited_name_label => 'Awaited callback name';
+
+  @override
+  String get command_awaited_preset_active => 'Awaited callback preset';
+
+  @override
+  String get command_awaited_preset_button => 'Use Awaited Callback Preset';
+
+  @override
+  String get command_awaited_preset_desc =>
+      'The command name is generated for you and saved as an internal legacy callback.';
+
+  @override
+  String get command_awaited_success => 'Success';
+
+  @override
+  String get command_context_bot_dm => 'Bot DM';
+
+  @override
+  String get command_context_group_dm => 'Group DM / Other';
+
+  @override
+  String get command_context_guild => 'Guild';
+
+  @override
+  String get command_description_length =>
+      'Command description must be at most 100 characters long';
+
+  @override
+  String get command_description_required =>
+      'Please enter a command description';
+
+  @override
+  String get command_edit_raw_name => 'Edit Raw Name';
+
+  @override
+  String get command_error_missing_bot_id =>
+      'Missing bot id for local command save.';
+
+  @override
+  String get command_execution_error =>
+      'An error occurred while executing this command.';
+
+  @override
+  String get command_export_tooltip => 'Export command payload';
+
+  @override
+  String get command_import_tooltip => 'Import command payload';
+
+  @override
+  String get command_discord_rules_message_hint =>
+      'Message commands appear in a message context menu. Name can use spaces and mixed case (1-32 chars). Discord does not use a description.';
+
+  @override
+  String get command_discord_rules_slash_hint =>
+      'Slash commands are registered on Discord. Names must be lowercase (1-32 chars). Description is required (1-100 chars). Combined name, description, and option data cannot exceed 8000 characters.';
+
+  @override
+  String get command_discord_rules_user_hint =>
+      'User commands appear in a user\'s context menu. Name can use spaces and mixed case (1-32 chars). Discord does not use a description.';
+
+  @override
+  String get command_info_desc => 'Basic metadata and availability';
+
+  @override
+  String get command_info_title => 'Command Info';
+
+  @override
+  String get command_integration_guild => 'Guild Install';
+
+  @override
+  String get command_integration_label => 'Where this command can be used';
+
+  @override
+  String get command_integration_user => 'User Install';
+
+  @override
+  String get command_legacy_mode_subtitle =>
+      'Run from chat with your bot prefix (example: !config #channel).';
+
+  @override
+  String get command_legacy_mode_title => 'Enable prefix mode on this command';
+
+  @override
+  String get command_legacy_prefix_desc =>
+      'Triggered by messageCreate using <prefix><command>.';
+
+  @override
+  String get command_legacy_prefix_title => 'Prefix Command Mode';
+
+  @override
+  String get command_legacy_preset_desc =>
+      'Generate an internal awaited callback trigger for a local-only prefix command.';
+
+  @override
+  String get command_legacy_preset_title => 'Prefix preset';
+
+  @override
+  String get command_legacy_response_label => 'Prefix response mode';
+
+  @override
+  String get command_modal_disabled_legacy =>
+      'Modals are disabled in prefix mode.';
+
+  @override
+  String get command_name_generated =>
+      'Generated by the awaited callback preset.';
+
+  @override
+  String get command_name_label => 'Name';
+
+  @override
+  String get command_not_found => 'Command not found';
+
+  @override
+  String get command_options_legacy_params =>
+      'Prefix positional parameters (ordered: required then optional)';
+
+  @override
+  String get command_options_slash_params => 'Slash-command parameters';
+
+  @override
+  String get command_options_title => 'Command Options';
+
+  @override
+  String get command_payload_hint => 'Command payload';
+
+  @override
+  String get command_prefix_rules_hint =>
+      'Prefix commands run from chat messages (e.g. !ping) and are not registered on Discord. Discord slash rules do not apply. Description is optional.';
+
+  @override
+  String get command_permissions_admin_warning =>
+      'Administrator selected: this bypasses other permission checks.';
+
+  @override
+  String get command_permissions_bitfield => 'Calculated Permission Bitfield';
+
+  @override
+  String get command_permissions_bitfield_helper =>
+      'Automatically computed from selected permissions.';
+
+  @override
+  String command_permissions_count(int count) {
+    return '$count permission(s) selected';
+  }
+
+  @override
+  String get command_permissions_label =>
+      'Default Member Permissions (optional)';
+
+  @override
+  String get command_permissions_none =>
+      'No selection (everyone can use command)';
+
+  @override
+  String get command_permissions_tip =>
+      'Tip: leave all unchecked to make the command available to everyone by default.';
+
+  @override
+  String get command_permissions_title => 'Select permissions';
+
+  @override
+  String command_permissions_unknown_bits(String bits) {
+    return 'Warning: unknown permission bits detected from saved data and preserved: $bits';
+  }
+
+  @override
+  String get command_prefix_helper =>
+      'Supports templates and scoped variables (bc_ optional). Example: ((guild.prefix | user.prefix | !))';
+
+  @override
+  String get command_prefix_override_hint =>
+      'Example: ? or ((guild.prefix | !))';
+
+  @override
+  String get command_prefix_override_label => 'Prefix override (optional)';
+
+  @override
+  String get command_response_mode_channel => 'message.channel.send';
+
+  @override
+  String get command_response_mode_reply => 'message.reply';
+
+  @override
+  String get command_scope_label => 'Scope of the command (Contexts)';
+
+  @override
+  String get command_subcommand_workflow_desc =>
+      'Choose which subcommand you are configuring.';
+
+  @override
+  String get command_subcommand_workflow_title => 'SubCommand Workflow';
+
+  @override
+  String command_sync_failed_local(String error) {
+    return 'Saved locally. Discord sync failed: $error';
+  }
+
+  @override
+  String get command_cloud_sync_failed_saved =>
+      'Saved on Discord and locally. Cloud backup failed.';
+
+  @override
+  String get command_cloud_sync_retry => 'Retry sync';
+
+  @override
+  String get cmd_block_editor_empty_title => 'No actions yet';
+
+  @override
+  String get cmd_block_editor_empty_hint =>
+      'Add an action block to define what your command does when it runs.';
+
+  @override
+  String get cmd_block_editor_add_action => 'Add an action';
+
+  @override
+  String cmd_block_editor_action_label(int index) {
+    return 'Action $index';
+  }
+
+  @override
+  String get command_target_subcommand => 'Target subcommand';
+
+  @override
+  String get command_type_label => 'Command Type';
+
+  @override
+  String get command_type_legacy => 'Prefix Command';
+
+  @override
+  String get command_type_locked =>
+      'Command type cannot be changed after creation.';
+
+  @override
+  String get command_type_message => 'Message Command';
+
+  @override
+  String get command_type_slash => 'Slash Command';
+
+  @override
+  String get command_type_user => 'User Command';
+
+  @override
+  String get command_unsaved_confirm =>
+      'You have unsaved changes. Discard them?';
+
+  @override
+  String get command_unsaved_keep => 'Keep editing';
+
+  @override
+  String get command_unsaved_title => 'Unsaved changes';
+
+  @override
+  String get commands_all_folders => 'All folders';
+
+  @override
+  String get commands_create_button => 'Create command';
+
+  @override
+  String get commands_create_folder => 'Create folder';
+
+  @override
+  String commands_create_from_query(String query) {
+    return 'Create command \"$query\"';
+  }
+
+  @override
+  String get commands_delete_folder => 'Delete folder';
+
+  @override
+  String get commands_delete_folder_desc =>
+      'The commands inside this folder will not be deleted, only un-foldered.';
+
+  @override
+  String get commands_empty => 'No commands found';
+
+  @override
+  String commands_error(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get commands_filter_legacy_local => 'Legacy local';
+
+  @override
+  String get commands_filter_template => 'Template';
+
+  @override
+  String get commands_filter_type_label => 'Type';
+
+  @override
+  String get commands_folder_hint => 'Optional folder name';
+
+  @override
+  String get commands_folder_label => 'Folder';
+
+  @override
+  String get commands_move_to_folder => 'Move to folder';
+
+  @override
+  String get commands_new_folder_hint => 'New folder name';
+
+  @override
+  String get commands_no_folder => 'No folder';
+
+  @override
+  String get commands_no_match_filters =>
+      'No commands match the current filters.';
+
+  @override
+  String get commands_remove_from_folder => 'Remove from folder';
+
+  @override
+  String get commands_rename_folder => 'Rename folder';
+
+  @override
+  String get commands_reorder_title => 'Organize commands';
+
+  @override
+  String get commands_search_hint => 'Search commands...';
+
+  @override
+  String get commands_tab => 'Commands';
+
+  @override
+  String get commands_tab_short => 'Cmd';
+
+  @override
+  String get commands_title => 'Commands';
+
+  @override
+  String get common_add_argument => 'Add Argument';
+
+  @override
+  String get common_add_option => 'Add Option';
+
+  @override
+  String get common_add_section => 'Add Section';
+
+  @override
+  String get common_all => 'All';
+
+  @override
+  String get common_apply => 'Apply';
+
+  @override
+  String get common_back => 'Back';
+
+  @override
+  String get common_bot => 'Bot';
+
+  @override
+  String get common_cancel => 'Cancel';
+
+  @override
+  String get common_clear => 'Clear';
+
+  @override
+  String get common_close => 'Close';
+
+  @override
+  String get common_minimize => 'Minimize';
+
+  @override
+  String get common_maximize => 'Maximize';
+
+  @override
+  String get common_restore => 'Restore';
+
+  @override
+  String get common_custom_id => 'Custom ID';
+
+  @override
+  String get common_custom_id_required => 'Custom ID *';
+
+  @override
+  String get common_default => 'Default';
+
+  @override
+  String get common_delete => 'Delete';
+
+  @override
+  String get common_description => 'Description';
+
+  @override
+  String get common_disabled => 'Disabled';
+
+  @override
+  String get common_discard => 'Discard';
+
+  @override
+  String get common_edit => 'Edit';
+
+  @override
+  String get common_enabled => 'Enabled';
+
+  @override
+  String get common_import => 'Import';
+
+  @override
+  String get common_key => 'Key';
+
+  @override
+  String get common_label => 'Label';
+
+  @override
+  String get common_manage_workflows => 'Manage Workflows';
+
+  @override
+  String get common_move_down => 'Move down';
+
+  @override
+  String get common_move_up => 'Move up';
+
+  @override
+  String get common_name => 'Name';
+
+  @override
+  String get common_next => 'Next';
+
+  @override
+  String get common_none => 'None';
+
+  @override
+  String get common_ok => 'OK';
+
+  @override
+  String get common_operator => 'Operator';
+
+  @override
+  String get common_pick => 'Pick';
+
+  @override
+  String get common_placeholder => 'Placeholder';
+
+  @override
+  String get common_refresh => 'Refresh';
+
+  @override
+  String get common_refresh_workflows => 'Refresh workflows';
+
+  @override
+  String get common_remove => 'Remove';
+
+  @override
+  String get common_required => 'Required';
+
+  @override
+  String get common_retry => 'Retry';
+
+  @override
+  String get common_save => 'Save';
+
+  @override
+  String get common_search => 'Search';
+
+  @override
+  String get common_static_options => 'Static Options';
+
+  @override
+  String get common_style => 'Style';
+
+  @override
+  String get common_type => 'Type';
+
+  @override
+  String get common_url => 'URL';
+
+  @override
+  String get common_value => 'Value';
+
+  @override
+  String get common_workflow => 'Workflow';
+
+  @override
+  String get component_accent_color => 'Accent Color (Hex, e.g. FF0000)';
+
+  @override
+  String get component_action_row => 'Action Row';
+
+  @override
+  String get component_add_action_row => 'Add Action Row';
+
+  @override
+  String get component_add_button => 'Add Button';
+
+  @override
+  String get component_add_button_or_select => 'Add Button / Select Menu';
+
+  @override
+  String get component_add_checkbox_option => 'Add Checkbox Option';
+
+  @override
+  String get component_add_child => 'Add Child Component';
+
+  @override
+  String get component_add_media_item => 'Add Media Item';
+
+  @override
+  String get component_add_radio_option => 'Add Radio Option';
+
+  @override
+  String get component_add_root => 'Add Root Component';
+
+  @override
+  String get component_add_text_display => 'Add Text Display';
+
+  @override
+  String get component_add_tooltip => 'Add Component';
+
+  @override
+  String get component_block_label_style => 'Style';
+
+  @override
+  String get component_block_workflow => 'Workflow';
+
+  @override
+  String get component_button_default_label => 'Button';
+
+  @override
+  String get component_checkbox_options => 'Checkbox Options';
+
+  @override
+  String get component_checked_by_default => 'Checked by default';
+
+  @override
+  String get component_choose_color => 'Choose Color';
+
+  @override
+  String get component_component_to_wrap => 'Component to Wrap:';
+
+  @override
+  String get component_configure_click_actions => 'Configure Click Actions';
+
+  @override
+  String get component_configure_select_actions => 'Configure Select Actions';
+
+  @override
+  String get component_custom_id => 'Custom ID';
+
+  @override
+  String get component_custom_id_required => 'Custom ID *';
+
+  @override
+  String get component_default_choice_label => 'Choice';
+
+  @override
+  String get component_default_option_label => 'Option';
+
+  @override
+  String get component_disabled_hint =>
+      'Enter true/false or a variable like ((user.bc_isVip))';
+
+  @override
+  String get component_empty_option => 'Empty';
+
+  @override
+  String get component_file_url => 'File URL';
+
+  @override
+  String get component_label => 'Label';
+
+  @override
+  String get component_label_title => 'Label Title';
+
+  @override
+  String get component_markdown_content => 'Markdown Content';
+
+  @override
+  String get component_max_selections => 'Max Selections';
+
+  @override
+  String get component_media_url => 'Image / Video URL';
+
+  @override
+  String get component_media_urls => 'Media URLs';
+
+  @override
+  String get component_min_selections => 'Min Selections';
+
+  @override
+  String get component_new_checkbox => 'New Checkbox';
+
+  @override
+  String get component_new_option => 'New Option';
+
+  @override
+  String get component_new_radio => 'New Radio';
+
+  @override
+  String get component_not_implemented => 'Editor not implemented yet';
+
+  @override
+  String get component_on_click_workflow => 'On click, the workflow';
+
+  @override
+  String get component_on_select_workflow => 'On select, the workflow';
+
+  @override
+  String get component_options => 'Options';
+
+  @override
+  String get component_pick_accent_color => 'Pick Accent Color';
+
+  @override
+  String get component_placeholder => 'Placeholder';
+
+  @override
+  String get component_radio_options => 'Radio Options';
+
+  @override
+  String get component_remove_confirm =>
+      'This component will be removed from the layout. Continue?';
+
+  @override
+  String get component_remove_row_title => 'Remove action row';
+
+  @override
+  String get component_remove_title => 'Remove component';
+
+  @override
+  String get component_section_accessory => 'Accessory Node (Optional)';
+
+  @override
+  String get component_section_text_displays => 'Text Displays';
+
+  @override
+  String get component_selection_range => 'Selection Range';
+
+  @override
+  String get component_spacing_large => 'Large Spacing';
+
+  @override
+  String get component_spacing_small => 'Small Spacing';
+
+  @override
+  String get component_style => 'Style';
+
+  @override
+  String get component_thumbnail_url => 'Thumbnail URL';
+
+  @override
+  String get component_unknown_component => 'Unknown component';
+
+  @override
+  String get component_url => 'URL';
+
+  @override
+  String get component_validation_required => 'Required';
+
+  @override
+  String get component_value_hint => 'Component value hint';
+
+  @override
+  String get component_visible_divider => 'Visible Divider Line';
+
+  @override
+  String get component_workflow_args_hint =>
+      'Example: ticketId = ((opts.ticket))';
+
+  @override
+  String get component_workflow_args_title => 'Workflow Call Arguments';
+
+  @override
+  String get component_workflow_click_hint =>
+      'Saved workflow name to run on click';
+
+  @override
+  String get component_workflow_optional => 'Call Workflow (optional)';
+
+  @override
+  String get component_workflow_select_hint =>
+      'Saved workflow name to run on selection';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get dart_editor_empty =>
+      'Empty script — start typing to see Dart diagnostics.';
+
+  @override
+  String get dart_editor_tap_hint => 'Tap to open Dart editor';
+
+  @override
+  String get dart_editor_title => 'Dart Editor';
+
+  @override
+  String get dashboard_analysis_period => 'Analysis Period';
+
+  @override
+  String dashboard_error(String error) {
+    return 'Could not load stats: $error';
+  }
+
+  @override
+  String get dashboard_error_rate => 'Error rate';
+
+  @override
+  String get dashboard_execution_health_title => 'Execution health';
+
+  @override
+  String dashboard_executions(int count) {
+    return '$count executions';
+  }
+
+  @override
+  String get dashboard_failed_commands => 'Failed';
+
+  @override
+  String get dashboard_loading => 'Loading stats...';
+
+  @override
+  String get dashboard_no_data =>
+      'No command usage data yet. Run your bot to start tracking.';
+
+  @override
+  String get dashboard_p50_latency => 'Latency p50';
+
+  @override
+  String get dashboard_p95_latency => 'Latency p95';
+
+  @override
+  String get dashboard_period_24h => 'Last 24h';
+
+  @override
+  String get dashboard_period_30d => 'Last 30 days';
+
+  @override
+  String get dashboard_period_7d => 'Last 7 days';
+
+  @override
+  String get dashboard_premium_analytics_desc =>
+      'Unlock error rate, latency percentiles, and locale insights.';
+
+  @override
+  String get dashboard_premium_analytics_title => 'Premium analytics';
+
+  @override
+  String get dashboard_refresh_sources_tooltip => 'Refresh execution servers';
+
+  @override
+  String get dashboard_requires_runner =>
+      'Connect to a runner to see command usage stats.';
+
+  @override
+  String dashboard_selected_period_total(int count) {
+    return '$count in selected period';
+  }
+
+  @override
+  String get dashboard_single_runner_notice =>
+      'Stats shown are from the currently configured runner only. If you run bots on multiple runners, this view may be incomplete.';
+
+  @override
+  String get dashboard_timeline => 'Usage over time';
+
+  @override
+  String get dashboard_title => 'Dashboard';
+
+  @override
+  String get dashboard_top_commands => 'Top commands';
+
+  @override
+  String get dashboard_top_locales => 'Top locales';
+
+  @override
+  String get dashboard_total => 'Total commands';
+
+  @override
+  String get debug_replay_clear => 'Clear replays';
+
+  @override
+  String get debug_replay_clear_confirm =>
+      'All recorded replays will be deleted. Continue?';
+
+  @override
+  String get debug_replay_clear_title => 'Clear replays';
+
+  @override
+  String get debug_replay_duration_label => 'DURATION';
+
+  @override
+  String get debug_replay_empty_capturing =>
+      'Capturing… Run a command to record a replay.';
+
+  @override
+  String get debug_replay_empty_idle =>
+      'Capture is off. Enable it and run a command to record a replay.';
+
+  @override
+  String debug_replay_loop_info(int depth, int iteration) {
+    return 'Loop depth $depth, iteration $iteration';
+  }
+
+  @override
+  String get debug_replay_overview => 'Overview';
+
+  @override
+  String get debug_replay_pause => 'Pause';
+
+  @override
+  String get debug_replay_play => 'Play';
+
+  @override
+  String get debug_replay_premium_desc =>
+      'Record and replay your command executions step by step. See exactly what each action did, how long it took, and where errors occurred.';
+
+  @override
+  String get debug_replay_premium_title => 'Visual Debugger Replay';
+
+  @override
+  String get debug_replay_result_empty => '(no result)';
+
+  @override
+  String get debug_replay_result_label => 'RESULT';
+
+  @override
+  String get debug_replay_start_capture => 'Enable capture';
+
+  @override
+  String debug_replay_start_offset(int ms) {
+    return '+$ms ms from start';
+  }
+
+  @override
+  String get debug_replay_step_back => 'Previous step';
+
+  @override
+  String get debug_replay_step_first => 'First step';
+
+  @override
+  String get debug_replay_step_forward => 'Next step';
+
+  @override
+  String get debug_replay_step_last => 'Last step';
+
+  @override
+  String get debug_replay_stop_capture => 'Disable capture';
+
+  @override
+  String get debug_replay_title => 'Debugger Replay';
+
+  @override
+  String get debug_replay_variables_empty => '(no variables)';
+
+  @override
+  String get debug_replay_variables_label => 'VARIABLES';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String download_completed(String id) {
+    return 'Download completed: $id';
+  }
+
+  @override
+  String download_failed(String error) {
+    return 'Download failed: $error';
+  }
+
+  @override
+  String get download_legacy_backup => 'Download completed (legacy backup)';
+
+  @override
+  String get drive_legacy_snapshot => 'Legacy snapshot';
+
+  @override
+  String get drive_manual_backup => 'Manual backup';
+
+  @override
+  String get edit_shell_all_saved => 'All changes saved';
+
+  @override
+  String get edit_shell_command_body => 'Command body';
+
+  @override
+  String get edit_shell_command_settings => 'Command settings';
+
+  @override
+  String get edit_shell_command_settings_desc =>
+      'Metadata, availability, permissions, and folder placement.';
+
+  @override
+  String get edit_shell_local_draft => 'Local draft';
+
+  @override
+  String get edit_shell_local_only => 'Local-only';
+
+  @override
+  String edit_shell_routes_count(int count) {
+    return '$count route(s)';
+  }
+
+  @override
+  String get edit_shell_save_changes => 'Save changes';
+
+  @override
+  String get edit_shell_subtitle =>
+      'Settings and inputs are at the top. Actions and reply follow below.';
+
+  @override
+  String get edit_shell_trigger_inputs => 'Trigger & Inputs';
+
+  @override
+  String get edit_shell_trigger_inputs_desc =>
+      'Adjust command options, trigger behavior, and execution mode.';
+
+  @override
+  String get edit_shell_type_command => 'Command';
+
+  @override
+  String get edit_shell_type_legacy => 'Legacy command';
+
+  @override
+  String get edit_shell_type_message => 'Message command';
+
+  @override
+  String get edit_shell_type_slash => 'Slash command';
+
+  @override
+  String get edit_shell_type_user => 'User command';
+
+  @override
+  String get edit_shell_unsaved => 'Unsaved changes';
+
+  @override
+  String get edit_shell_untitled_command => 'Untitled command';
+
+  @override
+  String get editor_sidebar_collapse => 'Collapse sidebar';
+
+  @override
+  String get editor_sidebar_expand => 'Expand sidebar';
+
+  @override
+  String get embed_add_field => 'Add Field';
+
+  @override
+  String get embed_add_section => 'Add Section';
+
+  @override
+  String get embed_add_tooltip => 'Add embed';
+
+  @override
+  String get embed_color_picker_title => 'Pick embed color';
+
+  @override
+  String get embed_delete_confirm => 'This embed will be removed. Continue?';
+
+  @override
+  String get embed_delete_title => 'Delete embed';
+
+  @override
+  String embed_empty_message(int max) {
+    return 'No embeds. You can add up to $max embeds.';
+  }
+
+  @override
+  String get embed_field_delete_confirm =>
+      'This field will be removed from the embed. Continue?';
+
+  @override
+  String get embed_field_delete_title => 'Delete field';
+
+  @override
+  String embed_field_number(int index) {
+    return 'Field #$index';
+  }
+
+  @override
+  String get embed_fields_empty => 'No fields yet.';
+
+  @override
+  String embed_fields_header(int count) {
+    return 'Fields ($count/25)';
+  }
+
+  @override
+  String get embed_label_author_icon => 'Author Icon URL';
+
+  @override
+  String get embed_label_author_name => 'Author Name';
+
+  @override
+  String get embed_label_author_url => 'Author URL';
+
+  @override
+  String get embed_label_color => 'Color (int or #hex)';
+
+  @override
+  String get embed_label_dynamic_fields => 'Dynamic Fields Template';
+
+  @override
+  String get embed_label_footer_icon => 'Footer Icon URL';
+
+  @override
+  String get embed_label_footer_text => 'Footer Text';
+
+  @override
+  String get embed_label_image_url => 'Image URL';
+
+  @override
+  String get embed_label_inline => 'Inline';
+
+  @override
+  String get embed_label_thumbnail_url => 'Thumbnail URL';
+
+  @override
+  String get embed_label_timestamp => 'Timestamp (ISO8601)';
+
+  @override
+  String get embed_checkbox_current_timestamp => 'Current Timestamp';
+
+  @override
+  String get embed_hint_timestamp =>
+      'Shows the current time when the command runs. For Unix seconds in text, use ((timestamp)) in message fields.';
+
+  @override
+  String get embed_label_title => 'Title';
+
+  @override
+  String get embed_label_url => 'URL';
+
+  @override
+  String embed_number(int index) {
+    return 'Embed #$index';
+  }
+
+  @override
+  String embed_response_header(int count, int max) {
+    return 'Response Embeds ($count/$max)';
+  }
+
+  @override
+  String get embed_section_author => 'Author';
+
+  @override
+  String get embed_section_color => 'Color';
+
+  @override
+  String get embed_section_dynamic_fields => 'Dynamic Fields';
+
+  @override
+  String get embed_section_fields => 'Fields';
+
+  @override
+  String get embed_section_footer => 'Footer';
+
+  @override
+  String get embed_section_media => 'Media';
+
+  @override
+  String get embed_section_timestamp => 'Timestamp';
+
+  @override
+  String emojis_delete_confirm_body(String name) {
+    return 'Delete :$name: ? This action cannot be undone.';
+  }
+
+  @override
+  String get emojis_delete_confirm_title => 'Delete Emoji';
+
+  @override
+  String emojis_delete_error(String error) {
+    return 'Delete failed: $error';
+  }
+
+  @override
+  String get emojis_delete_tooltip => 'Delete';
+
+  @override
+  String get emojis_empty => 'No emojis yet. Upload one to get started.';
+
+  @override
+  String get emojis_loading_error => 'Failed to load emojis';
+
+  @override
+  String emojis_rename_error(String error) {
+    return 'Rename failed: $error';
+  }
+
+  @override
+  String get emojis_rename_hint => 'New name';
+
+  @override
+  String get emojis_rename_title => 'Rename Emoji';
+
+  @override
+  String get emojis_rename_tooltip => 'Rename';
+
+  @override
+  String get emojis_tab => 'Emojis';
+
+  @override
+  String get emojis_tab_short => 'Emoji';
+
+  @override
+  String get emojis_title => 'Application Emojis';
+
+  @override
+  String get emojis_upload => 'Upload Emoji';
+
+  @override
+  String emojis_upload_error(String error) {
+    return 'Upload failed: $error';
+  }
+
+  @override
+  String get emojis_upload_name_hint => 'Emoji name (letters, numbers, _)';
+
+  @override
+  String get emojis_upload_pick_image => 'Pick Image';
+
+  @override
+  String get error => 'Error';
+
+  @override
+  String get error_delete_messages_failed => 'Failed to delete messages.';
+
+  @override
+  String get error_invalid_channel_type => 'Channel is not a text channel.';
+
+  @override
+  String get error_invalid_count => 'Count must be greater than 0.';
+
+  @override
+  String get error_network_timeout => 'The action timed out. Please try again.';
+
+  @override
+  String error_with_details(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get export_button => 'Export ZIP';
+
+  @override
+  String get export_commands => 'Commands';
+
+  @override
+  String export_failed(String error) {
+    return 'Export failed: $error';
+  }
+
+  @override
+  String get export_file_picker_busy => 'File picker is already open';
+
+  @override
+  String get export_global_variables => 'Variables';
+
+  @override
+  String get export_import_title => 'Export / Import';
+
+  @override
+  String get export_section_desc =>
+      'Export selected sections of your bot as a ZIP file. The bot token is never included.';
+
+  @override
+  String get export_section_title => 'Export';
+
+  @override
+  String get export_status => 'Status & Activities';
+
+  @override
+  String get export_workflows => 'Workflows';
+
+  @override
+  String get globals_add => 'Add Variable';
+
+  @override
+  String get globals_add_global => 'Add a whole-bot variable';
+
+  @override
+  String get globals_add_scoped => 'Add a per-server / member variable';
+
+  @override
+  String get globals_copy_value => 'Copy value';
+
+  @override
+  String globals_delete_confirm(String key) {
+    return 'Delete \"$key\"?';
+  }
+
+  @override
+  String get globals_delete_title => 'Delete Variable';
+
+  @override
+  String get globals_dialog_global_desc =>
+      'A single value for the whole bot, read and changed by every command and server.';
+
+  @override
+  String globals_dialog_ref_preview(String ref) {
+    return 'Usage: \$getVar[$ref]';
+  }
+
+  @override
+  String globals_dialog_scoped_desc(String scope) {
+    return 'This variable keeps a separate value for: $scope.';
+  }
+
+  @override
+  String get globals_edit => 'Edit Variable';
+
+  @override
+  String get globals_edit_global => 'Edit variable (whole bot)';
+
+  @override
+  String get globals_edit_scoped => 'Edit variable (per server, member…)';
+
+  @override
+  String get globals_empty => 'No whole-bot variables yet';
+
+  @override
+  String get globals_empty_subtitle =>
+      'A whole-bot variable keeps a single value that every command can read and change.';
+
+  @override
+  String get globals_help_global =>
+      'A single value for the whole bot. Read with \$getVar[name].';
+
+  @override
+  String get globals_help_scoped =>
+      'A separate value per server, member, user, channel or message: the bot picks the right one automatically depending on who runs the command.';
+
+  @override
+  String get globals_key => 'Key';
+
+  @override
+  String get globals_key_hint => 'e.g. prefix, level, welcome_message';
+
+  @override
+  String get globals_mode_global => 'Whole bot';
+
+  @override
+  String get globals_mode_scoped => 'Per server, member…';
+
+  @override
+  String get globals_no_default => 'No default value';
+
+  @override
+  String get globals_refresh => 'Refresh';
+
+  @override
+  String get globals_retry => 'Retry';
+
+  @override
+  String get globals_scope_channel => 'Each channel';
+
+  @override
+  String get globals_scope_guild => 'Each server';
+
+  @override
+  String get globals_scope_guildMember => 'Each member (per server)';
+
+  @override
+  String get globals_scope_message => 'Each message';
+
+  @override
+  String get globals_scope_user => 'Each user (all servers)';
+
+  @override
+  String get globals_search => 'Search variables…';
+
+  @override
+  String get globals_source_local => 'Local';
+
+  @override
+  String globals_source_runner(String name) {
+    return 'Runner: $name';
+  }
+
+  @override
+  String get globals_tab => 'Variables';
+
+  @override
+  String get globals_tab_short => 'Vars';
+
+  @override
+  String get globals_title => 'Variables';
+
+  @override
+  String get globals_scope_global => 'Whole bot';
+
+  @override
+  String get globals_audience_title => 'Who is this variable for?';
+
+  @override
+  String get globals_audience_global_desc =>
+      'A single value for the whole bot (e.g. the number of commands run).';
+
+  @override
+  String get globals_audience_guild_desc =>
+      'One value per server (e.g. the server prefix).';
+
+  @override
+  String get globals_audience_guildMember_desc =>
+      'One value per member and per server (e.g. their warnings or XP on this server).';
+
+  @override
+  String get globals_audience_user_desc =>
+      'One value per user, shared across all servers (e.g. their profile).';
+
+  @override
+  String get globals_audience_channel_desc =>
+      'One value per channel (e.g. the channel mode).';
+
+  @override
+  String get globals_audience_message_desc =>
+      'One value per message (e.g. the votes on a message).';
+
+  @override
+  String get globals_section_global => 'Whole bot';
+
+  @override
+  String get globals_section_scoped => 'Per server, member…';
+
+  @override
+  String get globals_value => 'Value';
+
+  @override
+  String get globals_value_auto_type_hint =>
+      'Value is auto-typed (number, boolean, JSON).';
+
+  @override
+  String get guilds_empty_state =>
+      'The bot is not in any server.\nInvite it to a server to see it here.';
+
+  @override
+  String guilds_leave_confirm(String name) {
+    return 'Leave \"$name\"?\nThe bot will be removed from this server. You can re-invite it later from the Discord developer portal.';
+  }
+
+  @override
+  String guilds_leave_failed(String error) {
+    return 'Failed to leave: $error';
+  }
+
+  @override
+  String get guilds_leave_title => 'Leave Server';
+
+  @override
+  String get guilds_leave_tooltip => 'Leave';
+
+  @override
+  String guilds_left_success(String name) {
+    return 'Left \"$name\".';
+  }
+
+  @override
+  String guilds_members_count_other(int count) {
+    return '~$count members';
+  }
+
+  @override
+  String get guilds_owner_label => '👑 Owner';
+
+  @override
+  String guilds_server_count_other(int count) {
+    return '$count servers';
+  }
+
+  @override
+  String get guilds_tab => 'Servers';
+
+  @override
+  String get guilds_tab_short => 'Servers';
+
+  @override
+  String get hint_use_variables => 'Use variables/templates if needed';
+
+  @override
+  String get home_add_time => 'Add Time';
+
+  @override
+  String get home_add_time_mobile_only =>
+      'Rewarded ads are watched in the mobile app; credited time counts everywhere.';
+
+  @override
+  String get home_hosting_unlimited_overline => 'Hosting included';
+
+  @override
+  String get home_hosting_unlimited_headline =>
+      'Unlimited with your subscription';
+
+  @override
+  String get home_hosting_remaining_overline => 'Time left';
+
+  @override
+  String get home_overline => 'MY PROJECTS';
+
+  @override
+  String get home_create_bot_title => 'Create a bot';
+
+  @override
+  String get home_create_bot_subtitle => 'Your Discord bot in two clicks';
+
+  @override
+  String home_active_on_servers_one(int count) {
+    return 'Active on $count server';
+  }
+
+  @override
+  String home_active_on_servers_other(int count) {
+    return 'Active on $count servers';
+  }
+
+  @override
+  String get home_synced_active => 'Synced & Active';
+
+  @override
+  String get home_empty_support_btn => 'Discord Support';
+
+  @override
+  String get home_empty_support_hint => 'Need help? Join our community!';
+
+  @override
+  String get home_foreground_service_not_started =>
+      'The foreground service did not start.';
+
+  @override
+  String get home_hosting_expired => 'Hosting expired';
+
+  @override
+  String home_hosting_time_left(String time) {
+    return 'Hosting left: $time';
+  }
+
+  @override
+  String home_hosting_banked(String time) {
+    return 'Banked: $time';
+  }
+
+  @override
+  String home_hosting_expires_today(String time) {
+    return 'Expires today at $time';
+  }
+
+  @override
+  String home_hosting_expires_tomorrow(String time) {
+    return 'Expires tomorrow at $time';
+  }
+
+  @override
+  String get home_hosting_time_preserved =>
+      'Time is preserved while the bot is stopped.';
+
+  @override
+  String get home_hosting_time_preserved_overline => 'Time preserved';
+
+  @override
+  String get home_hosting_expiration_expected => 'Expected expiration';
+
+  @override
+  String home_hosting_expires_at(String date, String time) {
+    return '$date at $time';
+  }
+
+  @override
+  String get home_hosting_status_active_short => 'Active session';
+
+  @override
+  String get home_hosting_status_paused_short => 'Banked time';
+
+  @override
+  String get home_hosting_total => 'Total time';
+
+  @override
+  String get home_hosting_status_active => 'Active session (online)';
+
+  @override
+  String get home_hosting_status_paused => 'Banked time (paused)';
+
+  @override
+  String get home_hosting_ad_history => 'Ad History';
+
+  @override
+  String get home_hosting_ad_rewards_history_title => 'Ad Rewards History';
+
+  @override
+  String get home_hosting_ad_history_error => 'Failed to load ad history';
+
+  @override
+  String get home_hosting_ad_history_empty =>
+      'No recent ad rewards recorded for this bot.';
+
+  @override
+  String get home_log_desktop_stop_requested => 'Desktop bot stop requested';
+
+  @override
+  String get home_log_start_requested => 'Bot start requested';
+
+  @override
+  String get home_log_stop_requested => 'Bot stop requested';
+
+  @override
+  String get home_logs_tooltip => 'View Logs';
+
+  @override
+  String get home_manage => 'Manage';
+
+  @override
+  String get home_notification_permission_required =>
+      'Notification permission is required to start the bot.';
+
+  @override
+  String home_server_count_one(int count) {
+    return '$count server';
+  }
+
+  @override
+  String home_server_count_other(int count) {
+    return '$count servers';
+  }
+
+  @override
+  String get home_start => 'Start';
+
+  @override
+  String bot_start_target_title(String bot) {
+    return 'Where should $bot start?';
+  }
+
+  @override
+  String get bot_start_local_title => 'Start locally (this device)';
+
+  @override
+  String get bot_start_local_desc =>
+      'Free, consumes nothing. The bot stops when you close the app.';
+
+  @override
+  String get bot_start_server_title => 'Start on Bot Creator Server';
+
+  @override
+  String get bot_start_server_desc =>
+      'Uses your hosting minutes (unlimited with PREMIUM). The bot runs without your device.';
+
+  @override
+  String get bot_start_server_reason_platform =>
+      'This device cannot drive remote hosting.';
+
+  @override
+  String get bot_start_server_reason_no_account =>
+      'No account is connected on this device.';
+
+  @override
+  String get bot_start_server_reason_cloud_disabled =>
+      'Cloud hosting is not enabled on this server.';
+
+  @override
+  String get bot_start_server_reason_no_minutes =>
+      'No hosting minutes left: watch a rewarded ad from the mobile app, or go Premium.';
+
+  @override
+  String get home_start_ads => 'Start (Watch Ad)';
+
+  @override
+  String get home_start_premium => 'Start (Premium)';
+
+  @override
+  String get home_status_offline => 'Offline';
+
+  @override
+  String get home_status_online => 'Online';
+
+  @override
+  String get home_stop => 'Stop';
+
+  @override
+  String get home_sync_failed => 'Sync failed';
+
+  @override
+  String get home_tab => 'Home';
+
+  @override
+  String get home_time_added => 'Succesfully added Time';
+
+  @override
+  String home_token_missing(String botName) {
+    return 'Token not found for $botName';
+  }
+
+  @override
+  String get home_unknown_app => 'Unknown';
+
+  @override
+  String get image_editor_create => 'Create';
+
+  @override
+  String get image_editor_create_canvas => 'Create Image Canvas';
+
+  @override
+  String image_editor_edit_canvas(int count) {
+    return 'Edit Canvas ($count ops)';
+  }
+
+  @override
+  String get image_editor_open => 'Open Editor';
+
+  @override
+  String get import_button => 'Import';
+
+  @override
+  String import_failed(String error) {
+    return 'Import failed: $error';
+  }
+
+  @override
+  String get import_nothing => 'Nothing imported.';
+
+  @override
+  String get import_overwrite => 'Overwrite';
+
+  @override
+  String import_parse_failed(String error) {
+    return 'Failed to parse ZIP: $error';
+  }
+
+  @override
+  String get import_pick_file => 'Select ZIP file';
+
+  @override
+  String get import_section_desc =>
+      'Import a previously exported ZIP file. Conflicts can be resolved per item.';
+
+  @override
+  String get import_section_title => 'Import';
+
+  @override
+  String get import_skip => 'Skip';
+
+  @override
+  String import_summary_commands_imported(int count) {
+    return '$count command(s) imported';
+  }
+
+  @override
+  String import_summary_commands_skipped(int count) {
+    return '$count command(s) skipped';
+  }
+
+  @override
+  String get import_summary_status_imported => 'status imported';
+
+  @override
+  String get import_summary_variables_imported => 'variables imported';
+
+  @override
+  String import_summary_workflows_imported(int count) {
+    return '$count workflow(s) imported';
+  }
+
+  @override
+  String import_summary_workflows_skipped(int count) {
+    return '$count workflow(s) skipped';
+  }
+
+  @override
+  String js_diag_unclosed_opening(String opening, String line) {
+    return 'Unclosed “$opening” opened on line $line.';
+  }
+
+  @override
+  String js_diag_unexpected_closing(String closing) {
+    return 'Unexpected closing “$closing”.';
+  }
+
+  @override
+  String get js_diag_unterminated_comment => 'Unterminated block comment.';
+
+  @override
+  String get js_diag_unterminated_string => 'Unterminated string literal.';
+
+  @override
+  String get js_diag_unterminated_template => 'Unterminated template literal.';
+
+  @override
+  String get js_editor_auto_indent => '• Smart auto indentation on Enter';
+
+  @override
+  String get js_editor_hint => '// Write your JavaScript bot command here...';
+
+  @override
+  String get js_editor_diagnostics_clean => 'No syntax problem detected.';
+
+  @override
+  String get js_editor_empty =>
+      'Empty script — start typing to see diagnostics.';
+
+  @override
+  String get js_editor_includes => 'Includes:';
+
+  @override
+  String get js_editor_indent_guides => '• Live indentation guides';
+
+  @override
+  String get js_editor_quick_keys =>
+      '• Mobile quick-keys for JavaScript symbols';
+
+  @override
+  String get js_editor_segmented_label => 'JS';
+
+  @override
+  String get js_editor_subtitle => 'Write custom JavaScript for this command';
+
+  @override
+  String get js_editor_title => 'JavaScript Editor';
+
+  @override
+  String get js_editor_ux_title => 'Editor UX';
+
+  @override
+  String legacy_bdfd_run_failed(String command, String error) {
+    return 'Failed to run BDFD script for command \"$command\": $error';
+  }
+
+  @override
+  String get legacy_prefix_mode_desc =>
+      'Handle commands from messageCreate using <prefix><command>.';
+
+  @override
+  String get legacy_prefix_mode_subtitle =>
+      'Uses positional options (example: !config #channel).';
+
+  @override
+  String get legacy_prefix_mode_title => 'Legacy Prefix Mode';
+
+  @override
+  String get legacy_prefix_override_hint =>
+      'Example: ? or ((guild.prefix | !))';
+
+  @override
+  String get legacy_prefix_override_label => 'Prefix override (optional)';
+
+  @override
+  String get legacy_response_banner_body =>
+      'Some commands still use the old response format. Open them in the editor and re-save to activate the new format.';
+
+  @override
+  String get legacy_response_banner_dismiss => 'Dismiss';
+
+  @override
+  String get legacy_response_banner_migrate => 'Migrate all';
+
+  @override
+  String get legacy_response_banner_migrate_failed => 'Migration failed';
+
+  @override
+  String legacy_response_banner_migrated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count commands migrated',
+      one: '1 command migrated',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get legacy_response_banner_migrated_none =>
+      'No commands need migration';
+
+  @override
+  String get legacy_response_banner_migrating => 'Migrating...';
+
+  @override
+  String get legacy_response_banner_short_body =>
+      'Open and re-save your commands to migrate to the new format.';
+
+  @override
+  String get legacy_response_banner_short_title => 'Command update available';
+
+  @override
+  String get legacy_response_banner_title => 'Command response format update';
+
+  @override
+  String get legacy_response_mode_label => 'Legacy response mode';
+
+  @override
+  String get local_command_awaited_desc =>
+      'Awaited callback presets stay local because they are internal runtime callbacks.';
+
+  @override
+  String get local_command_desc =>
+      'Store command only in Bot Creator. You can dynamically register it on Specific Guilds using BDFD \$registerGuildCommands.';
+
+  @override
+  String get local_command_title =>
+      'Local Command (Do not register on Discord)';
+
+  @override
+  String logs_runner_source(String name) {
+    return 'Logs from: $name';
+  }
+
+  @override
+  String get marketplace_about => 'About';
+
+  @override
+  String get marketplace_add => 'Add';
+
+  @override
+  String get marketplace_api_unavailable => 'API client not available';
+
+  @override
+  String get marketplace_apply => 'Apply Template';
+
+  @override
+  String marketplace_apply_error(Object error) {
+    return 'Failed to apply: $error';
+  }
+
+  @override
+  String get marketplace_apply_success => 'Template applied successfully!';
+
+  @override
+  String marketplace_apply_success_skipped(
+    Object addedCount,
+    Object skippedCount,
+  ) {
+    return '$addedCount command(s) added, $skippedCount skipped (duplicates).';
+  }
+
+  @override
+  String get marketplace_applying => 'Applying...';
+
+  @override
+  String marketplace_by_author(Object author, Object version) {
+    return 'by $author · v$version';
+  }
+
+  @override
+  String get marketplace_cancel => 'Cancel';
+
+  @override
+  String marketplace_command_preview_actions(Object count) {
+    return '$count actions';
+  }
+
+  @override
+  String get marketplace_command_preview_no_actions => 'No actions';
+
+  @override
+  String marketplace_command_preview_options(Object count) {
+    return '$count options';
+  }
+
+  @override
+  String get marketplace_command_preview_type_message => 'Message context menu';
+
+  @override
+  String get marketplace_command_preview_type_slash => 'Slash command';
+
+  @override
+  String get marketplace_command_preview_type_user => 'User context menu';
+
+  @override
+  String marketplace_commands_label(Object count) {
+    return 'Commands ($count)';
+  }
+
+  @override
+  String get marketplace_config_hint =>
+      'Fill in the required values before applying this template.';
+
+  @override
+  String get marketplace_config_required => 'Configuration Required';
+
+  @override
+  String marketplace_conflict_apply_choice(Object count) {
+    return 'Apply ($count template)';
+  }
+
+  @override
+  String get marketplace_conflict_keep_local => 'Keep Local';
+
+  @override
+  String marketplace_conflict_local_info(Object count) {
+    return 'Local ($count actions)';
+  }
+
+  @override
+  String get marketplace_conflict_subtitle =>
+      'Some template commands already exist. Choose which version to keep:';
+
+  @override
+  String marketplace_conflict_template_info(Object count) {
+    return 'Template ($count actions)';
+  }
+
+  @override
+  String get marketplace_conflict_title => 'Command Conflicts';
+
+  @override
+  String get marketplace_conflict_use_template => 'Use Template';
+
+  @override
+  String get marketplace_connect_discord => 'Connect with Discord';
+
+  @override
+  String get marketplace_connect_manager =>
+      'Connect to Manager to access the Marketplace.';
+
+  @override
+  String get marketplace_connect_publish =>
+      'Connect to Manager to publish a template.';
+
+  @override
+  String marketplace_count(Object count) {
+    return '$count template(s)';
+  }
+
+  @override
+  String get marketplace_delete => 'Delete';
+
+  @override
+  String marketplace_delete_confirm(Object name) {
+    return 'Are you sure you want to delete \"$name\"? This cannot be undone.';
+  }
+
+  @override
+  String get marketplace_delete_confirm_title => 'Delete Template';
+
+  @override
+  String get marketplace_delete_success => 'Template deleted.';
+
+  @override
+  String get marketplace_edit => 'Edit';
+
+  @override
+  String get marketplace_edit_hint =>
+      'To edit, re-publish from your bot\'s command list with the same name.';
+
+  @override
+  String get marketplace_empty => 'No templates yet.\nBe the first to publish!';
+
+  @override
+  String marketplace_load_error(Object error) {
+    return 'Failed to load data: $error';
+  }
+
+  @override
+  String get marketplace_login_hint =>
+      'You must connect your Discord account to access the Marketplace.';
+
+  @override
+  String get marketplace_login_instructions =>
+      'Please authenticate via Discord to continue using the Marketplace.';
+
+  @override
+  String get marketplace_login_required => 'Discord connection required';
+
+  @override
+  String get marketplace_login_success => 'Discord connected successfully!';
+
+  @override
+  String get marketplace_login_title => 'Connect to Manager';
+
+  @override
+  String marketplace_more(Object count) {
+    return '+$count more';
+  }
+
+  @override
+  String get marketplace_my_templates => 'My Templates';
+
+  @override
+  String marketplace_no_results(Object query) {
+    return 'No templates match \"$query\"';
+  }
+
+  @override
+  String get marketplace_no_variables => 'No variables defined.';
+
+  @override
+  String get marketplace_publish_add_variable => 'Add custom variable';
+
+  @override
+  String get marketplace_publish_add_variable_title => 'Add Variable';
+
+  @override
+  String get marketplace_publish_back => 'Back';
+
+  @override
+  String get marketplace_publish_button => 'Publish';
+
+  @override
+  String get marketplace_publish_category_hint => 'e.g. ai, moderation, fun';
+
+  @override
+  String get marketplace_publish_category_label => 'Category';
+
+  @override
+  String marketplace_publish_commands(Object count) {
+    return 'Commands ($count)';
+  }
+
+  @override
+  String get marketplace_publish_desc_hint =>
+      'A one-line summary shown in the marketplace';
+
+  @override
+  String get marketplace_publish_desc_label => 'Short description';
+
+  @override
+  String get marketplace_publish_desc_long_hint =>
+      'Detailed usage instructions, markdown supported...';
+
+  @override
+  String get marketplace_publish_desc_long_label =>
+      'Full documentation (optional)';
+
+  @override
+  String get marketplace_publish_deselect_all => 'Deselect all';
+
+  @override
+  String marketplace_publish_error(Object error) {
+    return 'Failed to publish: $error';
+  }
+
+  @override
+  String get marketplace_publish_metadata => 'Template Details';
+
+  @override
+  String get marketplace_publish_metadata_hint =>
+      'Describe your template so others can find and use it.';
+
+  @override
+  String get marketplace_publish_name_hint => 'e.g. AI Moderation Bot';
+
+  @override
+  String get marketplace_publish_name_label => 'Template name';
+
+  @override
+  String get marketplace_publish_next => 'Next';
+
+  @override
+  String get marketplace_publish_no_content =>
+      'No commands or workflows to publish.\nCreate some first!';
+
+  @override
+  String get marketplace_publish_required_fields =>
+      'Please fill in all required fields (Template name, Short description, Version) before publishing.';
+
+  @override
+  String get marketplace_publish_select => 'Select what to include';
+
+  @override
+  String get marketplace_publish_select_all => 'Select all';
+
+  @override
+  String get marketplace_publish_select_hint =>
+      'Pick commands, workflows, or both. Each becomes part of the template.';
+
+  @override
+  String get marketplace_publish_success => 'Template published successfully!';
+
+  @override
+  String get marketplace_publish_summary => 'Template Summary';
+
+  @override
+  String get marketplace_publish_tags_hint =>
+      'e.g. openai, chatbot, moderation';
+
+  @override
+  String get marketplace_publish_tags_label => 'Tags (comma separated)';
+
+  @override
+  String get marketplace_publish_title => 'Publish Template';
+
+  @override
+  String get marketplace_publish_user_must_define =>
+      'User must define this value';
+
+  @override
+  String get marketplace_publish_user_must_define_hint =>
+      'The user will be prompted to fill it in before applying';
+
+  @override
+  String get marketplace_publish_variable_desc_hint =>
+      'What this variable is for';
+
+  @override
+  String get marketplace_publish_variable_desc_label => 'Description';
+
+  @override
+  String get marketplace_publish_variable_name_hint => 'e.g. TOKEN_OPENAI';
+
+  @override
+  String get marketplace_publish_variable_name_label => 'Variable name';
+
+  @override
+  String get marketplace_publish_variables => 'Variables';
+
+  @override
+  String get marketplace_publish_variables_hint =>
+      'Include variables and mark which ones the user must fill in.';
+
+  @override
+  String get marketplace_publish_version_label => 'Version';
+
+  @override
+  String marketplace_publish_workflows(Object count) {
+    return 'Workflows ($count)';
+  }
+
+  @override
+  String get marketplace_publishing => 'Publishing...';
+
+  @override
+  String get marketplace_rate_success => 'Rating submitted!';
+
+  @override
+  String get marketplace_rate_title => 'Rate this template';
+
+  @override
+  String get marketplace_retry => 'Retry';
+
+  @override
+  String get marketplace_search_hint => 'Search templates...';
+
+  @override
+  String get marketplace_title => 'Marketplace';
+
+  @override
+  String marketplace_variable_required(Object name) {
+    return '$name is required';
+  }
+
+  @override
+  String get marketplace_variables_label => 'Pre-configured Variables';
+
+  @override
+  String marketplace_workflows_label(Object count) {
+    return 'Workflows ($count)';
+  }
+
+  @override
+  String get modal_add_text_input => 'Add Text Input';
+
+  @override
+  String get modal_builder_title => 'Modal Builder';
+
+  @override
+  String get modal_custom_id_hint => 'Used to identify this modal';
+
+  @override
+  String get modal_custom_id_label => 'Custom ID';
+
+  @override
+  String get modal_default_value => 'Default value';
+
+  @override
+  String modal_field_default_label(int index) {
+    return 'Field $index';
+  }
+
+  @override
+  String modal_input_index(int index) {
+    return 'Input $index';
+  }
+
+  @override
+  String modal_inputs_count(int count) {
+    return '$count/5 inputs';
+  }
+
+  @override
+  String get modal_remove_field_confirm =>
+      'This field will be removed from the modal. Continue?';
+
+  @override
+  String get modal_remove_field_title => 'Remove modal field';
+
+  @override
+  String get modal_style => 'Style:';
+
+  @override
+  String get modal_title_label => 'Modal Title';
+
+  @override
+  String get modal_workflow_submit => 'Workflow to run on submit (optional)';
+
+  @override
+  String get more_options_title => 'More Options';
+
+  @override
+  String get more_tab => 'More';
+
+  @override
+  String get nav_webhooks => 'Webhooks';
+
+  @override
+  String get nav_webhooks_compact => 'Hooks';
+
+  @override
+  String get no_more_options => 'No other options available';
+
+  @override
+  String notion_create_workflow_from_query(String query) {
+    return 'Create workflow \"$query\"';
+  }
+
+  @override
+  String get notion_filter_add => 'Add Filter';
+
+  @override
+  String get notion_filter_type => 'Type';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get onboarding_command_button => 'Continue';
+
+  @override
+  String get onboarding_command_desc => 'Create your first command';
+
+  @override
+  String get onboarding_command_example =>
+      'Example:\n/hello → Bot replies \"Hello! 👋\"';
+
+  @override
+  String get onboarding_command_learn => 'Learn how commands work';
+
+  @override
+  String get onboarding_command_text =>
+      'Commands are the heart of your bot. They allow users to interact with your bot via Discord.';
+
+  @override
+  String get onboarding_command_title => 'Step 2: Add a Command';
+
+  @override
+  String get onboarding_create_button => 'Continue';
+
+  @override
+  String get onboarding_create_desc => 'Get your Discord token';
+
+  @override
+  String get onboarding_create_open_portal => 'Open Discord Developer Portal';
+
+  @override
+  String get onboarding_create_steps =>
+      '1. Go to Discord Developer Portal\n2. Create a new app\n3. Copy the bot token\n4. Paste it below';
+
+  @override
+  String get onboarding_create_tip =>
+      '💡 Tip: Never share your token! It gives full access to your bot.';
+
+  @override
+  String get onboarding_create_title => 'Step 1: Create a Bot';
+
+  @override
+  String get onboarding_create_tutorial => 'Tutorial: How to get a token';
+
+  @override
+  String get onboarding_remind_later => 'Remind me later';
+
+  @override
+  String get onboarding_skip_confirm => 'Skip onboarding';
+
+  @override
+  String get onboarding_skip_dialog_desc =>
+      'You can resume where you left off next time, or skip the tour entirely.';
+
+  @override
+  String get onboarding_skip_dialog_title => 'Leave the onboarding?';
+
+  @override
+  String get onboarding_start_button => 'Continue';
+
+  @override
+  String get onboarding_start_desc => 'Launch your bot!';
+
+  @override
+  String get onboarding_start_hint =>
+      'Once your bot is created, you\'ll find the Start button on its card in the app.';
+
+  @override
+  String get onboarding_start_text =>
+      'Click the \"Start\" button on your bot card. Then test your command in Discord!';
+
+  @override
+  String get onboarding_start_tip =>
+      '✨ Great! You\'ve created your first Discord bot. You can now add more commands and customize it!';
+
+  @override
+  String get onboarding_start_title => 'Step 3: Start the Bot';
+
+  @override
+  String onboarding_step_indicator(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get onboarding_success_button => 'Start!';
+
+  @override
+  String get onboarding_success_desc => 'Your Discord bot is ready to go!';
+
+  @override
+  String get onboarding_success_tip1 => 'Add more commands';
+
+  @override
+  String get onboarding_success_tip2 => 'Create workflows';
+
+  @override
+  String get onboarding_success_tip3 => 'Backup your data';
+
+  @override
+  String get onboarding_success_title => 'Congratulations! 🎉';
+
+  @override
+  String get onboarding_success_whatsnext => 'What\'s next?';
+
+  @override
+  String get onboarding_welcome_desc =>
+      'Create your first Discord bot in 3 simple steps. We\'ll guide you through each step.';
+
+  @override
+  String get onboarding_welcome_skip => 'Skip';
+
+  @override
+  String get onboarding_welcome_start => 'Get Started';
+
+  @override
+  String get onboarding_welcome_title => 'Welcome to Bot Creator';
+
+  @override
+  String get option_add_choice => 'Add Choice';
+
+  @override
+  String get option_add_localizations => 'Add Localizations';
+
+  @override
+  String get option_choice_delete_confirm =>
+      'This choice will be removed. Continue?';
+
+  @override
+  String get option_choice_delete_title => 'Delete choice';
+
+  @override
+  String get option_choice_name => 'Choice Name';
+
+  @override
+  String option_choice_number(int index) {
+    return 'Choice $index';
+  }
+
+  @override
+  String get option_choice_value => 'Choice Value';
+
+  @override
+  String option_default_name(int index) {
+    return 'Option $index';
+  }
+
+  @override
+  String get option_delete_argument_confirm =>
+      'This argument will be removed. Continue?';
+
+  @override
+  String get option_delete_argument_title => 'Delete argument';
+
+  @override
+  String get option_delete_choice_confirm =>
+      'This choice will be removed. Continue?';
+
+  @override
+  String get option_delete_choice_title => 'Delete option';
+
+  @override
+  String get option_delete_confirm => 'This option will be removed. Continue?';
+
+  @override
+  String get option_delete_localization_confirm =>
+      'This localization entry will be removed. Continue?';
+
+  @override
+  String get option_delete_localization_title => 'Delete localization';
+
+  @override
+  String get option_delete_title => 'Delete option';
+
+  @override
+  String get option_desc_required =>
+      'Please enter a description for the option';
+
+  @override
+  String option_label_number(int index) {
+    return 'Label $index';
+  }
+
+  @override
+  String get option_localized_description => 'Localized Description';
+
+  @override
+  String get option_localized_name => 'Localized Name';
+
+  @override
+  String get option_max_value => 'Max Value';
+
+  @override
+  String get option_min_value => 'Min Value';
+
+  @override
+  String get option_name_duplicate => 'This name is already used at this level';
+
+  @override
+  String get option_name_invalid_chars =>
+      'Option names must be 1-32 lowercase characters. Allowed: letters, numbers, hyphens, underscores, and apostrophes.';
+
+  @override
+  String get option_name_invalid_start =>
+      'Option name starts with an unsupported character';
+
+  @override
+  String get option_name_max_length =>
+      'Option name must be at most 32 characters long';
+
+  @override
+  String get option_name_required => 'Please enter a name for the option';
+
+  @override
+  String get option_select_language => 'Select Language';
+
+  @override
+  String option_static_label_n(int index) {
+    return 'Label $index';
+  }
+
+  @override
+  String option_static_value_n(int index) {
+    return 'Value $index';
+  }
+
+  @override
+  String get option_subcommand_options => 'SubCommand Options';
+
+  @override
+  String get option_subcommands => 'SubCommands';
+
+  @override
+  String get option_type_attachment => 'Attachment';
+
+  @override
+  String get option_type_boolean => 'Boolean';
+
+  @override
+  String get option_type_channel => 'Channel';
+
+  @override
+  String get option_type_integer => 'Integer';
+
+  @override
+  String get option_type_mentionable => 'Mentionable';
+
+  @override
+  String get option_type_number => 'Number';
+
+  @override
+  String get option_type_role => 'Role';
+
+  @override
+  String get option_type_string => 'String';
+
+  @override
+  String get option_type_subcommand => 'SubCommand';
+
+  @override
+  String get option_type_subcommand_group => 'SubCommand Group';
+
+  @override
+  String get option_type_unknown => 'Unknown';
+
+  @override
+  String get option_type_user => 'User';
+
+  @override
+  String option_value_number(int index) {
+    return 'Value $index';
+  }
+
+  @override
+  String get premium_active_desc =>
+      'Thank you for your support! All ads are disabled.';
+
+  @override
+  String get premium_active_title => 'Premium active';
+
+  @override
+  String get premium_card_button => 'See plans';
+
+  @override
+  String get premium_locked_hint =>
+      'Your account is on the free plan: the subscription is activated from the mobile app (this device shows neither ads nor purchases).';
+
+  @override
+  String get premium_card_desc =>
+      'Subscribe to remove all ads and start your bots instantly, without any popup.';
+
+  @override
+  String get premium_card_title => 'Remove Ads';
+
+  @override
+  String get quick_access_title => 'Quick Access';
+
+  @override
+  String get recovery_delete_bot => 'Delete bot locally';
+
+  @override
+  String get recovery_label => 'Recovery';
+
+  @override
+  String get recovery_retry_discord => 'Retry Discord connection';
+
+  @override
+  String get recovery_title => 'Recovery mode';
+
+  @override
+  String reply_active_route(String label) {
+    return 'Active route: $label';
+  }
+
+  @override
+  String get reply_buttons_desc =>
+      'Add interactive buttons or dropdowns to this message';
+
+  @override
+  String get reply_buttons_optional => 'Buttons & Select Menus (optional)';
+
+  @override
+  String get reply_choose_type => 'Choose the type of response to send';
+
+  @override
+  String get reply_command_reply_title => 'Command Reply';
+
+  @override
+  String get reply_configure_workflow => 'Configure Response Workflow';
+
+  @override
+  String get reply_editor_title => 'Reply Details';
+
+  @override
+  String get reply_mode_layout => 'Layout Mode';
+
+  @override
+  String get reply_mode_layout_desc =>
+      'Discord\'s rich layout system — containers, media, text & forms';
+
+  @override
+  String get reply_mode_modal => 'Modal Form';
+
+  @override
+  String get reply_mode_modal_desc => 'Pop-up dialog with text input fields';
+
+  @override
+  String get reply_mode_standard => 'Standard Message';
+
+  @override
+  String get reply_mode_standard_desc =>
+      'Text, embeds and optional buttons / select menus';
+
+  @override
+  String get reply_response_text_helper =>
+      'Used as slash-command reply text. Supports ((variable)) syntax.';
+
+  @override
+  String get reply_response_text_label => 'Response Text';
+
+  @override
+  String get reply_response_workflow => 'Response Workflow';
+
+  @override
+  String response_embeds_count(int count) {
+    return '$count embed(s)';
+  }
+
+  @override
+  String get response_interactive_components => 'interactive components';
+
+  @override
+  String get response_mode_layout => 'Layout mode';
+
+  @override
+  String get response_mode_modal => 'Modal form';
+
+  @override
+  String get response_mode_standard => 'Standard message';
+
+  @override
+  String get response_visibility_ephemeral => 'ephemeral';
+
+  @override
+  String get response_visibility_public => 'public';
+
+  @override
+  String get response_workflow_auto_defer => 'Auto defer if actions exist';
+
+  @override
+  String get response_workflow_auto_defer_desc =>
+      'Acknowledge quickly, execute actions, then edit final response.';
+
+  @override
+  String get response_workflow_condition_desc =>
+      'If variable exists and is not empty => use THEN text, otherwise ELSE text.';
+
+  @override
+  String get response_workflow_conditional_title =>
+      'Conditional response (MVP)';
+
+  @override
+  String get response_workflow_deferred_reply => 'Deferred reply';
+
+  @override
+  String get response_workflow_else_text => 'ELSE response text (optional)';
+
+  @override
+  String get response_workflow_enable_condition => 'Enable condition';
+
+  @override
+  String get response_workflow_ephemeral_only_user =>
+      'Ephemeral (only command user)';
+
+  @override
+  String get response_workflow_error_policy => 'Error policy';
+
+  @override
+  String get response_workflow_error_policy_desc =>
+      'When an action fails, edit the deferred message with an error.';
+
+  @override
+  String get response_workflow_mode_component => 'Component';
+
+  @override
+  String get response_workflow_mode_modal => 'Modal';
+
+  @override
+  String get response_workflow_mode_normal => 'Normal';
+
+  @override
+  String get response_workflow_public => 'Public';
+
+  @override
+  String get response_workflow_revert_tooltip => 'Revert all changes';
+
+  @override
+  String get response_workflow_then_text => 'THEN response text (optional)';
+
+  @override
+  String get response_workflow_title => 'Response Workflow';
+
+  @override
+  String get response_workflow_variable_key => 'Variable key (ex: opts.userId)';
+
+  @override
+  String get response_workflow_visibility => 'Visibility';
+
+  @override
+  String get restore_completed => 'Restore completed';
+
+  @override
+  String get restore_runtime_db_recommended =>
+      'Restore completed (SQLite runtime restored, restart recommended)';
+
+  @override
+  String get review_actions_title => 'Actions';
+
+  @override
+  String review_description_line(String desc) {
+    return 'Description: $desc';
+  }
+
+  @override
+  String review_folder_line(String folder) {
+    return 'Folder: $folder';
+  }
+
+  @override
+  String get review_info_title => 'Info';
+
+  @override
+  String get review_legacy_mode => 'Prefix mode enabled';
+
+  @override
+  String get review_local_only => 'Local-only command';
+
+  @override
+  String review_name_line(String name) {
+    return 'Name: $name';
+  }
+
+  @override
+  String get review_name_untitled => '(untitled)';
+
+  @override
+  String review_options_count(int count) {
+    return '$count option(s)';
+  }
+
+  @override
+  String get review_reply_title => 'Reply';
+
+  @override
+  String review_subcommand_routes(int count) {
+    return '$count subcommand route(s)';
+  }
+
+  @override
+  String get review_trigger_inputs_title => 'Trigger & Inputs';
+
+  @override
+  String review_type_line(String type) {
+    return 'Type: $type';
+  }
+
+  @override
+  String get rewarded_start_complete_ad =>
+      'Please watch the entire ad to start your hosting session.';
+
+  @override
+  String get rewarded_start_continue => 'Continue';
+
+  @override
+  String get rewarded_start_credit_confirmed =>
+      'Reward credited: your hosting minutes have been added.';
+
+  @override
+  String get rewarded_credit_syncing_message =>
+      'Your ad reward is still syncing. Try starting the bot again in a few seconds.';
+
+  @override
+  String get sync_cloud_applied => 'Cloud version applied successfully';
+
+  @override
+  String sync_diff_local_only_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count local-only',
+      one: '1 local-only',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sync_diff_new_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+$count new',
+      one: '+1 new',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sync_diff_updated_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count updated',
+      one: '1 updated',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bot_stats_metrics_source => 'Metrics Source';
+
+  @override
+  String get bot_stats_no_bot_selected => 'No bot selected';
+
+  @override
+  String get bot_stats_refresh_now => 'Refresh now';
+
+  @override
+  String get bot_stats_source_local => 'Local on this device';
+
+  @override
+  String get bot_stats_warning_title => 'Warning';
+
+  @override
+  String bot_start_embedded_runner_failed(String detail) {
+    return 'The embedded JS runner could not start. Fully restart the app (not hot reload).$detail';
+  }
+
+  @override
+  String get bot_start_sign_in_required =>
+      'Sign in to Bot Creator in Settings before starting this bot.';
+
+  @override
+  String get home_badge_turnkey => 'Turnkey';
+
+  @override
+  String home_server_cannot_run_bot(String detail) {
+    return 'Bot Creator servers were chosen and cannot run this bot: $detail. No local run was started — retry the start once this is resolved.';
+  }
+
+  @override
+  String get home_server_session_unusable =>
+      'no usable server session from this device';
+
+  @override
+  String get runner_source_runner => 'Runner';
+
+  @override
+  String get command_create_existing_folders => 'Existing folders';
+
+  @override
+  String get common_export => 'Export';
+
+  @override
+  String get workflows_folder_destination_optional =>
+      'Destination folder (optional)';
+
+  @override
+  String get workflows_import_preview_title => 'Import workflow preview';
+
+  @override
+  String get blueprint_close_inspector => 'Close Inspector';
+
+  @override
+  String get blueprint_search_action_hint => 'Search for an action...';
+
+  @override
+  String get common_auto => 'Auto';
+
+  @override
+  String get common_inline => 'Inline';
+
+  @override
+  String marketplace_options_count(int count) {
+    return 'Options ($count)';
+  }
+
+  @override
+  String marketplace_required_config_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count config',
+      one: '1 config',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get option_autocomplete_javascript => 'JavaScript Autocomplete';
+
+  @override
+  String option_description_new(int count) {
+    return 'Description for option $count';
+  }
+
+  @override
+  String variables_sync_failed(String error) {
+    return 'Failed to sync variable: $error';
+  }
+
+  @override
+  String actions_configured_count(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count actions configured',
+      one: '1 action configured',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String action_card_else_if(int count) {
+    return 'ELSE IF $count';
+  }
+
+  @override
+  String get blueprint_cut_link => 'Cut the link';
+
+  @override
+  String get blueprint_entry_point_hint =>
+      'Entry Point Trigger node.\nConfigured in command properties.';
+
+  @override
+  String get blueprint_mode_label => 'Blueprint';
+
+  @override
+  String get blueprint_origin_label => 'Origin (0, 0)';
+
+  @override
+  String bot_config_version_commands(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count commands',
+      one: '1 command',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bot_config_version_commands_title => 'Commands in this version:';
+
+  @override
+  String bot_config_version_more_count(int count) {
+    return '… and $count more';
+  }
+
+  @override
+  String bot_config_version_replace_warning(int count) {
+    return 'Will replace $count current commands';
+  }
+
+  @override
+  String command_delete_discord_failed_local(String error) {
+    return 'Discord delete failed. Local delete applied. $error';
+  }
+
+  @override
+  String get common_exists => 'Exists';
+
+  @override
+  String get common_live_badge => 'LIVE';
+
+  @override
+  String component_choice_number(int count) {
+    return 'Choice $count';
+  }
+
+  @override
+  String get component_ephemeral_hint =>
+      'Ephemeral (only visible to command user)';
+
+  @override
+  String get debug_persistence_title => 'Persistence debug';
+
+  @override
+  String element_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count elements',
+      one: '1 element',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String embed_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count embeds',
+      one: '1 embed',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get emojis_animated_label => 'animated';
+
+  @override
+  String field_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fields',
+      one: '1 field',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String marketplace_actions_count(int count) {
+    return 'Actions ($count)';
+  }
+
+  @override
+  String get onb_example_label => 'Example:';
+
+  @override
+  String get option_autocomplete_js_hint =>
+      'Use interaction.respond() with name/value pairs to return up to 25 choices.';
+
+  @override
+  String get permission_tap_to_cycle => 'Tap to cycle';
+
+  @override
+  String get serialization_copy_base64 =>
+      'Copy compact Base64 payload to clipboard';
+
+  @override
+  String get settings_ads_debug_desc =>
+      'Open Ad Inspector and log adapter status (Unity/Google) to validate mediation.';
+
+  @override
+  String get settings_ads_debug_title => 'Ads Mediation Debug';
+
+  @override
+  String settings_detected_engine(String engine) {
+    return 'Detected engine: $engine';
+  }
+
+  @override
+  String get variables_emojis_hint => 'Available emojis — tap to insert';
+
+  @override
+  String workflow_event_variables_count(int count) {
+    return 'Event Variables ($count)';
+  }
+
+  @override
+  String workflow_import_review_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Review $count workflows to import:',
+      one: 'Review 1 workflow to import:',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get workflow_rename_variables_hint =>
+      'Optionally rename variables for this workflow.';
+
+  @override
+  String component_node_child_run_hint(
+    String message,
+    String workflow,
+    String entry,
+    String args,
+  ) {
+    return '$message \"$workflow\" will be executed (entry: $entry, args: $args).';
+  }
+
+  @override
+  String workflows_preview_summary(String type, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count actions',
+      one: '1 action',
+    );
+    return '$type  •  $_temp0';
+  }
+
+  @override
+  String get runner_embedded_desync_detail =>
+      'Runner process is running but the app lost its connection. Use Restart in Settings.';
+
+  @override
+  String runtime_invalid_bot_id(String error) {
+    return 'Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Original error: $error';
+  }
+
+  @override
+  String runtime_invalid_bot_id_details(String detail) {
+    return 'Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Details: $detail';
+  }
+
+  @override
+  String get runtime_local_unsupported_ios_configure =>
+      'Local mode is not supported on iOS. Configure Bot Creator to start this bot.';
+
+  @override
+  String get runtime_local_unsupported_ios_sign_in =>
+      'Local mode is not supported on iOS. Sign in to Bot Creator in Settings before starting this bot.';
+
+  @override
+  String get runtime_plan_limit =>
+      'Your plan does not allow this start. Check the plans to upgrade your formula.';
+
+  @override
+  String runtime_request_failed(String error) {
+    return 'Request to Bot Creator servers failed: $error';
+  }
+
+  @override
+  String runtime_servers_not_ready(String error) {
+    return 'Bot Creator servers are not ready for this bot yet. Original error: $error';
+  }
+
+  @override
+  String get runtime_session_expired =>
+      'Your Bot Creator session expired. Sign in again in Settings to start this bot.';
+
+  @override
+  String get runtime_sign_in_required =>
+      'Sign in to Bot Creator in Settings before starting this bot.';
+
+  @override
+  String runtime_startup_failed(String error) {
+    return 'Bot Creator server startup failed. Original error: $error';
+  }
+
+  @override
+  String runtime_startup_failed_with_detail(String detail, String error) {
+    return 'Bot Creator server startup failed. Details: $detail Original error: $error';
+  }
+
+  @override
+  String runtime_startup_in_progress(String status, String error) {
+    return 'Bot Creator server startup is still in progress ($status). Processing may still be queued or running. Original error: $error';
+  }
+
+  @override
+  String runtime_unreachable(String error) {
+    return 'Bot Creator servers are temporarily unreachable. Original error: $error';
+  }
+
+  @override
+  String get sync_cloud_update_applied => 'Cloud update applied successfully';
+
+  @override
+  String get sync_conflict_message =>
+      'Divergent changes exist between this local session and Cloud (Mobile). Choose how to resolve this conflict:';
+
+  @override
+  String get sync_conflict_title => 'Sync Conflict Detected';
+
+  @override
+  String get sync_in_progress => 'Sync in progress...';
+
+  @override
+  String get sync_keep_local_description =>
+      'Keeps your local modifications and pushes them to update Cloud.';
+
+  @override
+  String get sync_keep_local_title => 'Keep Local Version (Desktop)';
+
+  @override
+  String get sync_local_kept => 'Local version kept and synced to Cloud';
+
+  @override
+  String get sync_merge_smart_description =>
+      'Combines additions from both sides and keeps the newest command in case of duplicates.';
+
+  @override
+  String get sync_merge_smart_done =>
+      'Smart merge completed and synced to Cloud';
+
+  @override
+  String get sync_merge_smart_title => 'Smart Merge (Recommended)';
+
+  @override
+  String get sync_synced_with_cloud => 'Synced with Cloud version';
+
+  @override
+  String get sync_take_cloud_description =>
+      'Replaces local un-pushed changes with the Cloud version.';
+
+  @override
+  String get sync_take_cloud_title => 'Take Cloud Version (Mobile)';
+
+  @override
+  String get sync_version_cloud_mobile => 'Cloud Version (Mobile)';
+
+  @override
+  String get sync_version_local_desktop => 'Local Version (Desktop)';
+
+  @override
+  String get rewarded_credit_syncing_title => 'Credit is still syncing';
+
+  @override
+  String get ad_context_failed =>
+      'Failed to build ad context. Please ensure you are signed in and your bot token is set.';
+
+  @override
+  String get ad_history_unavailable =>
+      'Cannot fetch ad history (API unavailable)';
+
+  @override
+  String get ad_limit_or_cooldown =>
+      'Ad cooldown or limit is active. Please try again later.';
+
+  @override
+  String get ad_sync_config_failed =>
+      'Failed to sync bot configuration with the main API.';
+
+  @override
+  String get rewarded_start_credit_pending =>
+      'Ad finished. Checking your reward…';
+
+  @override
+  String get rewarded_start_credit_unconfirmed =>
+      'Reward not credited yet. The server may still validate it: refresh your minutes to see it.';
+
+  @override
+  String get rewarded_start_message =>
+      'An ad is required to start this hosting session. This helps fund the project. Premium users can skip this.';
+
+  @override
+  String get rewarded_start_no_ad_available =>
+      'No ad available right now. Please try again later.';
+
+  @override
+  String get rewarded_start_skip => 'Skip';
+
+  @override
+  String get rewarded_start_thanks => 'Thanks for your support!';
+
+  @override
+  String get rewarded_start_title => 'Ad Required';
+
+  @override
+  String get rewarded_start_watch => 'Watch ad';
+
+  @override
+  String get runner_select_source => 'Select runner';
+
+  @override
+  String get runner_source_all => 'All runners';
+
+  @override
+  String runner_source_label(String name) {
+    return 'Runner: $name';
+  }
+
+  @override
+  String get runner_source_local => 'Local';
+
+  @override
+  String get runner_source_manager => 'Bot Creator servers';
+
+  @override
+  String get runner_source_manager_unavailable =>
+      'Sign in to Bot Creator in Settings to load stats from Bot Creator servers.';
+
+  @override
+  String get runner_source_this_device => 'This device';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get scheduler_add_title => 'Add schedule';
+
+  @override
+  String get scheduler_add_trigger => 'Add trigger';
+
+  @override
+  String scheduler_delete_confirm(String label) {
+    return 'Delete \"$label\" schedule?';
+  }
+
+  @override
+  String get scheduler_delete_title => 'Delete schedule';
+
+  @override
+  String get scheduler_edit_title => 'Edit schedule';
+
+  @override
+  String get scheduler_empty => 'No scheduled triggers yet.';
+
+  @override
+  String get scheduler_every_minutes => 'Every (minutes)';
+
+  @override
+  String get scheduler_invalid_minutes =>
+      'Every minutes must be greater than 0.';
+
+  @override
+  String get scheduler_label_field => 'Label';
+
+  @override
+  String get scheduler_label_hint => 'Optional display label';
+
+  @override
+  String scheduler_limit_reached(int limit) {
+    return 'Scheduler limit reached ($limit).';
+  }
+
+  @override
+  String get scheduler_no_workflows =>
+      'Create at least one workflow before adding a schedule.';
+
+  @override
+  String get scheduler_page_title => 'Scheduler';
+
+  @override
+  String scheduler_save_failed(String error) {
+    return 'Failed to save schedule: $error';
+  }
+
+  @override
+  String scheduler_subtitle(String workflow, int minutes) {
+    return 'Workflow: $workflow • Every $minutes min';
+  }
+
+  @override
+  String get scheduler_tab => 'Scheduler';
+
+  @override
+  String get scheduler_tab_short => 'Sched';
+
+  @override
+  String scheduler_triggers_count(int count, String limit) {
+    return 'Triggers: $count$limit';
+  }
+
+  @override
+  String get scoped_default_value => 'Default value';
+
+  @override
+  String get scoped_default_value_hint => 'Optional';
+
+  @override
+  String scoped_delete_confirm(String key) {
+    return 'Delete \"$key\" and all its stored runtime data?';
+  }
+
+  @override
+  String get scoped_delete_title => 'Delete Scoped Variable';
+
+  @override
+  String get scoped_declare_detected => 'Declare this variable';
+
+  @override
+  String get scoped_detected_badge => 'Detected';
+
+  @override
+  String scoped_detected_hint(int count) {
+    return 'No declared definition · $count stored value(s)';
+  }
+
+  @override
+  String get scoped_detected_tooltip =>
+      'Value present in the bot data without a declared definition. Shown as-is; nothing is invented.';
+
+  @override
+  String get scoped_empty => 'No per-server or per-member variables';
+
+  @override
+  String get scoped_empty_subtitle =>
+      'They store one value per server, member, user, channel or message. The bot fills them in at runtime.';
+
+  @override
+  String get scoped_explore_runtime => 'Explore runtime data';
+
+  @override
+  String scoped_ref(String ref) {
+    return 'Reference: $ref';
+  }
+
+  @override
+  String scoped_ref_legacy(String ref) {
+    return 'Legacy: $ref';
+  }
+
+  @override
+  String get scoped_runtime_copy_all => 'Copy all';
+
+  @override
+  String get scoped_runtime_empty =>
+      'No runtime data.\nThis key will be populated by the bot at execution.';
+
+  @override
+  String get scoped_runtime_search => 'Search by ID or name…';
+
+  @override
+  String scoped_runtime_subtitle(String scope, int count) {
+    return 'Scope: $scope · $count context(s) found';
+  }
+
+  @override
+  String scoped_runtime_title(String key) {
+    return 'Runtime data — \"$key\"';
+  }
+
+  @override
+  String get scoped_scope => 'Who is it for?';
+
+  @override
+  String get scoped_scope_help =>
+      'Who owns the value: each server, each member, etc.';
+
+  @override
+  String get scoped_title => 'Per-server / member variables';
+
+  @override
+  String get scratch_add_block => 'Add block';
+
+  @override
+  String get scratch_bdfd_script => 'BDFD Script';
+
+  @override
+  String get scratch_block_entry_point => 'Command Trigger';
+
+  @override
+  String get scratch_block_metadata => 'Metadata';
+
+  @override
+  String get scratch_block_required => 'Required';
+
+  @override
+  String get scratch_blocks_tab => 'Blocks';
+
+  @override
+  String get scratch_custom_id_filter_desc =>
+      'This workflow will only run if the Custom ID of the clicked button or submitted modal matches this ID exactly.';
+
+  @override
+  String get scratch_custom_id_filter_hint => 'e.g. my_button_id';
+
+  @override
+  String get scratch_custom_id_filter_label => 'Custom ID filter (optional)';
+
+  @override
+  String get scratch_dart_script => 'Dart Script';
+
+  @override
+  String get scratch_entry_event_trigger => 'Event trigger';
+
+  @override
+  String get scratch_entry_function => 'Function';
+
+  @override
+  String get scratch_entry_interaction => 'Slash Command (/)';
+
+  @override
+  String get scratch_entry_message => 'Text Message';
+
+  @override
+  String get scratch_entry_point_hint => 'Scratch entry point hint';
+
+  @override
+  String get scratch_entry_point_label => 'Entry point name';
+
+  @override
+  String get scratch_entry_point_listen => 'When does this command run?';
+
+  @override
+  String get scratch_event_category => 'Event category';
+
+  @override
+  String get scratch_event_name => 'Event name';
+
+  @override
+  String get scratch_event_variables => 'Event variables';
+
+  @override
+  String get scratch_execution_mode => 'How is the command built?';
+
+  @override
+  String get scratch_legacy_config => 'Legacy configuration';
+
+  @override
+  String get scratch_meta_advanced => 'Advanced settings';
+
+  @override
+  String get scratch_meta_desc_hint => 'Command description';
+
+  @override
+  String get scratch_meta_name_hint => 'Command name';
+
+  @override
+  String get scratch_meta_type_label => 'Command type';
+
+  @override
+  String get scratch_meta_type_message => 'Message command';
+
+  @override
+  String get scratch_meta_type_message_desc =>
+      'Triggered from the message context menu.';
+
+  @override
+  String get scratch_meta_type_prefix => 'Prefix command';
+
+  @override
+  String get scratch_meta_type_prefix_desc =>
+      'Triggered by a text prefix (e.g. !help).';
+
+  @override
+  String get scratch_meta_type_slash => 'Slash command';
+
+  @override
+  String get scratch_meta_type_slash_desc =>
+      'Triggered by typing / in Discord.';
+
+  @override
+  String get scratch_meta_type_user => 'User command';
+
+  @override
+  String get scratch_meta_type_user_desc =>
+      'Triggered from the user context menu.';
+
+  @override
+  String get scratch_mode_bdfd => 'BDFD Code';
+
+  @override
+  String get scratch_mode_blocks => 'Visual (Blocks)';
+
+  @override
+  String get scratch_mode_dart => 'Dart';
+
+  @override
+  String get scratch_response_block => 'Response';
+
+  @override
+  String get scratch_response_components => 'Components';
+
+  @override
+  String get scratch_response_edit => 'Edit response';
+
+  @override
+  String get scratch_trigger_tab => 'Trigger';
+
+  @override
+  String get scratch_wizard_actions_empty_desc =>
+      'Add action blocks below to configure what your bot does.';
+
+  @override
+  String get scratch_wizard_actions_empty_title => 'No actions defined yet.';
+
+  @override
+  String get scratch_wizard_config_button_instruction =>
+      'Configure the ID of the button or modal that will trigger this workflow.';
+
+  @override
+  String get scratch_wizard_folder_hint => 'e.g. admin';
+
+  @override
+  String get scratch_wizard_folder_label => 'Folder (optional)';
+
+  @override
+  String get scratch_wizard_save_details => 'Save Details';
+
+  @override
+  String get scratch_wizard_step_actions => 'Step 3: Actions';
+
+  @override
+  String get scratch_wizard_step_config => 'Step 2: Configuration';
+
+  @override
+  String get scratch_wizard_step_save => 'Step 4: Save & Summary';
+
+  @override
+  String get scratch_wizard_step_trigger => 'Step 1: Trigger Type';
+
+  @override
+  String scratch_wizard_summary_actions_count(int count) {
+    return '$count action(s) configured';
+  }
+
+  @override
+  String get scratch_wizard_summary_title => 'Workflow Summary';
+
+  @override
+  String scratch_wizard_summary_trigger_button(String id) {
+    return 'Button Click / Modal (Custom ID: \'$id\')';
+  }
+
+  @override
+  String scratch_wizard_summary_trigger_event(String event) {
+    return 'Event: $event';
+  }
+
+  @override
+  String get scratch_wizard_summary_trigger_function =>
+      'General Function / Workflow';
+
+  @override
+  String get scratch_wizard_trigger_button_desc =>
+      'Triggers when a user clicks a button, uses a select menu, or submits a modal.';
+
+  @override
+  String get scratch_wizard_trigger_button_title =>
+      'Button or Message Component';
+
+  @override
+  String get scratch_wizard_trigger_event_desc =>
+      'Triggers on a Discord action (e.g. guild member joins, message deleted, role updated).';
+
+  @override
+  String get scratch_wizard_trigger_event_title => 'Discord Event';
+
+  @override
+  String get scratch_wizard_trigger_function_desc =>
+      'Runs the workflow as a reusable function called by other triggers or custom integrations.';
+
+  @override
+  String get scratch_wizard_trigger_function_title =>
+      'Function / Manual Trigger';
+
+  @override
+  String get scratch_wizard_trigger_instruction =>
+      'Choose what triggers this workflow:';
+
+  @override
+  String get scratch_wizard_workflow_name_hint => 'e.g. button_response';
+
+  @override
+  String get scratch_wizard_workflow_name_label => 'Workflow Name *';
+
+  @override
+  String get scratch_workflow_add_argument => 'Add argument';
+
+  @override
+  String get scratch_workflow_arguments => 'Arguments (Variables)';
+
+  @override
+  String get scratch_workflow_metadata => 'Workflow Settings';
+
+  @override
+  String get scratch_workflow_name => 'Workflow Name';
+
+  @override
+  String get scratch_workflow_type => 'Workflow Type';
+
+  @override
+  String get scratch_workflow_type_event => 'Event-driven';
+
+  @override
+  String get scratch_workflow_type_general => 'General';
+
+  @override
+  String get serialization_export_base64_title => 'Export command as Base64';
+
+  @override
+  String get serialization_export_json_subtitle =>
+      'Copy readable JSON to clipboard';
+
+  @override
+  String get serialization_export_json_title => 'Export command as JSON';
+
+  @override
+  String get serialization_import_desc =>
+      'Paste a command payload (JSON or Base64).';
+
+  @override
+  String get serialization_import_title => 'Import command';
+
+  @override
+  String get serialization_imported => 'Command imported into editor.';
+
+  @override
+  String get serialization_invalid_format => 'Invalid command payload format.';
+
+  @override
+  String get serialization_invalid_structure =>
+      'Invalid command payload structure.';
+
+  @override
+  String get settings_account_connect_label =>
+      'Sign in to Bot Creator with Discord';
+
+  @override
+  String get settings_account_connected_hint =>
+      'Account connected. Your bots and data are now synced with Bot Creator.';
+
+  @override
+  String get settings_account_disconnect_label => 'Sign out';
+
+  @override
+  String get settings_account_disconnected_hint =>
+      'On mobile, sign in with Discord to sync bots, deploy hosted applications, and recover your data on a new phone.';
+
+  @override
+  String get settings_account_status_connected => 'Account connected';
+
+  @override
+  String get settings_account_status_disconnected => 'Not signed in';
+
+  @override
+  String get mobile_account_required_title => 'Sign in';
+
+  @override
+  String get mobile_account_required_body => 'Sign in with Discord or email.';
+
+  @override
+  String get mobile_account_required_feature_bots =>
+      'Sync and restore your bots from the cloud';
+
+  @override
+  String get mobile_account_required_feature_hosted =>
+      'Deploy and manage hosted applications';
+
+  @override
+  String get mobile_account_required_feature_recovery =>
+      'Recover everything after reinstall or on a new phone';
+
+  @override
+  String mobile_account_required_failed(String error) {
+    return 'Discord sign-in failed: $error';
+  }
+
+  @override
+  String get mobile_login_or_divider => 'or';
+
+  @override
+  String get mobile_login_show_email => 'Sign in with email';
+
+  @override
+  String get mobile_login_hide_email => 'Hide email sign-in';
+
+  @override
+  String get mobile_login_email_title => 'Sign in with email';
+
+  @override
+  String get mobile_login_email_hint =>
+      'Use the email and password linked to your account.';
+
+  @override
+  String get mobile_login_email => 'Email';
+
+  @override
+  String get mobile_login_password => 'Password';
+
+  @override
+  String get mobile_login_submit => 'Sign in';
+
+  @override
+  String get mobile_login_invalid_credentials => 'Invalid email or password.';
+
+  @override
+  String mobile_login_failed(String error) {
+    return 'Sign-in failed: $error';
+  }
+
+  @override
+  String get settings_alternative_login_title => 'Alternative sign-in';
+
+  @override
+  String get settings_alternative_login_desc =>
+      'Add an email and password to sign in without Discord.';
+
+  @override
+  String settings_alternative_login_current_email(String email) {
+    return 'Current email: $email';
+  }
+
+  @override
+  String get settings_alternative_login_current_password => 'Current password';
+
+  @override
+  String get settings_alternative_login_confirm_password => 'Confirm password';
+
+  @override
+  String get settings_alternative_login_update => 'Update credentials';
+
+  @override
+  String get settings_add_credentials => 'Save credentials';
+
+  @override
+  String get settings_alternative_login_missing_fields =>
+      'Email and password are required.';
+
+  @override
+  String get settings_alternative_login_password_mismatch =>
+      'Passwords do not match.';
+
+  @override
+  String get settings_credentials_saved => 'Alternative sign-in saved.';
+
+  @override
+  String get settings_ads_privacy_loading => 'Checking ad privacy settings...';
+
+  @override
+  String get settings_ads_privacy_manage => 'Manage ad privacy choices';
+
+  @override
+  String get settings_ads_privacy_not_required =>
+      'Ad privacy options are not required right now';
+
+  @override
+  String get settings_ads_privacy_open_error =>
+      'Could not open ad privacy options';
+
+  @override
+  String get settings_ads_privacy_opened => 'Ad privacy options opened';
+
+  @override
+  String get settings_app_version => 'App';
+
+  @override
+  String get settings_appearance_accent_label => 'Accent';
+
+  @override
+  String settings_appearance_contrast_ratio(String ratio) {
+    return 'Accent/surface contrast: $ratio';
+  }
+
+  @override
+  String settings_appearance_contrast_warning(String ratio) {
+    return 'Low contrast ($ratio): the accent barely stands out from the background. The app adapts it where needed, but a lighter or darker accent improves readability.';
+  }
+
+  @override
+  String get settings_appearance_custom_badge => 'Custom';
+
+  @override
+  String get settings_appearance_custom_title => 'Custom colors';
+
+  @override
+  String get settings_appearance_mode_dark => 'Dark';
+
+  @override
+  String get settings_appearance_mode_light => 'Light';
+
+  @override
+  String get settings_appearance_mode_system => 'System';
+
+  @override
+  String get settings_appearance_mode_title => 'Mode';
+
+  @override
+  String get settings_appearance_presets_title => 'Preset themes';
+
+  @override
+  String get settings_appearance_reset => 'Reset';
+
+  @override
+  String get settings_appearance_seed_label => 'Main color';
+
+  @override
+  String get settings_appearance_subtitle =>
+      'Pick a mode, a preset theme, or your own colors.';
+
+  @override
+  String get settings_appearance_title => 'Appearance';
+
+  @override
+  String get settings_auto_backup_check_loading => 'Auto-backup check…';
+
+  @override
+  String get settings_auto_backup_every_12h => 'Every 12h';
+
+  @override
+  String get settings_auto_backup_every_24h => 'Every 24h';
+
+  @override
+  String get settings_auto_backup_every_6h => 'Every 6h';
+
+  @override
+  String get settings_auto_backup_every_72h => 'Every 72h';
+
+  @override
+  String get settings_auto_backup_interval => 'Auto-backup interval';
+
+  @override
+  String get settings_backup_now => 'Backup now';
+
+  @override
+  String get settings_backup_restore_desc =>
+      'Manage your data synchronization with Google Drive';
+
+  @override
+  String get settings_backup_restore_title => 'Backup and Restore';
+
+  @override
+  String get settings_builtin_help => 'Built-in legacy !help command';
+
+  @override
+  String get settings_builtin_help_subtitle =>
+      'Mandatory feature with explicit toggle. Disable it if you only want custom help behavior.';
+
+  @override
+  String get settings_clear_logs => 'Clear logs';
+
+  @override
+  String get settings_cloud_hosting_enabled =>
+      'Mobile bots now use Bot Creator servers.';
+
+  @override
+  String get settings_compatibility_desc =>
+      'A quick view of feature coverage for users moving from BDFD.';
+
+  @override
+  String get settings_compatibility_functions_category_components =>
+      'Components / Interactions';
+
+  @override
+  String get settings_compatibility_functions_category_control =>
+      'Control flow';
+
+  @override
+  String get settings_compatibility_functions_category_embeds => 'Embeds';
+
+  @override
+  String get settings_compatibility_functions_category_guards =>
+      'Guards and permissions';
+
+  @override
+  String get settings_compatibility_functions_category_http => 'HTTP helpers';
+
+  @override
+  String get settings_compatibility_functions_category_json => 'JSON helpers';
+
+  @override
+  String get settings_compatibility_functions_category_logging => 'Logging';
+
+  @override
+  String get settings_compatibility_functions_category_messages => 'Messages';
+
+  @override
+  String get settings_compatibility_functions_category_runtime =>
+      'Runtime placeholders';
+
+  @override
+  String get settings_compatibility_functions_category_threads => 'Threads';
+
+  @override
+  String get settings_compatibility_functions_category_variables =>
+      'Scoped variables';
+
+  @override
+  String settings_compatibility_functions_count(int count) {
+    return 'Compatible functions: $count';
+  }
+
+  @override
+  String settings_compatibility_functions_count_bdfd(int count) {
+    return 'BDFD reference total: $count';
+  }
+
+  @override
+  String settings_compatibility_functions_count_bot_creator(int count) {
+    return 'Bot Creator supported: $count';
+  }
+
+  @override
+  String settings_compatibility_functions_count_bot_only(int count) {
+    return 'Bot Creator only: $count';
+  }
+
+  @override
+  String settings_compatibility_functions_count_both(int count) {
+    return 'Supported on both: $count';
+  }
+
+  @override
+  String settings_compatibility_functions_count_missing(int count) {
+    return 'Missing in Bot Creator: $count';
+  }
+
+  @override
+  String get settings_compatibility_functions_empty =>
+      'No function in this section.';
+
+  @override
+  String get settings_compatibility_functions_matrix_note =>
+      'BDFD-only entries are functions listed in the provided BDFD catalog but not currently implemented in Bot Creator.';
+
+  @override
+  String get settings_compatibility_functions_matrix_subtitle =>
+      'Diff view between Bot Creator implementation and BDFD reference functions.';
+
+  @override
+  String get settings_compatibility_functions_note =>
+      'This page is generated from the current implementation scope and will grow over time.';
+
+  @override
+  String get settings_compatibility_functions_search_hint =>
+      'Search a function (example: \$userJoined)';
+
+  @override
+  String get settings_compatibility_functions_section_bot_only =>
+      'Supported on Bot Creator only';
+
+  @override
+  String get settings_compatibility_functions_section_bot_only_note =>
+      'Loop helpers are currently Bot Creator specific.';
+
+  @override
+  String get settings_compatibility_functions_section_both =>
+      'Supported on Bot Creator and BDFD';
+
+  @override
+  String get settings_compatibility_functions_section_missing =>
+      'Available on BDFD but missing in Bot Creator';
+
+  @override
+  String get settings_compatibility_functions_subtitle =>
+      'Functions currently implemented and usable in Bot Creator BDFD mode.';
+
+  @override
+  String get settings_compatibility_functions_title =>
+      'Compatible BDFD Functions';
+
+  @override
+  String get settings_compatibility_item_bdscript_desc =>
+      'Full coverage of the BDFD function catalog.';
+
+  @override
+  String get settings_compatibility_item_bdscript_title =>
+      'BDScript function parity';
+
+  @override
+  String get settings_compatibility_item_events_desc =>
+      'Most common events are supported, some are runtime-limited.';
+
+  @override
+  String get settings_compatibility_item_events_title => 'Event coverage';
+
+  @override
+  String get settings_compatibility_item_runner_desc =>
+      'Remote runner is available, multi-runner support is in progress.';
+
+  @override
+  String get settings_compatibility_item_runner_title => 'Runner architecture';
+
+  @override
+  String get settings_compatibility_item_variables_desc =>
+      'Dynamic variables and template helpers are supported.';
+
+  @override
+  String get settings_compatibility_item_variables_title =>
+      'Runtime variables and templates';
+
+  @override
+  String get settings_compatibility_item_workflows_desc =>
+      'Visual command and response workflows are available.';
+
+  @override
+  String get settings_compatibility_item_workflows_title => 'Workflow builder';
+
+  @override
+  String get settings_compatibility_note =>
+      'This snapshot is intentionally high-level and will evolve with releases.';
+
+  @override
+  String get settings_compatibility_open_functions =>
+      'View compatible functions';
+
+  @override
+  String get settings_compatibility_status_missing => 'Missing';
+
+  @override
+  String get settings_compatibility_status_partial => 'Partial';
+
+  @override
+  String get settings_compatibility_status_supported => 'Supported';
+
+  @override
+  String get settings_compatibility_title => 'BDFD compatibility snapshot';
+
+  @override
+  String get settings_data_operations_title => 'Data Operations';
+
+  @override
+  String get settings_debug_desc =>
+      'Reset local preferences or replay onboarding for testing.';
+
+  @override
+  String get settings_debug_premium_bypass => 'Premium bypass';
+
+  @override
+  String get settings_debug_premium_bypass_desc =>
+      'Unlock all Premium features without a subscription (debug only).';
+
+  @override
+  String get settings_debug_title => 'Debug tools';
+
+  @override
+  String get settings_diagnostics_copied => 'Diagnostics copied to clipboard';
+
+  @override
+  String get settings_diagnostics_copy_all => 'Copy all logs';
+
+  @override
+  String get settings_diagnostics_dialog_title => 'Startup Diagnostics';
+
+  @override
+  String get settings_diagnostics_empty => 'No application logs yet.';
+
+  @override
+  String get settings_diagnostics_page_scope_note =>
+      'Shows app diagnostics logs only (bot logs are excluded).';
+
+  @override
+  String get settings_diagnostics_page_title => 'Application Logs';
+
+  @override
+  String get settings_diagnostics_refresh => 'Refresh logs';
+
+  @override
+  String get settings_diagnostics_section_title => 'Diagnostics';
+
+  @override
+  String get settings_discord_rpc_authenticating =>
+      'Authenticating with Discord…';
+
+  @override
+  String get settings_discord_rpc_authorization_code_pending_exchange =>
+      'Authorization code cached; retry to finish the token exchange';
+
+  @override
+  String get settings_discord_rpc_authorization_pending_exchange =>
+      'Authorization code received';
+
+  @override
+  String get settings_discord_rpc_authorize => 'Authorize';
+
+  @override
+  String get settings_discord_rpc_authorizing =>
+      'Waiting for Discord authorization…';
+
+  @override
+  String get settings_discord_rpc_broker_hint => 'https://auth.example.com';
+
+  @override
+  String get settings_discord_rpc_broker_label =>
+      'OAuth broker URL (advanced, optional)';
+
+  @override
+  String get settings_discord_rpc_broker_required =>
+      'Client ID is enough for the public-client flow; broker URL and client secret are optional fallbacks';
+
+  @override
+  String get settings_discord_rpc_client_id_helper =>
+      'This ID is fixed in Bot Creator and cannot be changed from settings.';
+
+  @override
+  String get settings_discord_rpc_client_id_hint => '1350824555119382678';
+
+  @override
+  String get settings_discord_rpc_client_id_required =>
+      'Discord application client ID required';
+
+  @override
+  String get settings_discord_rpc_client_secret_helper =>
+      'Optional advanced fallback for a confidential-client flow handled locally.';
+
+  @override
+  String get settings_discord_rpc_client_secret_hint => 'Client secret';
+
+  @override
+  String get settings_discord_rpc_client_secret_label =>
+      'Discord application client secret (optional)';
+
+  @override
+  String get settings_discord_rpc_complete_authorization =>
+      'Complete authorization';
+
+  @override
+  String get settings_discord_rpc_connect => 'Refresh presence';
+
+  @override
+  String get settings_discord_rpc_connected => 'Presence sent to Discord';
+
+  @override
+  String get settings_discord_rpc_connecting => 'Connecting to Discord…';
+
+  @override
+  String get settings_discord_rpc_desc =>
+      'Publish Bot Creator desktop activity to the local Discord client. Bot Creator always uses the built-in Discord application and sends SET_ACTIVITY directly over local IPC when enabled.';
+
+  @override
+  String get settings_discord_rpc_disabled => 'Disabled';
+
+  @override
+  String get settings_discord_rpc_disconnect => 'Close IPC';
+
+  @override
+  String get settings_discord_rpc_disconnected => 'IPC closed';
+
+  @override
+  String get settings_discord_rpc_enable => 'Enable Discord Rich Presence';
+
+  @override
+  String get settings_discord_rpc_enable_first =>
+      'Enable Discord Rich Presence first';
+
+  @override
+  String settings_discord_rpc_endpoint(String endpoint) {
+    return 'IPC endpoint: $endpoint';
+  }
+
+  @override
+  String get settings_discord_rpc_error => 'Discord RPC error';
+
+  @override
+  String get settings_discord_rpc_exchanging_code =>
+      'Completing OAuth exchange…';
+
+  @override
+  String get settings_discord_rpc_ipc_connected_auth_required =>
+      'Local Discord IPC connected; no OAuth HTTP request sent yet, authentication still required';
+
+  @override
+  String get settings_discord_rpc_ipc_open => 'Local IPC already open';
+
+  @override
+  String settings_discord_rpc_last_error(String error) {
+    return 'Last error: $error';
+  }
+
+  @override
+  String get settings_discord_rpc_needs_authorization =>
+      'Authorization required';
+
+  @override
+  String get settings_discord_rpc_not_configured => 'Client ID required';
+
+  @override
+  String get settings_discord_rpc_open_ipc => 'Open local IPC';
+
+  @override
+  String get settings_discord_rpc_platform_unsupported =>
+      'Discord Rich Presence is desktop only';
+
+  @override
+  String get settings_discord_rpc_save => 'Save settings';
+
+  @override
+  String get settings_discord_rpc_saved =>
+      'Discord Rich Presence settings saved';
+
+  @override
+  String get settings_discord_rpc_title => 'Discord Rich Presence';
+
+  @override
+  String get settings_discord_rpc_transport_unsupported =>
+      'Discord transport is not supported on this platform yet';
+
+  @override
+  String settings_discord_rpc_user(String user) {
+    return 'Authorized user: $user';
+  }
+
+  @override
+  String get settings_drive_connect => 'Connect to Google Drive';
+
+  @override
+  String get settings_drive_connect_loading => 'Connecting to Google Drive…';
+
+  @override
+  String get settings_drive_connected => 'Connected to Google Drive';
+
+  @override
+  String get settings_drive_desc =>
+      'Connect your Google Drive account to sync your data';
+
+  @override
+  String get settings_drive_disconnect => 'Disconnect';
+
+  @override
+  String get settings_drive_disconnect_loading => 'Disconnecting…';
+
+  @override
+  String get settings_drive_disconnected => 'Disconnected from Google Drive';
+
+  @override
+  String get settings_drive_status_connected => 'Connected';
+
+  @override
+  String get settings_drive_title => 'Google Drive Connection';
+
+  @override
+  String get settings_enable_auto_backup => 'Enable auto-backup';
+
+  @override
+  String get settings_enable_auto_backup_desc =>
+      'Create versioned snapshots automatically when due.';
+
+  @override
+  String get settings_execution_mode_desc =>
+      'On this platform, Bot Creator never hosts your bots. You can use your self-hosted runner or execute bots locally.';
+
+  @override
+  String get settings_execution_mode_local_active =>
+      'Bots now start locally. Runner settings stay stored and can be re-enabled anytime.';
+
+  @override
+  String get settings_execution_mode_no_runner =>
+      'No runner is configured yet. The app stays local until you add one.';
+
+  @override
+  String get settings_execution_mode_runner_priority =>
+      'The self-hosted runner is preferred. If no runner is configured, the app falls back to local.';
+
+  @override
+  String get settings_execution_mode_title => 'Execution mode';
+
+  @override
+  String get settings_execution_mode_use_runner => 'Use a self-hosted runner';
+
+  @override
+  String get settings_export => 'Export';
+
+  @override
+  String get settings_runner_type_label => 'Runner type';
+
+  @override
+  String get settings_export_app_data => 'Export App Data';
+
+  @override
+  String get settings_export_loading => 'Exporting…';
+
+  @override
+  String get settings_import => 'Import';
+
+  @override
+  String get settings_import_app_data => 'Import App Data';
+
+  @override
+  String get settings_import_loading => 'Importing…';
+
+  @override
+  String get settings_language_desc => 'Choose the language used by the app.';
+
+  @override
+  String get settings_language_system => 'Automatic (device)';
+
+  @override
+  String get settings_language_title => 'Language';
+
+  @override
+  String get settings_language_updated => 'Language updated';
+
+  @override
+  String settings_last_auto_backup_at(String date) {
+    return 'Last auto-backup: $date';
+  }
+
+  @override
+  String get settings_last_auto_backup_never => 'Last auto-backup: never';
+
+  @override
+  String get settings_legacy_prefix => 'Legacy command prefix';
+
+  @override
+  String get settings_legacy_prefix_helper =>
+      'Supports templates and scoped variables (bc_ optional). Example: ((guild.prefix | user.prefix | !))';
+
+  @override
+  String get settings_legacy_prefix_hint =>
+      '!, ? or ((guild.prefix | user.prefix | !))';
+
+  @override
+  String get settings_legal_desc =>
+      'Review how your data is handled and stored.';
+
+  @override
+  String get settings_legal_title => 'Legal';
+
+  @override
+  String get settings_local_hosting_enabled =>
+      'Mobile bots now use your device for hosting.';
+
+  @override
+  String get settings_logs_cleared => 'Diagnostics log cleared';
+
+  @override
+  String get settings_main_api_auth_failed =>
+      'Bot Creator Server session is invalid or expired';
+
+  @override
+  String get settings_main_api_check => 'Check Bot Creator Server';
+
+  @override
+  String get settings_main_api_clear => 'Clear';
+
+  @override
+  String get settings_main_api_cleared => 'Bot Creator Server settings cleared';
+
+  @override
+  String get settings_main_api_connect_discord => 'Connect Discord account';
+
+  @override
+  String get settings_main_api_connected => 'Bot Creator Server reachable ✓';
+
+  @override
+  String get settings_main_api_connected_discord => 'Discord account connected';
+
+  @override
+  String settings_main_api_connected_user(String user) {
+    return 'Connected as $user';
+  }
+
+  @override
+  String get settings_main_api_desc =>
+      'Connect Bot Creator to your Bot Creator Server and sign in with Discord. The Discord client secret must stay on the backend.';
+
+  @override
+  String get settings_main_api_desktop_only =>
+      'Discord login via Bot Creator Server is available on desktop only.';
+
+  @override
+  String get settings_main_api_disconnect => 'Disconnect account';
+
+  @override
+  String get settings_main_api_not_configured =>
+      'Bot Creator Server URL required';
+
+  @override
+  String get settings_main_api_save => 'Save Bot Creator Server';
+
+  @override
+  String get settings_main_api_saved => 'Bot Creator Server settings saved';
+
+  @override
+  String get settings_main_api_session_connected => 'Discord session active';
+
+  @override
+  String get settings_main_api_session_disconnected =>
+      'Discord session disconnected';
+
+  @override
+  String get settings_main_api_session_expired => 'Discord session expired';
+
+  @override
+  String get settings_main_api_title => 'Bot Creator Server';
+
+  @override
+  String get settings_main_api_unreachable => 'Bot Creator Server unreachable';
+
+  @override
+  String get settings_main_api_url_hint => 'https://api.example.com';
+
+  @override
+  String get settings_main_api_url_required =>
+      'Bot Creator Server URL required';
+
+  @override
+  String get settings_main_api_user_unknown => 'Discord user';
+
+  @override
+  String get settings_manual_snapshot_label => 'Manual snapshot';
+
+  @override
+  String get settings_member_badge => 'MEMBER';
+
+  @override
+  String get settings_notifications_desc =>
+      'Choose which types of push notifications you want to receive.';
+
+  @override
+  String get settings_notifications_title => 'Notifications';
+
+  @override
+  String get settings_notifications_topic_billing => 'Billing';
+
+  @override
+  String get settings_notifications_topic_billing_desc =>
+      'Subscription renewal reminders and payment confirmations.';
+
+  @override
+  String get settings_notifications_topic_botAlerts => 'Bot Alerts';
+
+  @override
+  String get settings_notifications_topic_botAlerts_desc =>
+      'Warnings when your bots go offline or encounter errors.';
+
+  @override
+  String get settings_notifications_topic_broadcast => 'Broadcast';
+
+  @override
+  String get settings_notifications_topic_broadcast_desc =>
+      'Important announcements and news from Bot Creator.';
+
+  @override
+  String get settings_notifications_topic_updates => 'Updates';
+
+  @override
+  String get settings_notifications_topic_updates_desc =>
+      'New features, app updates, and changelog highlights.';
+
+  @override
+  String get settings_open_ad_inspector => 'Open Ad Inspector';
+
+  @override
+  String get settings_oss_licenses => 'Open Source Licenses';
+
+  @override
+  String get settings_owner_badge => 'OWNER';
+
+  @override
+  String get settings_owner_fallback => 'Owner';
+
+  @override
+  String get settings_personal_owner_fallback => 'Personal User';
+
+  @override
+  String get settings_personal_owner_id_label => 'Owner ID: ';
+
+  @override
+  String get settings_personal_owner_label => 'Owner: ';
+
+  @override
+  String get settings_personal_ownership => 'Personal Ownership';
+
+  @override
+  String get settings_preferences_reset_done => 'Preferences reset';
+
+  @override
+  String get settings_privacy_policy => 'Privacy Policy';
+
+  @override
+  String get settings_raw_json_tile => 'View Raw JSON (RAW JSON)';
+
+  @override
+  String get settings_recovery_title => 'Recovery Pro';
+
+  @override
+  String get settings_replay_onboarding => 'Replay onboarding';
+
+  @override
+  String get settings_replay_onboarding_desc =>
+      'Reset onboarding and launch it again now.';
+
+  @override
+  String get settings_reset_preferences => 'Reset preferences';
+
+  @override
+  String get settings_reset_preferences_desc =>
+      'Reset theme, language and onboarding progress.';
+
+  @override
+  String get settings_restore_snapshot => 'Restore This Snapshot';
+
+  @override
+  String get settings_run_auto_backup_now => 'Run auto-backup now';
+
+  @override
+  String get settings_run_diagnostics => 'Run Diagnostics';
+
+  @override
+  String settings_runner_active(String url) {
+    return 'Active Runner API: $url';
+  }
+
+  @override
+  String get settings_runner_auth_failed => 'Runner rejected the API token';
+
+  @override
+  String get settings_runner_check => 'Check connection';
+
+  @override
+  String get settings_runner_clear => 'Clear';
+
+  @override
+  String get settings_runner_cleared => 'Runner settings cleared';
+
+  @override
+  String get settings_runner_connected => 'Runner reachable ✓';
+
+  @override
+  String get settings_runner_connecting => 'Checking connection…';
+
+  @override
+  String get settings_runner_desc =>
+      'Connect the app to a Bot Creator Runner. Remote runners should stay on trusted networks and use a bearer token.';
+
+  @override
+  String get settings_runner_use_remote => 'Use remote runner';
+
+  @override
+  String get settings_runner_use_remote_desc =>
+      'Connect to a remote Bot Creator Runner. Leave off to run bots locally on this device.';
+
+  @override
+  String get settings_runner_disable_temp => 'Temporarily disable Runner';
+
+  @override
+  String get settings_runner_disable_temp_desc =>
+      'Keep Runner settings but force local mode until re-enabled.';
+
+  @override
+  String get settings_runner_disconnected => 'Runner disconnected';
+
+  @override
+  String get settings_runner_not_connected => 'Not connected';
+
+  @override
+  String get settings_runner_reenabled => 'Runner re-enabled';
+
+  @override
+  String get settings_runner_save => 'Save settings';
+
+  @override
+  String get settings_runner_saved => 'Runner settings saved';
+
+  @override
+  String get settings_runner_temporarily_disabled =>
+      'Runner temporarily disabled (local mode active)';
+
+  @override
+  String get settings_runner_temporarily_disabled_saved =>
+      'Runner temporarily disabled';
+
+  @override
+  String get settings_runner_title => 'Runner API';
+
+  @override
+  String get settings_runner_token_hint =>
+      'Bearer token (optional on localhost)';
+
+  @override
+  String get settings_runner_token_label => 'Runner API token';
+
+  @override
+  String get settings_runner_unreachable => 'Runner unreachable';
+
+  @override
+  String get settings_runner_url_clear => 'Clear';
+
+  @override
+  String get settings_runner_url_cleared => 'Runner URL cleared';
+
+  @override
+  String get settings_runner_url_hint => 'http://192.168.1.x:8080';
+
+  @override
+  String get settings_runner_url_save => 'Save URL';
+
+  @override
+  String get settings_runner_url_saved => 'Runner URL saved';
+
+  @override
+  String get settings_runner_version => 'Runner';
+
+  @override
+  String get settings_embedded_runner_title => 'Embedded JS Runner';
+
+  @override
+  String settings_embedded_runner_download_progress(
+    String received,
+    String total,
+  ) {
+    return '$received of $total';
+  }
+
+  @override
+  String settings_embedded_runner_download_indeterminate(String received) {
+    return '$received downloaded';
+  }
+
+  @override
+  String get settings_embedded_runner_restart => 'Restart';
+
+  @override
+  String get settings_embedded_runner_restart_success =>
+      'Embedded JS runner restarted';
+
+  @override
+  String get settings_embedded_runner_restart_failed =>
+      'Failed to restart embedded JS runner';
+
+  @override
+  String get settings_embedded_runner_redownload => 'Re-download';
+
+  @override
+  String get settings_embedded_runner_redownload_success =>
+      'Embedded JS runner re-downloaded';
+
+  @override
+  String get settings_embedded_runner_redownload_failed =>
+      'Failed to re-download embedded JS runner';
+
+  @override
+  String get settings_embedded_runner_open_log => 'Open log';
+
+  @override
+  String settings_embedded_runner_binary_info(String size, String path) {
+    return 'Binary: $size · $path';
+  }
+
+  @override
+  String get settings_embedded_runner_status_running => 'Running';
+
+  @override
+  String get settings_embedded_runner_status_stopped => 'Not started';
+
+  @override
+  String get settings_embedded_runner_status_failed => 'Failed';
+
+  @override
+  String get settings_embedded_runner_status_downloading => 'Downloading…';
+
+  @override
+  String settings_embedded_runner_running_at(String url) {
+    return 'Running at $url';
+  }
+
+  @override
+  String settings_snapshot_apps_count(int count) {
+    return 'Apps: $count';
+  }
+
+  @override
+  String get settings_snapshot_apps_list => 'Apps in this snapshot';
+
+  @override
+  String get settings_snapshot_create_loading => 'Creating snapshot…';
+
+  @override
+  String settings_snapshot_created_at(String date) {
+    return 'Created: $date';
+  }
+
+  @override
+  String settings_snapshot_created_message(String id) {
+    return 'Snapshot created: $id';
+  }
+
+  @override
+  String get settings_snapshot_delete_loading => 'Deleting snapshot…';
+
+  @override
+  String get settings_snapshot_deleted => 'Snapshot deleted';
+
+  @override
+  String settings_snapshot_files_size(int count, String size) {
+    return 'Files: $count • Size: $size';
+  }
+
+  @override
+  String settings_snapshot_id(String id) {
+    return 'ID: $id';
+  }
+
+  @override
+  String settings_snapshot_label(String label) {
+    return 'Label: $label';
+  }
+
+  @override
+  String settings_snapshot_list_entry(String date, int count, String size) {
+    return '$date • $count files • $size';
+  }
+
+  @override
+  String get settings_snapshot_no_metadata => 'No app metadata available.';
+
+  @override
+  String get settings_snapshot_preview_title => 'Snapshot Preview';
+
+  @override
+  String get settings_snapshot_restore_loading => 'Restoring snapshot…';
+
+  @override
+  String get settings_snapshots_delete_all => 'Delete all snapshots';
+
+  @override
+  String settings_snapshots_delete_all_confirm(int count) {
+    return 'Permanently delete $count snapshot(s)? This action cannot be undone.';
+  }
+
+  @override
+  String settings_snapshots_delete_all_done(int count) {
+    return '$count snapshot(s) deleted.';
+  }
+
+  @override
+  String get settings_snapshots_delete_all_loading => 'Deleting all snapshots…';
+
+  @override
+  String get settings_snapshots_delete_all_title => 'Delete all snapshots';
+
+  @override
+  String settings_snapshots_delete_one_confirm(String label) {
+    return 'Permanently delete \"$label\"? This action cannot be undone.';
+  }
+
+  @override
+  String get settings_snapshots_delete_select_desc =>
+      'Select the snapshot to remove (oldest first).';
+
+  @override
+  String get settings_snapshots_delete_select_title => 'Delete a snapshot';
+
+  @override
+  String get settings_snapshots_delete_select_tooltip =>
+      'Delete a selected snapshot';
+
+  @override
+  String get settings_snapshots_empty => 'No snapshots found yet.';
+
+  @override
+  String get settings_snapshots_refresh => 'Refresh snapshots';
+
+  @override
+  String get settings_snapshots_refresh_loading => 'Refreshing snapshots…';
+
+  @override
+  String get settings_snapshots_title => 'Snapshots';
+
+  @override
+  String get settings_solo_pill => 'SOLO';
+
+  @override
+  String get settings_startup_mode_cloud_desc =>
+      'Recommended on Android and iOS. Logs, stats, and startup all go through Bot Creator.';
+
+  @override
+  String get settings_startup_mode_desc =>
+      'Choose whether your bots start on Bot Creator servers or locally on this device.';
+
+  @override
+  String get settings_startup_mode_ios_unavailable =>
+      'Local mode remains unavailable on iOS.';
+
+  @override
+  String get settings_startup_mode_ios_warning =>
+      'On iOS, local mode is not supported. Bots always use Bot Creator servers.';
+
+  @override
+  String get settings_startup_mode_local_desc =>
+      'Bots now start locally on this device.';
+
+  @override
+  String get settings_startup_mode_local_warning =>
+      'Local mode is an advanced option intended for debugging or specific needs. For normal use, keep Bot Creator servers enabled.';
+
+  @override
+  String get settings_startup_mode_title => 'Bot startup mode';
+
+  @override
+  String get settings_startup_mode_use_cloud => 'Use Bot Creator servers';
+
+  @override
+  String get settings_status_remove_confirm =>
+      'This status entry will be removed. Continue?';
+
+  @override
+  String get settings_tab => 'Settings';
+
+  @override
+  String get settings_team_id_label => 'Team ID: ';
+
+  @override
+  String settings_team_members_label(int count) {
+    return 'Team Members ($count)';
+  }
+
+  @override
+  String get settings_team_name_label => 'Team Name: ';
+
+  @override
+  String get settings_team_owner_label => 'Team Leader';
+
+  @override
+  String get settings_team_ownership => 'Team Ownership';
+
+  @override
+  String get settings_team_pill => 'TEAM';
+
+  @override
+  String get settings_version_title => 'Version';
+
+  @override
+  String get settings_view_startup_logs => 'View startup logs';
+
+  @override
+  String get startup_copy_diagnostics => 'Copy diagnostics';
+
+  @override
+  String get startup_diagnostics_copied => 'Diagnostics copied to clipboard';
+
+  @override
+  String get startup_error_title => 'Startup Error';
+
+  @override
+  String get startup_failed_message =>
+      'Bot Creator failed to start on this device.';
+
+  @override
+  String get startup_refresh_diagnostics => 'Refresh diagnostics';
+
+  @override
+  String get subscription_active_annual => 'Premium — Annual';
+
+  @override
+  String get subscription_active_label => 'Active plan:';
+
+  @override
+  String get subscription_active_monthly => 'Premium — Monthly';
+
+  @override
+  String get subscription_annual_title => 'Annual';
+
+  @override
+  String get subscription_benefit_fast_start =>
+      'Bots start instantly, no popup';
+
+  @override
+  String get subscription_benefit_no_ads => 'No ads anywhere in the app';
+
+  @override
+  String get subscription_benefit_support => 'Support independent development';
+
+  @override
+  String get subscription_error =>
+      'Purchase could not be completed. Please try again.';
+
+  @override
+  String get subscription_error_product_unavailable =>
+      'This plan is currently unavailable. Please try again later.';
+
+  @override
+  String get subscription_error_purchase_start_failed =>
+      'Purchase could not be started. Please try again.';
+
+  @override
+  String get subscription_error_store_unavailable =>
+      'The App Store is currently unavailable. Please try again in a moment.';
+
+  @override
+  String get subscription_feature_analytics_desc =>
+      'Access error rate, latency percentiles, and locale insights.';
+
+  @override
+  String get subscription_feature_analytics_title => 'Advanced analytics';
+
+  @override
+  String get subscription_feature_auto_restart_desc =>
+      'Restart the bot automatically when a full restart is required.';
+
+  @override
+  String get subscription_feature_auto_restart_title => 'Automatic restart';
+
+  @override
+  String get subscription_feature_auto_sharding_desc =>
+      'Scale large bots by distributing load across shard workers.';
+
+  @override
+  String get subscription_feature_auto_sharding_title => 'Automatic sharding';
+
+  @override
+  String get subscription_feature_coming_soon => 'Coming soon';
+
+  @override
+  String get subscription_feature_debug_replay_desc =>
+      'Record and replay command actions step by step for debugging.';
+
+  @override
+  String get subscription_feature_debug_replay_title => 'Visual debug replay';
+
+  @override
+  String get subscription_feature_instant_start_desc =>
+      'Start bots immediately without rewarded ad interruption.';
+
+  @override
+  String get subscription_feature_hosted_apps_title => 'Hosted applications';
+
+  @override
+  String get subscription_feature_hosted_apps_desc =>
+      'Run Docker containers with unlimited hosting — no ads required.';
+
+  @override
+  String get subscription_feature_instant_start_title => 'Instant start';
+
+  @override
+  String get subscription_feature_lavalink_desc =>
+      'Play music and audio in Discord voice channels using Lavalink.';
+
+  @override
+  String get subscription_feature_lavalink_title => 'Lavalink audio support';
+
+  @override
+  String get subscription_feature_no_ads_desc =>
+      'Remove all ad placements across the app experience.';
+
+  @override
+  String get subscription_feature_no_ads_title => 'No ads';
+
+  @override
+  String get subscription_feature_scheduler_desc =>
+      'Run workflows automatically every X minutes (up to 10 active).';
+
+  @override
+  String get subscription_feature_scheduler_title => 'Scheduler triggers';
+
+  @override
+  String get subscription_feature_webhooks_desc =>
+      'Create secure webhook endpoints and route calls to workflows.';
+
+  @override
+  String get subscription_feature_webhooks_title => 'Inbound webhooks';
+
+  @override
+  String get subscription_manage => 'Manage subscription';
+
+  @override
+  String get subscriptions_hub_title => 'Subscriptions';
+
+  @override
+  String get subscriptions_hub_subtitle =>
+      'View and manage your Bot Premium and hosted application plans.';
+
+  @override
+  String get subscriptions_hub_open_settings => 'Subscriptions & billing';
+
+  @override
+  String get subscriptions_hub_bot_premium_section => 'Bot Premium';
+
+  @override
+  String get subscriptions_hub_bot_premium_desc =>
+      'Remove ads and unlock premium features for your Discord bots.';
+
+  @override
+  String get subscriptions_hub_hosted_section => 'Hosted applications';
+
+  @override
+  String get subscriptions_hub_hosted_desc =>
+      'Run Docker containers in the cloud without watching ads.';
+
+  @override
+  String get subscriptions_hub_status_active => 'Active';
+
+  @override
+  String get subscriptions_hub_status_inactive => 'Not subscribed';
+
+  @override
+  String get subscriptions_hub_subscribe => 'Subscribe';
+
+  @override
+  String get subscriptions_hub_summary_both =>
+      'Bot Premium and Hosted applications active';
+
+  @override
+  String get subscriptions_hub_summary_bot_only => 'Bot Premium active';
+
+  @override
+  String get subscriptions_hub_summary_hosted_only =>
+      'Hosted applications active';
+
+  @override
+  String get subscriptions_hub_summary_none => 'No active subscriptions';
+
+  @override
+  String subscriptions_hub_expires_at(String date, String time) {
+    return 'Renews until $date at $time';
+  }
+
+  @override
+  String get subscriptions_hub_permanent => 'Permanent (no expiration)';
+
+  @override
+  String get subscriptions_hub_unlimited_bots => 'Unlimited bots';
+
+  @override
+  String get subscriptions_hub_managed_by_server => 'Managed by server';
+
+  @override
+  String get plan_limit_own_bots_title =>
+      'Personal bots not included in your plan';
+
+  @override
+  String get plan_limit_own_bots_desc =>
+      'Your plan only gives access to turnkey bots. Upgrade to a plan that includes personal bots to start this one.';
+
+  @override
+  String get plan_limit_bot_quota_title => 'Running bot limit reached';
+
+  @override
+  String get plan_limit_bot_quota_desc =>
+      'Your plan limits how many bots can run at the same time. Stop a bot, or upgrade your plan.';
+
+  @override
+  String plan_limit_bot_quota_ad_funded_desc(int count) {
+    return 'Your plan runs $count bots at the same time. This one is extra: it will run on hosting time earned by watching ads, and stop when that time runs out.';
+  }
+
+  @override
+  String get plan_limit_quota_continue_ad => 'Start ad-funded';
+
+  @override
+  String get plan_limit_turnkey_title =>
+      'Turnkey bots not included in your plan';
+
+  @override
+  String get plan_limit_turnkey_desc =>
+      'Your plan does not include turnkey bots or hosted applications. Choose a plan that includes them.';
+
+  @override
+  String get plan_limit_turnkey_quota_title => 'Turnkey bot limit reached';
+
+  @override
+  String get plan_limit_turnkey_quota_desc =>
+      'Your plan limits how many turnkey bots can run at the same time. Stop one, or upgrade your plan.';
+
+  @override
+  String get plan_limit_view_offers => 'View plans';
+
+  @override
+  String get subscription_upgrade_annual => 'Upgrade to annual';
+
+  @override
+  String get subscription_upgrade_two_apps => 'Upgrade to 2 containers';
+
+  @override
+  String get subscription_manage_cancel_hint =>
+      'To cancel or change billing, use Manage subscription — this opens the App Store or Google Play.';
+
+  @override
+  String get subscription_monthly_title => 'Monthly';
+
+  @override
+  String get subscription_not_available_on_platform =>
+      'Subscriptions are currently available on mobile only.';
+
+  @override
+  String get subscription_per_month => 'per month';
+
+  @override
+  String get subscription_per_year => 'per year';
+
+  @override
+  String get subscription_plan_desc =>
+      'Remove ads and get access to all current and upcoming premium features.';
+
+  @override
+  String get subscription_plan_label => 'Premium Basic';
+
+  @override
+  String get subscription_privacy => 'Privacy policy';
+
+  @override
+  String get subscription_restore => 'Restore purchases';
+
+  @override
+  String get subscription_restore_not_found => 'No active subscription found.';
+
+  @override
+  String get subscription_restored => 'Subscription restored successfully!';
+
+  @override
+  String subscription_save_badge(int percent) {
+    return 'SAVE $percent%';
+  }
+
+  @override
+  String get subscription_subtitle =>
+      'Choose a plan to unlock all premium features.';
+
+  @override
+  String get subscription_success =>
+      'Welcome to Premium! All ads have been removed.';
+
+  @override
+  String get subscription_terms => 'Terms of use';
+
+  @override
+  String get subscription_title => 'Premium';
+
+  @override
+  String get subscription_unavailable_platform =>
+      'Not available on this platform.';
+
+  @override
+  String get support_card_desc =>
+      'A question, a bug, a suggestion? Come chat with the team and the community.';
+
+  @override
+  String get support_card_title => 'Support & Community';
+
+  @override
+  String get support_discord_badge => 'Official support';
+
+  @override
+  String get team_tab => 'Team';
+
+  @override
+  String get team_tab_short => 'Team';
+
+  @override
+  String get team_chat_title => 'Team & chat';
+
+  @override
+  String get team_chat_empty =>
+      'No messages yet. Start the conversation with your team.';
+
+  @override
+  String get team_chat_input_hint => 'Write a message...';
+
+  @override
+  String get team_permissions_title => 'Permissions';
+
+  @override
+  String get team_chat_send => 'Send';
+
+  @override
+  String get team_chat_load_error => 'The team chat could not be loaded.';
+
+  @override
+  String get team_chat_send_error =>
+      'Message not sent. Check your connection and try again.';
+
+  @override
+  String get team_collaborators_title => 'Collaborators';
+
+  @override
+  String get team_collaborators_empty =>
+      'No collaborator yet. Add someone by their Discord user ID.';
+
+  @override
+  String get team_add_by_discord_id => 'Add by Discord user ID';
+
+  @override
+  String get team_add_discord_id_label => 'Discord user ID';
+
+  @override
+  String get team_add_error => 'The collaborator could not be added.';
+
+  @override
+  String get team_remove => 'Remove';
+
+  @override
+  String team_remove_confirm(String name) {
+    return 'Remove $name from this bot\'s team? They will immediately lose access to the bot and to its chat.';
+  }
+
+  @override
+  String get team_remove_error => 'The collaborator could not be removed.';
+
+  @override
+  String get team_not_in_portal_warning =>
+      'This Discord user ID is not part of your application\'s team in the Discord Developer Portal. You can still add them: this bot will simply not show up in their portal team.';
+
+  @override
+  String get team_permission_edit_commands => 'Edit commands';
+
+  @override
+  String get team_permission_start_stop => 'Start and stop the bot';
+
+  @override
+  String get team_permission_claim_ads => 'Claim ad rewards';
+
+  @override
+  String get team_permission_invite => 'Invite the bot to servers';
+
+  @override
+  String get team_permission_view_chat => 'Read and write in the team chat';
+
+  @override
+  String get team_portal_section_title =>
+      'Discord Developer Portal team (read-only)';
+
+  @override
+  String get team_unavailable =>
+      'The team chat needs a connection to the Bot Creator server.';
+
+  @override
+  String get team_owner_badge => 'OWNER';
+
+  @override
+  String get team_chat_me => 'Me';
+
+  @override
+  String get team_chat_send_failed => 'Send failed';
+
+  @override
+  String get team_chat_sending => 'Sending...';
+
+  @override
+  String get team_chat_no_access =>
+      'The owner has not given you access to the chat.';
+
+  @override
+  String get home_section_my_bots => 'MY BOTS';
+
+  @override
+  String get home_section_shared_with_me => 'SHARED WITH ME';
+
+  @override
+  String get support_join_discord => 'Join the Discord server';
+
+  @override
+  String get template_fun_description => 'Coin flip, polls, and magic 8-ball.';
+
+  @override
+  String get template_fun_name => 'Fun Bot';
+
+  @override
+  String template_gallery_already_exists(String name) {
+    return 'Command \"$name\" already exists and was skipped.';
+  }
+
+  @override
+  String get template_gallery_apply => 'Use this template';
+
+  @override
+  String template_gallery_apply_error(String error) {
+    return 'Failed to apply template: $error';
+  }
+
+  @override
+  String template_gallery_apply_success(int count, int wCount) {
+    return '$count command(s) and $wCount workflow(s) added from template.';
+  }
+
+  @override
+  String template_gallery_commands_count(int count) {
+    return '$count command(s)';
+  }
+
+  @override
+  String get template_gallery_empty => 'No templates available.';
+
+  @override
+  String template_gallery_nothing_to_remove(String name) {
+    return 'Nothing to remove for $name.';
+  }
+
+  @override
+  String get template_gallery_remove_confirm =>
+      'Are you sure you want to remove all commands and workflows from this template?';
+
+  @override
+  String get template_gallery_remove_title => 'Remove Template';
+
+  @override
+  String get template_gallery_removed =>
+      'Template commands and workflows removed.';
+
+  @override
+  String get template_gallery_subtitle =>
+      'Quick-start your bot with a ready-made template.';
+
+  @override
+  String get template_gallery_sync_warning =>
+      'Commands saved locally. Start your bot to register them on Discord.';
+
+  @override
+  String get template_gallery_title => 'Templates';
+
+  @override
+  String template_gallery_workflows_count(int count) {
+    return '$count workflow(s)';
+  }
+
+  @override
+  String get template_moderation_description =>
+      'Ban, kick, mute members and clear messages.';
+
+  @override
+  String get template_moderation_name => 'Moderation Bot';
+
+  @override
+  String get template_utility_description =>
+      'Ping, avatar lookup, and bot-says commands.';
+
+  @override
+  String get template_utility_name => 'Utility Bot';
+
+  @override
+  String get template_welcome_description =>
+      'Greet new members, say hello, and show server info.';
+
+  @override
+  String get template_welcome_name => 'Welcome Bot';
+
+  @override
+  String unit_day(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+      zero: '0 days',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unit_hour(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hours',
+      one: '1 hour',
+      zero: '0 hours',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unit_minute(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes',
+      one: '1 minute',
+      zero: '0 minutes',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String unit_month(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count months',
+      one: '1 month',
+      zero: '0 months',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get unit_short_month => 'Months';
+
+  @override
+  String get unit_short_day => 'Days';
+
+  @override
+  String get unit_short_hour => 'Hours';
+
+  @override
+  String get unit_short_minute => 'Min';
+
+  @override
+  String get unit_short_second => 'Sec';
+
+  @override
+  String get validation_awaited_callback_format =>
+      'Awaited callback must use \$awaitedCommand[name;filter] or \$awaitedCommandError[name].';
+
+  @override
+  String validation_awaited_callback_length(int max) {
+    return 'Awaited callback trigger must be at most $max characters long';
+  }
+
+  @override
+  String get validation_awaited_callback_local_only =>
+      'Awaited callbacks require a local-only Prefix Command.';
+
+  @override
+  String get validation_command_name_invalid_chars =>
+      'Slash command names must be 1-32 lowercase characters. Allowed: letters, numbers, hyphens, underscores, and apostrophes.';
+
+  @override
+  String validation_command_name_length(int max) {
+    return 'Command name must be at most $max characters long';
+  }
+
+  @override
+  String get validation_command_name_must_be_lowercase =>
+      'Slash command names must use lowercase letters when a lowercase variant exists.';
+
+  @override
+  String validation_command_payload_too_large(int current, int max) {
+    return 'This slash command exceeds Discord\'s $max character limit ($current used). Shorten names, descriptions, options, or choices.';
+  }
+
+  @override
+  String get validation_command_name_no_ampersand =>
+      'Command name cannot start with an ampersand';
+
+  @override
+  String get validation_command_name_no_at =>
+      'Command name cannot start with an at sign';
+
+  @override
+  String get validation_command_name_no_exclamation =>
+      'Command name cannot start with an exclamation mark';
+
+  @override
+  String get validation_command_name_no_hash =>
+      'Command name cannot start with a hash';
+
+  @override
+  String get validation_command_name_no_percent =>
+      'Command name cannot start with a percent sign';
+
+  @override
+  String get validation_command_name_no_slash =>
+      'Command name cannot start with a slash';
+
+  @override
+  String get validation_command_name_no_spaces =>
+      'Command name cannot contain spaces';
+
+  @override
+  String get validation_command_name_no_underscore =>
+      'Command name cannot start with an underscore';
+
+  @override
+  String get validation_command_name_required => 'Please enter a command name';
+
+  @override
+  String get validation_interaction_no_response =>
+      'Interaction commands must include at least one response action (Respond with Message, Component V2, or Modal).';
+
+  @override
+  String get validation_interaction_no_response_short => 'No response action';
+
+  @override
+  String get validation_invalid_permissions =>
+      'Invalid default member permissions bitfield. Use a positive integer or leave empty.';
+
+  @override
+  String get validation_legacy_chat_input_only =>
+      'Prefix mode is only available for chat input commands.';
+
+  @override
+  String get validation_legacy_only_new_or_local =>
+      'Legacy-only mode can only be used for new commands or existing local commands.';
+
+  @override
+  String get validation_legacy_only_requires_legacy =>
+      'Local-only commands require prefix mode to be enabled.';
+
+  @override
+  String get validation_modal_not_legacy =>
+      'Modal responses are not supported in legacy command mode.';
+
+  @override
+  String get validation_option_description_required =>
+      'Every option must have a description.';
+
+  @override
+  String get validation_option_group_only_subcommands =>
+      'A SubCommandGroup can only contain SubCommand options.';
+
+  @override
+  String get validation_option_group_top_level_only =>
+      'SubCommandGroup is only allowed at the top level.';
+
+  @override
+  String get validation_option_hierarchy_no_choices =>
+      'SubCommand and SubCommandGroup cannot define choices.';
+
+  @override
+  String get validation_option_hierarchy_no_min_max =>
+      'SubCommand and SubCommandGroup cannot define min/max values.';
+
+  @override
+  String get validation_option_hierarchy_not_required =>
+      'SubCommand and SubCommandGroup cannot be marked as required.';
+
+  @override
+  String get validation_option_leaf_no_nested =>
+      'Regular options cannot contain nested options.';
+
+  @override
+  String get validation_option_max_entries =>
+      'Each option level supports at most 25 entries.';
+
+  @override
+  String validation_option_name_duplicate(String name) {
+    return 'Duplicate option name \"$name\" at the same level.';
+  }
+
+  @override
+  String get validation_option_name_must_be_lowercase =>
+      'Option names must use lowercase letters when a lowercase variant exists.';
+
+  @override
+  String get validation_option_required_before_optional =>
+      'Required options must be listed before optional ones.';
+
+  @override
+  String get validation_option_name_required =>
+      'Every option must have a name.';
+
+  @override
+  String get validation_option_no_mix_top_level =>
+      'Top-level options cannot mix subcommands/groups with regular options.';
+
+  @override
+  String get validation_option_subcommand_depth =>
+      'SubCommand nesting depth exceeds Discord limits.';
+
+  @override
+  String get validation_option_subcommand_no_nested =>
+      'A SubCommand cannot contain nested SubCommand or SubCommandGroup.';
+
+  @override
+  String get variable_autocomplete_numeric_title =>
+      'Dynamic numeric suggestions';
+
+  @override
+  String get variable_autocomplete_title =>
+      'Available variables — tap to insert';
+
+  @override
+  String get variable_category_author => 'Author';
+
+  @override
+  String get variable_category_bot => 'Bot';
+
+  @override
+  String get variable_category_channel => 'Channel';
+
+  @override
+  String get variable_category_context => 'Context';
+
+  @override
+  String get variable_category_functions => 'Functions';
+
+  @override
+  String get variable_category_guild => 'Server';
+
+  @override
+  String get variable_category_interaction => 'Interaction';
+
+  @override
+  String get variable_category_member => 'Member';
+
+  @override
+  String get variable_category_message => 'Message';
+
+  @override
+  String get variable_category_other => 'Other';
+
+  @override
+  String get variable_category_temp => 'Temporary';
+
+  @override
+  String get variable_category_user => 'User';
+
+  @override
+  String get webhooks_actions => 'Actions';
+
+  @override
+  String get webhooks_add_action => 'Add webhook';
+
+  @override
+  String get webhooks_add_title => 'Add inbound webhook';
+
+  @override
+  String get webhooks_copied => 'Full webhook URL copied.';
+
+  @override
+  String get webhooks_copy_path => 'Copy path';
+
+  @override
+  String get webhooks_copy_secret => 'Copy secret';
+
+  @override
+  String get webhooks_copy_url => 'Copy URL';
+
+  @override
+  String webhooks_count(int count, String limit) {
+    return 'Webhooks: $count$limit';
+  }
+
+  @override
+  String webhooks_delete_confirm(String label) {
+    return 'Delete \"$label\"? This cannot be undone.';
+  }
+
+  @override
+  String get webhooks_delete_confirm_no_label => 'This cannot be undone.';
+
+  @override
+  String get webhooks_delete_title => 'Delete inbound webhook?';
+
+  @override
+  String get webhooks_edit_title => 'Edit inbound webhook';
+
+  @override
+  String get webhooks_empty => 'No inbound webhooks yet.';
+
+  @override
+  String get webhooks_generate => 'Generate';
+
+  @override
+  String get webhooks_invalid_runner_url => 'Runner URL is invalid.';
+
+  @override
+  String webhooks_limit_reached(int limit) {
+    return 'Inbound webhook limit reached ($limit).';
+  }
+
+  @override
+  String get webhooks_missing_data => 'Webhook path or secret is missing.';
+
+  @override
+  String get webhooks_no_workflows =>
+      'Create at least one workflow before adding an inbound webhook.';
+
+  @override
+  String get webhooks_page_title => 'Inbound Webhooks';
+
+  @override
+  String get webhooks_path_copied => 'Path copied.';
+
+  @override
+  String get webhooks_path_exists =>
+      'This path already exists. Choose another one.';
+
+  @override
+  String get webhooks_path_hint => 'orders/new';
+
+  @override
+  String get webhooks_path_label => 'Path';
+
+  @override
+  String get webhooks_runner_url_required =>
+      'Configure a Runner URL first to copy the full webhook URL.';
+
+  @override
+  String webhooks_save_failed(String error) {
+    return 'Failed to save inbound webhook: $error';
+  }
+
+  @override
+  String get webhooks_secret_copied => 'Secret copied.';
+
+  @override
+  String get webhooks_secret_label => 'Webhook secret';
+
+  @override
+  String get webhooks_target_label => 'Workflow target';
+
+  @override
+  String webhooks_workflow_subtitle(String workflow) {
+    return 'Workflow: $workflow';
+  }
+
+  @override
+  String get wizard_advanced_trigger => 'Advanced trigger settings';
+
+  @override
+  String get wizard_apply_quick_start => 'Apply quick start to draft';
+
+  @override
+  String get wizard_bdfd_mode_enabled => 'BDFD script mode enabled';
+
+  @override
+  String get wizard_code_advanced => 'Code / Advanced';
+
+  @override
+  String get wizard_command_body => 'Command body';
+
+  @override
+  String get wizard_create_command => 'Create command';
+
+  @override
+  String get wizard_dart_mode_enabled => 'Dart script mode enabled';
+
+  @override
+  String get wizard_edit_reply => 'Edit reply details';
+
+  @override
+  String get wizard_legacy_options_subtitle =>
+      'Legacy command options and local-only behavior';
+
+  @override
+  String get wizard_quick_start_applied =>
+      'Quick start applied to the command draft.';
+
+  @override
+  String get wizard_quick_start_subtitle =>
+      'Use the legacy simple builder as a starting point, then apply it to the shared draft.';
+
+  @override
+  String get wizard_quick_starts => 'Quick starts';
+
+  @override
+  String get wizard_reply_summary => 'Reply summary';
+
+  @override
+  String get wizard_save_command => 'Save command';
+
+  @override
+  String get wizard_step_actions => 'Actions';
+
+  @override
+  String get wizard_step_infos => 'Infos';
+
+  @override
+  String get wizard_step_reply => 'Reply';
+
+  @override
+  String get wizard_step_review => 'Review';
+
+  @override
+  String get wizard_step_trigger_inputs => 'Trigger & Inputs';
+
+  @override
+  String get wizard_visual_mode_enabled => 'Visual workflow mode enabled';
+
+  @override
+  String get workflow_argument_hint =>
+      'Workflow argument (accessible via \$arg)';
+
+  @override
+  String get workflow_arguments_section => 'Workflow Arguments';
+
+  @override
+  String get workflow_auto_defer => 'Auto defer';
+
+  @override
+  String get workflow_auto_defer_actions => 'Auto defer if actions';
+
+  @override
+  String get workflow_bdfd_editor_desc =>
+      'Write the complete BDFD code for this workflow response. Diagnostics are displayed live.';
+
+  @override
+  String get workflow_bdfd_editor_title => 'BDFD Editor';
+
+  @override
+  String get workflow_condition_off => 'Condition off';
+
+  @override
+  String get workflow_condition_off_upper => 'Condition OFF';
+
+  @override
+  String get workflow_condition_on => 'Condition on';
+
+  @override
+  String get workflow_condition_on_upper => 'Condition ON';
+
+  @override
+  String get workflow_dart_editor_desc =>
+      'Write full Dart code for this workflow response. Diagnostics are displayed live.';
+
+  @override
+  String get workflow_dart_editor_title => 'Dart Script Editor';
+
+  @override
+  String workflow_edit_call_args(int count) {
+    return 'Edit Call Arguments ($count)';
+  }
+
+  @override
+  String get workflow_entry_point => 'Entry Point';
+
+  @override
+  String get workflow_entry_point_helper =>
+      'Defaults to workflow entry point when empty';
+
+  @override
+  String get workflow_entry_point_optional => 'Entry Point (optional)';
+
+  @override
+  String get workflow_hint_name => 'e.g. handle_form_submit';
+
+  @override
+  String get workflow_manual => 'Manual';
+
+  @override
+  String get workflow_mode_bdfd => 'BDFD Script';
+
+  @override
+  String get workflow_mode_bdfd_note =>
+      'Write your entire workflow as a single BDFD script. The script is compiled and validated in real time.';
+
+  @override
+  String get workflow_mode_dart => 'Dart Direct';
+
+  @override
+  String get workflow_mode_dart_note =>
+      'Write your workflow in Dart. Diagnostics are updated while editing to catch errors early.';
+
+  @override
+  String get workflow_mode_desc =>
+      'Choose between a visual action builder or a full BDFD scripting editor.';
+
+  @override
+  String get workflow_mode_title => 'Workflow mode';
+
+  @override
+  String get workflow_mode_visual => 'Visual';
+
+  @override
+  String get workflow_mode_visual_note =>
+      'Build your workflow visually by adding individual actions with the card editor.';
+
+  @override
+  String get workflow_no_auto_defer => 'No auto defer';
+
+  @override
+  String get workflow_no_workflow_note =>
+      'Note: If no workflow is selected, submitting this modal will do nothing.';
+
+  @override
+  String workflow_on_submit_info(String name, String entry, int args) {
+    return 'On submit, workflow \"$name\" will run (entry: $entry, args: $args).';
+  }
+
+  @override
+  String get workflow_root_json_error => 'Root must be a JSON object';
+
+  @override
+  String workflow_saved_snackbar(String name, int count) {
+    return 'Workflow \"$name\" saved ($count action(s)).';
+  }
+
+  @override
+  String get workflow_set_call_args => 'Set Call Arguments';
+
+  @override
+  String get workflow_visibility_ephemeral => 'Ephemeral';
+
+  @override
+  String get workflow_visibility_public => 'Public';
+
+  @override
+  String get workflows_add_arg => 'Add argument';
+
+  @override
+  String get workflows_arg_default => 'Default value';
+
+  @override
+  String get workflows_arg_hint =>
+      'Arguments become runtime variables as ((arg.name)) and ((workflow.arg.name)).';
+
+  @override
+  String get workflows_arg_name => 'Name';
+
+  @override
+  String get workflows_arg_required_short => 'Req';
+
+  @override
+  String get workflows_arguments => 'Arguments';
+
+  @override
+  String get workflows_continue => 'Continue';
+
+  @override
+  String get workflows_copy_done_base64 => 'Workflows copied as Base64.';
+
+  @override
+  String get workflows_copy_done_json => 'Workflows copied as JSON.';
+
+  @override
+  String get workflows_copy_none => 'No workflows to copy.';
+
+  @override
+  String get workflows_create => 'Create Workflow';
+
+  @override
+  String get workflows_create_subtitle =>
+      'Automate bot actions and events in a few clicks';
+
+  @override
+  String get workflows_create_event => 'Create Event';
+
+  @override
+  String get workflows_create_event_subtitle =>
+      'React to Discord messages, member joins, and events';
+
+  @override
+  String workflows_delete_confirm(String name) {
+    return 'Are you sure you want to delete \"$name\"? This action cannot be undone.';
+  }
+
+  @override
+  String get workflows_delete_title => 'Delete workflow';
+
+  @override
+  String get workflows_docs_tooltip => 'Open documentation center';
+
+  @override
+  String get workflows_edit => 'Edit Workflow';
+
+  @override
+  String get workflows_empty => 'No workflows yet';
+
+  @override
+  String get workflows_entry_point => 'Default Entry Point';
+
+  @override
+  String get workflows_entry_point_hint =>
+      'Used if caller does not override it';
+
+  @override
+  String get workflows_event_available_vars => 'Available variables';
+
+  @override
+  String get workflows_event_category => 'Event category';
+
+  @override
+  String get workflows_event_category_channels => 'Channels';
+
+  @override
+  String get workflows_event_category_invites => 'Invites';
+
+  @override
+  String get workflows_event_category_members => 'Members';
+
+  @override
+  String get workflows_event_category_messages => 'Messages';
+
+  @override
+  String get workflows_event_channel_update => 'Channel Update';
+
+  @override
+  String get workflows_event_channel_update_desc =>
+      'Triggered whenever a channel is updated.';
+
+  @override
+  String get workflows_event_hint =>
+      'Choose the Discord event that should trigger this workflow.';
+
+  @override
+  String get workflows_event_invite_create => 'Invite Create';
+
+  @override
+  String get workflows_event_invite_create_desc =>
+      'Triggered whenever an invite is created.';
+
+  @override
+  String get workflows_event_member_join => 'Member Join';
+
+  @override
+  String get workflows_event_member_join_desc =>
+      'Triggered whenever a member joins the guild.';
+
+  @override
+  String get workflows_event_member_remove => 'Member Remove';
+
+  @override
+  String get workflows_event_member_remove_desc =>
+      'Triggered whenever a member leaves or is removed from the guild.';
+
+  @override
+  String get workflows_event_message_create => 'Message Create';
+
+  @override
+  String get workflows_event_message_create_desc =>
+      'Triggered whenever a new message is created.';
+
+  @override
+  String get workflows_event_message_delete => 'Message Delete';
+
+  @override
+  String get workflows_event_message_delete_desc =>
+      'Triggered whenever a message is deleted.';
+
+  @override
+  String get workflows_event_message_update => 'Message Update';
+
+  @override
+  String get workflows_event_message_update_desc =>
+      'Triggered whenever an existing message is edited.';
+
+  @override
+  String workflows_event_preview(String event) {
+    return 'Listen for: $event';
+  }
+
+  @override
+  String get workflows_event_section => 'Event Workflows';
+
+  @override
+  String workflows_event_subtitle(int count, String event) {
+    return '$count action(s) • Listen for: $event';
+  }
+
+  @override
+  String get workflows_export_base64 => 'Copy as Base64';
+
+  @override
+  String get workflows_export_base64_desc => 'Convenient for compact sharing.';
+
+  @override
+  String get workflows_export_json => 'Copy as JSON';
+
+  @override
+  String get workflows_export_json_desc => 'Readable and easy to edit.';
+
+  @override
+  String get workflows_export_tooltip => 'Copy workflows';
+
+  @override
+  String get workflows_folder_hint => 'Optional folder name';
+
+  @override
+  String get workflows_folder_label => 'Folder';
+
+  @override
+  String get workflows_general_section => 'General Workflows';
+
+  @override
+  String get workflows_import_action => 'Import';
+
+  @override
+  String get workflows_import_desc =>
+      'Paste a JSON payload or Base64(JSON) exported from Bot Creator.';
+
+  @override
+  String workflows_import_done(int count) {
+    return '$count workflow(s) imported.';
+  }
+
+  @override
+  String get workflows_import_empty => 'No data to import.';
+
+  @override
+  String get workflows_import_input_hint => 'Paste the JSON or Base64 here...';
+
+  @override
+  String get workflows_import_invalid_format =>
+      'Invalid format. Use JSON or Base64(JSON).';
+
+  @override
+  String get workflows_import_no_valid => 'No valid workflow found.';
+
+  @override
+  String get workflows_import_overwrite =>
+      'Replace when the name already exists';
+
+  @override
+  String get workflows_import_title => 'Import workflows';
+
+  @override
+  String get workflows_import_tooltip => 'Import workflows';
+
+  @override
+  String get workflows_js_event_available_context_copy_hint =>
+      'Tap to copy into your script';
+
+  @override
+  String workflows_js_event_available_context_copied(String name) {
+    return 'Copied $name';
+  }
+
+  @override
+  String get workflows_js_event_available_context_sparse_note =>
+      'This event’s first argument is not bound as message/interaction/member/channel/guild. Use client and your stored variables/db, or inspect the Discord.js event docs for the full payload.';
+
+  @override
+  String get workflows_js_event_available_context_subtitle =>
+      'These globals are injected into your script for this event. Use discord.js properties (e.g. message.author.username), not ((message.content)).';
+
+  @override
+  String get workflows_listen_for => 'Listen for';
+
+  @override
+  String get workflows_move_to_folder => 'Move to folder';
+
+  @override
+  String get workflows_name => 'Workflow Name';
+
+  @override
+  String get workflows_new_folder_hint => 'New folder name';
+
+  @override
+  String get workflows_no_match => 'No workflows match the current filters.';
+
+  @override
+  String get workflows_no_matches => 'No workflows match the current filters.';
+
+  @override
+  String get workflows_remove_from_folder => 'Remove from folder';
+
+  @override
+  String get workflows_search_hint => 'Search workflows...';
+
+  @override
+  String workflows_subtitle(int count, String entry, String args) {
+    return '$count action(s) • entry: $entry • args: $args';
+  }
+
+  @override
+  String get workflows_tab => 'Workflows';
+
+  @override
+  String get workflows_tab_short => 'Flow';
+
+  @override
+  String get workflows_title => 'Workflows';
+
+  @override
+  String get workflows_type_badge_event => 'Event';
+
+  @override
+  String get workflows_type_badge_general => 'General';
+
+  @override
+  String get workflows_type_event => 'Event workflow';
+
+  @override
+  String get workflows_type_event_desc =>
+      'Automatically reacts when Discord emits an event.';
+
+  @override
+  String get workflows_type_general => 'General workflow';
+
+  @override
+  String get workflows_type_general_desc =>
+      'Reusable logic called from commands, buttons, modals, or other workflows.';
+
+  @override
+  String get workflows_type_title => 'Workflow type';
+
+  @override
+  String get settings_sync_title => 'Synchronization';
+
+  @override
+  String get settings_sync_force_title => 'Force Sync Commands';
+
+  @override
+  String get settings_sync_force_desc =>
+      'Recreates the commands missing on Discord and deletes those no longer defined in Bot Creator.';
+
+  @override
+  String get settings_sync_force_button => 'Sync with Discord';
+
+  @override
+  String get settings_sync_force_dialog_title => 'Force Sync Commands';
+
+  @override
+  String get settings_sync_force_dialog_desc =>
+      'Commands missing on Discord will be recreated, and commands no longer defined in Bot Creator will be deleted. Continue?';
+
+  @override
+  String get settings_sync_force_dialog_confirm => 'Force Sync';
+
+  @override
+  String settings_sync_force_success_counts(
+    int created,
+    int relinked,
+    int deleted,
+  ) {
+    return 'Sync complete: $created recreated, $relinked relinked, $deleted deleted on Discord.';
+  }
+
+  @override
+  String get settings_sync_force_no_local_commands =>
+      'No local command to register: nothing was touched on Discord (an empty sync would erase all your commands).';
+
+  @override
+  String settings_sync_force_error(Object error) {
+    return 'Failed to force sync: $error';
+  }
+
+  @override
+  String get settings_runtime_engine_switch_dialog_title =>
+      'Change runtime engine?';
+
+  @override
+  String get settings_runtime_engine_switch_dialog_desc =>
+      'This is a destructive action.\n\n• Your config is backed up to the cloud before any local data is removed.\n• The new engine applies only after you restart the bot.\n• All local commands, workflows, and scheduled triggers will be removed.\n• All commands registered on Discord will also be deleted.\n\nYou can restore everything from Version History (restored locally automatically).';
+
+  @override
+  String get settings_runtime_engine_switch_dialog_confirm => 'Change engine';
+
+  @override
+  String get settings_runtime_engine_switch_success =>
+      'Runtime engine updated. Restart the bot when you are ready.';
+
+  @override
+  String settings_runtime_engine_switch_error(String error) {
+    return 'Failed to change runtime engine: $error';
+  }
+
+  @override
+  String get settings_runtime_engine_switch_empty_payload =>
+      'Switch cancelled: the new configuration would be empty (no command, no event, no webhook, no variable). Your local commands and workflows were left untouched.';
+
+  @override
+  String get app_create_select_type_title => 'Select Application Type';
+
+  @override
+  String get app_create_select_type_desc =>
+      'Choose the type of application you want to create to get started.';
+
+  @override
+  String get app_create_type_discord => 'Discord Bot';
+
+  @override
+  String get app_create_type_discord_desc =>
+      'Build and run a customizable Discord bot with logic, triggers, and dynamic canvas panels.';
+
+  @override
+  String get app_create_type_hosted => 'Turnkey Bot';
+
+  @override
+  String get app_create_type_hosted_desc =>
+      'Deploy ready-to-use bots (music, moderation, utility...) hosted 24/7 in seconds.';
+
+  @override
+  String get app_create_coming_soon => 'Coming Soon';
+
+  @override
+  String get app_create_sample_title => 'Create Sample Command';
+
+  @override
+  String app_create_sample_desc(String botName) {
+    return 'Would you like to add a sample /ping command to $botName? It responds with \"Pong!\" and is a great starting point to learn how Bot Creator works.';
+  }
+
+  @override
+  String get app_create_sample_skip => 'Skip';
+
+  @override
+  String get app_create_sample_confirm => 'Add sample /ping';
+
+  @override
+  String get app_create_sample_success =>
+      'Sample /ping command created successfully!';
+
+  @override
+  String get commands_empty_title => 'Create your first command!';
+
+  @override
+  String get commands_empty_description =>
+      'A command lets your bot respond when someone types /something on Discord.';
+
+  @override
+  String get commands_empty_create_button => 'Create a command';
+
+  @override
+  String get commands_empty_marketplace_link =>
+      'Or start from a Marketplace template';
+
+  @override
+  String get command_created_success_title => 'Your command is ready!';
+
+  @override
+  String get command_created_success_subtitle => 'What do you want to do next?';
+
+  @override
+  String get command_created_start_bot => 'Start my bot';
+
+  @override
+  String get command_created_start_bot_hint =>
+      'Open your bot\'s Home tab and tap Start to bring it online.';
+
+  @override
+  String get command_created_invite => 'Invite to a server';
+
+  @override
+  String get command_created_invite_error => 'Could not open the invite link.';
+
+  @override
+  String get command_created_create_another => 'Create another command';
+
+  @override
+  String get command_created_close => 'Close';
+
+  @override
+  String get beginner_mode_label => 'Beginner mode';
+
+  @override
+  String get beginner_mode_on_hint => 'Showing essential tabs only';
+
+  @override
+  String get beginner_mode_off_hint => 'Showing all features';
+
+  @override
+  String get commands_empty_sample_ping => 'Add a sample /ping command';
+
+  @override
+  String get command_created_sample_success =>
+      'Sample /ping command created! It responds \"Pong!\"';
+
+  @override
+  String get onboarding_create_now => 'Create my bot now';
+
+  @override
+  String get onboarding_command_now => 'Create your first command';
+
+  @override
+  String get container_list_title => 'Turnkey Bots';
+
+  @override
+  String get container_list_session_missing => 'Session not available';
+
+  @override
+  String get container_list_session_hint =>
+      'Please connect to your account first.';
+
+  @override
+  String get container_list_error => 'Failed to load bots';
+
+  @override
+  String get container_list_retry => 'Retry';
+
+  @override
+  String get container_list_empty => 'No turnkey bots';
+
+  @override
+  String get container_list_empty_hint =>
+      'Deploy your first ready-to-use bot in 1 click.';
+
+  @override
+  String get container_list_deploy_btn => 'Deploy Turnkey Bot';
+
+  @override
+  String get container_list_unsupported_badge => 'Unsupported';
+
+  @override
+  String get container_list_expired => 'Expired';
+
+  @override
+  String container_list_expiry_minutes(int minutes) {
+    return '${minutes}m left';
+  }
+
+  @override
+  String container_list_expiry_hours(int hours, int minutes) {
+    return '${hours}h ${minutes}m left';
+  }
+
+  @override
+  String container_list_expiry_days(int days, int hours) {
+    return '${days}d ${hours}h left';
+  }
+
+  @override
+  String get container_deploy_title => 'Deploy Turnkey Bot';
+
+  @override
+  String get container_deploy_template_section => 'Ready-to-use Template';
+
+  @override
+  String get container_deploy_managed_hosting => '24/7 Managed Hosting';
+
+  @override
+  String get container_deploy_bot_config_section => 'Discord Bot Configuration';
+
+  @override
+  String get container_deploy_paste_token_hint =>
+      'Paste Discord bot token here';
+
+  @override
+  String get container_deploy_env_fields_section => 'Environment Variables';
+
+  @override
+  String get container_deploy_env_server_provided => 'Provided by the server';
+
+  @override
+  String container_deploy_env_field_required(String field) {
+    return 'The field $field is required.';
+  }
+
+  @override
+  String get container_deploy_discord_prereqs => 'Discord Prerequisites';
+
+  @override
+  String get container_deploy_launch_btn => 'Launch Turnkey Bot';
+
+  @override
+  String get container_deploy_image_label => 'Image';
+
+  @override
+  String get container_deploy_image_hint =>
+      'Docker image with tag (e.g. ghcr.io/albertgmz/beatdock:latest)';
+
+  @override
+  String get container_deploy_template_label => 'Template';
+
+  @override
+  String get container_deploy_template_easy_music => 'Easy Music Bot';
+
+  @override
+  String get container_deploy_template_custom => 'Custom image';
+
+  @override
+  String get container_deploy_easy_music_hint =>
+      'Only your Discord bot token is required. Uses public Lavalink servers — no registry login, API keys, or extra setup.';
+
+  @override
+  String get container_deploy_pick_bot => 'Use an existing bot';
+
+  @override
+  String get container_deploy_pick_bot_manual => 'Enter token manually';
+
+  @override
+  String get container_deploy_bot_token_hint =>
+      'Create a bot in the Discord Developer Portal, enable Message Content Intent, then invite it to your server.';
+
+  @override
+  String get container_deploy_bot_token_required =>
+      'Discord bot token is required';
+
+  @override
+  String get container_deploy_image_required => 'Image is required';
+
+  @override
+  String get container_deploy_cpu_label => 'CPU (millis)';
+
+  @override
+  String get container_deploy_cpu_min => 'Min 128';
+
+  @override
+  String get container_deploy_memory_label => 'Memory (MB)';
+
+  @override
+  String get container_deploy_memory_min => 'Min 128 MB';
+
+  @override
+  String get container_deploy_storage_label => 'Storage (GB)';
+
+  @override
+  String get container_deploy_storage_min => 'Min 1 GB';
+
+  @override
+  String get container_deploy_ttl_label => 'TTL (minutes)';
+
+  @override
+  String get container_deploy_ttl_min => 'Min 1 minute';
+
+  @override
+  String get container_deploy_env_label => 'Environment Variables';
+
+  @override
+  String get container_deploy_env_key_hint => 'KEY';
+
+  @override
+  String get container_deploy_env_value_hint => 'value';
+
+  @override
+  String get container_deploy_submit => 'Deploy';
+
+  @override
+  String get container_deploy_submitting => 'Deploying...';
+
+  @override
+  String get container_deploy_not_auth => 'Not authenticated';
+
+  @override
+  String container_deploy_success(String containerId) {
+    return 'Deploying $containerId...';
+  }
+
+  @override
+  String get container_deploy_submitted_starting =>
+      'Hosted app submitted — starting up now...';
+
+  @override
+  String container_deploy_failed(String error) {
+    return 'Deployment failed: $error';
+  }
+
+  @override
+  String container_deploy_token_invalid(String error) {
+    return 'Invalid Discord bot token: $error';
+  }
+
+  @override
+  String get container_deploy_blocked_container_limit =>
+      'You\'ve reached your hosted app limit. Delete or stop an existing hosted app to free up a slot before deploying another.';
+
+  @override
+  String get container_deploy_blocked_no_minutes =>
+      'You\'re out of free hosting minutes. Watch a rewarded ad to unlock more minutes, or go Premium for unlimited hosting.';
+
+  @override
+  String get container_deploy_blocked_cloud_disabled =>
+      'Cloud hosting is not enabled on this server: remote deployment is unavailable. Run the bot locally, or through your own runner.';
+
+  @override
+  String get container_deploy_blocked_eligibility_error =>
+      'Couldn\'t check whether you can deploy right now.';
+
+  @override
+  String container_deploy_ad_slot_full(int granted) {
+    return '+$granted hosting minutes earned, but your container slot is still full. Delete or stop an existing hosted app to deploy a new one.';
+  }
+
+  @override
+  String get container_detail_state => 'State';
+
+  @override
+  String get container_detail_expires => 'Expires';
+
+  @override
+  String get container_detail_extend_ttl => 'Extend TTL';
+
+  @override
+  String get container_detail_stop_title => 'Shut Down Container';
+
+  @override
+  String get container_detail_stop_confirm =>
+      'This will shut down the container. Your image and environment variables are saved so you can restart it later.';
+
+  @override
+  String get container_detail_stop_btn => 'Shut Down';
+
+  @override
+  String get container_detail_stopped_ok => 'Container shut down';
+
+  @override
+  String get container_detail_start_btn => 'Start';
+
+  @override
+  String get container_detail_starting => 'Starting...';
+
+  @override
+  String get container_detail_started_ok => 'Container is starting';
+
+  @override
+  String get container_detail_open => 'Details';
+
+  @override
+  String get container_detail_delete_title => 'Delete Container';
+
+  @override
+  String get container_detail_delete_confirm =>
+      'This permanently deletes the container from the database and cloud. This cannot be undone.';
+
+  @override
+  String get container_detail_delete_btn => 'Delete';
+
+  @override
+  String get container_detail_deleted_ok => 'Container deleted';
+
+  @override
+  String get container_detail_stopped_hint =>
+      'This container is shut down. You can restart it without re-entering environment variables.';
+
+  @override
+  String get container_detail_update_resources => 'Update Resources';
+
+  @override
+  String get container_detail_update_btn => 'Update';
+
+  @override
+  String get container_detail_updated_ok => 'Resources updated';
+
+  @override
+  String get container_detail_extend_hint => 'Minutes to add';
+
+  @override
+  String get container_detail_extend_btn => 'Extend';
+
+  @override
+  String get container_detail_extended_ok => 'TTL extended';
+
+  @override
+  String get container_detail_console => 'Logs';
+
+  @override
+  String container_logs_errors_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count errors',
+      one: '1 error',
+      zero: 'No errors',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get container_detail_deploying => 'Container is being deployed...';
+
+  @override
+  String container_detail_status_stopped(String state) {
+    return 'This container is $state.';
+  }
+
+  @override
+  String get container_detail_not_connected => 'Not connected';
+
+  @override
+  String get container_detail_console_connecting => 'Connecting...';
+
+  @override
+  String get container_detail_console_closed => '--- Connection closed ---';
+
+  @override
+  String get container_detail_console_hint => 'Type a command...';
+
+  @override
+  String container_detail_failed(String error) {
+    return 'Failed: $error';
+  }
+
+  @override
+  String get container_state_running => 'Running';
+
+  @override
+  String get container_state_pending => 'Pending';
+
+  @override
+  String get container_state_provisioning => 'Provisioning';
+
+  @override
+  String get container_state_stopped => 'Stopped';
+
+  @override
+  String get container_state_stopping => 'Stopping';
+
+  @override
+  String get container_state_failed => 'Failed';
+
+  @override
+  String get container_health_image_pull_failed =>
+      'Couldn\'t pull the container image. Check that the image name and tag are correct and that any required registry credentials are set.';
+
+  @override
+  String get container_health_crash_loop =>
+      'The container keeps crashing shortly after starting. Check your environment variables and logs.';
+
+  @override
+  String get container_health_starting => 'Still starting up...';
+
+  @override
+  String get container_hosted_subtitle =>
+      'Deploy ready-to-use bots (music, etc.) in 1 click';
+
+  @override
+  String get container_premium_badge => 'Premium';
+
+  @override
+  String container_detail_title(String id) {
+    return 'Bot $id';
+  }
+
+  @override
+  String get container_list_premium_host_anytime_tooltip =>
+      'Premium — host anytime';
+
+  @override
+  String get container_list_premium_host_anytime_fab => 'Host anytime';
+
+  @override
+  String get container_list_free_limit_reached =>
+      'Free limit reached (1 bot). Subscribe to host more bots.';
+
+  @override
+  String get container_hosted_premium_host_anytime => 'Host anytime';
+
+  @override
+  String get container_hosted_premium_host_anytime_compact =>
+      'Subscribe — host anytime';
+
+  @override
+  String get container_hosted_premium_desc =>
+      'Subscribe to host turnkey bots with 24/7 uptime — no ads required.';
+
+  @override
+  String get container_hosted_premium_view_btn => 'View plans';
+
+  @override
+  String get hosted_app_subscription_title => 'Turnkey Bots';
+
+  @override
+  String get hosted_app_subscription_subtitle =>
+      'Host ready-to-use bots in the cloud 24/7 with zero interruption.';
+
+  @override
+  String get hosted_app_subscription_benefit_unlimited =>
+      'Unlimited hosting time';
+
+  @override
+  String get hosted_app_subscription_benefit_no_ads =>
+      'No rewarded ads required';
+
+  @override
+  String get hosted_app_subscription_one_app_title => '1 Turnkey Bot';
+
+  @override
+  String get hosted_app_subscription_one_app_desc =>
+      'Host one turnkey bot anytime';
+
+  @override
+  String get hosted_app_subscription_two_app_title => '2 Turnkey Bots';
+
+  @override
+  String get hosted_app_subscription_two_app_desc =>
+      'Host up to two turnkey bots';
+
+  @override
+  String get hosted_app_subscription_recommended => 'Best value';
+
+  @override
+  String get container_hosted_free_title => 'Free hosting (1 container max)';
+
+  @override
+  String container_hosted_expires_at(String dateTime) {
+    return 'Expires $dateTime';
+  }
+
+  @override
+  String container_hosted_topup_ad_hint(int reward) {
+    return 'Watch an ad to add $reward min to this container (stackable).';
+  }
+
+  @override
+  String container_hosted_at_limit_open_detail(int active, int max) {
+    return 'Container active ($active/$max). Open it to extend with an ad.';
+  }
+
+  @override
+  String container_hosted_minutes_available(int minutes) {
+    return '$minutes hosting minutes available (stackable).';
+  }
+
+  @override
+  String get container_hosted_resume_with_time =>
+      'You still have hosting time on this container. Tap Start to resume.';
+
+  @override
+  String container_hosted_watch_ad_earn(int reward) {
+    return 'Watch an ad to earn $reward hosting minutes.';
+  }
+
+  @override
+  String container_hosted_ad_button(int reward) {
+    return 'Ad +$reward min';
+  }
+
+  @override
+  String container_hosted_balance_after_ad(int minutes) {
+    return 'Balance after last ad: $minutes min';
+  }
+
+  @override
+  String container_deploy_ad_unlock_success(int granted, int balance) {
+    return '+$granted hosting minutes (total: $balance min).';
+  }
+
+  @override
+  String container_deploy_ad_unlock_failed(String error) {
+    return 'Unlock failed: $error';
+  }
+
+  @override
+  String get container_deploy_requires_premium_or_ad =>
+      'Premium subscription or rewarded ad required to deploy a container.';
+
+  @override
+  String get container_deploy_premium_account => 'Premium account';
+
+  @override
+  String container_deploy_premium_containers(int max, int active) {
+    return 'Up to $max active containers ($active/$max).';
+  }
+
+  @override
+  String get container_deploy_ephemeral_storage =>
+      'Ephemeral storage (no persistent volume)';
+
+  @override
+  String get container_deploy_private_image => 'Private image';
+
+  @override
+  String get container_deploy_private_image_hint =>
+      'Provide registry credentials to pull private images (e.g. GHCR).';
+
+  @override
+  String get container_deploy_use_custom_credentials =>
+      'Use custom credentials';
+
+  @override
+  String get container_deploy_registry_profile => 'Saved registry profile';
+
+  @override
+  String get container_deploy_registry_profile_none => 'Select a profile';
+
+  @override
+  String container_deploy_registry_detected(String host) {
+    return 'Registry: $host';
+  }
+
+  @override
+  String get container_deploy_save_registry_auth =>
+      'Save credentials for reuse';
+
+  @override
+  String get container_deploy_registry_auth_required =>
+      'Username and password are required for private images.';
+
+  @override
+  String get container_deploy_registry_profile_required =>
+      'Select a saved registry profile or use custom credentials.';
+
+  @override
+  String get registry_credentials_title => 'Registry credentials';
+
+  @override
+  String get registry_credentials_add => 'Add credentials';
+
+  @override
+  String get registry_credentials_edit => 'Edit credentials';
+
+  @override
+  String get registry_credentials_manage => 'Manage registry credentials';
+
+  @override
+  String get registry_credentials_empty => 'No saved registry credentials yet.';
+
+  @override
+  String get registry_credentials_label => 'Label';
+
+  @override
+  String get registry_credentials_label_required => 'Label is required';
+
+  @override
+  String get registry_credentials_host => 'Registry host';
+
+  @override
+  String get registry_credentials_host_required => 'Registry host is required';
+
+  @override
+  String get registry_credentials_username => 'Username';
+
+  @override
+  String get registry_credentials_username_required => 'Username is required';
+
+  @override
+  String get registry_credentials_password => 'Password or token';
+
+  @override
+  String get registry_credentials_password_required =>
+      'Password or token is required';
+
+  @override
+  String get registry_credentials_password_hint =>
+      'Personal access token or registry password';
+
+  @override
+  String get registry_credentials_password_edit_hint =>
+      'Leave blank to keep the current password';
+
+  @override
+  String get registry_credentials_ghcr_hint =>
+      'For GHCR, use a GitHub PAT with read:packages scope.';
+
+  @override
+  String get registry_credentials_delete_title => 'Delete credentials?';
+
+  @override
+  String registry_credentials_delete_body(String label) {
+    return 'Delete \"$label\"? This cannot be undone.';
+  }
+
+  @override
+  String get registry_credentials_deleted => 'Registry credentials deleted';
+
+  @override
+  String registry_credentials_delete_failed(String error) {
+    return 'Failed to delete credentials: $error';
+  }
+
+  @override
+  String registry_credentials_save_failed(String error) {
+    return 'Failed to save credentials: $error';
+  }
+
+  @override
+  String container_detail_private_registry(String host, String username) {
+    return 'Private registry: $host · $username';
+  }
+
+  @override
+  String container_detail_topup_applied(int minutes) {
+    return '+$minutes min added to this container.';
+  }
+
+  @override
+  String container_detail_topup_credited(int minutes) {
+    return '+$minutes min credited.';
+  }
+
+  @override
+  String container_detail_apply_stored_minutes(int minutes) {
+    return 'Apply $minutes stored min';
+  }
+
+  @override
+  String container_detail_minutes_applied(int minutes) {
+    return '$minutes min applied.';
+  }
+
+  @override
+  String get docs_hub_title => 'Documentation';
+
+  @override
+  String get docs_tab_guide => 'Guide';
+
+  @override
+  String get docs_tab_bot_creator => 'Bot Creator Docs';
+
+  @override
+  String get docs_tab_discordjs => 'discord.js';
+
+  @override
+  String get docs_webview_error => 'Could not load documentation';
+
+  @override
+  String get docs_webview_unavailable =>
+      'In-app documentation preview is not available on this device. Open the docs in your browser instead.';
+
+  @override
+  String get docs_open_in_browser => 'Open in browser';
+
+  @override
+  String get docs_reload => 'Reload';
+
+  @override
+  String get common_duplicate => 'Duplicate';
+
+  @override
+  String get commands_batch_select => 'Batch select';
+
+  @override
+  String commands_selected_count(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get image_editor_title => 'Image Editor';
+
+  @override
+  String get image_editor_add_operation => 'Add operation';
+
+  @override
+  String get image_editor_add_layer => 'Add Layer';
+
+  @override
+  String get image_editor_operations => 'Operations';
+
+  @override
+  String get image_editor_op_container => 'Container / Frame';
+
+  @override
+  String get image_editor_op_progress_bar => 'Progress Bar';
+
+  @override
+  String get image_editor_op_composite_image => 'Composite Image';
+
+  @override
+  String get image_editor_op_set_pixel => 'Set Pixel';
+
+  @override
+  String get image_editor_op_invert => 'Invert Colors';
+
+  @override
+  String get image_editor_op_grayscale => 'Convert to Grayscale';
+
+  @override
+  String get image_editor_op_rotate => 'Rotate Canvas';
+
+  @override
+  String get image_editor_zoom_in => 'Zoom in';
+
+  @override
+  String get image_editor_zoom_out => 'Zoom out';
+
+  @override
+  String get image_editor_zoom_fit => 'Fit to screen';
+
+  @override
+  String get image_editor_undo => 'Undo';
+
+  @override
+  String get image_editor_redo => 'Redo';
+
+  @override
+  String get image_editor_canvas => 'Canvas';
+
+  @override
+  String get image_editor_width => 'Width';
+
+  @override
+  String get image_editor_height => 'Height';
+
+  @override
+  String get image_editor_properties => 'Properties';
+
+  @override
+  String get image_editor_visible => 'Visible';
+
+  @override
+  String get image_editor_opacity => 'Opacity';
+
+  @override
+  String image_editor_ops_summary(int count, int hidden) {
+    return '$count operations, $hidden hidden';
+  }
+
+  @override
+  String image_editor_empty_hint(String op) {
+    return 'Add a \"$op\" operation to start';
+  }
+
+  @override
+  String get image_editor_tap_to_edit => 'Tap to edit';
+
+  @override
+  String get image_editor_no_operations => 'No operations yet';
+
+  @override
+  String get image_editor_select_operation =>
+      'Select an operation to edit its properties';
+
+  @override
+  String get image_editor_insert_variable => 'Insert Variable';
+
+  @override
+  String get image_editor_variable_label => 'Variable';
+
+  @override
+  String get image_editor_variable_hint =>
+      'Type to filter, or tap a suggestion below';
+
+  @override
+  String get image_editor_insert => 'Insert';
+
+  @override
+  String get image_editor_pick_image => 'Pick image file';
+
+  @override
+  String get image_editor_color_picker => 'Color Picker';
+
+  @override
+  String get image_editor_hue => 'Hue';
+
+  @override
+  String get image_editor_saturation => 'Saturation';
+
+  @override
+  String get image_editor_no_url => 'no URL';
+
+  @override
+  String get image_editor_unknown => 'Unknown';
+
+  @override
+  String get image_editor_field_text => 'Text';
+
+  @override
+  String get image_editor_field_font_size => 'Font Size';
+
+  @override
+  String get image_editor_field_max_width => 'Max Width';
+
+  @override
+  String get image_editor_field_text_align => 'Text Align';
+
+  @override
+  String get image_editor_field_blend => 'Blend';
+
+  @override
+  String get image_editor_field_fill => 'Fill';
+
+  @override
+  String get image_editor_field_radius => 'Radius';
+
+  @override
+  String get image_editor_field_thickness => 'Thickness';
+
+  @override
+  String get image_editor_field_shape => 'Shape';
+
+  @override
+  String get image_editor_field_percentage => 'Percentage';
+
+  @override
+  String get image_editor_field_bar_color => 'Bar Color';
+
+  @override
+  String get image_editor_field_track_color => 'Track Color';
+
+  @override
+  String get image_editor_field_text_color => 'Text Color';
+
+  @override
+  String get image_editor_field_border_width => 'Border Width';
+
+  @override
+  String get image_editor_field_border_radius => 'Border Radius';
+
+  @override
+  String get image_editor_field_orientation => 'Orientation';
+
+  @override
+  String get image_editor_field_angle => 'Angle (Degrees)';
+
+  @override
+  String get image_editor_field_container => 'Container';
+
+  @override
+  String get image_editor_field_background_color => 'Background Color';
+
+  @override
+  String get image_editor_hint_auto_size => 'auto (native size)';
+
+  @override
+  String get image_editor_hint_optional_background => 'optional background';
+
+  @override
+  String get image_editor_hint_parent_container => 'parent container name';
+
+  @override
+  String get image_editor_hint_container_width =>
+      'container width for alignment';
+
+  @override
+  String get action_card_duration => 'Duration';
+
+  @override
+  String get action_card_error_message => 'Error Message';
+
+  @override
+  String get action_card_jump_to => 'Jump to';
+
+  @override
+  String get action_card_maximum => 'Maximum';
+
+  @override
+  String get action_card_minimum => 'Minimum';
+
+  @override
+  String get action_card_skip_count => 'Skip count';
+
+  @override
+  String get action_edit_request => 'Edit Request';
+
+  @override
+  String get action_error_jump => 'Jump to action';
+
+  @override
+  String get action_error_skip => 'Skip N actions';
+
+  @override
+  String get component_max_length => 'Max Length';
+
+  @override
+  String get component_min_length => 'Min Length';
+
+  @override
+  String get http_request_header_name => 'Header name';
+
+  @override
+  String get http_request_json_body => 'JSON Body';
+
+  @override
+  String get http_request_section_body => 'Body';
+
+  @override
+  String get http_request_section_headers => 'Headers';
+
+  @override
+  String get http_request_section_request => 'Request';
+
+  @override
+  String get http_request_text_body => 'Text Body';
+
+  @override
+  String marketplace_summary_commands(int count) {
+    return '$count commands';
+  }
+
+  @override
+  String marketplace_summary_variables(int count, int required) {
+    return '$count variables ($required required)';
+  }
+
+  @override
+  String marketplace_summary_workflows(int count) {
+    return '$count workflows';
+  }
+
+  @override
+  String get modal_builder_configure_submit_actions =>
+      'Configure Submit Actions';
+
+  @override
+  String get modal_builder_edit_submit_actions => 'Edit Submit Actions';
+
+  @override
+  String get modal_builder_identity => 'Identity';
+
+  @override
+  String get modal_builder_submit_actions => 'Submit Actions';
+
+  @override
+  String get announcement_see_more => 'Learn more';
+
+  @override
+  String get announcement_dismiss => 'Dismiss';
+
+  @override
+  String get announcement_acknowledge => 'Got it';
+
+  @override
+  String get announcement_later => 'Later';
+
+  @override
+  String get announcement_link_open_failed => 'Couldn\'t open the link.';
+
+  @override
+  String get container_invite_btn => 'Invite bot';
+
+  @override
+  String get container_invite_busy => 'Inviting...';
+
+  @override
+  String get container_invite_unavailable =>
+      'This application\'s bot could not be identified: its token is missing or revoked. Redeploy the bot.';
+
+  @override
+  String get container_invite_failed =>
+      'Could not invite the bot: check your connection and try again.';
+
+  @override
+  String get container_invite_open_failed => 'Could not open the invite link.';
+
+  @override
+  String get bot_payload_refused_local_kept =>
+      'Push refused: the configuration to send was empty (no command, no event, no webhook, no variable). Nothing was sent and your local configuration was left untouched — you can keep editing.';
+
+  @override
+  String get bot_config_overshrink_title =>
+      'Are you sure you want to send this reduced configuration?';
+
+  @override
+  String get bot_config_overshrink_body =>
+      'You removed most of this bot\'s configuration. Nothing has been sent yet: the servers still run the previous version, and your local configuration is intact.';
+
+  @override
+  String get bot_config_overshrink_send_anyway => 'Send anyway';
+
+  @override
+  String get bot_config_overshrink_keep_local => 'Keep local, don\'t send';
+
+  @override
+  String get command_history_title => 'Version history of this command';
+
+  @override
+  String get command_history_empty =>
+      'No version has been recorded for this command yet. Versions appear here after a save.';
+
+  @override
+  String get command_history_restore => 'Restore';
+
+  @override
+  String command_history_version_meta(Object author, Object date, num size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      size,
+      locale: localeName,
+      other: '$size bytes',
+      one: '1 byte',
+    );
+    return '$author · $date · $_temp0';
+  }
+
+  @override
+  String get command_history_conflict =>
+      'This version was not restored: the command changed on the server since you loaded it. Nothing has been written anywhere — reload the server version to overwrite it for real.';
+
+  @override
+  String get command_history_conflict_reload =>
+      'Reload server version and overwrite';
+
+  @override
+  String get command_history_unavailable_no_v2 =>
+      'History is not available for this bot: the server does not offer the granular /api/v2 API yet, so no version can be listed or restored. This is not an empty history.';
+
+  @override
+  String get command_history_unavailable_offline =>
+      'The version list could not be fetched (offline or server unreachable). Versions are never stored on this device, so the list has to be retrieved from the server.';
+
+  @override
+  String get command_history_restore_confirm =>
+      'Restore this version? The content currently on the server will be replaced by this version. The restore itself is recorded as a new version, so it stays undoable.';
+
+  @override
+  String get menu_file => 'File';
+
+  @override
+  String get menu_new_bot => 'New bot';
+
+  @override
+  String get menu_close_window => 'Close window';
+
+  @override
+  String get menu_edit => 'Edit';
+
+  @override
+  String get menu_undo => 'Undo';
+
+  @override
+  String get menu_redo => 'Redo';
+
+  @override
+  String get menu_cut => 'Cut';
+
+  @override
+  String get menu_copy => 'Copy';
+
+  @override
+  String get menu_paste => 'Paste';
+
+  @override
+  String get menu_select_all => 'Select all';
+
+  @override
+  String get menu_view => 'View';
+
+  @override
+  String get menu_theme => 'Theme';
+
+  @override
+  String get menu_window => 'Window';
+
+  @override
+  String get menu_help => 'Help';
+
+  @override
+  String get menu_preferences => 'Preferences…';
+
+  @override
+  String get menu_website => 'Website';
+
+  @override
+  String bot_config_versions_restore_error_detail(String reason) {
+    return 'Failed to restore version: $reason';
+  }
+
+  @override
+  String get bot_config_versions_restore_refused =>
+      'The server did not confirm the restore. Nothing was restored.';
+
+  @override
+  String bot_config_versions_restore_local_failed(String reason) {
+    return 'The server restored the version, but applying it locally failed: $reason';
+  }
+
+  @override
+  String get import_engine_title => 'Runtime engine';
+
+  @override
+  String get import_engine_missing =>
+      'This ZIP does not declare an engine. Choose the one this bot must use:';
+
+  @override
+  String import_engine_declared(String engine) {
+    return 'Engine declared by the ZIP: $engine';
+  }
+
+  @override
+  String import_engine_will_switch(String from, String to) {
+    return 'The bot will switch from $from to $to on its next restart.';
+  }
+
+  @override
+  String get import_engine_dart_label => 'Bot Creator (Dart / blocks)';
+
+  @override
+  String get import_engine_javascript_label => 'JavaScript (runner-js)';
+
+  @override
+  String get bot_config_versions_restore_too_small =>
+      'Version refused by the server: it is too small to rebuild a configuration — restoring it would empty your bot. Choose a fuller version.';
+
+  @override
+  String get bot_config_versions_force_restore_title =>
+      'Restore this version despite its size?';
+
+  @override
+  String get bot_config_versions_force_restore_body =>
+      'The server considers it too small to rebuild a configuration and refuses to apply it on its own. A restore is a deliberate step backwards: you can force it.';
+
+  @override
+  String get bot_config_versions_force_restore_confirm => 'Restore anyway';
+
+  @override
+  String get bot_config_versions_force_restore_keep =>
+      'Keep the current version';
+
+  @override
+  String get bot_config_versions_restore_too_small_unforced =>
+      'The server still refuses: the manager must accept a forced restore for this version.';
+
+  @override
+  String get ai_credits_title => 'AI credits';
+
+  @override
+  String get ai_credits_unavailable => 'AI credits unavailable. Try again.';
+
+  @override
+  String get ai_credits_origin_kofi => 'Ko-fi purchase';
+
+  @override
+  String get ai_credits_origin_apple => 'Apple purchase';
+
+  @override
+  String get ai_credits_origin_google => 'Google purchase';
+
+  @override
+  String get ai_credits_origin_roulette => 'Roulette reward';
+
+  @override
+  String get ai_credits_origin_admin_grant => 'Admin grant';
+
+  @override
+  String get ai_credits_origin_admin_correction => 'Admin correction';
+
+  @override
+  String get ai_credits_origin_copilot => 'AI usage';
+
+  @override
+  String get ai_credits_ad_pending =>
+      'Ad verification pending. Refresh your balance.';
+
+  @override
+  String get ai_credits_ad_unavailable => 'Ad unavailable or not verified.';
+
+  @override
+  String get ai_credits_spin_failed =>
+      'Result unavailable. Retry to recover this spin.';
+
+  @override
+  String get ai_credits_wallet_card_title => 'Your AI wallet';
+
+  @override
+  String get ai_credits_available => 'AI credits available';
+
+  @override
+  String get ai_credits_label_total => 'Total';
+
+  @override
+  String get ai_credits_label_reserved => 'Reserved';
+
+  @override
+  String get ai_credits_spending_blocked => 'AI spending blocked';
+
+  @override
+  String get ai_credits_label_purchased => 'Purchases';
+
+  @override
+  String get ai_credits_label_rewarded => 'Roulette';
+
+  @override
+  String get ai_credits_label_granted => 'Grants';
+
+  @override
+  String ai_credits_spins_available(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count available spins',
+      one: '1 available spin',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ai_credits_usage_hint =>
+      'Usage depends on your messages and actions.';
+
+  @override
+  String get ai_credits_daily_ad_limit_hint =>
+      'Up to 3 ads per day (UTC). Bonus and unused spins are kept.';
+
+  @override
+  String ai_credits_result_spins(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count spins!',
+      one: '1 spin!',
+    );
+    return '+$_temp0';
+  }
+
+  @override
+  String ai_credits_result_credits(String count) {
+    return '+$count credits!';
+  }
+
+  @override
+  String get ai_credits_button_spin => 'Spin the wheel';
+
+  @override
+  String ai_credits_button_watch_ad(int remaining) {
+    return 'Watch an ad (+1 spin) — $remaining left';
+  }
+
+  @override
+  String get ai_credits_history_title => 'Credit history';
+
+  @override
+  String get ai_credits_history_empty => 'No movements.';
+
+  @override
+  String get ai_credits_reference => 'Reference';
+
+  @override
+  String get ai_credits_open_conversation => 'Open conversation';
+
+  @override
+  String get ai_credits_previous => 'Previous';
+
+  @override
+  String get ai_credits_next => 'Next';
+
+  @override
+  String get copilot_title => 'AI copilot';
+
+  @override
+  String get copilot_compact_label => 'AI';
+
+  @override
+  String get copilot_err_tool_round_limit =>
+      'The AI repeated the same actions without new information. Send an instruction to try another approach.';
+
+  @override
+  String get copilot_err_context_limit =>
+      'Context too long. Continue in a new conversation with a summary.';
+
+  @override
+  String get copilot_err_spending_blocked =>
+      'AI spending is blocked for this account.';
+
+  @override
+  String get copilot_err_revision_conflict =>
+      'The conversation changed on another device. Refresh it.';
+
+  @override
+  String get copilot_err_action_claimed =>
+      'An action needs approval or resolution.';
+
+  @override
+  String get copilot_err_insufficient_balance =>
+      'Insufficient balance to reserve this request and its context.';
+
+  @override
+  String get copilot_err_unauthorized => 'Sign in to use copilot.';
+
+  @override
+  String get copilot_err_not_found => 'Conversation or bot is inaccessible.';
+
+  @override
+  String get copilot_err_unavailable =>
+      'Copilot is unavailable on the Manager.';
+
+  @override
+  String get copilot_err_request_failed =>
+      'The request did not complete. Refresh to recover its status.';
+
+  @override
+  String get copilot_approve_dialog_title => 'Approve copilot action';
+
+  @override
+  String get copilot_bot_label => 'Bot';
+
+  @override
+  String get copilot_remote_manager => 'Remote Manager';
+
+  @override
+  String get copilot_this_device => 'This device';
+
+  @override
+  String get copilot_action_details_title => 'Action details';
+
+  @override
+  String get copilot_cancel => 'Cancel';
+
+  @override
+  String get copilot_execute => 'Execute';
+
+  @override
+  String get copilot_tool_start_bot => 'Start bot';
+
+  @override
+  String get copilot_tool_stop_bot => 'Stop bot';
+
+  @override
+  String get copilot_tool_create_command => 'Create command';
+
+  @override
+  String get copilot_tool_update_command => 'Update command';
+
+  @override
+  String get copilot_tool_library_search => 'Search the command library';
+
+  @override
+  String get copilot_tool_create_from_library =>
+      'Create from a library command';
+
+  @override
+  String get copilot_tool_patch_command => 'Edit command script';
+
+  @override
+  String get copilot_library_title => 'Command library';
+
+  @override
+  String get copilot_library_contribute => 'Share my tested commands';
+
+  @override
+  String get copilot_library_hint =>
+      'Commands the assistant creates for you and that pass their test can be added to a shared library that helps everyone get answers faster and cheaper. Discord IDs, secrets and your identity are removed first. You can turn this off at any time; deleting your account removes your contributions.';
+
+  @override
+  String get copilot_action_library => 'Command library';
+
+  @override
+  String get copilot_tool_read_docs => 'Read documentation';
+
+  @override
+  String get copilot_tool_inspect_bot => 'Inspect bot';
+
+  @override
+  String get copilot_rename_title => 'Rename';
+
+  @override
+  String get copilot_save => 'Save';
+
+  @override
+  String get copilot_export_dialog_title => 'Export conversation';
+
+  @override
+  String get copilot_delete_confirm_title => 'Delete conversation?';
+
+  @override
+  String get copilot_delete_confirm_body =>
+      'Content will be deleted. Credit movements will remain.';
+
+  @override
+  String get copilot_delete => 'Delete';
+
+  @override
+  String get copilot_continue_summary_title => 'Continue with a summary';
+
+  @override
+  String get copilot_continue_summary_body =>
+      'The summary uses AI credits (input + output). Recent exchanges will be summarized within the context limit. The original conversation will remain.';
+
+  @override
+  String get copilot_create_continuation => 'Create continuation';
+
+  @override
+  String get copilot_mcp_local_title => 'Local MCP connection';
+
+  @override
+  String get copilot_mcp_approval_note => 'Mutations require approval here.';
+
+  @override
+  String get copilot_close => 'Close';
+
+  @override
+  String get copilot_history_tooltip => 'History';
+
+  @override
+  String get copilot_new_discussion => 'New conversation';
+
+  @override
+  String get copilot_options_tooltip => 'Options';
+
+  @override
+  String get copilot_action_refresh => 'Refresh';
+
+  @override
+  String get copilot_action_credits => 'AI credits';
+
+  @override
+  String get copilot_action_mcp_connection => 'MCP connection';
+
+  @override
+  String get copilot_action_archive => 'Archive / restore';
+
+  @override
+  String get copilot_action_export => 'Export Markdown';
+
+  @override
+  String get copilot_action_continue => 'Continue with summary';
+
+  @override
+  String get copilot_action_recover_response => 'Recover response';
+
+  @override
+  String get copilot_action_retry => 'Retry request';
+
+  @override
+  String get copilot_global_discussion => 'Global conversation';
+
+  @override
+  String get copilot_location_local => 'Local';
+
+  @override
+  String get copilot_location_remote => 'Remote';
+
+  @override
+  String get copilot_available => 'Available';
+
+  @override
+  String get copilot_reserved => 'Reserved';
+
+  @override
+  String get copilot_total => 'Total';
+
+  @override
+  String get copilot_welcome_title => 'A hand with your bot?';
+
+  @override
+  String get copilot_welcome_subtitle =>
+      'Explore an idea, check a command or prepare a change. You stay in control of every action.';
+
+  @override
+  String get copilot_suggestion_check_title => 'Check my bot';
+
+  @override
+  String get copilot_suggestion_check_prompt =>
+      'Inspect my bot and suggest next steps.';
+
+  @override
+  String get copilot_suggestion_command_title => 'Create a command';
+
+  @override
+  String get copilot_suggestion_command_prompt =>
+      'Help me prepare a new command for my bot.';
+
+  @override
+  String get copilot_suggestion_feature_title => 'Understand a feature';
+
+  @override
+  String get copilot_suggestion_feature_prompt =>
+      'Explain how to use Bot Creator features.';
+
+  @override
+  String get copilot_history_section_title => 'Continue a conversation';
+
+  @override
+  String get copilot_role_you => 'You';
+
+  @override
+  String get copilot_role_assistant => 'Copilot';
+
+  @override
+  String get copilot_generating => 'Generating…';
+
+  @override
+  String get copilot_copy_message => 'Copy message';
+
+  @override
+  String copilot_credits_in_discussion(String count) {
+    return '$count AI credits used in this conversation';
+  }
+
+  @override
+  String get copilot_input_hint => 'Your message';
+
+  @override
+  String get copilot_send => 'Send';
+
+  @override
+  String get copilot_status_approval_required => 'Approval required';
+
+  @override
+  String get copilot_status_ready_to_inspect => 'Ready to inspect';
+
+  @override
+  String get copilot_status_executing => 'Executing';
+
+  @override
+  String get copilot_status_succeeded => 'Succeeded';
+
+  @override
+  String get copilot_status_declined => 'Declined';
+
+  @override
+  String get copilot_status_unconfirmed =>
+      'Execution unconfirmed — inspect the bot';
+
+  @override
+  String get copilot_status_failed => 'Failed';
+
+  @override
+  String get copilot_technical_details => 'Technical details';
+
+  @override
+  String get copilot_approve => 'Approve';
+
+  @override
+  String get copilot_inspect => 'Inspect';
+
+  @override
+  String get copilot_decline => 'Decline';
+
+  @override
+  String get copilot_close_without_replay => 'Close without replay';
+
+  @override
+  String get copilot_close_unconfirmed_warning =>
+      'Check the bot before closing this action with an unknown outcome.';
+
+  @override
+  String get copilot_close_action => 'Close';
+
+  @override
+  String get copilot_history_sheet_title => 'Conversation history';
+
+  @override
+  String get copilot_search_title_hint => 'Search title';
+
+  @override
+  String get copilot_filter_by_bot => 'Filter by bot';
+
+  @override
+  String get copilot_all_bots => 'All bots';
+
+  @override
+  String get copilot_archives => 'Archives';
+
+  @override
+  String get copilot_no_conversations => 'No conversations.';
+
+  @override
+  String get copilot_badge_global => 'Global';
+
+  @override
+  String get copilot_load_more => 'Load more';
+
+  @override
+  String get copilot_copy_code => 'Copy code';
+
+  @override
+  String get copilot_tool_options => 'Edit command arguments';
+
+  @override
+  String get copilot_tool_settings => 'Edit command settings';
+
+  @override
+  String get copilot_tool_create_workflow => 'Create an automation';
+
+  @override
+  String get copilot_tool_update_workflow => 'Edit an automation';
+
+  @override
+  String get copilot_tool_presence => 'Change status and activity';
+
+  @override
+  String get copilot_tool_profile => 'Change bot name';
+
+  @override
+  String get copilot_tool_variable => 'Save a variable';
+
+  @override
+  String get copilot_tool_schedule => 'Schedule an automation';
+
+  @override
+  String get copilot_tool_webhook => 'Configure an external trigger';
+
+  @override
+  String get settings_text_size_title => 'Text size';
+
+  @override
+  String get settings_text_size_description =>
+      'Adjust the app’s text size relative to your device’s text setting.';
+
+  @override
+  String get settings_text_size_preview =>
+      'Preview: your commands, workflows and conversations.';
+
+  @override
+  String get settings_text_size_reset => 'Reset text size';
+
+  @override
+  String get bot_config_versions_cloud_checkpoints => 'Cloud checkpoints';
+
+  @override
+  String get bot_config_versions_checkpoint_hint =>
+      'A full cloud version is saved when you push or pull. Restoring a version also keeps a safety copy.';
+
+  @override
+  String get bot_config_versions_remote_authority =>
+      'The cloud version replaces the local configuration. Commands and workflows absent from the cloud are removed locally.';
+
+  @override
+  String get history_preview => 'Preview content';
+
+  @override
+  String get history_delete_confirm =>
+      'Delete this saved version permanently? The current configuration will stay unchanged.';
+
+  @override
+  String get history_action_failed =>
+      'Unable to complete this history action. Please try again.';
+
+  @override
+  String get bot_create_title => 'Create a bot';
+
+  @override
+  String get bot_create_description =>
+      'Connect your Discord bot and choose how to build it.';
+
+  @override
+  String get bot_create_visual_title => 'Blocs & BDFD';
+
+  @override
+  String get bot_create_visual_description =>
+      'Build with visual actions or BDFD scripts.';
+
+  @override
+  String get bot_create_javascript_description =>
+      'Write your bot in JavaScript with Discord.js.';
+
+  @override
+  String get editor_section_creation => 'Creation';
+
+  @override
+  String get editor_section_automation => 'Automation';
+
+  @override
+  String get editor_section_management => 'Management';
+
+  @override
+  String get bot_create_mode => 'Build mode';
+
+  @override
+  String get bot_home_hosting_title => 'Hosting';
+
+  @override
+  String get bot_home_logs_filter_label => 'Filter logs';
+
+  @override
+  String get bot_home_logs_filter_info => 'Info';
+
+  @override
+  String get bot_home_logs_filter_errors => 'Errors';
+
+  @override
+  String bot_home_commands_see_all(int count) {
+    return 'See all $count';
+  }
+
+  @override
+  String bot_home_actions_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count actions',
+      one: '1 action',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get home_title_my_bots => 'My bots';
+
+  @override
+  String get home_more_actions => 'More actions';
+
+  @override
+  String get home_getting_started => 'Getting started';
+
+  @override
+  String get modules_group_create => 'Create';
+
+  @override
+  String get modules_group_automation => 'Automation';
+
+  @override
+  String get modules_group_management => 'Management';
+
+  @override
+  String get modules_desc_workflows => 'Automate your actions and events';
+
+  @override
+  String get modules_desc_globals =>
+      'Remembered data: whole bot, server, member…';
+
+  @override
+  String get modules_desc_emojis => 'The bot\'s application emojis';
+
+  @override
+  String get modules_desc_scheduler => 'Runs a workflow every X minutes';
+
+  @override
+  String get modules_desc_webhooks => 'HTTP calls routed to a workflow';
+
+  @override
+  String get modules_desc_team => 'Collaborators and team chat';
+
+  @override
+  String get modules_desc_guilds => 'Servers where the bot is present';
+
+  @override
+  String get option_section_identity => 'Identity';
+
+  @override
+  String get option_section_type => 'Value type';
+
+  @override
+  String get option_section_behavior => 'Behavior';
+
+  @override
+  String get option_translations => 'Translations';
+
+  @override
+  String get option_delete_action => 'Delete option';
+
+  @override
+  String get option_preview_title => 'Preview in Discord';
+
+  @override
+  String get option_preview_legend =>
+      'Purple underline: required · grey: optional';
+
+  @override
+  String option_choices_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count choices',
+      one: '1 choice',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ai_credits_packs_title => 'Buy credits';
+
+  @override
+  String get ai_credits_pack_credited => 'Credits added to your account.';
+
+  @override
+  String get ai_credits_pack_failed =>
+      'The purchase could not be completed. If you were charged, the credits will be added automatically.';
+
+  @override
+  String get ai_credits_pack_pending => 'Purchase pending confirmation…';
+
+  @override
+  String debug_replay_summary(int count, int ms) {
+    return '$count action(s) • $ms ms';
+  }
+
+  @override
+  String debug_replay_ago_seconds(int count) {
+    return '${count}s ago';
+  }
+
+  @override
+  String debug_replay_ago_minutes(int count) {
+    return '${count}m ago';
+  }
+
+  @override
+  String debug_replay_ago_hours(int count) {
+    return '${count}h ago';
+  }
+
+  @override
+  String debug_replay_ago_days(int count) {
+    return '${count}d ago';
+  }
+
+  @override
+  String get debug_replay_unavailable =>
+      'Replays are unavailable right now. Start the bot, then try again.';
+
+  @override
+  String get sandbox_unavailable =>
+      'The simulation server is unavailable right now. Start the bot, then try again.';
+
+  @override
+  String get sandbox_too_large =>
+      'This command is too large to be tested on the server (limit 256 KB).';
+
+  @override
+  String get sandbox_timeout => 'The simulation took too long and was stopped.';
+
+  @override
+  String get sandbox_busy =>
+      'The simulation server is busy. Try again in a moment.';
+
+  @override
+  String get sandbox_test_tooltip => 'Test in sandbox';
+
+  @override
+  String get debug_replay_native_start => 'Call';
+
+  @override
+  String get debug_replay_native_returned => 'Returned';
+
+  @override
+  String get debug_replay_native_literal => 'Preserved literally';
+
+  @override
+  String get debug_replay_native_selected => 'Selected branch';
+
+  @override
+  String get debug_replay_native_none => 'No branch';
+
+  @override
+  String get debug_replay_native_handled => 'Error caught';
+
+  @override
+  String get debug_replay_native_error => 'Error';
+
+  @override
+  String get debug_replay_native_timeout => 'Timed out';
+
+  @override
+  String get debug_replay_native_stop => 'Stopped';
+
+  @override
+  String get debug_replay_native_truncated => 'Trace truncated';
+
+  @override
+  String debug_replay_native_branch(int n) {
+    return 'Branch $n';
+  }
+
+  @override
+  String debug_replay_native_script_depth(String depth) {
+    return 'Script depth $depth';
+  }
+
+  @override
+  String debug_replay_native_events_omitted(String count) {
+    return '$count events omitted';
+  }
+
+  @override
+  String get debug_replay_native_value_truncated => 'Value truncated';
+
+  @override
+  String subscriptions_hub_bots_max(int count) {
+    return '$count bots max';
+  }
+
+  @override
+  String get subscriptions_hub_ai_credits_roulette => 'AI credits and roulette';
+
+  @override
+  String ai_credits_reserved(String credits) {
+    return '$credits credits being used right now';
+  }
+
+  @override
+  String ai_credits_when_today(String time) {
+    return 'Today, $time';
+  }
+
+  @override
+  String ai_credits_when_yesterday(String time) {
+    return 'Yesterday, $time';
+  }
+}

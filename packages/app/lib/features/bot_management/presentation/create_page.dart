@@ -14,7 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
 import 'dart:developer' as developer;
-import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/features/containers/presentation/container_deploy_page.dart';
@@ -22,6 +21,7 @@ import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 
 import 'package:bot_creator/core/widgets/app_icon.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart' show BotCreateSetup;
 
 class AppCreatePage extends StatefulWidget {
   const AppCreatePage({super.key});
@@ -34,7 +34,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
   String _token = "";
   bool _isSaving = false;
   bool _obscureToken = true;
-  String? _selectedType;
+  final _tokenController = TextEditingController();
   bool _createJavascriptBot = false;
 
   @override
@@ -336,610 +336,67 @@ class _AppCreatePageState extends State<AppCreatePage> {
     };
   }
 
-  Widget _buildTypeSelectionView(
-    BuildContext context,
-    bool isMobile,
-    ColorScheme colorScheme,
-  ) {
-    final cards = <Widget>[
-      _TypeSelectionCard(
-        title: context.tr.app_create_type_discord,
-        description: context.tr.app_create_type_discord_desc,
-        icon: Icons.smart_toy_rounded,
-        iconColor: const Color(0xFF5865F2),
-        iconBackgroundColor: const Color(0xFF5865F2).withValues(alpha: 0.12),
-        onTap: () {
-          AppAnalytics.logEvent(
-            name: "select_app_type",
-            parameters: {"type": "discord_bot"},
-          );
-          setState(() {
-            _selectedType = 'discord_bot';
-            _createJavascriptBot = false;
-          });
-        },
-      ),
-      _TypeSelectionCard(
-        title: context.tr.cmd_execution_mode_javascript,
-        description: context.tr.cmd_execution_mode_javascript_desc,
-        icon: Icons.code,
-        iconColor: Colors.orange,
-        iconBackgroundColor: Colors.orange.withValues(alpha: 0.12),
-        onTap: () {
-          AppAnalytics.logEvent(
-            name: "select_app_type",
-            parameters: {"type": "javascript_bot"},
-          );
-          setState(() {
-            _selectedType = 'discord_bot';
-            _createJavascriptBot = true;
-          });
-        },
-      ),
-      if (PremiumCapabilities.hostedAppsRolloutEnabled)
-        _TypeSelectionCard(
-          title: context.tr.app_create_type_hosted,
-          description: context.tr.app_create_type_hosted_desc,
-          icon: Icons.smart_toy_rounded,
-          iconColor: const Color(0xFF5865F2),
-          iconBackgroundColor: const Color(0xFF5865F2).withValues(alpha: 0.12),
-          onTap: () async {
-            AppAnalytics.logEvent(
-              name: "select_app_type",
-              parameters: {"type": "hosted_application"},
-            );
-            if (MobileAccountGate.isRequired &&
-                !await MobileAccountGate.hasRequiredAccount()) {
-              if (!context.mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(context.tr.mobile_account_required_body),
-                ),
+  @override
+  void dispose() {
+    _tokenController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _openHostedBot() async {
+    if (MobileAccountGate.isRequired &&
+        !await MobileAccountGate.hasRequiredAccount()) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr.mobile_account_required_body)),
+      );
+      return;
+    }
+    if (!mounted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ContainerDeployPage()),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    body: SafeArea(
+      child: PageContent(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.only(top: 24, bottom: 32),
+          child: BotCreateSetup(
+            javascript: _createJavascriptBot,
+            onEngineChanged: (value) {
+              AppAnalytics.logEvent(
+                name: 'select_app_type',
+                parameters: {'type': value ? 'javascript_bot' : 'discord_bot'},
               );
-              return;
-            }
-            if (!context.mounted) return;
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ContainerDeployPage()),
-            );
-          },
-        ),
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const SizedBox(height: 16),
-        Text(
-          context.tr.app_create_select_type_title,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: colorScheme.onSurface,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          context.tr.app_create_select_type_desc,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyLarge?.copyWith(color: colorScheme.onSurfaceVariant),
-        ),
-        const SizedBox(height: 32),
-        if (isMobile)
-          Column(
-            children: [
-              for (var i = 0; i < cards.length; i++) ...[
-                if (i > 0) const SizedBox(height: 16),
-                cards[i],
-              ],
-            ],
-          )
-        else if (cards.length == 1)
-          cards[0]
-        else
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (var i = 0; i < cards.length; i++) ...[
-                if (i > 0) const SizedBox(width: 20),
-                Expanded(child: cards[i]),
-              ],
-            ],
-          ),
-        const SizedBox(height: 32),
-      ],
-    );
-  }
-
-  Widget _buildDiscordBotView(
-    BuildContext context,
-    bool isMobile,
-    ColorScheme colorScheme,
-    double sectionSpacing,
-    EdgeInsets cardPadding,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        const SizedBox(height: 8),
-        Container(
-          padding: EdgeInsets.all(isMobile ? 20 : 24),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                colorScheme.primaryContainer,
-                colorScheme.secondaryContainer,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppIcon.fromMaterial(
-                Icons.smart_toy_rounded,
-                size: isMobile ? 40 : 48,
-                color: colorScheme.onPrimaryContainer,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                context.tr.app_create_hero_title,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onPrimaryContainer,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                context.tr.app_create_hero_desc,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: colorScheme.onPrimaryContainer,
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: sectionSpacing),
-        Card(
-          child: Padding(
-            padding: cardPadding,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.tr.app_resources_title,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  context.tr.app_resources_desc,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _ExternalActionCard(
-                  icon: Icons.open_in_new_rounded,
-                  title: context.tr.app_open_discord_portal,
-                  subtitle: context.tr.app_open_discord_portal_desc,
-                  badgeLabel: context.tr.app_external_link_badge,
-                  onTap: () => _openExternalPage(
-                    'https://discord.com/developers/applications',
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _ExternalActionCard(
-                  icon: Icons.school_rounded,
-                  title: context.tr.app_open_token_tutorial,
-                  subtitle: context.tr.app_open_token_tutorial_desc,
-                  trailingIcon: Icons.chevron_right_rounded,
-                  onTap: () => openDocumentationArticle(
-                    context,
-                    url: botTokenTutorialUrl,
-                    title: context.tr.app_open_token_tutorial,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        SizedBox(height: sectionSpacing),
-        Card(
-          child: Padding(
-            padding: cardPadding,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.tr.app_token_section_title,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  context.tr.app_token_section_desc,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: context.tr.app_bot_token,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                    ),
-                    contentPadding: const EdgeInsets.all(16),
-                    hintText: context.tr.app_enter_token,
-                    helperText: context.tr.app_token_field_helper,
-                    isDense: isMobile,
-                    prefixIcon: const AppIcon.fromMaterial(Icons.key_rounded),
-                    suffixIcon: IconButton(
-                      tooltip: _obscureToken
-                          ? context.tr.app_show_token
-                          : context.tr.app_hide_token,
-                      onPressed: () {
-                        setState(() => _obscureToken = !_obscureToken);
-                      },
-                      icon: AppIcon.fromMaterial(
-                        _obscureToken
-                            ? Icons.visibility_rounded
-                            : Icons.visibility_off_rounded,
-                      ),
-                    ),
-                  ),
-                  obscureText: _obscureToken,
-                  enableSuggestions: false,
-                  autocorrect: false,
-                  keyboardType: TextInputType.visiblePassword,
-                  textInputAction: TextInputAction.done,
-                  onChanged: (value) => setState(() {
-                    _token = value;
-                  }),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                    border: Border.all(color: colorScheme.outlineVariant),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppIcon.fromMaterial(
-                        Icons.lock_outline_rounded,
-                        color: colorScheme.primary,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          context.tr.app_token_security_hint,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: _token.trim().isEmpty || _isSaving
-                        ? null
-                        : _saveBot,
-                    icon: _isSaving
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const AppIcon.fromMaterial(
-                            Icons.check_circle_outline_rounded,
-                          ),
-                    label: Text(context.tr.app_save_bot),
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-      ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isMobile = ResponsiveHelper.isMobile(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    final sectionSpacing = ResponsiveHelper.getSpacing(context, factor: 1.5);
-    final cardPadding = EdgeInsets.all(isMobile ? 16 : 20);
-
-    final showSelection = _selectedType == null;
-
-    return PopScope(
-      canPop: showSelection,
-      onPopInvokedWithResult: (didPop, _) async {
-        if (didPop) return;
-        if (_selectedType != null) {
-          setState(() {
-            _selectedType = null;
-          });
-        }
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(context.tr.app_create_page_title),
-          leading: IconButton(
-            icon: const AppIcon.fromMaterial(Icons.arrow_back_rounded),
-            onPressed: () {
-              if (_selectedType != null) {
-                setState(() {
-                  _selectedType = null;
-                });
-              } else {
-                Navigator.of(context).pop();
-              }
+              setState(() => _createJavascriptBot = value);
             },
-          ),
-        ),
-        body: SafeArea(
-          // Largeur et marges communes à toutes les pages de l'app (contrat
-          // AppPageLayout) : la page n'impose plus ses propres bornes (800 px).
-          child: PageContent(
-            child: SingleChildScrollView(
-              // Marge verticale propre à la page : l'horizontale est fournie
-              // par PageContent.
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: showSelection
-                  ? _buildTypeSelectionView(context, isMobile, colorScheme)
-                  : _buildDiscordBotView(
-                      context,
-                      isMobile,
-                      colorScheme,
-                      sectionSpacing,
-                      cardPadding,
-                    ),
+            tokenController: _tokenController,
+            obscureToken: _obscureToken,
+            onToggleToken: () => setState(() => _obscureToken = !_obscureToken),
+            onTokenChanged: (value) => setState(() => _token = value),
+            saving: _isSaving,
+            onSave: _token.trim().isEmpty || _isSaving ? null : _saveBot,
+            onBack: () => Navigator.of(context).maybePop(),
+            showBack: !windowChromeOwnsBackButton(),
+            onPortal: () => _openExternalPage(
+              'https://discord.com/developers/applications',
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ExternalActionCard extends StatelessWidget {
-  const _ExternalActionCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-    this.badgeLabel,
-    this.trailingIcon = Icons.open_in_new_rounded,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final String? badgeLabel;
-  final IconData trailingIcon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-        child: Ink(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-            border: Border.all(color: colorScheme.outlineVariant),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                ),
-                child: AppIcon.fromMaterial(
-                  icon,
-                  color: colorScheme.onPrimaryContainer,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    if (badgeLabel != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colorScheme.secondaryContainer,
-                          borderRadius: BorderRadius.circular(
-                            AppTheme.radiusPill,
-                          ),
-                        ),
-                        child: Text(
-                          badgeLabel!,
-                          style: Theme.of(context).textTheme.labelMedium
-                              ?.copyWith(
-                                color: colorScheme.onSecondaryContainer,
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              AppIcon.fromMaterial(trailingIcon, color: colorScheme.primary),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _TypeSelectionCard extends StatelessWidget {
-  final String title;
-  final String description;
-  final IconData icon;
-  final Color iconColor;
-  final Color iconBackgroundColor;
-  final bool isEnabled;
-  final String? badgeText;
-  final VoidCallback onTap;
-
-  const _TypeSelectionCard({
-    required this.title,
-    required this.description,
-    required this.icon,
-    required this.iconColor,
-    required this.iconBackgroundColor,
-    required this.onTap,
-  }) : isEnabled = true,
-       badgeText = null;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-
-    return Opacity(
-      opacity: isEnabled ? 1.0 : 0.6,
-      child: Card(
-        clipBehavior: Clip.antiAlias,
-        elevation: isEnabled ? 2 : 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-          side: BorderSide(
-            color: isEnabled
-                ? colorScheme.outlineVariant
-                : colorScheme.outlineVariant.withValues(alpha: 0.5),
-          ),
-        ),
-        child: InkWell(
-          onTap: isEnabled ? onTap : null,
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Stack(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: iconBackgroundColor,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: AppIcon.fromMaterial(
-                        icon,
-                        size: 32,
-                        color: iconColor,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      title,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: isEnabled
-                            ? colorScheme.onSurface
-                            : colorScheme.onSurface.withValues(alpha: 0.8),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      description,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: isEnabled
-                            ? colorScheme.onSurfaceVariant
-                            : colorScheme.onSurfaceVariant.withValues(
-                                alpha: 0.8,
-                              ),
-                        height: 1.5,
-                      ),
-                    ),
-                  ],
-                ),
-                if (badgeText != null)
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colorScheme.secondaryContainer,
-                        borderRadius: BorderRadius.circular(
-                          AppTheme.radiusPill,
-                        ),
-                        border: Border.all(
-                          color: colorScheme.secondary.withValues(alpha: 0.2),
-                        ),
-                      ),
-                      child: Text(
-                        badgeText!,
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: colorScheme.onSecondaryContainer,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
+            onGuide: () => openDocumentationArticle(
+              context,
+              url: botTokenTutorialUrl,
+              title: context.tr.app_open_token_tutorial,
             ),
+            onHosted:
+                !ResponsiveHelper.isDesktopPlatform() &&
+                    PremiumCapabilities.hostedAppsRolloutEnabled
+                ? _openHostedBot
+                : null,
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
 }

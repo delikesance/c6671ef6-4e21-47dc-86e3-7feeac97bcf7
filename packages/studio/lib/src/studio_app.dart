@@ -1,0 +1,88 @@
+import 'package:bot_creator_ui/bot_creator_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'auth/auth_controller.dart';
+import 'l10n_ext.dart';
+import 'locale_controller.dart';
+import 'screens/login_page.dart';
+import 'screens/studio_shell.dart';
+import 'theme.dart';
+
+class StudioApp extends StatefulWidget {
+  const StudioApp({super.key, this.auth, this.locale});
+
+  /// Injectables pour les tests ; par défaut, l'API configurée à la compilation
+  /// et la langue du navigateur.
+  final AuthController? auth;
+  final LocaleController? locale;
+
+  @override
+  State<StudioApp> createState() => _StudioAppState();
+}
+
+class _StudioAppState extends State<StudioApp> {
+  late final AuthController _auth = widget.auth ?? AuthController();
+  late final LocaleController _locale = widget.locale ?? LocaleController();
+  late final ThemeProvider _theme = ThemeProvider();
+  late final CodeEditorSettingsProvider _codeSettings =
+      CodeEditorSettingsProvider()..load();
+
+  @override
+  void initState() {
+    super.initState();
+    _locale.load();
+    _auth.init();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<ThemeProvider>.value(value: _theme),
+        ChangeNotifierProvider<CodeEditorSettingsProvider>.value(
+          value: _codeSettings,
+        ),
+      ],
+      child: LocaleScope(
+        controller: _locale,
+        child: ListenableBuilder(
+          listenable: Listenable.merge([_locale, _theme]),
+          builder: (context, _) => MaterialApp(
+            onGenerateTitle: (context) => context.l10n.appTitle,
+            debugShowCheckedModeBanner: false,
+            themeMode: ThemeMode.dark,
+            builder: (context, child) => AppTextScale(
+              factor: _theme.appearance.textScale,
+              child: child ?? const SizedBox.shrink(),
+            ),
+            darkTheme: StudioTheme.dark(appearance: _theme.appearance),
+            locale: _locale.locale,
+            localizationsDelegates: const [
+              ...StudioLocalizations.localizationsDelegates,
+              AppLocalizations.delegate,
+            ],
+            supportedLocales: StudioLocalizations.supportedLocales,
+            home: ListenableBuilder(
+              listenable: _auth,
+              builder: (context, _) {
+                // Aucune route de travail sans session validée par le serveur.
+                switch (_auth.status) {
+                  case AuthStatus.signedIn:
+                    return StudioShell(auth: _auth);
+                  case AuthStatus.loading:
+                    return const Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    );
+                  case AuthStatus.signedOut:
+                  case AuthStatus.error:
+                    return LoginPage(auth: _auth);
+                }
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

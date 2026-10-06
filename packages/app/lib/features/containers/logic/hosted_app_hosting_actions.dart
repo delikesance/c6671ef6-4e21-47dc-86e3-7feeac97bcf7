@@ -10,19 +10,6 @@ import 'package:bot_creator/features/ads/logic/ad_ssv_context.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
-/// Result of watching a rewarded ad for hosted-app hosting minutes.
-class HostedAppAdTopUpResult {
-  const HostedAppAdTopUpResult({
-    required this.grantedMinutes,
-    required this.hostingMinutesBalance,
-    this.appliedToContainer = false,
-  });
-
-  final int grantedMinutes;
-  final int hostingMinutesBalance;
-  final bool appliedToContainer;
-}
-
 /// Shared ad + claim (+ optional TTL apply) flow for hosted Docker apps.
 class HostedAppHostingActions {
   const HostedAppHostingActions._();

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:alfred/alfred.dart';
 import 'package:bot_creator_shared/bot/bot_config.dart';
@@ -8,6 +9,7 @@ import 'package:bot_creator_shared/bot/json_variable_store.dart';
 import 'package:bot_creator_shared/bot/variable_database.dart';
 import 'package:bot_creator_shared/utils/discord_auth_errors.dart';
 import 'package:bot_creator_runner/runner_runtime_controller.dart';
+import 'package:bot_creator_runner/sandbox_service.dart';
 import 'package:bot_creator_runner/stores/sqlite_cli_variable_store.dart';
 import 'package:bot_creator_runner/web_log_store.dart';
 import 'package:bot_creator_runner/web_runtime_config.dart';
@@ -57,7 +59,9 @@ class RunnerWebBootstrapServer {
     VariableDatabase? variableStore,
     String? dataDir,
     RunnerRuntimeController? runtimeController,
-  }) : _apiToken = normalizeRunnerApiToken(apiToken),
+    RunnerSandboxService? sandboxService,
+  }) : _sandbox = sandboxService ?? RunnerSandboxService(),
+       _apiToken = normalizeRunnerApiToken(apiToken),
        _runtimeController =
            runtimeController ?? RunnerRuntimeController(dataDir: dataDir),
        _injectedVariableStore = variableStore,
@@ -81,6 +85,7 @@ class RunnerWebBootstrapServer {
   final RunnerLogStore logStore;
   final VariableDatabase? _injectedVariableStore;
   final String? _dataDir;
+  final RunnerSandboxService _sandbox;
 
   final RunnerRuntimeController _runtimeController;
   _CpuSample? _lastCpuSample;
@@ -685,6 +690,50 @@ class RunnerWebBootstrapServer {
       _handleSetDebugReplayCapture,
       summary: 'Set Debug Replay Capture State',
       requestBody: RunnerApiSpec.jsonRequest({'enabled': Schema.boolean()}),
+    );
+
+    // Command sandbox: runs the Dart engine on fixtures only (no Discord, no
+    // network, no bot data) for clients that cannot run it themselves.
+    _post(
+      '/bots/:id/sandbox/command',
+      _handleSandboxCommand,
+      summary: 'Run a command in the sandbox',
+      description:
+          'Body = the request of the engine sandbox (script or actions, '
+          'options, variables, fixtures), at most 256 KiB. Answers the '
+          'sandbox result as-is (success, error, responses, effects, trace…). '
+          'Nothing reaches Discord, the network or the bot store. Errors: '
+          '400 invalid_request, 413 payload_too_large, 429 sandbox_busy, '
+          '504 sandbox_timeout, 500 sandbox_failed.',
+      requestBody: RunnerApiSpec.jsonRequest({
+        'script': Schema.string(),
+        'actions': Schema.array(items: Schema.object(properties: {})),
+        'bdfdBackend': Schema.string(),
+        'options': Schema.object(properties: {}),
+        'variables': Schema.object(properties: {}),
+        'definitions': Schema.array(items: Schema.object(properties: {})),
+      }, description: 'Exactly one of script or actions is required.'),
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Sandbox Result', {
+          'success': Schema.boolean(),
+          'error': Schema.string(),
+          'responses': Schema.array(items: Schema.object(properties: {})),
+          'effects': Schema.array(items: Schema.object(properties: {})),
+          'trace': Schema.array(items: Schema.object(properties: {})),
+          'diagnostics': Schema.array(items: Schema.object(properties: {})),
+        }),
+      },
+    );
+    _get(
+      '/bots/:id/sandbox/functions',
+      _handleSandboxFunctions,
+      summary: 'List the sandbox function regression cases',
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Sandbox Function Cases', {
+          'count': Schema.integer(),
+          'cases': Schema.array(items: Schema.object(properties: {})),
+        }),
+      },
     );
 
     // Inbound Webhooks (Dynamic Path)
@@ -1608,6 +1657,59 @@ class RunnerWebBootstrapServer {
     } on StateError catch (e) {
       throw AlfredException(HttpStatus.conflict, {'error': e.message});
     }
+  }
+
+  /// Reads the request body while counting the bytes actually received, so a
+  /// missing or lying `Content-Length` cannot get a huge body parsed.
+  Future<List<int>> _readSandboxBody(HttpRequest req) async {
+    final limit = _sandbox.maxBodyBytes;
+    if (req.contentLength > limit) {
+      throw const SandboxRefusal(
+        413,
+        'payload_too_large',
+        'Sandbox request is too large.',
+      );
+    }
+    final builder = BytesBuilder(copy: false);
+    await for (final chunk in req) {
+      if (builder.length + chunk.length > limit) {
+        throw const SandboxRefusal(
+          413,
+          'payload_too_large',
+          'Sandbox request is too large.',
+        );
+      }
+      builder.add(chunk);
+    }
+    return builder.takeBytes();
+  }
+
+  AlfredException _sandboxError(SandboxRefusal refusal) => AlfredException(
+    refusal.status,
+    {'error': refusal.message, 'code': refusal.code},
+  );
+
+  Future<Map<String, dynamic>> _handleSandboxCommand(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
+    try {
+      final request = _sandbox.decodeBody(await _readSandboxBody(req));
+      return await _sandbox.run(request);
+    } on SandboxRefusal catch (refusal) {
+      if (refusal.status == 429) {
+        res.headers.set(HttpHeaders.retryAfterHeader, '2');
+      }
+      throw _sandboxError(refusal);
+    }
+  }
+
+  Future<Map<String, dynamic>> _handleSandboxFunctions(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
+    final cases = _sandbox.functionCases();
+    return {'count': cases.length, 'cases': cases};
   }
 
   Future<Map<String, dynamic>> _handleInboundWebhook(

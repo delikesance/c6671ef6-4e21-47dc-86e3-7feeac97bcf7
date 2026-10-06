@@ -11,7 +11,6 @@ import 'package:bot_creator_shared/actions/handler.dart';
 import 'package:bot_creator_shared/actions/interaction_response.dart';
 import 'package:bot_creator_shared/services/lavalink_service.dart';
 
-
 Future<void> _safeInteractionRespond(
   Interaction interaction,
   String text,
@@ -39,8 +38,9 @@ Future<void> handleComponentInteraction(
       '';
   final fallbackChannelId = (interaction as dynamic)?.channel?.id as Snowflake?;
   final guildId = (interaction as dynamic)?.guildId as Snowflake?;
-  final interactionType =
-      (interaction.data.values?.isNotEmpty ?? false) ? 'select' : 'button';
+  final interactionType = (interaction.data.values?.isNotEmpty ?? false)
+      ? 'select'
+      : 'button';
   final entry = InteractionListenerRegistry.instance.getMatching(
     customId,
     ListenerMatchRequest(
@@ -131,8 +131,8 @@ Future<void> handleModalSubmitInteraction(
       type: 'modal',
       guildId: interaction.guildId?.toString(),
       channelId: interaction.channelId?.toString(),
-      messageId:
-          ((interaction as dynamic).message?.id as Snowflake?)?.toString(),
+      messageId: ((interaction as dynamic).message?.id as Snowflake?)
+          ?.toString(),
       userId: userId,
     ),
   );

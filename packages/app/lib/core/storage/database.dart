@@ -365,8 +365,10 @@ class AppManager implements BotDataStore {
   /// This should be the single entry point for bot deletion to ensure
   /// no orphaned data remains on the cloud or device.
   Future<void> deleteBotCompletely(String botId) async {
-    // 1. Cloud delete — tells the API Manager to remove the bot
-    //    and clean up S3 / managed variables.
+    // 1. Cloud delete — the manager removes the bot, its R2 config and its variables.
+    //    A failure (offline, expired session, server error) must NOT be forgotten: the bot would
+    //    come back at the next login. It is queued and retried until the manager confirms.
+    var remoteConfirmed = false;
     try {
       final config = await MainApiSettingsStore.loadConfig();
       if (config.isConfigured) {
@@ -377,15 +379,183 @@ class AppManager implements BotDataStore {
             accessToken: session.accessToken,
           );
           await client.deleteBot(botId);
+          remoteConfirmed = true;
           debugPrint('[AppManager] Bot $botId deleted from cloud.');
+        } else {
+          debugPrint('[AppManager] No valid session: cloud deletion queued.');
         }
+      } else {
+        // No cloud account configured: nothing exists remotely, nothing to retry.
+        remoteConfirmed = true;
       }
     } catch (e) {
-      debugPrint('[AppManager] Cloud bot deletion failed (continuing): $e');
+      debugPrint('[AppManager] Cloud bot deletion failed (queued): $e');
+    }
+    if (!remoteConfirmed) {
+      await addPendingRemoteBotDeletion(botId);
     }
 
     // 2. Local delete — removes local files and tombstone-records.
     await deleteApp(botId);
+  }
+
+  // ── Deletions that still have to reach the cloud ───────────────────────────────────────────
+  // A deletion made while offline (or refused by the server) is remembered here. Sync paths skip
+  // the entries instead of re-importing them, and replay them once a session is available.
+
+  Future<File> _deletionQueueFile(String name) async =>
+      File('${await _path()}/apps/$name');
+
+  Future<Map<String, dynamic>> _readQueue(File file) async {
+    try {
+      if (!await file.exists()) return <String, dynamic>{};
+      final raw = await file.readAsString();
+      final decoded = raw.trim().isEmpty ? null : jsonDecode(raw);
+      return decoded is Map
+          ? Map<String, dynamic>.from(decoded)
+          : <String, dynamic>{};
+    } catch (_) {
+      return <String, dynamic>{};
+    }
+  }
+
+  Future<void> _writeQueue(File file, Map<String, dynamic> queue) async {
+    if (queue.isEmpty) {
+      if (await file.exists()) await file.delete();
+      return;
+    }
+    await file.parent.create(recursive: true);
+    await file.writeAsString(jsonEncode(queue));
+  }
+
+  /// Bots deleted on this device whose cloud deletion is not confirmed yet.
+  Future<Set<String>> pendingRemoteBotDeletions() async => (await _readQueue(
+    await _deletionQueueFile('_pending_remote_bot_deletions.json'),
+  )).keys.toSet();
+
+  Future<void> addPendingRemoteBotDeletion(String botId) async {
+    final file = await _deletionQueueFile('_pending_remote_bot_deletions.json');
+    final queue = await _readQueue(file);
+    queue[botId] = DateTime.now().toUtc().toIso8601String();
+    await _writeQueue(file, queue);
+  }
+
+  Future<void> clearPendingRemoteBotDeletion(String botId) async {
+    final file = await _deletionQueueFile('_pending_remote_bot_deletions.json');
+    final queue = await _readQueue(file);
+    if (queue.remove(botId) != null) await _writeQueue(file, queue);
+  }
+
+  /// Replays the queued bot deletions. The server treats an already-absent bot as deleted, so a
+  /// replay is safe. Returns the ids that are STILL pending (sync must keep ignoring them).
+  Future<Set<String>> retryPendingRemoteBotDeletions(
+    MainApiClient client,
+  ) async {
+    final pending = await pendingRemoteBotDeletions();
+    final remaining = <String>{};
+    for (final botId in pending) {
+      try {
+        await client.deleteBot(botId);
+        await clearPendingRemoteBotDeletion(botId);
+        debugPrint('[AppManager] Queued cloud deletion of $botId completed.');
+      } catch (e) {
+        remaining.add(botId);
+        debugPrint('[AppManager] Queued cloud deletion of $botId failed: $e');
+      }
+    }
+    return remaining;
+  }
+
+  /// Commands deleted locally whose removal is not confirmed in the cloud document: `{id: name}`.
+  Future<Map<String, String>> pendingCommandDeletions(String botId) async {
+    final queue = await _readQueue(
+      await _deletionQueueFile('_pending_command_deletions.json'),
+    );
+    final entries = queue[botId];
+    if (entries is! Map) return <String, String>{};
+    return {
+      for (final e in entries.entries)
+        e.key.toString():
+            (e.value is Map ? (e.value as Map)['name'] : e.value)?.toString() ??
+            '',
+    };
+  }
+
+  Future<void> recordPendingCommandDeletion(
+    String botId,
+    String commandId, {
+    String name = '',
+  }) async {
+    if (commandId.trim().isEmpty) return;
+    final file = await _deletionQueueFile('_pending_command_deletions.json');
+    final queue = await _readQueue(file);
+    final entries = Map<String, dynamic>.from(
+      (queue[botId] as Map?) ?? const <String, dynamic>{},
+    );
+    entries[commandId] = {
+      'name': name,
+      'at': DateTime.now().toUtc().toIso8601String(),
+    };
+    queue[botId] = entries;
+    await _writeQueue(file, queue);
+  }
+
+  /// Clears the given command ids (or all of the bot's when [ids] is null).
+  Future<void> clearPendingCommandDeletions(
+    String botId, {
+    Iterable<String>? ids,
+  }) async {
+    final file = await _deletionQueueFile('_pending_command_deletions.json');
+    final queue = await _readQueue(file);
+    final entries = queue[botId];
+    if (entries is! Map) return;
+    if (ids == null) {
+      queue.remove(botId);
+    } else {
+      final kept = Map<String, dynamic>.from(entries)
+        ..removeWhere((key, _) => ids.contains(key));
+      if (kept.isEmpty) {
+        queue.remove(botId);
+      } else {
+        queue[botId] = kept;
+      }
+    }
+    await _writeQueue(file, queue);
+  }
+
+  /// Replays the queued command deletions of [botId] through the manager. Returns the ids still pending.
+  Future<Set<String>> retryPendingCommandDeletions(
+    String botId,
+    MainApiClient client,
+  ) async {
+    final pending = await pendingCommandDeletions(botId);
+    final remaining = <String>{};
+    for (final entry in pending.entries) {
+      try {
+        await client.deleteCommand(botId, '', entry.key);
+        await clearPendingCommandDeletions(botId, ids: [entry.key]);
+      } catch (e) {
+        remaining.add(entry.key);
+        debugPrint(
+          '[AppManager] Queued command deletion ${entry.key} failed: $e',
+        );
+      }
+    }
+    return remaining;
+  }
+
+  /// Remote commands minus those deleted locally and not yet confirmed: a stale cloud copy must not
+  /// bring them back.
+  static List<dynamic> withoutPendingCommandDeletions(
+    List<dynamic> commands,
+    Iterable<String> pendingIds,
+  ) {
+    final pending = pendingIds.toSet();
+    if (pending.isEmpty) return commands;
+    return commands.where((raw) {
+      if (raw is! Map) return true;
+      return !pending.contains((raw['id'] ?? '').toString());
+    }).toList();
   }
 
   /// Vrai si l'entrée locale [app] n'est PAS un bot configuré mais un bot clé en
@@ -2094,6 +2264,8 @@ class AppManager implements BotDataStore {
     Map<String, String>? eventVariableAliases,
     String? executionMode,
     String? jsScriptContent,
+    String? bdfdScriptContent,
+    String? bdfdBackend,
   }) async {
     final app = Map<String, dynamic>.from(await getApp(id));
     final workflows = _coerceWorkflowList(app['workflows']);
@@ -2144,6 +2316,11 @@ class AppManager implements BotDataStore {
       'entryPoint': normalizedEntryPoint,
       'arguments': normalizedArguments,
       'executionMode': resolvedExecutionMode,
+      if (bdfdScriptContent != null || existing?['bdfdScriptContent'] != null)
+        'bdfdScriptContent':
+            bdfdScriptContent ?? existing!['bdfdScriptContent'],
+      if (bdfdBackend != null || existing?['bdfdBackend'] != null)
+        'bdfdBackend': bdfdBackend ?? existing!['bdfdBackend'],
       'updatedAt': DateTime.now().toIso8601String(),
       if (resolvedFolder.isNotEmpty) 'folder': resolvedFolder,
       if (resolvedAliases != null && resolvedAliases.isNotEmpty)

@@ -46,9 +46,7 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
                 if (next == null) return;
                 _applyStateUpdate(() {
                   _executionMode = next;
-                  _bdfdCompileResult = _bdfdCompiler.compile(
-                    _bdfdScriptController.text,
-                  );
+                  _refreshBdfdCompileResult(notify: false);
                 });
               },
               child: Column(
@@ -134,6 +132,7 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
               initialCode: _bdfdScriptController.text,
               title: context.tr.workflow_bdfd_editor_title,
               appEmojis: _appEmojis,
+              bdfdBackend: _bdfdBackend,
             ),
           ),
         );

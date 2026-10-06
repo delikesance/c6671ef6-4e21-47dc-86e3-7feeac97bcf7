@@ -1,13 +1,18 @@
+import '../services/bot_music_service.dart';
+import '../services/bot_component_service.dart';
 import 'dart:async';
+import '../services/bot_command_query_service.dart';
+import '../utils/command_invocation_metadata.dart';
+import '../services/bot_moderation_service.dart';
+import 'bdfd/execution.dart';
+import '../services/bot_message_service.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator_shared/bot/bot_data_store.dart';
 import 'package:bot_creator_shared/actions/interaction_response.dart';
 import 'package:bot_creator_shared/actions/handle_component_interaction.dart';
 import 'package:bot_creator_shared/types/action.dart';
-import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator_shared/utils/command_autocomplete.dart';
 import 'package:bot_creator_shared/utils/application_command_lookup.dart';
-import 'package:bot_creator_shared/utils/interaction_ack_state.dart';
 import 'package:bot_creator_shared/utils/command_workflow_routing.dart';
 import 'package:bot_creator_shared/utils/global.dart' as shared_global;
 import 'package:bot_creator_shared/utils/runtime_variables.dart';
@@ -149,7 +154,8 @@ class CommandExecutor {
     _injectBaseVariables(runtimeVariables, botId: botId, startedAt: startedAt);
     sessionVariableInjector?.call(runtimeVariables);
 
-    runtimeVariables['interaction.isSlash'] = 'true';
+    runtimeVariables['interaction.isSlash'] =
+        '${commandData.type == ApplicationCommandType.chatInput}';
 
     final contextIds = _resolveContextIds(interaction, runtimeVariables);
 
@@ -172,6 +178,15 @@ class CommandExecutor {
 
     final subcommandRoute = resolveSubcommandRoute(commandData.options);
     runtimeVariables['interaction.command.route'] = subcommandRoute ?? '';
+    runtimeVariables.addAll(
+      buildCommandInvocationMetadata(
+        normalized,
+        trigger:
+            '/${commandData.name}${subcommandRoute == null ? '' : ' ${subcommandRoute.replaceAll('/', ' ')}'}',
+      ),
+    );
+    runtimeVariables['interaction.command.id'] = commandData.id.toString();
+    runtimeVariables['interaction.command.name'] = commandData.name;
 
     final routePayload = (subcommandRoute == null)
         ? null
@@ -197,8 +212,9 @@ class CommandExecutor {
         executionMode == 'bdfd_script' || scriptSource.trim().isNotEmpty;
 
     if (shouldCompileFromBdfdSource) {
-      await _executeBdfdScript(
+      await _executeSelectedBdfdScript(
         scriptSource,
+        backend: executionValue['bdfdBackend'] ?? value['bdfdBackend'],
         interaction: interaction,
         gateway: gateway,
         botId: botId,
@@ -215,89 +231,84 @@ class CommandExecutor {
     }
   }
 
-  Future<void> _executeBdfdScript(
+  Future<void> _executeSelectedBdfdScript(
     String scriptSource, {
+    Object? backend,
     required ApplicationCommandInteraction interaction,
     required NyxxGateway gateway,
     required String botId,
     required Map<String, String> runtimeVariables,
   }) async {
-    final compileResult = BdfdCompiler(
-      legacyUserVariables:
-          runtimeVariables['bdfd.userVariableSemantics'] == '1',
-    ).compile(scriptSource);
-
-    if (compileResult.hasErrors) {
-      final text = _formatBdfdRuntimeDiagnostics(compileResult.diagnostics);
-      await _sendErrorResponse(interaction, text, botId, runtimeVariables);
-      return;
-    }
-
-    if (compileResult.actions.isEmpty) {
+    final execution = BdfdScriptExecution(
+      onReplayCaptured: (callbacks.isDebugReplayCapturing?.call(botId) ?? false)
+          ? (frames, totalMs) => callbacks.onReplayCaptured?.call(
+              botId,
+              '/${interaction.data.name}',
+              frames,
+              totalMs,
+            )
+          : null,
+      store: store,
+      botId: botId,
+      variables: runtimeVariables,
+      components: DiscordBotComponentService(
+        client: gateway,
+        channelId: interaction.channelId,
+        interaction: interaction,
+      ),
+      commandQueries: DiscordBotCommandQueryService(
+        client: gateway,
+        store: store,
+        botId: botId,
+        guildId: interaction.guildId,
+      ),
+      interaction: interaction,
+      music: _workflowExecutor.lavalinkService == null
+          ? null
+          : DiscordBotMusicService(
+              client: gateway,
+              guildId: interaction.guildId,
+              lavalink: _workflowExecutor.lavalinkService!,
+            ),
+      runVisualWorkflow: (workflow, nativeContext) =>
+          _workflowExecutor.executeActions(
+            actions: ((workflow['actions'] as List?) ?? [])
+                .whereType<Map>()
+                .map((json) => Action.fromJson(Map<String, dynamic>.from(json)))
+                .toList(),
+            context: interaction,
+            gateway: gateway,
+            botId: botId,
+            runtimeVariables: runtimeVariables,
+            bdfdContext: nativeContext,
+            fallbackChannelId: interaction.channelId,
+            fallbackGuildId: interaction.guildId,
+          ),
+      moderation: DiscordBotModerationService(
+        client: gateway,
+        guildId: interaction.guildId,
+        store: store,
+        botId: botId,
+      ),
+      messages: DiscordBotMessageService(
+        botId: botId,
+        client: gateway,
+        interaction: interaction,
+        channelId: interaction.channelId,
+        guildId: interaction.guildId?.toString(),
+      ),
+    );
+    try {
+      await execution.execute(scriptSource, backend: backend);
+    } catch (error) {
+      callbacks.onLog?.call('BDFD execution failed: $error', botId: botId);
       await _sendErrorResponse(
         interaction,
-        'BDFD script compiled but no actions were generated.',
+        error.toString(),
         botId,
         runtimeVariables,
       );
-      return;
     }
-
-    final actions = compileResult.actions;
-
-    // Defer the interaction — BUT skip if the compiled actions contain a
-    // respondWithModal action. Discord requires modals to be the FIRST
-    // response; deferring first would make the modal fail.
-    final hasModalAction = actions.any(
-      (a) => a.type == BotCreatorActionType.respondWithModal,
-    );
-    if (!hasModalAction) {
-      try {
-        await interaction.acknowledge();
-        markInteractionAcknowledged(interaction);
-      } catch (_) {
-        // Already deferred — mark as acknowledged for our tracking.
-        markInteractionAcknowledged(interaction);
-      }
-    }
-
-    try {
-      await _workflowExecutor.executeActions(
-        actions: actions,
-        context: interaction,
-        gateway: gateway,
-        botId: botId,
-        runtimeVariables: runtimeVariables,
-        replayLabel: '/${interaction.data.name}',
-      );
-    } catch (e) {
-      // If no error handler ($try/$catch or $suppressErrors) already sent
-      // a response, send a human-readable follow-up with the actual error.
-      // Skip if the interaction was already responded to — the custom
-      // message from $suppressErrors / $try/$catch takes priority.
-      if (isInteractionAcknowledged(interaction)) {
-        try {
-          final dynInteraction = interaction as dynamic;
-          final message = _formatCommandError(e);
-          await dynInteraction.createFollowup(
-            MessageBuilder(content: message),
-            isEphemeral: true,
-          );
-        } catch (_) {
-          // Best-effort — if follow-up fails, we can't do anything more.
-        }
-      } else {
-        await _sendErrorResponse(
-          interaction,
-          _formatCommandError(e),
-          botId,
-          runtimeVariables,
-        );
-      }
-    }
-
-    // BDFD script might have its own response logic but usually it's handled via actions.
-    // If we need a final response, we can add it here.
   }
 
   Future<void> _handleAutocomplete(
@@ -354,8 +365,9 @@ class CommandExecutor {
             if (raw is! Map) continue;
             final name = (raw['name'] ?? '').toString().trim();
             if (name.isEmpty) continue;
-            if (query.isNotEmpty && !name.toLowerCase().contains(query))
+            if (query.isNotEmpty && !name.toLowerCase().contains(query)) {
               continue;
+            }
             final value = raw['value'];
             choices.add(
               CommandOptionChoiceBuilder<dynamic>(
@@ -618,8 +630,9 @@ class CommandExecutor {
       final trimmed = (v ?? '').trim();
       if (trimmed.isEmpty ||
           trimmed.toLowerCase() == 'unknown user' ||
-          trimmed.toLowerCase() == 'dm')
+          trimmed.toLowerCase() == 'dm') {
         return null;
+      }
       return trimmed;
     }
 
@@ -644,19 +657,6 @@ class CommandExecutor {
           normalize(raw.message?.id?.toString()) ??
           normalize(raw.id?.toString()),
     );
-  }
-
-  String _formatBdfdRuntimeDiagnostics(
-    List<BdfdCompileDiagnostic> diagnostics,
-  ) {
-    if (diagnostics.isEmpty) return 'Unknown compilation error.';
-    return diagnostics
-        .map((d) {
-          final severity = d.severity.name.toUpperCase();
-          final message = d.message;
-          return '[$severity] $message';
-        })
-        .join('\n');
   }
 
   Future<void> _sendErrorResponse(
@@ -700,23 +700,6 @@ class CommandExecutor {
   Future<void> updateOrCreate() async {
     // Save logic would be injected by the app layer via a callback.
     // After a successful save, the app calls resetDirtyState().
-  }
-
-  /// Formats a raw error into a concise, human-readable message (English).
-  ///
-  /// Strips the "Exception: " / "StateError: " Dart prefix so users see only
-  /// the meaningful text, and truncates to fit Discord's 2000-character limit.
-  static String _formatCommandError(Object error) {
-    const kMax = 1950;
-    var text = error.toString();
-    final colon = text.indexOf(': ');
-    if (colon > 0 && colon < 30) {
-      text = text.substring(colon + 2);
-    }
-    if (text.length <= kMax) {
-      return '❌ $text';
-    }
-    return '❌ ${text.substring(0, kMax - 1)}…';
   }
 }
 

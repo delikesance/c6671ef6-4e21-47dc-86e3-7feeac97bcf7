@@ -203,7 +203,7 @@ void main() {
       });
       await _mount(tester, api, size: const Size(320, 900), textScale: 1.5);
 
-      for (final amount in ['97.09575', '2.90425', '100']) {
+      for (final amount in ['9,710']) {
         final found = find.text(amount);
         expect(found, findsOneWidget);
         final paragraph = tester.renderObject<RenderParagraph>(found);
@@ -238,7 +238,7 @@ void main() {
       );
       await _settle(tester);
 
-      expect(find.textContaining('AI credits used'), findsOneWidget);
+      expect(find.textContaining('credits left'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }
@@ -410,7 +410,8 @@ void main() {
       expect(turns, 1);
       expect(summaries, 0);
       expect(find.text('Configuration retained'), findsOneWidget);
-      expect(find.text('Summarized context'), findsOneWidget);
+      // The summary is model-only context: it is never shown to the user.
+      expect(find.text('Summarized context'), findsNothing);
       expect(_draft(tester), isEmpty);
       expect(tester.takeException(), isNull);
     },

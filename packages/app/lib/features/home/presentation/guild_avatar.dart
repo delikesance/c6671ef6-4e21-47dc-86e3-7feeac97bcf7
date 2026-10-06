@@ -38,12 +38,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bot_creator/core/storage/database.dart';
-import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/global.dart' show discordUrl;
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:flutter/foundation.dart' show ValueListenable, listEquals;
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart' as ui;
 
 /// Nombre maximum d'avatars de serveurs dessinés sur une carte bot.
 const int kMaxVisibleGuildAvatars = 2;
@@ -648,59 +648,17 @@ class _GuildAvatarStripState extends State<GuildAvatarStrip> {
   }
 
   Widget _buildStrip(BuildContext context, List<GuildAvatarInfo> known) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final scheme = Theme.of(context).colorScheme;
-    final tokens = HomeTokens.of(context);
-    final ringColor =
-        widget.ringColor ??
-        (isDark ? tokens.clusterBg : scheme.surfaceContainerLow);
-    final slots = guildPresenceSlotCount(
+    // La présentation (cercles superposés, anneau, initiales) vit dans
+    // `bot_creator_ui`, partagée avec le Studio.
+    return ui.GuildAvatarStack(
       guildCount: widget.guildCount,
-      knownGuilds: known.length,
-    );
-
-    return SizedBox(
-      width: widget.size + (slots - 1) * widget.overlap,
-      height: widget.size,
-      child: Stack(
-        children: <Widget>[
-          for (var i = 0; i < slots; i++)
-            Positioned(
-              left: i * widget.overlap,
-              child: _buildAvatar(
-                context,
-                index: i,
-                info: i < known.length ? known[i] : null,
-                ringColor: ringColor,
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAvatar(
-    BuildContext context, {
-    required int index,
-    required GuildAvatarInfo? info,
-    required Color ringColor,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final scheme = Theme.of(context).colorScheme;
-    final tokens = HomeTokens.of(context);
-    final background = index == 0
-        ? (isDark ? tokens.clusterBorder : scheme.primary)
-        : AppTheme.discord;
-
-    return HomeBotAvatar(
-      imageUrl: info?.iconUrl,
+      guilds: [
+        for (final g in known)
+          ui.GuildStackItem(id: g.id, name: g.name, iconUrl: g.iconUrl),
+      ],
+      ringColor: widget.ringColor,
       size: widget.size,
-      background: background,
-      ringColor: ringColor,
-      ringWidth: 2,
-      fallbackIcon: Icons.dns_rounded,
-      // Initiale *réelle* du serveur (jamais une lettre tirée d'une seed).
-      fallbackLabel: guildAvatarInitial(info?.name),
+      overlap: widget.overlap,
     );
   }
 }

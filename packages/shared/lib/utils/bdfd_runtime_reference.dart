@@ -6,7 +6,7 @@ $if[$guildID!=]
 $if[$isBot==false]
 $var[length;$charCount[$trimSpace[$message]]]
 $if[$var[length]>0]
-$cooldown[15s]
+$cooldown[15s;]
 $var[gain;$min[30;$max[1;$ceil[$divide[$var[length];10]]]]]
 $var[level;$getGuildMemberVar[level]]
 $var[xp;$sum[$getGuildMemberVar[xp];$var[gain]]]
@@ -35,8 +35,8 @@ $reply$c[]Niveau $var[level] — $var[xp] / $var[required] XP
 const bdfdXpAddCommand = r"""
 $onlyIf[$guildID!=;Utilise cette commande dans un serveur.]
 $onlyAdmin[Cette commande est réservée aux administrateurs.]
-$var[target;((opts.membre.id))]
-$var[gain;((opts.montant))]
+$var[target;$message[membre]]
+$var[gain;$message[montant]]
 $onlyIf[$isInteger[$var[gain]]==true;Indique un montant d'XP entier valide.]
 $onlyIf[$var[gain]>=1;Indique un montant d'XP positif.]
 $var[level;$getGuildMemberVar[level;$var[target]]]
@@ -75,7 +75,7 @@ Map<String, dynamic> bdfdRuntimeReference({
       'get': r'$getVar[key;userID]',
       'set': r'$setVar[key;value;userID]',
       'reset':
-          r'$resetGlobalUserVar[key;optionalUserID] is a Bot Creator extension. It resets only that user (author by default), not all users.',
+          r'$resetGlobalUserVar[key;optionalUserID] is a Bot Creator extension. With a user ID it resets only that user; WITHOUT one it resets the variable for EVERY user, so pass $authorID to reset only the author.',
     },
     'guildMember': {
       'meaning': 'A separate value for each server/member pair.',
@@ -94,7 +94,7 @@ Map<String, dynamic> bdfdRuntimeReference({
   },
   'slash_commands': {
     'options':
-        r'Use ((opts.montant)) for a numeric option and ((opts.membre.id)) for a member ID. $args[index;optionName] also falls back to a named option; positional $args alone is empty in a slash invocation.',
+        r'In a slash invocation read options by name with $message[optionName], e.g. $message[montant] for a numeric option and $message[membre] for a member ID. Positional $args alone is empty in a slash invocation.',
     'response':
         r'$reply$c[] responds to the interaction. $var values and explicit scoped getters can be used directly in the response or when constructing another temporary variable, including inside parentheses.',
     'permissions':
@@ -109,7 +109,7 @@ Map<String, dynamic> bdfdRuntimeReference({
     'author': r'$authorID',
     'guild': r'$guildID',
     'cooldown':
-        r'$cooldown[15s] stops silently and is isolated by bot, member and server. Place it before writes. This cooldown is kept in memory and resets on runtime restart.',
+        r'$cooldown[15s;] with an empty message stops silently and is isolated by bot, member and server. Place it before writes. This cooldown is kept in memory and resets on runtime restart.',
     'requirements':
         'Guild message events and Message Content intent must be enabled in the bot configuration and Discord Developer Portal to inspect normal message text.',
   },

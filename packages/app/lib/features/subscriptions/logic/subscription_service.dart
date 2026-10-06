@@ -7,13 +7,22 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/platform/run_platform.dart';
 import 'package:bot_creator/features/subscriptions/logic/app_account_token.dart';
+import 'package:bot_creator/features/subscriptions/logic/consumable_purchase_service.dart';
 import 'package:bot_creator/features/subscriptions/logic/shared_purchase_stream.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart' show PlanLimitBlock;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/billing_client_wrappers.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+// `PlanLimitBlock` : la raison pour laquelle la formule du compte empêche un
+// démarrage — exactement celle que le serveur applique (403 au démarrage). Elle
+// vit dans `bot_creator_ui` (partagée avec le Studio, qui l'affiche dans la même
+// boîte) ; elle sert ici à griser l'écran et à proposer l'offre.
+export 'package:bot_creator_ui/src/subscriptions/plan_limit_dialog.dart'
+    show PlanLimitBlock;
 
 /// Product identifiers — must match Google Play / App Store Connect.
 const String kMonthlySubscriptionId = 'bot_creator_premium_monthly';
@@ -59,16 +68,6 @@ class SubscriptionPurchaseResult {
 
   final bool started;
   final SubscriptionPurchaseFailureReason? failureReason;
-}
-
-/// Raison pour laquelle la formule du compte empêche un démarrage — exactement
-/// celle que le serveur applique (403 au démarrage). Sert à griser l'écran et à
-/// proposer l'offre, plutôt que de laisser l'utilisateur buter sur un refus.
-enum PlanLimitBlock {
-  planExcludesOwnBots,
-  planBotQuotaReached,
-  planExcludesTurnkey,
-  planTurnkeyQuotaReached,
 }
 
 class SubscriptionService {
@@ -876,6 +875,13 @@ class SubscriptionService {
     List<PurchaseDetails> purchaseDetailsList,
   ) async {
     for (final purchase in purchaseDetailsList) {
+      // Un pack de credits n'est pas un abonnement : le terminer ici le
+      // consommerait avant que le serveur l'ait credite.
+      if (await ConsumablePurchaseService.isConsumableProduct(
+        purchase.productID,
+      )) {
+        continue;
+      }
       switch (purchase.status) {
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:

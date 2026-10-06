@@ -1,0 +1,1485 @@
+{
+ "addRole parity a policy that does not intercept still runs it natively #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "role": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "addRole parity continue mode records the error and runs the next action #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "bad": "Error: Exception: Missing or invalid userId/roleId",
+   "good": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "addRole parity disabled actions are skipped #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "on": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "addRole parity falls back to memberId and resolves placeholders #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "333",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "action_0": "333"
+  },
+  "variables": {
+   "guild.id": "10",
+   "target": "333",
+   "role.id": "64",
+   "lastSentMessageId": "333",
+   "lastMessageId": "333"
+  },
+  "error": null
+ },
+ "addRole parity grants with an explicit reason #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Because"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "role": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "addRole parity jump mode continues at the named later action #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "bad": "Error: Exception: Missing or invalid userId/roleId",
+   "target": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "addRole parity jump mode to an earlier or unknown action fails like stop #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/roleId"
+ },
+ "addRole parity jump mode to an earlier or unknown action fails like stop #1": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/roleId"
+ },
+ "addRole parity keeps the historical default audit reason #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "action_0": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "addRole parity later actions read earlier results of the same list #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "222 done"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 4
+  },
+  "results": {
+   "first": "222",
+   "second": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "addRole parity protected executions ignore the error mode #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/roleId"
+ },
+ "addRole parity reports a Discord refusal #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Failed to addRole user: Bad state: Discord refused role",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to addRole user: Bad state: Discord refused role"
+ },
+ "addRole parity reports a missing bot permission #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 1
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: I do not have permission to manage roles.",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to manage roles."
+ },
+ "addRole parity reports invalid role as the same failure #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/roleId"
+ },
+ "addRole parity reports missing ids as the same failure #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/roleId"
+ },
+ "addRole parity requires a guild #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: User action requires a guild context",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: User action requires a guild context"
+ },
+ "addRole parity role definitions run natively too #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "def": "65"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "65",
+   "lastMessageId": "65"
+  },
+  "error": null
+ },
+ "addRole parity skip mode skips the following actions #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "bad": "Error: Exception: Missing or invalid userId/roleId",
+   "last": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "addRole parity skip mode with no count behaves like continue #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "bad": "Error: Exception: Missing or invalid userId/roleId",
+   "next": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "addRole parity stop mode (default) ends the execution #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/roleId"
+ },
+ "addRole parity the shared budget stops a delayed lookup before any effect #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 1
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10"
+  },
+  "error": "CommandExecutionTimeout: timeout"
+ },
+ "addRole replacement parity an empty list clears the roles #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [
+    {
+     "userId": "222",
+     "roles": [],
+     "reason": "Set roles via BotCreator action"
+    }
+   ],
+   "guildLookups": 4
+  },
+  "results": {
+   "action_0": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "addRole replacement parity rejects a setRoles that is not a list #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: setRoles must be a list of role IDs",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: setRoles must be a list of role IDs"
+ },
+ "addRole replacement parity rejects an invalid role id #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: setRoles contains an invalid role ID",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: setRoles contains an invalid role ID"
+ },
+ "addRole replacement parity replaces roles with the historical default reason #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [
+    {
+     "userId": "222",
+     "roles": [
+      "64"
+     ],
+     "reason": "Set roles via BotCreator action"
+    }
+   ],
+   "guildLookups": 3
+  },
+  "results": {
+   "set": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "ifBlock parity a block with an unsupported child stays entirely historical #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "gate": "IF_TRUE",
+   "gate.a": "222",
+   "gate.v": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222",
+   "temp.x": "1",
+   "__variables.tempNames": "[\"x\"]",
+   "v.value": "1",
+   "v.sourceRaw": "1",
+   "v.resolved": "1",
+   "v.fallback": "",
+   "v.directFallback": "",
+   "v.scope": "temp",
+   "v.key": "x"
+  },
+  "error": null
+ },
+ "ifBlock parity a failing child in continue mode keeps the branch going #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "gate": "IF_TRUE",
+   "gate.bad": "Error: Exception: Missing or invalid userId/roleId",
+   "gate.good": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "ifBlock parity a failing child stops the block and the execution #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "ifBlock",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/roleId"
+ },
+ "ifBlock parity a policy keeps blocks on the historical path (same outcome) #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "gate": "IF_TRUE",
+   "gate.a": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "ifBlock parity children read the results of their own list only #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 6
+  },
+  "results": {
+   "outer": "222",
+   "gate": "IF_TRUE",
+   "gate.a": "222",
+   "gate.b": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "ifBlock parity disabled children keep their place but do not run #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "gate": "IF_TRUE",
+   "gate.on": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "ifBlock parity empty branches only leave the label #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 0
+  },
+  "results": {
+   "gate": "IF_TRUE"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes"
+  },
+  "error": null
+ },
+ "ifBlock parity nested blocks publish results with their full path #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "remove",
+     "user": "222",
+     "role": "64",
+     "reason": "Remove role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 4
+  },
+  "results": {
+   "outer": "IF_TRUE",
+   "outer.first": "222",
+   "outer.inner": "IF_TRUE",
+   "outer.inner.leaf": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "ifBlock parity runs the else branch #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "remove",
+     "user": "222",
+     "role": "64",
+     "reason": "Remove role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "gate": "IF_FALSE",
+   "gate.x": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "no",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "ifBlock parity runs the then branch and publishes its results under the block #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "remove",
+     "user": "222",
+     "role": "64",
+     "reason": "Remove role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 6
+  },
+  "results": {
+   "gate": "IF_TRUE",
+   "gate.a": "222",
+   "gate.b": "222",
+   "after": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "ifBlock parity selects the matching else-if #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "remove",
+     "user": "222",
+     "role": "64",
+     "reason": "Remove role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "gate": "ELSE_IF_3",
+   "gate.l": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "later",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "ifBlock parity skip and jump inside a branch count the branch actions #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "gate": "IF_TRUE",
+   "gate.bad": "Error: Exception: Missing or invalid userId/roleId",
+   "gate.bad2": "Error: Exception: Missing or invalid userId/roleId",
+   "gate.end": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "ifBlock parity supports condition groups and negation #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "gate": "IF_TRUE",
+   "gate.hit": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "a": "0",
+   "b": "0",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "ifBlock parity the block error mode continue discards the branch results #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 4
+  },
+  "results": {
+   "gate": "Error: Exception: Missing or invalid userId/roleId",
+   "after": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "ifBlock",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": null
+ },
+ "ifBlock parity tryCatch, suppressErrors and jump modes run natively #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "g": "TRY_OK",
+   "g.a": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "ifBlock parity tryCatch, suppressErrors and jump modes run natively #1": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "g": "IF_TRUE",
+   "g.a": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "ifBlock parity tryCatch, suppressErrors and jump modes run natively #2": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "222",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "g": "IF_TRUE",
+   "g.a": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "removeRole parity a policy that does not intercept still runs it natively #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "remove",
+     "user": "222",
+     "role": "64",
+     "reason": "Remove role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "role": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "removeRole parity continue mode records the error and runs the next action #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "remove",
+     "user": "222",
+     "role": "64",
+     "reason": "Remove role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "bad": "Error: Exception: Missing or invalid userId/roleId",
+   "good": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "removeRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "removeRole parity disabled actions are skipped #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "remove",
+     "user": "222",
+     "role": "64",
+     "reason": "Remove role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "on": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "removeRole parity falls back to memberId and resolves placeholders #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "remove",
+     "user": "333",
+     "role": "64",
+     "reason": "Remove role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "action_0": "333"
+  },
+  "variables": {
+   "guild.id": "10",
+   "target": "333",
+   "role.id": "64",
+   "lastSentMessageId": "333",
+   "lastMessageId": "333"
+  },
+  "error": null
+ },
+ "removeRole parity grants with an explicit reason #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "remove",
+     "user": "222",
+     "role": "64",
+     "reason": "Because"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "role": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "removeRole parity jump mode continues at the named later action #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "remove",
+     "user": "222",
+     "role": "64",
+     "reason": "Remove role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "bad": "Error: Exception: Missing or invalid userId/roleId",
+   "target": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "removeRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "removeRole parity jump mode to an earlier or unknown action fails like stop #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "remove",
+     "user": "222",
+     "role": "64",
+     "reason": "Remove role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "removeRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/roleId"
+ },
+ "removeRole parity jump mode to an earlier or unknown action fails like stop #1": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "remove",
+     "user": "222",
+     "role": "64",
+     "reason": "Remove role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "removeRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/roleId"
+ },
+ "removeRole parity keeps the historical default audit reason #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "remove",
+     "user": "222",
+     "role": "64",
+     "reason": "Remove role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "action_0": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "removeRole parity later actions read earlier results of the same list #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "remove",
+     "user": "222",
+     "role": "64",
+     "reason": "Remove role via BotCreator action"
+    },
+    {
+     "operation": "remove",
+     "user": "222",
+     "role": "64",
+     "reason": "222 done"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 4
+  },
+  "results": {
+   "first": "222",
+   "second": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "removeRole parity protected executions ignore the error mode #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "removeRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/roleId"
+ },
+ "removeRole parity reports a Discord refusal #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Failed to removeRole user: Bad state: Discord refused role",
+   "error.command": "removeRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to removeRole user: Bad state: Discord refused role"
+ },
+ "removeRole parity reports a missing bot permission #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 1
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: I do not have permission to manage roles.",
+   "error.command": "removeRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to manage roles."
+ },
+ "removeRole parity reports invalid role as the same failure #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "removeRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/roleId"
+ },
+ "removeRole parity reports missing ids as the same failure #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "removeRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/roleId"
+ },
+ "removeRole parity requires a guild #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: User action requires a guild context",
+   "error.command": "removeRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: User action requires a guild context"
+ },
+ "removeRole parity role definitions run natively too #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "def": "64"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "64",
+   "lastMessageId": "64"
+  },
+  "error": null
+ },
+ "removeRole parity skip mode skips the following actions #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "remove",
+     "user": "222",
+     "role": "64",
+     "reason": "Remove role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "bad": "Error: Exception: Missing or invalid userId/roleId",
+   "last": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "removeRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "removeRole parity skip mode with no count behaves like continue #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "remove",
+     "user": "222",
+     "role": "64",
+     "reason": "Remove role via BotCreator action"
+    }
+   ],
+   "updates": [],
+   "guildLookups": 2
+  },
+  "results": {
+   "bad": "Error: Exception: Missing or invalid userId/roleId",
+   "next": "222"
+  },
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "removeRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "lastSentMessageId": "222",
+   "lastMessageId": "222"
+  },
+  "error": null
+ },
+ "removeRole parity stop mode (default) ends the execution #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "removeRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/roleId"
+ },
+ "removeRole parity the shared budget stops a delayed lookup before any effect #0": {
+  "effects": {
+   "roleChanges": [],
+   "updates": [],
+   "guildLookups": 1
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10"
+  },
+  "error": "CommandExecutionTimeout: timeout"
+ }
+}

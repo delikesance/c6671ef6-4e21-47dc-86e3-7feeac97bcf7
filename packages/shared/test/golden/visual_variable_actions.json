@@ -1,0 +1,1980 @@
+{
+ "setTemporaryVariable parity > stores text and exposes the result sub-fields #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": {
+   "tmp": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "temp.name": "Ada",
+   "__variables.tempNames": "[\"name\"]",
+   "tmp.value": "Ada",
+   "tmp.sourceRaw": "Ada",
+   "tmp.resolved": "Ada",
+   "tmp.fallback": "",
+   "tmp.directFallback": "",
+   "tmp.scope": "temp",
+   "tmp.key": "name"
+  },
+  "error": null
+ },
+ "setTemporaryVariable parity > bc_ prefix, internal flag and raw key alias #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": {
+   "action_0": "OK",
+   "action_1": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "temp.hidden": "1",
+   "temp.bc_hidden": "1",
+   "action_0.value": "1",
+   "action_0.sourceRaw": "1",
+   "action_0.resolved": "1",
+   "action_0.fallback": "",
+   "action_0.directFallback": "",
+   "action_0.scope": "temp",
+   "action_0.key": "hidden",
+   "temp.shown": "2",
+   "__variables.tempNames": "[\"shown\"]",
+   "temp.bc_shown": "2",
+   "action_1.value": "2",
+   "action_1.sourceRaw": "2",
+   "action_1.resolved": "2",
+   "action_1.fallback": "",
+   "action_1.directFallback": "",
+   "action_1.scope": "temp",
+   "action_1.key": "shown"
+  },
+  "error": null
+ },
+ "setTemporaryVariable parity > typed values #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": {
+   "action_0": "OK",
+   "action_1": "OK",
+   "action_2": "OK",
+   "action_3": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "temp.n": "4.5",
+   "__variables.tempNames": "[\"n\",\"b\",\"j\",\"i\"]",
+   "action_0.value": "4.5",
+   "action_0.sourceRaw": "",
+   "action_0.resolved": "4.5",
+   "action_0.fallback": "",
+   "action_0.directFallback": "",
+   "action_0.scope": "temp",
+   "action_0.key": "n",
+   "temp.b": "true",
+   "action_1.value": "true",
+   "action_1.sourceRaw": "",
+   "action_1.resolved": "true",
+   "action_1.fallback": "",
+   "action_1.directFallback": "",
+   "action_1.scope": "temp",
+   "action_1.key": "b",
+   "temp.j": "{\"a\":[1]}",
+   "action_2.value": "{\"a\":[1]}",
+   "action_2.sourceRaw": "",
+   "action_2.resolved": "{a: [1]}",
+   "action_2.fallback": "",
+   "action_2.directFallback": "",
+   "action_2.scope": "temp",
+   "action_2.key": "j",
+   "temp.i": "7",
+   "action_3.value": "7",
+   "action_3.sourceRaw": "7",
+   "action_3.resolved": "7",
+   "action_3.fallback": "",
+   "action_3.directFallback": "",
+   "action_3.scope": "temp",
+   "action_3.key": "i"
+  },
+  "error": null
+ },
+ "setTemporaryVariable parity > reports bad number identically #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: numberValue is required and must be numeric when valueType=number",
+   "error.command": "setTemporaryVariable",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: numberValue is required and must be numeric when valueType=number"
+ },
+ "setTemporaryVariable parity > reports bad bool identically #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: boolValue is required and must be true or false when valueType=boolean",
+   "error.command": "setTemporaryVariable",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: boolValue is required and must be true or false when valueType=boolean"
+ },
+ "setTemporaryVariable parity > reports empty json identically #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: jsonValue is required when valueType=json",
+   "error.command": "setTemporaryVariable",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: jsonValue is required when valueType=json"
+ },
+ "setTemporaryVariable parity > reports invalid json identically #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: jsonValue must be valid JSON: FormatException: Unexpected end of input (at character 2)\n{\n ^\n",
+   "error.command": "setTemporaryVariable",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: jsonValue must be valid JSON: FormatException: Unexpected end of input (at character 2)\n{\n ^\n"
+ },
+ "setTemporaryVariable parity > reports empty key identically #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: key is required for scoped variables",
+   "error.command": "setTemporaryVariable",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: key is required for scoped variables"
+ },
+ "setTemporaryVariable parity > resolves results of earlier actions and placeholders #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": {
+   "one": "OK",
+   "action_1": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "who": "Ada",
+   "temp.a": "Ada",
+   "__variables.tempNames": "[\"a\",\"b\"]",
+   "one.value": "Ada",
+   "one.sourceRaw": "((who))",
+   "one.resolved": "Ada",
+   "one.fallback": "",
+   "one.directFallback": "",
+   "one.scope": "temp",
+   "one.key": "a",
+   "temp.b": "Ada-OK",
+   "action_1.value": "Ada-OK",
+   "action_1.sourceRaw": "((one.value))-((action.one))",
+   "action_1.resolved": "Ada-OK",
+   "action_1.fallback": "",
+   "action_1.directFallback": "",
+   "action_1.scope": "temp",
+   "action_1.key": "b"
+  },
+  "error": null
+ },
+ "setTemporaryVariable parity > continue / skip / jump modes #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": {
+   "bad": "Error: Exception: numberValue is required and must be numeric when valueType=number",
+   "bad2": "Error: Exception: numberValue is required and must be numeric when valueType=number",
+   "end": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: numberValue is required and must be numeric when valueType=number",
+   "error.command": "setTemporaryVariable",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "temp.y": "1",
+   "__variables.tempNames": "[\"y\"]",
+   "end.value": "1",
+   "end.sourceRaw": "1",
+   "end.resolved": "1",
+   "end.fallback": "",
+   "end.directFallback": "",
+   "end.scope": "temp",
+   "end.key": "y"
+  },
+  "error": null
+ },
+ "scoped variables parity > set mirrors the value and records definition, ttl, results #0": {
+  "store": {
+   "global": {},
+   "scoped": {
+    "user": {
+     "222": {
+      "coins": "5"
+     }
+    }
+   },
+   "definitions": [
+    {
+     "key": "coins",
+     "scope": "user",
+     "defaultValue": "5",
+     "valueType": "string"
+    }
+   ],
+   "ttls": {
+    "user/222/coins": "1h"
+   },
+   "log": [
+    "setScoped user/222/coins"
+   ]
+  },
+  "requests": [],
+  "results": {
+   "s": "OK",
+   "g": "5"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "user.bc_coins": "5",
+   "user.coins": "5",
+   "user[222].bc_coins": "5",
+   "user[222].coins": "5",
+   "temp.debug_last_var": "Key: user[222].bc_coins, Value: 5",
+   "s.value": "5",
+   "s.persisted": "5",
+   "s.sourceRaw": "5",
+   "s.resolved": "5",
+   "s.fallback": "",
+   "s.directFallback": "",
+   "s.scope": "user",
+   "s.key": "bc_coins",
+   "lastSentMessageId": "5",
+   "lastMessageId": "5"
+  },
+  "error": null
+ },
+ "scoped variables parity > typed json / number / bool and explicit contextId #0": {
+  "store": {
+   "global": {},
+   "scoped": {
+    "guild": {
+     "99": {
+      "cfg": {
+       "a": 1
+      }
+     }
+    },
+    "channel": {
+     "30": {
+      "n": 3
+     }
+    },
+    "message": {
+     "5": {
+      "f": false
+     }
+    }
+   },
+   "definitions": [
+    {
+     "key": "cfg",
+     "scope": "guild",
+     "defaultValue": {
+      "a": 1
+     },
+     "valueType": "json"
+    },
+    {
+     "key": "n",
+     "scope": "channel",
+     "defaultValue": 3,
+     "valueType": "number"
+    },
+    {
+     "key": "f",
+     "scope": "message",
+     "defaultValue": false,
+     "valueType": "bool"
+    }
+   ],
+   "ttls": {
+    "guild/99/cfg": null,
+    "channel/30/n": null,
+    "message/5/f": null
+   },
+   "log": [
+    "setScoped guild/99/cfg",
+    "setScoped channel/30/n",
+    "setScoped message/5/f"
+   ]
+  },
+  "requests": [],
+  "results": {
+   "a": "OK",
+   "b": "OK",
+   "c": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "guild[99].bc_cfg": "{\"a\":1}",
+   "guild[99].cfg": "{\"a\":1}",
+   "temp.debug_last_var": "Key: message[5].bc_f, Value: false",
+   "a.value": "{\"a\":1}",
+   "a.persisted": "{\"a\":1}",
+   "a.sourceRaw": "",
+   "a.resolved": "{a: 1}",
+   "a.fallback": "",
+   "a.directFallback": "",
+   "a.scope": "guild",
+   "a.key": "bc_cfg",
+   "channel.bc_n": "3",
+   "channel.n": "3",
+   "channel[30].bc_n": "3",
+   "channel[30].n": "3",
+   "b.value": "3",
+   "b.persisted": "3",
+   "b.sourceRaw": "",
+   "b.resolved": "3",
+   "b.fallback": "",
+   "b.directFallback": "",
+   "b.scope": "channel",
+   "b.key": "bc_n",
+   "message[5].bc_f": "false",
+   "message[5].f": "false",
+   "c.value": "false",
+   "c.persisted": "false",
+   "c.sourceRaw": "",
+   "c.resolved": "false",
+   "c.fallback": "",
+   "c.directFallback": "",
+   "c.scope": "message",
+   "c.key": "bc_f"
+  },
+  "error": null
+ },
+ "scoped variables parity > guildMember context and its validation #0": {
+  "store": {
+   "global": {},
+   "scoped": {
+    "guildMember": {
+     "10:222": {
+      "xp": "9"
+     }
+    }
+   },
+   "definitions": [
+    {
+     "key": "xp",
+     "scope": "guildMember",
+     "defaultValue": "9",
+     "valueType": "string"
+    }
+   ],
+   "ttls": {
+    "guildMember/10:222/xp": null
+   },
+   "log": [
+    "setScoped guildMember/10:222/xp"
+   ]
+  },
+  "requests": [],
+  "results": {
+   "action_0": "OK",
+   "g": "9"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "guildMember.bc_xp": "9",
+   "guildMember.xp": "9",
+   "guildMember[10:222].bc_xp": "9",
+   "guildMember[10:222].xp": "9",
+   "temp.debug_last_var": "Key: guildMember[10:222].bc_xp, Value: 9",
+   "action_0.value": "9",
+   "action_0.persisted": "9",
+   "action_0.sourceRaw": "9",
+   "action_0.resolved": "9",
+   "action_0.fallback": "",
+   "action_0.directFallback": "",
+   "action_0.scope": "guildMember",
+   "action_0.key": "bc_xp",
+   "lastSentMessageId": "9",
+   "lastMessageId": "9"
+  },
+  "error": null
+ },
+ "scoped variables parity > guildMember context and its validation #1": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: A server and user are required for guildMember variables",
+   "error.command": "setScopedVariable",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: A server and user are required for guildMember variables"
+ },
+ "scoped variables parity > cooldown keys only touch the runtime cooldown #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": {
+   "action_0": "OK",
+   "r": "REMOVED"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot"
+  },
+  "error": null
+ },
+ "scoped variables parity > get applies a configured default and storeAs #0": {
+  "store": {
+   "global": {},
+   "scoped": {
+    "user": {
+     "222": {
+      "lang": "fr"
+     }
+    }
+   },
+   "definitions": [
+    {
+     "scope": "user",
+     "key": "lang",
+     "defaultValue": "fr",
+     "valueType": "string"
+    }
+   ],
+   "ttls": {
+    "user/222/lang": null
+   },
+   "log": [
+    "setScoped user/222/lang"
+   ]
+  },
+  "requests": [],
+  "results": {
+   "g": "fr"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "my.lang": "fr",
+   "user.bc_lang": "fr",
+   "user.lang": "fr",
+   "user[222].bc_lang": "fr",
+   "user[222].lang": "fr"
+  },
+  "error": null
+ },
+ "scoped variables parity > get of a missing value initialises it to empty #0": {
+  "store": {
+   "global": {},
+   "scoped": {
+    "channel": {
+     "30": {
+      "none": ""
+     }
+    }
+   },
+   "definitions": [],
+   "ttls": {
+    "channel/30/none": null
+   },
+   "log": [
+    "setScoped channel/30/none"
+   ]
+  },
+  "requests": [],
+  "results": {
+   "g": ""
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "channel.bc_none": "",
+   "channel.none": "",
+   "channel[30].bc_none": "",
+   "channel[30].none": ""
+  },
+  "error": null
+ },
+ "scoped variables parity > remove deletes, or resets to the default #0": {
+  "store": {
+   "global": {},
+   "scoped": {
+    "user": {
+     "222": {
+      "lang": "fr"
+     }
+    }
+   },
+   "definitions": [
+    {
+     "scope": "user",
+     "key": "lang",
+     "defaultValue": "fr",
+     "valueType": "string"
+    },
+    {
+     "key": "a",
+     "scope": "user",
+     "defaultValue": "1",
+     "valueType": "string"
+    }
+   ],
+   "ttls": {
+    "user/222/a": null,
+    "user/222/lang": null
+   },
+   "log": [
+    "setScoped user/222/a",
+    "setScoped user/222/lang",
+    "setScoped user/222/lang"
+   ]
+  },
+  "requests": [],
+  "results": {
+   "action_0": "OK",
+   "r1": "REMOVED",
+   "action_2": "OK",
+   "r2": "REMOVED"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "temp.debug_last_var": "Key: user[222].bc_lang, Value: en",
+   "action_0.value": "1",
+   "action_0.persisted": "1",
+   "action_0.sourceRaw": "1",
+   "action_0.resolved": "1",
+   "action_0.fallback": "",
+   "action_0.directFallback": "",
+   "action_0.scope": "user",
+   "action_0.key": "bc_a",
+   "user.bc_lang": "fr",
+   "user.lang": "fr",
+   "user[222].bc_lang": "fr",
+   "user[222].lang": "fr",
+   "action_2.value": "en",
+   "action_2.persisted": "en",
+   "action_2.sourceRaw": "en",
+   "action_2.resolved": "en",
+   "action_2.fallback": "",
+   "action_2.directFallback": "",
+   "action_2.scope": "user",
+   "action_2.key": "bc_lang"
+  },
+  "error": null
+ },
+ "scoped variables parity > resetAllContexts walks the value index #0": {
+  "store": {
+   "global": {},
+   "scoped": {
+    "guildMember": {
+     "10:1": {
+      "xp": "0"
+     },
+     "10:2": {
+      "xp": "0"
+     },
+     "11:3": {
+      "xp": "7"
+     }
+    }
+   },
+   "definitions": [
+    {
+     "scope": "guildMember",
+     "key": "xp",
+     "defaultValue": "0",
+     "valueType": "string"
+    }
+   ],
+   "ttls": {
+    "guildMember/10:2/xp": null,
+    "guildMember/10:1/xp": null
+   },
+   "log": [
+    "setScoped guildMember/10:2/xp",
+    "setScoped guildMember/10:1/xp"
+   ]
+  },
+  "requests": [],
+  "results": {
+   "r": "RESET"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "guildMember[10:2].bc_xp": "0",
+   "guildMember[10:2].xp": "0",
+   "guildMember[10:1].bc_xp": "0",
+   "guildMember[10:1].xp": "0"
+  },
+  "error": null
+ },
+ "scoped variables parity > invalid reset and invalid scope fail identically #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: Invalid user variable reset",
+   "error.command": "removeScopedVariable",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Invalid user variable reset"
+ },
+ "scoped variables parity > invalid reset and invalid scope fail identically #1": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: scope is required for setScopedVariable and must be one of guild, user, channel, guildMember, message",
+   "error.command": "setScopedVariable",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: scope is required for setScopedVariable and must be one of guild, user, channel, guildMember, message"
+ },
+ "scoped variables parity > invalid reset and invalid scope fail identically #2": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: scope is required for getScopedVariable and must be one of guild, user, channel, guildMember, message",
+   "error.command": "getScopedVariable",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: scope is required for getScopedVariable and must be one of guild, user, channel, guildMember, message"
+ },
+ "scoped variables parity > invalid reset and invalid scope fail identically #3": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: scope is required for removeScopedVariable and must be one of guild, user, channel, guildMember, message",
+   "error.command": "removeScopedVariable",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: scope is required for removeScopedVariable and must be one of guild, user, channel, guildMember, message"
+ },
+ "scoped variables parity > an unresolvable context fails identically #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: Unable to resolve context ID for scope \"user\"",
+   "error.command": "getScopedVariable",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Unable to resolve context ID for scope \"user\""
+ },
+ "scoped variables parity > rename moves the value and the runtime mirror #0": {
+  "store": {
+   "global": {},
+   "scoped": {
+    "user": {
+     "222": {
+      "fresh": "1"
+     }
+    }
+   },
+   "definitions": [
+    {
+     "key": "old",
+     "scope": "user",
+     "defaultValue": "1",
+     "valueType": "string"
+    }
+   ],
+   "ttls": {
+    "user/222/old": null
+   },
+   "log": [
+    "setScoped user/222/old"
+   ]
+  },
+  "requests": [],
+  "results": {
+   "action_0": "OK",
+   "r": "RENAMED"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "user[222].bc_old": "1",
+   "user[222].old": "1",
+   "temp.debug_last_var": "Key: user[222].bc_old, Value: 1",
+   "action_0.value": "1",
+   "action_0.persisted": "1",
+   "action_0.sourceRaw": "1",
+   "action_0.resolved": "1",
+   "action_0.fallback": "",
+   "action_0.directFallback": "",
+   "action_0.scope": "user",
+   "action_0.key": "bc_old",
+   "user.bc_fresh": "1",
+   "user.fresh": "1"
+  },
+  "error": null
+ },
+ "scoped variables parity > list index pages the values #0": {
+  "store": {
+   "global": {},
+   "scoped": {
+    "user": {
+     "1": {
+      "coins": "1"
+     },
+     "2": {
+      "coins": "2"
+     },
+     "3": {
+      "coins": "3"
+     }
+    }
+   },
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": {
+   "l": "[{\"contextId\":\"1\",\"value\":\"1\"},{\"contextId\":\"2\",\"value\":\"2\"}]"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "action.l.items": "[{\"contextId\":\"1\",\"value\":\"1\"},{\"contextId\":\"2\",\"value\":\"2\"}]",
+   "l.items": "[{\"contextId\":\"1\",\"value\":\"1\"},{\"contextId\":\"2\",\"value\":\"2\"}]",
+   "action.l.count": "2",
+   "l.count": "2",
+   "action.l.total": "3",
+   "l.total": "3",
+   "board": "[{\"contextId\":\"1\",\"value\":\"1\"},{\"contextId\":\"2\",\"value\":\"2\"}]"
+  },
+  "error": null
+ },
+ "global variables parity > set / get / remove with ttl, typing and mirrors #0": {
+  "store": {
+   "global": {
+    "n": 12,
+    "missing": ""
+   },
+   "scoped": {},
+   "definitions": [],
+   "ttls": {
+    "global/motd": "30s",
+    "global/n": null,
+    "global/missing": null
+   },
+   "log": [
+    "setGlobal motd",
+    "setGlobal n",
+    "setGlobal missing"
+   ]
+  },
+  "requests": [],
+  "results": {
+   "s": "OK",
+   "g": "hi",
+   "s2": "OK",
+   "g2": "",
+   "r": "REMOVED"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "s.value": "hi",
+   "s.persisted": "hi",
+   "s.sourceRaw": "hi",
+   "s.resolved": "hi",
+   "s.fallback": "",
+   "s.directFallback": "",
+   "s.scope": "global",
+   "s.key": "motd",
+   "copy": "hi",
+   "global.n": "12",
+   "s2.value": "12",
+   "s2.persisted": "12",
+   "s2.sourceRaw": "",
+   "s2.resolved": "12",
+   "s2.fallback": "",
+   "s2.directFallback": "",
+   "s2.scope": "global",
+   "s2.key": "n",
+   "global.missing": ""
+  },
+  "error": null
+ },
+ "global variables parity > empty keys and invalid typed values fail identically #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: key is required for setGlobalVariable",
+   "error.command": "setGlobalVariable",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: key is required for setGlobalVariable"
+ },
+ "global variables parity > empty keys and invalid typed values fail identically #1": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: key is required for getGlobalVariable",
+   "error.command": "getGlobalVariable",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: key is required for getGlobalVariable"
+ },
+ "global variables parity > empty keys and invalid typed values fail identically #2": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: key is required for removeGlobalVariable",
+   "error.command": "removeGlobalVariable",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: key is required for removeGlobalVariable"
+ },
+ "global variables parity > empty keys and invalid typed values fail identically #3": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: numberValue is required and must be numeric when valueType=number",
+   "error.command": "setGlobalVariable",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: numberValue is required and must be numeric when valueType=number"
+ },
+ "global variables parity > values come from earlier results through placeholders #0": {
+  "store": {
+   "global": {
+    "src": "v",
+    "dst": "v!"
+   },
+   "scoped": {},
+   "definitions": [],
+   "ttls": {
+    "global/dst": null
+   },
+   "log": [
+    "setGlobal dst"
+   ]
+  },
+  "requests": [],
+  "results": {
+   "first": "v",
+   "action_1": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "global.src": "v",
+   "global.dst": "v!",
+   "action_1.value": "v!",
+   "action_1.persisted": "v!",
+   "action_1.sourceRaw": "((first))!",
+   "action_1.resolved": "v!",
+   "action_1.fallback": "",
+   "action_1.directFallback": "",
+   "action_1.scope": "global",
+   "action_1.key": "dst"
+  },
+  "error": null
+ },
+ "array and query blocks parity > append and remove on a scoped variable #0": {
+  "store": {
+   "global": {},
+   "scoped": {
+    "user": {
+     "222": {
+      "inv": [
+       "shield"
+      ]
+     }
+    }
+   },
+   "definitions": [
+    {
+     "key": "inv",
+     "scope": "user",
+     "defaultValue": "",
+     "valueType": "string"
+    }
+   ],
+   "ttls": {
+    "user/222/inv": null
+   },
+   "log": [
+    "setScoped user/222/inv",
+    "setScoped user/222/inv",
+    "setScoped user/222/inv",
+    "setScoped user/222/inv"
+   ]
+  },
+  "requests": [],
+  "results": {
+   "a1": "[\"sword\"]",
+   "a2": "[\"sword\",\"shield\"]",
+   "r": "[\"shield\"]"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "user.bc_inv": "[\"shield\"]",
+   "user.inv": "[\"shield\"]",
+   "action.a1.items": "[\"sword\"]",
+   "a1.items": "[\"sword\"]",
+   "action.a1.length": "1",
+   "a1.length": "1",
+   "action.a2.items": "[\"sword\",\"shield\"]",
+   "a2.items": "[\"sword\",\"shield\"]",
+   "action.a2.length": "2",
+   "a2.length": "2",
+   "action.r.items": "[\"shield\"]",
+   "r.items": "[\"shield\"]",
+   "action.r.length": "1",
+   "r.length": "1",
+   "action.r.removed": "sword",
+   "r.removed": "sword"
+  },
+  "error": null
+ },
+ "array and query blocks parity > append at a JSON path on a global variable #0": {
+  "store": {
+   "global": {
+    "doc": ""
+   },
+   "scoped": {},
+   "definitions": [],
+   "ttls": {
+    "global/doc": null
+   },
+   "log": [
+    "setGlobal doc",
+    "setGlobal doc"
+   ]
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "global.doc": "",
+   "action.a.items": "[]",
+   "a.items": "[]",
+   "action.a.length": "0",
+   "a.length": "0",
+   "error.message": "Exception: index is required for removeArrayElement",
+   "error.command": "removeArrayElement",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: index is required for removeArrayElement"
+ },
+ "array and query blocks parity > queryArray filters, sorts and pages #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": {
+   "q": "[{\"n\":\"c\",\"v\":3},{\"n\":\"b\",\"v\":2}]"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "action.q.items": "[{\"n\":\"c\",\"v\":3},{\"n\":\"b\",\"v\":2}]",
+   "q.items": "[{\"n\":\"c\",\"v\":3},{\"n\":\"b\",\"v\":2}]",
+   "action.q.count": "2",
+   "q.count": "2",
+   "action.q.total": "2",
+   "q.total": "2",
+   "out": "[{\"n\":\"c\",\"v\":3},{\"n\":\"b\",\"v\":2}]"
+  },
+  "error": null
+ },
+ "randomChoice parity > a single choice is deterministic #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": {
+   "r": "only",
+   "j": "solo",
+   "e": ""
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "pick": "only",
+   "random_choice": ""
+  },
+  "error": null
+ },
+ "runtimeJsonBlock parity > operations, read results and sub-results #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": {
+   "j.json_0": "3",
+   "j": "{\"a\":{\"b\":[1,2,3],\"c\":\"Ada\"}}",
+   "k.json_1": "{\n  \"a\": {\n    \"b\": [\n      1,\n      2,\n      3\n    ],\n    \"c\": \"Ada\"\n  }\n}",
+   "k": "{\"a\":{\"b\":[1,2,3],\"c\":\"Ada\"}}"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "who": "Ada",
+   "j.json_0": "3",
+   "j": "{\"a\":{\"b\":[1,2,3],\"c\":\"Ada\"}}",
+   "k.json_1": "{\n  \"a\": {\n    \"b\": [\n      1,\n      2,\n      3\n    ],\n    \"c\": \"Ada\"\n  }\n}",
+   "k": "{\"a\":{\"b\":[1,2,3],\"c\":\"Ada\"}}"
+  },
+  "error": null
+ },
+ "runtimeJsonBlock parity > invalid source and missing operations #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": {
+   "j": "{\"a\":1}"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "j": "{\"a\":1}"
+  },
+  "error": null
+ },
+ "runtimeJsonBlock parity > invalid source and missing operations #1": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": {
+   "j": "{}"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "j": "{}"
+  },
+  "error": null
+ },
+ "calculate parity > expressions and operations #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": {
+   "e": "14",
+   "d": "2.25",
+   "abs": "3.5",
+   "neg": "-3",
+   "rnd": "3",
+   "p": "1024",
+   "x": "42"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "x": "41",
+   "e.result": "14",
+   "lastSentMessageId": "42",
+   "lastMessageId": "42",
+   "d.result": "2.25",
+   "abs.result": "3.5",
+   "neg.result": "-3",
+   "rnd.result": "3",
+   "p.result": "1024",
+   "x.result": "42"
+  },
+  "error": null
+ },
+ "calculate parity > division by zero fails with the same message #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: Division by zero",
+   "error.command": "calculate",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Division by zero"
+ },
+ "calculate parity > unknown operation fails with the same message #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: Unknown operation: \"zap\". Supported: add, subtract, multiply, divide, modulo, power, sqrt, abs, floor, ceil, round, min, max, log, negate, random, randomFloat",
+   "error.command": "calculate",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Unknown operation: \"zap\". Supported: add, subtract, multiply, divide, modulo, power, sqrt, abs, floor, ceil, round, min, max, log, negate, random, randomFloat"
+ },
+ "calculate parity > bad operand fails with the same message #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: operandA \"q\" is not a valid number",
+   "error.command": "calculate",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: operandA \"q\" is not a valid number"
+ },
+ "calculate parity > bad expression fails with the same message #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: Invalid math expression: \"2+*\"",
+   "error.command": "calculate",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Invalid math expression: \"2+*\""
+ },
+ "calculate parity > random range fails with the same message #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: random: max (1) must be >= min (5)",
+   "error.command": "calculate",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: random: max (1) must be >= min (5)"
+ },
+ "httpRequest parity > GET with headers and json extraction #0": {
+  "store": {
+   "global": {
+    "last_body": "{\"name\":\"sword\",\"items\":[{\"id\":1,\"tag\":\"a\"},{\"id\":2,\"tag\":\"b\"}],\"method\":\"GET\"}",
+    "last_status": "200"
+   },
+   "scoped": {},
+   "definitions": [],
+   "ttls": {
+    "global/last_body": null,
+    "global/last_status": null
+   },
+   "log": [
+    "setGlobal last_body",
+    "setGlobal last_status"
+   ]
+  },
+  "requests": [
+   {
+    "method": "GET",
+    "path": "/item?q=sword",
+    "contentType": null,
+    "x": "abc",
+    "body": ""
+   }
+  ],
+  "results": {
+   "h": "b"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "q": "sword",
+   "token": "abc",
+   "http.status": "200",
+   "http.body": "{\"name\":\"sword\",\"items\":[{\"id\":1,\"tag\":\"a\"},{\"id\":2,\"tag\":\"b\"}],\"method\":\"GET\"}",
+   "action.h": "b",
+   "action.h.status": "200",
+   "action.h.body": "{\"name\":\"sword\",\"items\":[{\"id\":1,\"tag\":\"a\"},{\"id\":2,\"tag\":\"b\"}],\"method\":\"GET\"}",
+   "h": "b",
+   "h.status": "200",
+   "h.body": "{\"name\":\"sword\",\"items\":[{\"id\":1,\"tag\":\"a\"},{\"id\":2,\"tag\":\"b\"}],\"method\":\"GET\"}",
+   "http.jsonPath": "b",
+   "action.h.jsonPath": "b",
+   "h.jsonPath": "b"
+  },
+  "error": null
+ },
+ "httpRequest parity > POST with a structured json body sets the content type #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [
+   {
+    "method": "POST",
+    "path": "/post",
+    "contentType": "application/json",
+    "x": null,
+    "body": "{\"name\":\"Ada\",\"nested\":{\"list\":[\"Ada\",1,true]}}"
+   }
+  ],
+  "results": {
+   "h": "{\"name\":\"sword\",\"items\":[{\"id\":1,\"tag\":\"a\"},{\"id\":2,\"tag\":\"b\"}],\"method\":\"POST\"}"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "who": "Ada",
+   "http.status": "200",
+   "http.body": "{\"name\":\"sword\",\"items\":[{\"id\":1,\"tag\":\"a\"},{\"id\":2,\"tag\":\"b\"}],\"method\":\"POST\"}",
+   "action.h": "{\"name\":\"sword\",\"items\":[{\"id\":1,\"tag\":\"a\"},{\"id\":2,\"tag\":\"b\"}],\"method\":\"POST\"}",
+   "action.h.status": "200",
+   "action.h.body": "{\"name\":\"sword\",\"items\":[{\"id\":1,\"tag\":\"a\"},{\"id\":2,\"tag\":\"b\"}],\"method\":\"POST\"}",
+   "h": "{\"name\":\"sword\",\"items\":[{\"id\":1,\"tag\":\"a\"},{\"id\":2,\"tag\":\"b\"}],\"method\":\"POST\"}",
+   "h.status": "200",
+   "h.body": "{\"name\":\"sword\",\"items\":[{\"id\":1,\"tag\":\"a\"},{\"id\":2,\"tag\":\"b\"}],\"method\":\"POST\"}"
+  },
+  "error": null
+ },
+ "httpRequest parity > text body, other methods and non-json responses #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [
+   {
+    "method": "PUT",
+    "path": "/text",
+    "contentType": "text/plain",
+    "x": null,
+    "body": "hello Ada"
+   },
+   {
+    "method": "HEAD",
+    "path": "/missing",
+    "contentType": null,
+    "x": null,
+    "body": ""
+   },
+   {
+    "method": "GET",
+    "path": "/x",
+    "contentType": null,
+    "x": null,
+    "body": ""
+   }
+  ],
+  "results": {
+   "h": "plain text",
+   "m": "",
+   "u": "{\"name\":\"sword\",\"items\":[{\"id\":1,\"tag\":\"a\"},{\"id\":2,\"tag\":\"b\"}],\"method\":\"GET\"}"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "who": "Ada",
+   "http.status": "200",
+   "http.body": "{\"name\":\"sword\",\"items\":[{\"id\":1,\"tag\":\"a\"},{\"id\":2,\"tag\":\"b\"}],\"method\":\"GET\"}",
+   "action.h": "plain text",
+   "action.h.status": "200",
+   "action.h.body": "plain text",
+   "h": "plain text",
+   "h.status": "200",
+   "h.body": "plain text",
+   "action.m": "",
+   "action.m.status": "404",
+   "action.m.body": "",
+   "m": "",
+   "m.status": "404",
+   "m.body": "",
+   "action.u": "{\"name\":\"sword\",\"items\":[{\"id\":1,\"tag\":\"a\"},{\"id\":2,\"tag\":\"b\"}],\"method\":\"GET\"}",
+   "action.u.status": "200",
+   "action.u.body": "{\"name\":\"sword\",\"items\":[{\"id\":1,\"tag\":\"a\"},{\"id\":2,\"tag\":\"b\"}],\"method\":\"GET\"}",
+   "u": "{\"name\":\"sword\",\"items\":[{\"id\":1,\"tag\":\"a\"},{\"id\":2,\"tag\":\"b\"}],\"method\":\"GET\"}",
+   "u.status": "200",
+   "u.body": "{\"name\":\"sword\",\"items\":[{\"id\":1,\"tag\":\"a\"},{\"id\":2,\"tag\":\"b\"}],\"method\":\"GET\"}"
+  },
+  "error": null
+ },
+ "httpRequest parity > missing url and invalid scheme fail identically #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: url is required for httpRequest",
+   "error.command": "httpRequest",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: url is required for httpRequest"
+ },
+ "httpRequest parity > missing url and invalid scheme fail identically #1": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "FormatException: Only http and https schemes are allowed",
+   "error.command": "httpRequest",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "FormatException: FormatException: Only http and https schemes are allowed"
+ },
+ "httpRequest parity > an unreachable host is an action failure with error mode #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": {
+   "h": "Error: ClientException with SocketException: Connection refused (OS Error: Connection refused, errno = 111), address = 127.0.0.1, port = N, uri=http://127.0.0.1:N/",
+   "ok": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "ClientException with SocketException: Connection refused (OS Error: Connection refused, errno = 111), address = 127.0.0.1, port = N, uri=http://127.0.0.1:N/",
+   "error.command": "httpRequest",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "temp.after": "1",
+   "__variables.tempNames": "[\"after\"]",
+   "ok.value": "1",
+   "ok.sourceRaw": "1",
+   "ok.resolved": "1",
+   "ok.fallback": "",
+   "ok.directFallback": "",
+   "ok.scope": "temp",
+   "ok.key": "after"
+  },
+  "error": null
+ },
+ "mixed lists and blocks > natively routed actions share results with historical ones #0": {
+  "store": {
+   "global": {
+    "g": "3"
+   },
+   "scoped": {},
+   "definitions": [],
+   "ttls": {
+    "global/g": null
+   },
+   "log": [
+    "setGlobal g"
+   ]
+  },
+  "requests": [],
+  "results": {
+   "a": "OK",
+   "b": "6",
+   "l": "LOGGED",
+   "c": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "global.g": "3",
+   "a.value": "3",
+   "a.persisted": "3",
+   "a.sourceRaw": "3",
+   "a.resolved": "3",
+   "a.fallback": "",
+   "a.directFallback": "",
+   "a.scope": "global",
+   "a.key": "g",
+   "b.result": "6",
+   "lastSentMessageId": "6",
+   "lastMessageId": "6",
+   "temp.out": "6",
+   "__variables.tempNames": "[\"out\"]",
+   "c.value": "6",
+   "c.sourceRaw": "((b))",
+   "c.resolved": "6",
+   "c.fallback": "",
+   "c.directFallback": "",
+   "c.scope": "temp",
+   "c.key": "out"
+  },
+  "error": null
+ },
+ "mixed lists and blocks > inside an ifBlock the children keep their own result list #0": {
+  "store": {
+   "global": {
+    "g": "3"
+   },
+   "scoped": {},
+   "definitions": [],
+   "ttls": {
+    "global/g": null
+   },
+   "log": [
+    "setGlobal g"
+   ]
+  },
+  "requests": [],
+  "results": {
+   "gate": "IF_TRUE",
+   "gate.a": "OK",
+   "gate.b": "2",
+   "gate.c": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "flag": "yes",
+   "global.g": "3",
+   "a.value": "3",
+   "a.persisted": "3",
+   "a.sourceRaw": "3",
+   "a.resolved": "3",
+   "a.fallback": "",
+   "a.directFallback": "",
+   "a.scope": "global",
+   "a.key": "g",
+   "b.result": "2",
+   "lastSentMessageId": "2",
+   "lastMessageId": "2",
+   "temp.out": "2",
+   "__variables.tempNames": "[\"out\"]",
+   "c.value": "2",
+   "c.sourceRaw": "((b))",
+   "c.resolved": "2",
+   "c.fallback": "",
+   "c.directFallback": "",
+   "c.scope": "temp",
+   "c.key": "out"
+  },
+  "error": null
+ },
+ "mixed lists and blocks > a failing child follows its nested error mode #0": {
+  "store": {
+   "global": {
+    "g": "1"
+   },
+   "scoped": {},
+   "definitions": [],
+   "ttls": {
+    "global/g": null
+   },
+   "log": [
+    "setGlobal g"
+   ]
+  },
+  "requests": [],
+  "results": {
+   "gate": "IF_TRUE",
+   "gate.bad": "Error: Exception: Invalid math expression: \"1+\"",
+   "gate.good": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "flag": "yes",
+   "error.message": "Exception: Invalid math expression: \"1+\"",
+   "error.command": "calculate",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "global.g": "1",
+   "good.value": "1",
+   "good.persisted": "1",
+   "good.sourceRaw": "1",
+   "good.resolved": "1",
+   "good.fallback": "",
+   "good.directFallback": "",
+   "good.scope": "global",
+   "good.key": "g"
+  },
+  "error": null
+ },
+ "mixed lists and blocks > protected executions ignore the error mode #0": {
+  "store": {
+   "global": {},
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "error.message": "Exception: key is required for getGlobalVariable",
+   "error.command": "getGlobalVariable",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: key is required for getGlobalVariable"
+ },
+ "mixed lists and blocks > disabled actions are skipped #0": {
+  "store": {
+   "global": {
+    "on": "1"
+   },
+   "scoped": {},
+   "definitions": [],
+   "ttls": {
+    "global/on": null
+   },
+   "log": [
+    "setGlobal on"
+   ]
+  },
+  "requests": [],
+  "results": {
+   "y": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "global.on": "1",
+   "y.value": "1",
+   "y.persisted": "1",
+   "y.sourceRaw": "1",
+   "y.resolved": "1",
+   "y.fallback": "",
+   "y.directFallback": "",
+   "y.scope": "global",
+   "y.key": "on"
+  },
+  "error": null
+ },
+ "mixed lists and blocks > numeric results become the last message like today #0": {
+  "store": {
+   "global": {
+    "n": "123456"
+   },
+   "scoped": {},
+   "definitions": [],
+   "ttls": {},
+   "log": []
+  },
+  "requests": [],
+  "results": {
+   "g": "123456"
+  },
+  "variables": {
+   "guild.id": "10",
+   "user.id": "222",
+   "channel.id": "30",
+   "bot.id": "bot",
+   "global.n": "123456",
+   "lastSentMessageId": "123456",
+   "lastMessageId": "123456"
+  },
+  "error": null
+ }
+}

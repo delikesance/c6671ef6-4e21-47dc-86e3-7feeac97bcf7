@@ -1,4 +1,4 @@
-import 'package:bot_creator_shared/actions/executors/variables_executor.dart';
+import 'package:bot_creator_shared/engine/bdfd/visual/variable_logic.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:test/test.dart';
@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 import 'helpers/variables_test_helpers.dart';
 
 void main() {
-  group('executeVariablesAction - set temporary variable', () {
+  group('executeVariableAction - set temporary variable', () {
     test(
       'setTemporaryVariable stores a resolved runtime value in the temp namespace',
       () async {
@@ -14,7 +14,7 @@ void main() {
         final results = <String, String>{'rtJson_0.json_0': '2'};
         final variables = <String, String>{};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.setTemporaryVariable,
           store: store,
           botId: 'bot-1',
@@ -26,8 +26,7 @@ void main() {
           resultKey: 'setTemp',
           results: results,
           variables: variables,
-          resolveValue:
-              (input) => input == '((rtJson_0.json_0))' ? '' : input,
+          resolveValue: (input) => input == '((rtJson_0.json_0))' ? '' : input,
           guildId: null,
           fallbackChannelId: null,
           interaction: null,
@@ -50,7 +49,7 @@ void main() {
         final results = <String, String>{};
         final variables = <String, String>{};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.setTemporaryVariable,
           store: store,
           botId: 'bot-1',
@@ -62,11 +61,10 @@ void main() {
           resultKey: 'setRoll',
           results: results,
           variables: variables,
-          resolveValue:
-              (input) => resolveTemplatePlaceholders(input, <String, String>{
-                ...variables,
-                ...results,
-              }),
+          resolveValue: (input) => resolveTemplatePlaceholders(
+            input,
+            <String, String>{...variables, ...results},
+          ),
           guildId: null,
           fallbackChannelId: null,
           interaction: null,

@@ -22,8 +22,8 @@ void main() {
           'fieldsTemplate':
               '((embedFields(scores.\$, "{name}", "{score}", true)))',
         },
-        resolve:
-            (input) => resolveTemplatePlaceholders(input, runtimeVariables),
+        resolve: (input) =>
+            resolveTemplatePlaceholders(input, runtimeVariables),
       );
 
       expect(fields.length, 3);
@@ -46,10 +46,9 @@ void main() {
           ],
           'fieldsTemplate': '((embedFields(badJson.\$, "{name}", "{value}")))',
         },
-        resolve:
-            (input) => resolveTemplatePlaceholders(input, <String, String>{
-              'badJson': '{not valid json}',
-            }),
+        resolve: (input) => resolveTemplatePlaceholders(input, <String, String>{
+          'badJson': '{not valid json}',
+        }),
       );
 
       expect(fields.length, 1);

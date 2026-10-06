@@ -134,7 +134,12 @@ class _HostedAppSubscriptionPageState extends State<HostedAppSubscriptionPage> {
       builder: (context, scrollController) {
         return SingleChildScrollView(
           controller: scrollController,
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+          padding: EdgeInsets.fromLTRB(
+            24,
+            12,
+            24,
+            32 + MediaQuery.paddingOf(context).bottom,
+          ),
           child: Column(
             children: [
               Container(

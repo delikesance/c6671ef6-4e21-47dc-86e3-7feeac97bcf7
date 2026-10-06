@@ -60,4 +60,56 @@ void main() {
     raw['document']['schema_version'] = 99;
     expect(() => CommerceCatalog.fromJson(raw), throwsFormatException);
   });
+
+  test(
+    'AI packs: only visible offers with a native binding, credits from grants',
+    () {
+      final raw = fixture();
+      final doc = raw['document'] as Map<String, dynamic>;
+      (doc['offers'] as List).add({
+        'id': 'pack-12k',
+        'kind': 'ai_pack',
+        'enabled': true,
+        'translations': {
+          'en': {'title': '12k credits'},
+        },
+        'bindings': [
+          {
+            'provider': 'google',
+            'platform': 'android',
+            'product_id': 'pack_12k',
+          },
+        ],
+      });
+      (doc['offers'] as List).add({
+        'id': 'pack-off',
+        'kind': 'ai_pack',
+        'enabled': false,
+        'translations': {
+          'en': {'title': 'Disabled'},
+        },
+        'bindings': [
+          {
+            'provider': 'google',
+            'platform': 'android',
+            'product_id': 'pack_off',
+          },
+        ],
+      });
+      raw['grants'] = {
+        'pack-12k': {'ai_credits_once': 12000000},
+      };
+      final catalog = CommerceCatalog.fromJson(raw);
+      final now = DateTime.now();
+      expect(catalog.aiPacks('android', now).map((o) => o.id), ['pack-12k']);
+      expect(catalog.aiPacks('ios', now), isEmpty);
+      expect(catalog.aiCreditsOnce('pack-12k'), 12000000);
+      expect(catalog.aiCreditsOnce('pack-off'), 0);
+    },
+  );
+  test('a server without grants still parses', () {
+    final catalog = CommerceCatalog.fromJson(fixture());
+    expect(catalog.grants, isEmpty);
+    expect(catalog.aiCreditsOnce('pro'), 0);
+  });
 }

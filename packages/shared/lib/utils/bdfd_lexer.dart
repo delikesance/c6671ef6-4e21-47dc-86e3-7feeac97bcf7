@@ -236,7 +236,7 @@ class _BdfdScanner {
         return;
       }
 
-      // Found a valid function! 
+      // Found a valid function!
       // If we overshot (greedy identifier scan), backtrack.
       final overshot = fullId.length - match.length;
       for (var i = 0; i < overshot; i++) {
@@ -292,8 +292,9 @@ class _BdfdScanner {
     final line = _line;
     final column = _column;
     _advance();
-    final previousFunction =
-        _tokens.isNotEmpty ? _tokens.last.lexeme : r'$unknown';
+    final previousFunction = _tokens.isNotEmpty
+        ? _tokens.last.lexeme
+        : r'$unknown';
     _bracketStack.add(
       _BdfdBracketFrame(
         functionLexeme: previousFunction,
@@ -337,7 +338,7 @@ class _BdfdScanner {
       _mayOpenArgumentList = false;
       return;
     }
-    
+
     _bracketStack.removeLast();
 
     _tokens.add(
@@ -404,7 +405,9 @@ class _BdfdScanner {
       // function scanning (e.g. $$getVar[...] → literal $ + evaluated function).
       // For three or more $, each $$ pair after the first is collapsed silently
       // so that $$$getVar → literal $ + function $getVar (not $$ + $getVar).
-      if (_peek() == r'$' && (_index + 1) < source.length && source[_index + 1] == r'$') {
+      if (_peek() == r'$' &&
+          (_index + 1) < source.length &&
+          source[_index + 1] == r'$') {
         buffer.write(_advance()); // consume first $ and write a literal $
         // If the second $ is followed by yet another $ (triple-$ case),
         // consume the middle $ silently — it's part of the escape chain.

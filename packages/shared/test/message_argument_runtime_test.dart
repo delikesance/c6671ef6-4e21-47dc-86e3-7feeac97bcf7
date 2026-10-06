@@ -104,7 +104,7 @@ void main() {
       );
       expect(context.variables['message.channelMentions'], '555,666');
       final result = await testCommandInSandbox({
-        'script': r'$mentionedChannels[2]|$mentions|$mentionedRoles',
+        'script': r'$mentionedChannels[2]|$mentioned[1]|$mentionedRoles[1]',
         'variables': context.variables,
       });
       expect(result['success'], true, reason: '$result');

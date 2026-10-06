@@ -244,6 +244,8 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
     'editorMode': editorMode,
     'executionMode': executionMode,
     'bdfdScriptContent': bdfdScriptContent,
+    if (rawData.containsKey('bdfdBackend'))
+      'bdfdBackend': rawData['bdfdBackend'],
     'jsScriptContent': jsScriptContent,
     'legacyModeEnabled': legacyModeEnabled,
     'legacyLocalOnly': legacyLocalOnly,

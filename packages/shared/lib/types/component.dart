@@ -158,7 +158,7 @@ class ButtonNode extends ComponentNode {
     } else if (legacyWorkflowName.isNotEmpty) {
       actions = [
         {
-          'type': 'callWorkflow',
+          'type': 'runWorkflow',
           'payload': {
             'workflowName': legacyWorkflowName,
             'entryPoint':
@@ -307,7 +307,7 @@ class SelectMenuNode extends ComponentNode {
     } else if (legacyWorkflowName.isNotEmpty) {
       actions = [
         {
-          'type': 'callWorkflow',
+          'type': 'runWorkflow',
           'payload': {
             'workflowName': legacyWorkflowName,
             'entryPoint':
@@ -1174,7 +1174,7 @@ class ModalDefinition {
     } else if (legacyWorkflow.isNotEmpty) {
       actions = [
         {
-          'type': 'callWorkflow',
+          'type': 'runWorkflow',
           'payload': {
             'workflowName': legacyWorkflow,
             'entryPoint': (json['onSubmitEntryPoint'] ?? '').toString(),

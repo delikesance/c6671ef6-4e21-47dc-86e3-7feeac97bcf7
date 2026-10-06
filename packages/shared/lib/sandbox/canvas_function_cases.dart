@@ -109,10 +109,11 @@ final sandboxCanvasFunctionCases = [
   ),
   SandboxFunctionCase(
     'canvasloadimage',
-    r'$canvasCreate[card;4;4;white]$canvasLoadImage[((opts.source));1;1;2;2]',
+    r'$canvasCreate[card;4;4;white]$canvasLoadImage[$message[source];1;1;2;2]',
     0,
     '',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'source': _blueSource},
       'pixelProbes': [
         [0, 0],
@@ -126,10 +127,11 @@ final sandboxCanvasFunctionCases = [
   ),
   SandboxFunctionCase(
     'canvascompositeimage',
-    r'$canvasCreate[card;4;4;white]$canvasCompositeImage[((opts.source));1;1;2;2]',
+    r'$canvasCreate[card;4;4;white]$canvasCompositeImage[$message[source];1;1;2;2]',
     0,
     '',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'source': _blueSource},
       'pixelProbes': [
         [0, 0],

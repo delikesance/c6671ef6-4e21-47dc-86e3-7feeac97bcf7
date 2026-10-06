@@ -101,9 +101,18 @@ extension _CommandBlockEditor on _CommandCreatePageState {
       EntryPointBlock(
         entryPointType: entryPointType,
         commandName: _commandName,
-        commandType: _commandType,
+        commandType: switch (_commandType) {
+          ApplicationCommandType.user => EntryCommandType.user,
+          ApplicationCommandType.message => EntryCommandType.message,
+          _ => EntryCommandType.chatInput,
+        },
         canEditCommandType: !_isEditingExistingCommand || _isLocalOnlyCommand,
-        onCommandTypeChanged: (value) => _applyStateUpdate(() {
+        onCommandTypeChanged: (entryType) => _applyStateUpdate(() {
+          final value = switch (entryType) {
+            EntryCommandType.chatInput => ApplicationCommandType.chatInput,
+            EntryCommandType.user => ApplicationCommandType.user,
+            EntryCommandType.message => ApplicationCommandType.message,
+          };
           _persistActiveSubcommandWorkflow();
           _commandType = value;
           if (!_supportsSimpleMode) {
@@ -748,20 +757,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                           ),
                         )
                       else
-                        Expanded(
-                          child: Text(
-                            isBlueprint
-                                ? 'Graphe Blueprint 2D (Unreal Engine)'
-                                : 'Vue Blocs Linéaires (Scratch)',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
+                        const Spacer(),
 
                       // Segmented Button / Toggle
                       SegmentedButton<String>(
@@ -896,6 +892,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                     initialCode: _bdfdScriptController.text,
                     title: context.tr.workflow_bdfd_editor_title,
                     appEmojis: _appEmojis,
+                    bdfdBackend: _bdfdBackend,
                   ),
                 ),
               );
@@ -1106,9 +1103,9 @@ extension _CommandBlockEditor on _CommandCreatePageState {
         icon: const AppIcon.fromMaterial(Icons.add),
         label: Text(context.tr.scratch_add_block),
         style: OutlinedButton.styleFrom(
-          minimumSize: const Size(double.infinity, 48),
+          minimumSize: const Size(double.infinity, 52),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
           ),
         ),
       ),

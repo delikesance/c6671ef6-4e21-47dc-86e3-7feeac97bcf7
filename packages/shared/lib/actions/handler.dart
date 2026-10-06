@@ -1,26 +1,38 @@
+import '../services/bot_music_service.dart';
+import '../services/bot_component_service.dart';
+import '../services/bot_cooldown_service.dart';
+import '../services/bot_timing_service.dart';
+import '../services/bot_command_query_service.dart';
 import 'execution_budget.dart';
+import '../services/bot_block_action_service.dart';
+import '../services/bot_moderation_service.dart';
+import '../engine/bdfd/execution.dart';
+import '../engine/bdfd/runtime.dart';
+import '../engine/bdfd/replay.dart';
+import '../engine/bdfd/visual/action_execution.dart';
+import '../engine/bdfd/visual/action_functions.dart';
+import '../engine/bdfd/visual/action_results.dart';
+import '../engine/bdfd/visual/action_runner.dart';
+import '../engine/bdfd/visual/action_translator.dart';
+import '../engine/bdfd/visual/control_flow_state.dart';
+import '../services/bot_message_service.dart';
+import '../services/http_service.dart';
+import '../services/runtime_temporary_variables.dart';
 import 'dart:convert';
 
-import 'package:bot_creator_shared/actions/pin_message.dart';
-import 'package:bot_creator_shared/actions/update_automod.dart';
-import 'package:bot_creator_shared/actions/update_guild.dart';
+import 'package:bot_creator_shared/actions/message_block_actions.dart';
 import 'package:bot_creator_shared/actions/list_members.dart';
 import 'package:bot_creator_shared/actions/get_member.dart';
-import 'package:bot_creator_shared/actions/unpin_message.dart';
-import 'package:bot_creator_shared/actions/poll_management.dart';
 import 'package:bot_creator_shared/actions/invite_management.dart';
-import 'package:bot_creator_shared/actions/voice_management.dart';
 import 'package:bot_creator_shared/actions/emoji_management.dart';
-import 'package:bot_creator_shared/actions/automod_management.dart';
-import 'package:bot_creator_shared/actions/guild_onboarding.dart';
-import 'package:bot_creator_shared/actions/update_self_user.dart';
-import 'package:bot_creator_shared/actions/thread_management.dart';
-import 'package:bot_creator_shared/actions/channel_permissions.dart';
-import 'package:bot_creator_shared/actions/ticket_management.dart';
-import 'package:bot_creator_shared/actions/register_guild_commands.dart';
-import 'package:bot_creator_shared/actions/unregister_guild_commands.dart';
 import 'package:bot_creator_shared/actions/send_message.dart';
 import 'package:bot_creator_shared/actions/permission_checks.dart';
+import 'package:bot_creator_shared/services/bot_automod_service.dart';
+import 'package:bot_creator_shared/services/bot_block_discord_actions.dart';
+import 'package:bot_creator_shared/services/bot_channel_blocks.dart';
+import 'package:bot_creator_shared/services/bot_guild_admin_service.dart';
+import 'package:bot_creator_shared/services/bot_poll_service.dart';
+import 'package:bot_creator_shared/services/bot_voice_service.dart';
 import 'package:bot_creator_shared/actions/executors/messaging_executor.dart';
 import 'package:bot_creator_shared/actions/executors/moderation_roles_executor.dart';
 import 'package:bot_creator_shared/actions/executors/reactions_executor.dart';
@@ -48,6 +60,11 @@ Snowflake? _resolveSnowflake(String? value) {
   final parsed = int.tryParse(value.trim());
   return parsed != null ? Snowflake(parsed) : null;
 }
+
+/// Transitional switch: `handleActions` forwards to the native
+/// [BdfdActionRunner.runList] instead of its historical loop. Off by default;
+/// the historical loop and this flag are deleted together.
+bool handleActionsForwardsToRunList = false;
 
 Future<Map<String, String>> handleActions(
   NyxxGateway client,
@@ -85,9 +102,68 @@ Future<Map<String, String>> handleActions(
   /// When provided, enables Lavalink music actions (playMusic, pauseMusic, etc).
   LavalinkService? lavalinkService,
   ActionExecutionPolicy? executionPolicy,
+  BdfdContext? bdfdContext,
+  BotMessageService? bdfdMessages,
+  BotModerationService? bdfdModeration,
+  BotCommandQueryService? bdfdCommandQueries,
+  BotComponentService? bdfdComponents,
+  BotTimingService? bdfdTiming,
+  BotDelayService bdfdDelays = const RuntimeBotDelayService(),
+  HttpService? bdfdHttp,
   bool throwOnError = false,
   CommandExecutionBudget? executionBudget,
+
+  /// Chooses, per action, between the native engine and the historical
+  /// executors. `const ActionTranslator.none()` keeps everything historical.
+  ActionTranslator? actionTranslator,
+
+  /// Step limit of each natively translated program (`null`: the default,
+  /// [defaultVisualMaxSteps]). Blocks historically only had the time budget.
+  int? visualMaxSteps,
+
+  /// Acknowledgement of the interaction by the root list (see
+  /// [VisualAcknowledgement]).
+  VisualAcknowledgement? acknowledgement,
+
+  /// Deterministic stopwatch of `debugProfile` lists (tests).
+  int Function() Function()? startProfileClock,
 }) async {
+  if (handleActionsForwardsToRunList) {
+    return BdfdActionRunner(
+      translator: actionTranslator ?? const ActionTranslator(),
+      maxSteps: visualMaxSteps ?? defaultVisualMaxSteps,
+    ).runList(
+      client,
+      interaction,
+      actions: actions,
+      store: store,
+      botId: botId,
+      variables: variables,
+      resolveTemplate: resolveTemplate,
+      fallbackChannelId: fallbackChannelId,
+      fallbackGuildId: fallbackGuildId,
+      workflowStack: workflowStack,
+      onLog: onLog,
+      onReplayCaptured: onReplayCaptured,
+      nestedActionsPreprocessor: nestedActionsPreprocessor,
+      entityCache: entityCache,
+      lavalinkService: lavalinkService,
+      executionPolicy: executionPolicy,
+      bdfdContext: bdfdContext,
+      bdfdMessages: bdfdMessages,
+      bdfdModeration: bdfdModeration,
+      bdfdCommandQueries: bdfdCommandQueries,
+      bdfdComponents: bdfdComponents,
+      bdfdTiming: bdfdTiming,
+      bdfdDelays: bdfdDelays,
+      bdfdHttp: bdfdHttp,
+      throwOnError: throwOnError,
+      executionBudget: executionBudget,
+      acknowledgement: acknowledgement,
+      startProfileClock: startProfileClock,
+    );
+  }
+  await acknowledgement?.apply(actions);
   final budget = executionBudget ?? CommandExecutionBudget();
   return budget.run(
     () => _handleActions(
@@ -108,8 +184,18 @@ Future<Map<String, String>> handleActions(
       hydratedActions: hydratedActions,
       lavalinkService: lavalinkService,
       executionPolicy: executionPolicy,
+      bdfdContext: bdfdContext,
+      bdfdMessages: bdfdMessages,
+      bdfdModeration: bdfdModeration,
+      bdfdCommandQueries: bdfdCommandQueries,
+      bdfdComponents: bdfdComponents,
+      bdfdTiming: bdfdTiming,
+      bdfdDelays: bdfdDelays,
+      bdfdHttp: bdfdHttp,
       throwOnError: throwOnError,
       executionBudget: budget,
+      actionTranslator: actionTranslator,
+      visualMaxSteps: visualMaxSteps,
     ),
   );
 }
@@ -150,8 +236,18 @@ Future<Map<String, String>> _handleActions(
   /// When provided, enables Lavalink music actions (playMusic, pauseMusic, etc).
   LavalinkService? lavalinkService,
   ActionExecutionPolicy? executionPolicy,
+  BdfdContext? bdfdContext,
+  BotMessageService? bdfdMessages,
+  BotModerationService? bdfdModeration,
+  BotCommandQueryService? bdfdCommandQueries,
+  BotComponentService? bdfdComponents,
+  BotTimingService? bdfdTiming,
+  BotDelayService bdfdDelays = const RuntimeBotDelayService(),
+  HttpService? bdfdHttp,
   bool throwOnError = false,
   required CommandExecutionBudget executionBudget,
+  ActionTranslator? actionTranslator,
+  int? visualMaxSteps,
 }) async {
   executionPolicy?.checkBudget();
   final results = <String, String>{};
@@ -162,6 +258,32 @@ Future<Map<String, String>> _handleActions(
   final activeWorkflowStack = workflowStack ?? <String>{};
   final activeEntityCache = entityCache ?? <String, dynamic>{};
   final activeHydratedActions = hydratedActions ?? <dynamic>{};
+  final nativeContext =
+      bdfdContext ??
+      BdfdContext(
+        variables: variables,
+        temporaryVariables: RuntimeTemporaryVariables(variables),
+        budget: executionBudget,
+        activeWorkflows: activeWorkflowStack,
+      );
+
+  // Where the native visual runner keeps the action behind each line of its
+  // synthetic programs (set once the first one runs), for replay frames.
+  Map<String, Map<int, ({String key, String type})>>? visualReplayRefs;
+  final nativeReplayCapture = onReplayCaptured == null
+      ? null
+      : BdfdReplayCapture(
+          variables: variables,
+          describe: (location) =>
+              visualReplayRefs?[location.source]?[location.line],
+        );
+  final previousNativeObserver = nativeContext.onTrace;
+  if (nativeReplayCapture != null) {
+    nativeContext.onTrace = (event) {
+      nativeReplayCapture.record(event);
+      previousNativeObserver?.call(event);
+    };
+  }
 
   Future<Map<String, String>> executeNestedActions(
     List<Action> nestedActions, {
@@ -182,39 +304,200 @@ Future<Map<String, String>> _handleActions(
     entityCache: activeEntityCache,
     hydratedActions: activeHydratedActions,
     executionPolicy: executionPolicy,
+    bdfdContext: nativeContext,
+    bdfdMessages: bdfdMessages,
+    bdfdModeration: bdfdModeration,
+    bdfdCommandQueries: bdfdCommandQueries,
+    bdfdComponents: bdfdComponents,
+    bdfdTiming: bdfdTiming,
+    bdfdDelays: bdfdDelays,
+    bdfdHttp: bdfdHttp,
     throwOnError: protected || throwOnError,
     executionBudget: executionBudget,
     lavalinkService: lavalinkService,
+    actionTranslator: actionTranslator,
+    visualMaxSteps: visualMaxSteps,
   );
 
-  String resolveValue(String value) {
-    // Resolve action result placeholders FIRST (e.g. ((_bdfd_createemoji_0.tag)))
-    // before the template resolver, because resolveTemplatePlaceholders replaces
-    // unknown ((...)) with empty strings, leaving nothing for fallback matching.
-    String result = value.replaceAllMapped(RegExp(r'\(\(([^)]+)\)\)'), (match) {
-      var key = match.group(1)!;
-      // Direct match (e.g. legacy action_message style, or _bdfd_createemoji_0.tag)
-      if (results.containsKey(key)) {
-        return results[key]!;
-      }
-      // Strip 'action.' prefix to match results keyed by action.key
-      if (key.startsWith('action.')) {
-        final stripped = key.substring('action.'.length);
-        if (results.containsKey(stripped)) {
-          return results[stripped]!;
-        }
-      }
-      return match.group(0)!; // Keep original if not found
-    });
+  // Placeholders naming a result of this list win, then the template resolver
+  // (see resolveActionValue; the native visual functions share it).
+  String resolveValue(String value) =>
+      resolveActionValue(value, results, resolveTemplate);
 
-    // Then resolve template variables (runtimeVariables, interaction context, etc.)
-    result = resolveTemplate(result);
+  // Entity hydration, shared by the historical loop and the native visual
+  // actions (which hydrate their nested actions with it).
+  final Future<void> Function(String, String, Map<String, String>)?
+  discordFetcher = executionPolicy?.allowDiscordHydration == false
+      ? null
+      : (scope, contextId, vars) async {
+          await DiscordEntityFetcher.hydrateEntity(
+            client,
+            scope,
+            contextId,
+            vars,
+            cache: activeEntityCache,
+          );
+        };
 
-    return result;
+  Future<int?> scopedVariableTtl(String scope, String key) async =>
+      await store.getScopedVariableTtl(
+        botId,
+        scope,
+        resolveScopeContextId(
+              scope: scope,
+              variables: variables,
+              interaction: interaction,
+              guildId: guildId,
+              channelId: resolvedFallbackChannelId,
+            ) ??
+            '',
+        key,
+      );
+
+  // `runBdfdScript` on the native engine (shared by the historical executor
+  // and the native visual runner).
+  Future<Map<String, String>> executeNativeScript(String source) async {
+    // A script started by the historical executor begins a fresh invocation.
+    // Run from a native visual program the interpreter's depth is not zero, so
+    // do the same when no script is active around it.
+    if (nativeContext.depth == (visualProgramDepth[nativeContext] ?? 0)) {
+      nativeContext.startScript();
+    }
+    if (executionPolicy != null && (bdfdMessages == null || bdfdHttp == null)) {
+      throw StateError(
+        'Native BDFD requires message and HTTP adapters for this execution policy.',
+      );
+    }
+    final execution = BdfdScriptExecution(
+      store: store,
+      botId: botId,
+      variables: variables,
+      context: nativeContext,
+      http: bdfdHttp,
+      music: lavalinkService == null || guildId == null
+          ? null
+          : DiscordBotMusicService(
+              client: client,
+              guildId: guildId,
+              lavalink: lavalinkService,
+            ),
+      components:
+          bdfdComponents ??
+          (executionPolicy == null
+              ? DiscordBotComponentService(
+                  client: client,
+                  channelId: resolvedFallbackChannelId,
+                  interaction: interaction,
+                )
+              : null),
+      timing: bdfdTiming,
+      delays: bdfdDelays,
+      commandQueries:
+          bdfdCommandQueries ??
+          (executionPolicy == null
+              ? DiscordBotCommandQueryService(
+                  client: client,
+                  store: store,
+                  botId: botId,
+                  guildId: guildId,
+                )
+              : null),
+      // Policies must explicitly provide effects adapters; a missing
+      // moderation adapter leaves these calls unsupported at preflight.
+      moderation:
+          bdfdModeration ??
+          (executionPolicy == null
+              ? DiscordBotModerationService(
+                  client: client,
+                  guildId: guildId,
+                  store: store,
+                  botId: botId,
+                )
+              : null),
+      runVisualWorkflow: (workflow, context) => executeNestedActions(
+        ((workflow['actions'] as List?) ?? [])
+            .whereType<Map>()
+            .map((json) => Action.fromJson(Map<String, dynamic>.from(json)))
+            .toList(),
+        protected: true,
+      ),
+      messages:
+          bdfdMessages ??
+          DiscordBotMessageService(
+            botId: botId,
+            client: client,
+            interaction: interaction,
+            channelId: resolvedFallbackChannelId,
+            guildId: guildId?.toString(),
+            messageId: int.tryParse(variables['message.id'] ?? '') == null
+                ? null
+                : Snowflake.parse(variables['message.id']!),
+          ),
+    );
+    await execution.execute(source, backend: 'native-v1');
+    return {
+      ...nativeContext.results,
+      if (nativeContext.stopped) '__stopped__': 'true',
+    };
   }
 
+  // Visual actions the translator supports run on the native engine; the rest
+  // stays on the historical executors below. Decided per action, statically.
+  final visualRunner = BdfdActionRunner(
+    translator: actionTranslator ?? const ActionTranslator(),
+    maxSteps: visualMaxSteps ?? defaultVisualMaxSteps,
+  );
+  final visualSink = ResultSink(results: results, variables: variables);
   // Permission cache – shared across all actions in this execution
   final permCache = BotPermissionCache();
+
+  ActionRunEnvironment? visualEnvironment;
+  ActionRunEnvironment nativeVisualEnvironment() =>
+      visualEnvironment ??= ActionRunEnvironment(
+        variables: variables,
+        sink: visualSink,
+        resolveTemplate: resolveTemplate,
+        budget: executionBudget,
+        moderation:
+            bdfdModeration ??
+            DiscordBotModerationService(
+              client: client,
+              guildId: guildId,
+              store: store,
+              botId: botId,
+            ),
+        guildId: guildId?.toString(),
+        throwOnError: throwOnError,
+        getScopedVariableTtl: scopedVariableTtl,
+        store: store,
+        botId: botId,
+        interaction: interaction,
+        guildSnowflake: guildId,
+        fallbackChannelId: fallbackChannelId,
+        http: bdfdHttp,
+        onLog: onLog,
+        blockActions: DiscordBotBlockActionService(
+          client: client,
+          store: store,
+          botId: botId,
+        ),
+        permissionCache: permCache,
+        client: client,
+        lavalinkService: lavalinkService,
+        // The loop below already hydrated the routed top-level action.
+        prepare: (type, key, payload, path) async {
+          if (path.isEmpty) return;
+          // A defer must acknowledge before any entity fetch can delay it.
+          if (type == BotCreatorActionType.deferInteraction) return;
+          await hydrateActionPlaceholders(
+            store: store,
+            botId: botId,
+            actions: [Action(type: type, key: key, payload: payload)],
+            variables: variables,
+            discordFetcher: discordFetcher,
+          );
+        },
+      );
 
   // Debug profiling state
   Stopwatch? debugStopwatch;
@@ -233,6 +516,55 @@ Future<Map<String, String>> _handleActions(
 
   // Execution timer for ((execution.time)) resolution.
   final executionStopwatch = Stopwatch()..start();
+
+  // The native environment plus what control-flow actions need from this
+  // execution: workflow/script adapters, the `execution.time` clock.
+  ActionRunEnvironment visualEnv() {
+    final env = nativeVisualEnvironment();
+    visualReplayRefs = env.flow.replayRefs;
+    env.flow
+      ..adapter ??= VisualControlAdapter(
+        activeWorkflowStack: activeWorkflowStack,
+        getWorkflowByName: (name) => store.getWorkflowByName(botId, name),
+        executeActions: executeNestedActions,
+        executeProtectedActions: (nested) =>
+            executeNestedActions(nested, protected: true),
+        executeNativeBdfdScript: executeNativeScript,
+        nestedActionsPreprocessor: nestedActionsPreprocessor,
+      )
+      ..refreshExecutionTime ??= () {
+        variables['execution.time'] =
+            '${executionStopwatch.elapsedMilliseconds}ms';
+      };
+    return env;
+  }
+
+  // Applies `__skipCount__` / `__jumpToTargetKey__` left in [results] by the
+  // action at index [i] and returns the index the loop continues from.
+  int consumeFlowSignals(int i) {
+    if (results.containsKey('__skipCount__')) {
+      final count = int.tryParse(results.remove('__skipCount__')!) ?? 0;
+      return count > 0 ? i + count : i;
+    }
+    if (results.containsKey('__jumpToTargetKey__')) {
+      final targetKey = results.remove('__jumpToTargetKey__')!;
+      // Match by action key, action ID, or 1-indexed position
+      final targetIndex = actions.indexWhere(
+        (a) =>
+            (a.key != null && a.key == targetKey) ||
+            a.payload['_actionId'] == targetKey,
+      );
+      if (targetIndex < 0) {
+        final indexNum = int.tryParse(targetKey);
+        if (indexNum != null && indexNum >= 1 && indexNum <= actions.length) {
+          return indexNum - 2; // -1 for 0-based, -1 because loop increments
+        }
+      } else if (targetIndex > i) {
+        return targetIndex - 1; // -1 because loop increments
+      }
+    }
+    return i;
+  }
 
   Action? currentAction;
   String? currentResultKey;
@@ -264,17 +596,7 @@ Future<Map<String, String>> _handleActions(
           botId: botId,
           actions: [action],
           variables: variables,
-          discordFetcher: executionPolicy?.allowDiscordHydration == false
-              ? null
-              : (scope, contextId, vars) async {
-                  await DiscordEntityFetcher.hydrateEntity(
-                    client,
-                    scope,
-                    contextId,
-                    vars,
-                    cache: activeEntityCache,
-                  );
-                },
+          discordFetcher: discordFetcher,
         );
       }
       final payload = Map<String, dynamic>.from(action.payload);
@@ -380,6 +702,27 @@ Future<Map<String, String>> _handleActions(
           continue;
         }
 
+        // A block's nested actions are not intercepted by a policy on the
+        // historical path; keep blocks there whenever one is set.
+        if (visualRunner.routes(action, underPolicy: executionPolicy != null)) {
+          await visualRunner.runAction(
+            action,
+            env: visualEnv(),
+            context: nativeContext,
+            index: i,
+          );
+          // Switch-handled types trace only while profiling (historical quirk).
+          if (!bdfdVisualProfilingOnlyTraceTypes.contains(action.type) ||
+              debugTrace != null ||
+              replayTrace != null) {
+            recordTrace();
+          }
+          // stop / skipActions / jumpToAction leave the historical signals.
+          if (results.containsKey('__stopped__')) return results;
+          i = consumeFlowSignals(i);
+          continue;
+        }
+
         final handledByMessagingExecutor = await executeMessagingAction(
           type: action.type,
           client: client,
@@ -424,6 +767,7 @@ Future<Map<String, String>> _handleActions(
               resultKey: resultKey,
               results: results,
               resolveValue: resolveValue,
+              budget: executionBudget,
             );
         if (handledByModerationRolesExecutor) {
           recordTrace();
@@ -433,7 +777,7 @@ Future<Map<String, String>> _handleActions(
         if (action.type == BotCreatorActionType.createChannel &&
             action.payload['isTicket'] == true) {
           if (guildId == null) throw StateError('Tickets require a server');
-          final ticket = await createTicketChannel(
+          final ticket = await createTicketChannelAction(
             client,
             guildId: guildId,
             payload: action.payload,
@@ -530,6 +874,7 @@ Future<Map<String, String>> _handleActions(
           results: results,
           resolveValue: resolveValue,
           permissionCache: permCache,
+          budget: executionBudget,
         );
         if (handledByChannelsExecutor) {
           if (closingTicket && closingTicketId != null) {
@@ -625,6 +970,7 @@ Future<Map<String, String>> _handleActions(
 
         final handledByComponentsInteractionsExecutor =
             await executeComponentsInteractionsAction(
+              responseState: nativeContext.response,
               type: action.type,
               client: client,
               interaction: interaction,
@@ -682,20 +1028,8 @@ Future<Map<String, String>> _handleActions(
           getWorkflowByName: (workflowName) =>
               store.getWorkflowByName(botId, workflowName),
           nestedActionsPreprocessor: nestedActionsPreprocessor,
-          getScopedVariableTtl: (scope, key) async =>
-              await store.getScopedVariableTtl(
-                botId,
-                scope,
-                resolveScopeContextId(
-                      scope: scope,
-                      variables: variables,
-                      interaction: interaction,
-                      guildId: guildId,
-                      channelId: resolvedFallbackChannelId,
-                    ) ??
-                    '',
-                key,
-              ),
+          getScopedVariableTtl: scopedVariableTtl,
+          executeNativeBdfdScript: executeNativeScript,
           checkExecutionBudget: executionBudget.check,
           executeActions: executeNestedActions,
           executeProtectedActions: (nestedActions) =>
@@ -706,33 +1040,7 @@ Future<Map<String, String>> _handleActions(
           if (results.containsKey('__stopped__')) {
             return results;
           }
-          if (results.containsKey('__skipCount__')) {
-            final count = int.tryParse(results.remove('__skipCount__')!) ?? 0;
-            if (count > 0) {
-              i += count;
-            }
-            continue;
-          }
-          if (results.containsKey('__jumpToTargetKey__')) {
-            final targetKey = results.remove('__jumpToTargetKey__')!;
-            // Match by action key, action ID, or 1-indexed position
-            final targetIndex = actions.indexWhere(
-              (a) =>
-                  (a.key != null && a.key == targetKey) ||
-                  a.payload['_actionId'] == targetKey,
-            );
-            if (targetIndex < 0) {
-              final indexNum = int.tryParse(targetKey);
-              if (indexNum != null &&
-                  indexNum >= 1 &&
-                  indexNum <= actions.length) {
-                i = indexNum - 2; // -1 for 0-based, -1 because loop increments
-              }
-            } else if (targetIndex > i) {
-              i = targetIndex - 1; // -1 because loop increments
-            }
-            continue;
-          }
+          i = consumeFlowSignals(i);
           continue;
         }
 
@@ -744,6 +1052,7 @@ Future<Map<String, String>> _handleActions(
           variables: variables,
           resolveValue: resolveValue,
           onLog: onLog,
+          executionBudget: executionBudget,
           setGlobalVariable: (key, value) =>
               store.setGlobalVariable(botId, key, value),
         );
@@ -856,38 +1165,16 @@ Future<Map<String, String>> _handleActions(
               'Action ${action.type.name} should have been handled by an executor before switch dispatch.',
             );
           case BotCreatorActionType.pinMessage:
-            if (guildId != null) {
-              final permError = await checkBotGuildPermission(
-                client,
-                guildId: guildId,
-                requiredPermissions: [Permissions.manageMessages],
-                actionLabel: 'pin messages',
-                cache: permCache,
-              );
-              if (permError != null) throw Exception(permError);
-            }
-            final resolvedPinPayload = Map<String, dynamic>.from(
-              action.payload,
-            );
-            if (action.payload.containsKey('messageId')) {
-              resolvedPinPayload['messageId'] = resolveValue(
-                action.payload['messageId'].toString(),
-              );
-            }
-            if (action.payload.containsKey('channelId')) {
-              resolvedPinPayload['channelId'] = resolveValue(
-                action.payload['channelId'].toString(),
-              );
-            }
-            final result = await pinMessageAction(
-              client,
-              payload: resolvedPinPayload,
+            await pinMessageBlock(
+              client: client,
+              guildId: guildId,
+              payload: action.payload,
+              resultKey: resultKey,
+              results: results,
               fallbackChannelId: fallbackChannelId,
+              resolveValue: resolveValue,
+              permissionCache: permCache,
             );
-            if (result['error'] != null) {
-              throw Exception(result['error']);
-            }
-            results[resultKey] = result['messageId'] ?? '';
             break;
           case BotCreatorActionType.updateAutoMod:
             final resolvedPayload = Map<String, dynamic>.from(action.payload);
@@ -896,23 +1183,21 @@ Future<Map<String, String>> _handleActions(
                 action.payload['ruleId'].toString(),
               );
             }
-            final result = await updateAutoModAction(
+            final result = await DiscordBotAutoModService(
               client,
-              guildId: guildId,
-              payload: resolvedPayload,
-            );
+            ).updateAutoMod(guildId: guildId, payload: resolvedPayload);
             if (result['error'] != null) {
               throw Exception(result['error']);
             }
             results[resultKey] = result['status'] ?? 'OK';
             break;
           case BotCreatorActionType.updateGuild:
-            final result = await updateGuildAction(
-              client,
-              guildId: guildId,
-              payload: action.payload,
-              resolve: resolveValue,
-            );
+            final result = await DiscordBotGuildAdminService(client)
+                .updateGuild(
+                  guildId: guildId,
+                  payload: action.payload,
+                  resolve: resolveValue,
+                );
             if (result['error'] != null) {
               throw Exception(result['error']);
             }
@@ -922,12 +1207,12 @@ Future<Map<String, String>> _handleActions(
             final resolvedGuildId = _resolveSnowflake(
               resolveValue((action.payload['guildId'] ?? '').toString()),
             );
-            final result = await updateGuildAction(
-              client,
-              guildId: resolvedGuildId ?? guildId,
-              payload: <String, dynamic>{'leave': true},
-              resolve: resolveValue,
-            );
+            final result = await DiscordBotGuildAdminService(client)
+                .updateGuild(
+                  guildId: resolvedGuildId ?? guildId,
+                  payload: <String, dynamic>{'leave': true},
+                  resolve: resolveValue,
+                );
             if (result['error'] != null) {
               throw Exception(result['error']);
             }
@@ -983,38 +1268,16 @@ Future<Map<String, String>> _handleActions(
             results[resultKey] = result['member'] ?? '';
             break;
           case BotCreatorActionType.unpinMessage:
-            if (guildId != null) {
-              final permError = await checkBotGuildPermission(
-                client,
-                guildId: guildId,
-                requiredPermissions: [Permissions.manageMessages],
-                actionLabel: 'unpin messages',
-                cache: permCache,
-              );
-              if (permError != null) throw Exception(permError);
-            }
-            final resolvedUnpinPayload = Map<String, dynamic>.from(
-              action.payload,
-            );
-            if (action.payload.containsKey('messageId')) {
-              resolvedUnpinPayload['messageId'] = resolveValue(
-                action.payload['messageId'].toString(),
-              );
-            }
-            if (action.payload.containsKey('channelId')) {
-              resolvedUnpinPayload['channelId'] = resolveValue(
-                action.payload['channelId'].toString(),
-              );
-            }
-            final unpinResult = await unpinMessageAction(
-              client,
-              payload: resolvedUnpinPayload,
+            await unpinMessageBlock(
+              client: client,
+              guildId: guildId,
+              payload: action.payload,
+              resultKey: resultKey,
+              results: results,
               fallbackChannelId: resolvedFallbackChannelId,
+              resolveValue: resolveValue,
+              permissionCache: permCache,
             );
-            if (unpinResult['error'] != null) {
-              throw Exception(unpinResult['error']);
-            }
-            results[resultKey] = unpinResult['status'] ?? 'unpinned';
             break;
 
           // ─── Polls ────────────────────────────────────────────────────────
@@ -1029,8 +1292,7 @@ Future<Map<String, String>> _handleActions(
               );
               if (permError != null) throw Exception(permError);
             }
-            final pollResult = await createPollAction(
-              client,
+            final pollResult = await DiscordBotPollService(client).createPoll(
               payload: action.payload,
               fallbackChannelId: resolvedFallbackChannelId,
               resolve: resolveValue,
@@ -1067,8 +1329,7 @@ Future<Map<String, String>> _handleActions(
                 action.payload['messageId'].toString(),
               );
             }
-            final endPollResult = await endPollAction(
-              client,
+            final endPollResult = await DiscordBotPollService(client).endPoll(
               payload: resolvedEndPollPayload,
               fallbackChannelId: resolvedFallbackChannelId,
               resolve: resolveValue,
@@ -1145,12 +1406,12 @@ Future<Map<String, String>> _handleActions(
 
           // ─── Voice management ─────────────────────────────────────────────
           case BotCreatorActionType.moveToVoiceChannel:
-            final mvResult = await moveToVoiceChannelAction(
-              client,
-              guildId: guildId,
-              payload: action.payload,
-              resolve: resolveValue,
-            );
+            final mvResult = await DiscordBotVoiceService(client)
+                .moveToVoiceChannel(
+                  guildId: guildId,
+                  payload: action.payload,
+                  resolve: resolveValue,
+                );
             if (mvResult['error'] != null) {
               throw Exception(mvResult['error']);
             }
@@ -1158,12 +1419,12 @@ Future<Map<String, String>> _handleActions(
             break;
 
           case BotCreatorActionType.disconnectFromVoice:
-            final dvResult = await disconnectFromVoiceAction(
-              client,
-              guildId: guildId,
-              payload: action.payload,
-              resolve: resolveValue,
-            );
+            final dvResult = await DiscordBotVoiceService(client)
+                .disconnectFromVoice(
+                  guildId: guildId,
+                  payload: action.payload,
+                  resolve: resolveValue,
+                );
             if (dvResult['error'] != null) {
               throw Exception(dvResult['error']);
             }
@@ -1171,12 +1432,12 @@ Future<Map<String, String>> _handleActions(
             break;
 
           case BotCreatorActionType.serverMuteMember:
-            final smResult = await serverMuteMemberAction(
-              client,
-              guildId: guildId,
-              payload: action.payload,
-              resolve: resolveValue,
-            );
+            final smResult = await DiscordBotVoiceService(client)
+                .serverMuteMember(
+                  guildId: guildId,
+                  payload: action.payload,
+                  resolve: resolveValue,
+                );
             if (smResult['error'] != null) {
               throw Exception(smResult['error']);
             }
@@ -1184,12 +1445,12 @@ Future<Map<String, String>> _handleActions(
             break;
 
           case BotCreatorActionType.serverDeafenMember:
-            final sdResult = await serverDeafenMemberAction(
-              client,
-              guildId: guildId,
-              payload: action.payload,
-              resolve: resolveValue,
-            );
+            final sdResult = await DiscordBotVoiceService(client)
+                .serverDeafenMember(
+                  guildId: guildId,
+                  payload: action.payload,
+                  resolve: resolveValue,
+                );
             if (sdResult['error'] != null) {
               throw Exception(sdResult['error']);
             }
@@ -1249,12 +1510,12 @@ Future<Map<String, String>> _handleActions(
 
           // ─── AutoMod management ───────────────────────────────────────────
           case BotCreatorActionType.createAutoModRule:
-            final camResult = await createAutoModRuleAction(
-              client,
-              guildId: guildId,
-              payload: action.payload,
-              resolve: resolveValue,
-            );
+            final camResult = await DiscordBotAutoModService(client)
+                .createAutoModRule(
+                  guildId: guildId,
+                  payload: action.payload,
+                  resolve: resolveValue,
+                );
             if (camResult['error'] != null) {
               throw Exception(camResult['error']);
             }
@@ -1264,12 +1525,12 @@ Future<Map<String, String>> _handleActions(
             break;
 
           case BotCreatorActionType.deleteAutoModRule:
-            final damResult = await deleteAutoModRuleAction(
-              client,
-              guildId: guildId,
-              payload: action.payload,
-              resolve: resolveValue,
-            );
+            final damResult = await DiscordBotAutoModService(client)
+                .deleteAutoModRule(
+                  guildId: guildId,
+                  payload: action.payload,
+                  resolve: resolveValue,
+                );
             if (damResult['error'] != null) {
               throw Exception(damResult['error']);
             }
@@ -1277,10 +1538,9 @@ Future<Map<String, String>> _handleActions(
             break;
 
           case BotCreatorActionType.listAutoModRules:
-            final lamResult = await listAutoModRulesAction(
+            final lamResult = await DiscordBotAutoModService(
               client,
-              guildId: guildId,
-            );
+            ).listAutoModRules(guildId: guildId);
             if (lamResult['error'] != null) {
               throw Exception(lamResult['error']);
             }
@@ -1291,10 +1551,9 @@ Future<Map<String, String>> _handleActions(
 
           // ─── Guild Onboarding ─────────────────────────────────────────────
           case BotCreatorActionType.getGuildOnboarding:
-            final goResult = await getGuildOnboardingAction(
+            final goResult = await DiscordBotGuildAdminService(
               client,
-              guildId: guildId,
-            );
+            ).getGuildOnboarding(guildId: guildId);
             if (goResult['error'] != null) {
               throw Exception(goResult['error']);
             }
@@ -1305,12 +1564,12 @@ Future<Map<String, String>> _handleActions(
             break;
 
           case BotCreatorActionType.updateGuildOnboarding:
-            final ugoResult = await updateGuildOnboardingAction(
-              client,
-              guildId: guildId,
-              payload: action.payload,
-              resolve: resolveValue,
-            );
+            final ugoResult = await DiscordBotGuildAdminService(client)
+                .updateGuildOnboarding(
+                  guildId: guildId,
+                  payload: action.payload,
+                  resolve: resolveValue,
+                );
             if (ugoResult['error'] != null) {
               throw Exception(ugoResult['error']);
             }
@@ -1455,21 +1714,12 @@ Future<Map<String, String>> _handleActions(
 
           // ─── Channel permissions ──────────────────────────────────────────
           case BotCreatorActionType.editChannelPermissions:
-            if (guildId != null) {
-              final permError = await checkBotGuildPermission(
-                client,
-                guildId: guildId,
-                requiredPermissions: [Permissions.manageRoles],
-                actionLabel: 'edit channel permissions',
-                cache: permCache,
-              );
-              if (permError != null) throw Exception(permError);
-            }
             final ecpResult = await editChannelPermissionsAction(
               client,
               payload: action.payload,
               fallbackChannelId: resolvedFallbackChannelId,
               resolve: resolveValue,
+              budget: executionBudget,
             );
             if (ecpResult['error'] != null) {
               throw Exception(ecpResult['error']);
@@ -1638,28 +1888,33 @@ Future<Map<String, String>> _handleActions(
     }
     rethrow;
   } finally {
+    if (nativeReplayCapture != null) {
+      nativeContext.onTrace = previousNativeObserver;
+      nativeReplayCapture.finish(null);
+    }
     // Replay capture callback — fires after the embed (if any) is sent.
     if (onReplayCaptured != null && replayTrace != null) {
       replayStopwatch?.stop();
       final totalMs = replayStopwatch?.elapsedMilliseconds ?? 0;
       onReplayCaptured(
-        replayTrace
-            .map(
-              (entry) => <String, dynamic>{
-                'actionType': entry.actionType,
-                'startMs': entry.startMs,
-                'durationMs': entry.endMs - entry.startMs,
-                if (entry.result != null) 'result': entry.result,
-                if (entry.loopDepth != null) 'loopDepth': entry.loopDepth,
-                if (entry.loopIteration != null)
-                  'loopIteration': entry.loopIteration,
-                if (entry.variablesBefore != null)
-                  'variablesBefore': entry.variablesBefore,
-                if (entry.variablesAfter != null)
-                  'variablesAfter': entry.variablesAfter,
-              },
-            )
-            .toList(growable: false),
+        [
+          ...?nativeReplayCapture?.frames,
+          ...replayTrace.map(
+            (entry) => <String, dynamic>{
+              'actionType': entry.actionType,
+              'startMs': entry.startMs,
+              'durationMs': entry.endMs - entry.startMs,
+              if (entry.result != null) 'result': entry.result,
+              if (entry.loopDepth != null) 'loopDepth': entry.loopDepth,
+              if (entry.loopIteration != null)
+                'loopIteration': entry.loopIteration,
+              if (entry.variablesBefore != null)
+                'variablesBefore': entry.variablesBefore,
+              if (entry.variablesAfter != null)
+                'variablesAfter': entry.variablesAfter,
+            },
+          ),
+        ]..sort((a, b) => (a['startMs'] as int).compareTo(b['startMs'] as int)),
         totalMs,
       );
     }
@@ -1681,6 +1936,14 @@ Future<Map<String, String>> handleListenerWorkflowActions(
   Interaction? interaction,
   LavalinkService? lavalinkService,
   ActionExecutionPolicy? executionPolicy,
+  BdfdContext? bdfdContext,
+  BotMessageService? bdfdMessages,
+  BotModerationService? bdfdModeration,
+  BotCommandQueryService? bdfdCommandQueries,
+  BotComponentService? bdfdComponents,
+  BotTimingService? bdfdTiming,
+  BotDelayService bdfdDelays = const RuntimeBotDelayService(),
+  HttpService? bdfdHttp,
 }) async {
   return handleActions(
     client,
@@ -1692,6 +1955,14 @@ Future<Map<String, String>> handleListenerWorkflowActions(
     resolveTemplate: resolveTemplate,
     lavalinkService: lavalinkService,
     executionPolicy: executionPolicy,
+    bdfdContext: bdfdContext,
+    bdfdMessages: bdfdMessages,
+    bdfdModeration: bdfdModeration,
+    bdfdCommandQueries: bdfdCommandQueries,
+    bdfdComponents: bdfdComponents,
+    bdfdTiming: bdfdTiming,
+    bdfdDelays: bdfdDelays,
+    bdfdHttp: bdfdHttp,
   );
 }
 

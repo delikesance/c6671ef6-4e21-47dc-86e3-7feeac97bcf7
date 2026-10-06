@@ -5,32 +5,31 @@ import 'package:test/test.dart';
 
 void main() {
   group('BdfdParser - user/profile functions', () {
-    for (final entry
-        in <String, String>{
-          r'$authorAvatar': 'authoravatar',
-          r'$authorID': 'authorid',
-          r'$authorOfMessage': 'authorofmessage',
-          r'$creationDate': 'creationdate',
-          r'$discriminator': 'discriminator',
-          r'$getUserStatus': 'getuserstatus',
-          r'$getCustomStatus': 'getcustomstatus',
-          r'$isAdmin': 'isadmin',
-          r'$isBooster': 'isbooster',
-          r'$isBot': 'isbot',
-          r'$isUserDMEnabled': 'isuserdmenabled',
-          r'$userAvatar': 'useravatar',
-          r'$userBadges': 'userbadges',
-          r'$userBanner': 'userbanner',
-          r'$userBannerColor': 'userbannercolor',
-          r'$userExists': 'userexists',
-          r'$userID': 'userid',
-          r'$userInfo': 'userinfo',
-          r'$userJoined': 'userjoined',
-          r'$userJoinedDiscord': 'userjoineddiscord',
-          r'$userPerms': 'userperms',
-          r'$userServerAvatar': 'userserveravatar',
-          r'$findUser': 'finduser',
-        }.entries) {
+    for (final entry in <String, String>{
+      r'$authorAvatar': 'authoravatar',
+      r'$authorID': 'authorid',
+      r'$authorOfMessage': 'authorofmessage',
+      r'$creationDate': 'creationdate',
+      r'$discriminator': 'discriminator',
+      r'$getUserStatus': 'getuserstatus',
+      r'$getCustomStatus': 'getcustomstatus',
+      r'$isAdmin': 'isadmin',
+      r'$isBooster': 'isbooster',
+      r'$isBot': 'isbot',
+      r'$isUserDMEnabled': 'isuserdmenabled',
+      r'$userAvatar': 'useravatar',
+      r'$userBadges': 'userbadges',
+      r'$userBanner': 'userbanner',
+      r'$userBannerColor': 'userbannercolor',
+      r'$userExists': 'userexists',
+      r'$userID': 'userid',
+      r'$userInfo': 'userinfo',
+      r'$userJoined': 'userjoined',
+      r'$userJoinedDiscord': 'userjoineddiscord',
+      r'$userPerms': 'userperms',
+      r'$userServerAvatar': 'userserveravatar',
+      r'$findUser': 'finduser',
+    }.entries) {
       test('parses ${entry.key} without arguments', () {
         final lexerResult = BdfdLexer().tokenize(entry.key);
         final result = BdfdParser().parseTokens(lexerResult.tokens);

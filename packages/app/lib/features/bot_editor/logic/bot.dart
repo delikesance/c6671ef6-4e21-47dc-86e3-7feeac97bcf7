@@ -8,45 +8,48 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:bot_creator/main.dart';
-import 'package:bot_creator_shared/bot_creator_shared.dart' hide 
-  BotRuntimeMetrics, 
-  getDiscordUser, 
-  generateKeyValues, 
-  findFocusedOption, 
-  normalizeStoredWorkflowDefinition, 
-  normalizeWorkflowType, 
-  workflowTypeGeneral, 
-  workflowTypeEvent,
-  normalizeWorkflowEventTrigger,
-  resolveWorkflowCallArguments,
-  applyWorkflowInvocationContext,
-  normalizeWorkflowEntryPoint,
-  parseWorkflowArgumentDefinitions,
-  getChannelName,
-  makeAvatarUrl;
+import 'package:bot_creator_shared/bot_creator_shared.dart'
+    hide
+        BotRuntimeMetrics,
+        getDiscordUser,
+        generateKeyValues,
+        findFocusedOption,
+        normalizeStoredWorkflowDefinition,
+        normalizeWorkflowType,
+        workflowTypeGeneral,
+        workflowTypeEvent,
+        normalizeWorkflowEventTrigger,
+        resolveWorkflowCallArguments,
+        applyWorkflowInvocationContext,
+        normalizeWorkflowEntryPoint,
+        parseWorkflowArgumentDefinitions,
+        getChannelName,
+        makeAvatarUrl;
 import 'package:bot_creator_shared/utils/global.dart' as shared_global;
 import 'package:bot_creator/core/storage/database.dart';
 
-
-
-
-
 import 'package:bot_creator/core/network/mobile_sessions_orchestrator.dart';
-import 'package:bot_creator/core/storage/app_storage_directory.dart' as storage_utils;
+import 'package:bot_creator/core/storage/app_storage_directory.dart'
+    as storage_utils;
 import 'package:bot_creator/core/network/runner_client.dart';
-
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
 import 'package:nyxx/nyxx.dart';
+import 'package:bot_creator_ui/bot_creator_ui.dart'
+    show DebugActionFrame, DebugReplayRecord;
+
+// Les modèles du rejeu vivent dans `bot_creator_ui` (le Studio rejoue les mêmes) ;
+// ils restent joignables depuis ce fichier, comme avant.
+export 'package:bot_creator_ui/bot_creator_ui.dart'
+    show DebugActionFrame, DebugReplayRecord;
 
 part 'bot.logs.dart';
 part 'bot.debug_replay.dart';
 part 'bot.template.dart';
 part 'bot.mobile_service.dart';
-
 
 /// The central bot execution engine for the desktop app.
 final BotEngine _engine = BotEngine(
@@ -67,21 +70,20 @@ final BotEngine _engine = BotEngine(
     },
     onReplayCaptured: (botId, label, frames, totalMs) {
       _engine.saveDebugReplay(botId, label, frames, totalMs);
-      appendDebugReplay(DebugReplayRecord(
-        botId: botId,
-        commandLabel: label,
-        triggeredAt: DateTime.now(),
-        frames: frames.map(DebugActionFrame.fromJson).toList(),
-        totalMs: totalMs,
-      ));
+      appendDebugReplay(
+        DebugReplayRecord(
+          botId: botId,
+          commandLabel: label,
+          triggeredAt: DateTime.now(),
+          frames: frames.map(DebugActionFrame.fromJson).toList(),
+          totalMs: totalMs,
+        ),
+      );
     },
     isDebugReplayCapturing: (botId) =>
         _engine.isDebugReplayCapturing(botId) || isDebugReplayCapturing,
   ),
 );
-
-
-
 
 String? get desktopRunningBotId {
   if (_engine.runningBotIds.isEmpty) return null;
@@ -90,9 +92,11 @@ String? get desktopRunningBotId {
 
 Set<String> get desktopRunningBotIds => _engine.runningBotIds;
 
-bool isDesktopBotRunningId(String botId) => _engine.runningBotIds.contains(botId.trim());
+bool isDesktopBotRunningId(String botId) =>
+    _engine.runningBotIds.contains(botId.trim());
 
-NyxxGateway? desktopGatewayForBot(String botId) => _engine.getSession(botId.trim())?.gateway;
+NyxxGateway? desktopGatewayForBot(String botId) =>
+    _engine.getSession(botId.trim())?.gateway;
 
 String? _mobileRunningBotId;
 final Set<String> _mobileRunningBotIds = <String>{};
@@ -135,8 +139,9 @@ void removeMobileRunningBotId(String id) {
   }
   _mobileRunningBotIds.remove(trimmed);
   if (_mobileRunningBotId == trimmed) {
-    _mobileRunningBotId =
-        _mobileRunningBotIds.isEmpty ? null : _mobileRunningBotIds.first;
+    _mobileRunningBotId = _mobileRunningBotIds.isEmpty
+        ? null
+        : _mobileRunningBotIds.first;
   }
 }
 
@@ -172,7 +177,6 @@ int? _botProcessStorageBytes;
 final Map<String, BotRuntimeMetrics> _botMetricsByBot =
     <String, BotRuntimeMetrics>{};
 bool _botRuntimeActive = false;
-
 
 bool get isDesktopBotRunning => _engine.isRunning;
 bool get isBotDebugLogsEnabled => _debugBotLogsEnabled;
@@ -229,7 +233,7 @@ Future<void> startDesktopBot(String token, {String? expectedBotId}) async {
   if (expectedBotId != null && botId != expectedBotId) {
     throw StateError('Saved bot identity does not match its token');
   }
-  
+
   await _engine.startWithId(botId, token);
 }
 
@@ -245,7 +249,6 @@ Future<void> stopDesktopBot({String? botId}) async {
   await _engine.stop(normalizedBotId);
   setBotRuntimeActive(_engine.isRunning || mobileRunningBotIds.isNotEmpty);
 }
-
 
 Future<ApplicationCommand> createCommand(
   NyxxRest client,

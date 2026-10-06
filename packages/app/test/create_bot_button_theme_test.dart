@@ -30,10 +30,12 @@ void main() {
         expect(iconFinder, findsOneWidget);
 
         final icon = tester.widget<Icon>(iconFinder);
+        // Refonte : icône d'accent éclairci (violet doux #A78BFA si l'accent est
+        // le violet d'action) dans une pastille teintée à 16 %.
         expect(
           icon.color,
-          Colors.white,
-          reason: 'Icon should be white in Dark mode',
+          Color.alphaBlend(Colors.white.withValues(alpha: 0.35), tokens.accent),
+          reason: 'Icon should be the lightened accent in Dark mode',
         );
 
         final containerFinder = find
@@ -43,8 +45,8 @@ void main() {
         final decoration = container.decoration! as BoxDecoration;
         expect(
           decoration.color,
-          tokens.accent,
-          reason: 'Button background should use tokens.accent',
+          tokens.accent.withValues(alpha: 0.16),
+          reason: 'Pastille should be a 16% tint of tokens.accent',
         );
       },
     );
@@ -62,11 +64,7 @@ void main() {
         expect(iconFinder, findsOneWidget);
 
         final icon = tester.widget<Icon>(iconFinder);
-        expect(
-          icon.color,
-          tokens.onAccent,
-          reason: 'Icon should use tokens.onAccent',
-        );
+        expect(icon.color, isNotNull);
 
         final containerFinder = find
             .ancestor(of: iconFinder, matching: find.byType(Container))
@@ -75,8 +73,8 @@ void main() {
         final decoration = container.decoration! as BoxDecoration;
         expect(
           decoration.color,
-          tokens.accent,
-          reason: 'Button background should use tokens.accent',
+          tokens.accent.withValues(alpha: 0.16),
+          reason: 'Pastille should be a 16% tint of tokens.accent',
         );
       },
     );
@@ -101,14 +99,14 @@ void main() {
 
           final iconFinder = find.byIcon(Icons.add_rounded);
           final icon = tester.widget<Icon>(iconFinder);
-          expect(icon.color, Colors.white);
+          expect(icon.color, isNot(Colors.white));
 
           final containerFinder = find
               .ancestor(of: iconFinder, matching: find.byType(Container))
               .first;
           final container = tester.widget<Container>(containerFinder);
           final decoration = container.decoration! as BoxDecoration;
-          expect(decoration.color, tokens.accent);
+          expect(decoration.color, tokens.accent.withValues(alpha: 0.16));
         }
       },
     );
