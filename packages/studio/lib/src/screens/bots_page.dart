@@ -31,6 +31,7 @@ class _BotsPageState extends State<BotsPage> {
   final Map<String, StudioBotRuntime> _runtimes = {};
   // Nombre de serveurs par bot : lu une fois par ouverture de la page (un appel
   // Discord par bot, jamais à chaque relecture). Absent = inconnu, ligne masquée.
+  final Map<String, List<GuildStackItem>> _guilds = {};
   final Map<String, int> _guildCounts = {};
   final Set<String> _guildRequested = {};
   Timer? _poll;
@@ -98,7 +99,28 @@ class _BotsPageState extends State<BotsPage> {
       widget.api
           .listDiscordGuilds(bot.id)
           .then((guilds) {
-            if (mounted) setState(() => _guildCounts[bot.id] = guilds.length);
+            if (!mounted) return;
+            setState(() {
+              _guildCounts[bot.id] = guilds.length;
+              // Les deux premiers serveurs (par id) font la pile d'avatars.
+              final sorted = [...guilds]
+                ..sort((a, b) {
+                  final x = '${a['id']}', y = '${b['id']}';
+                  return x.length != y.length
+                      ? x.length.compareTo(y.length)
+                      : x.compareTo(y);
+                });
+              _guilds[bot.id] = [
+                for (final g in sorted.take(kMaxGuildStackAvatars))
+                  GuildStackItem(
+                    id: '${g['id']}',
+                    name: g['name'] as String?,
+                    iconUrl: (g['icon_url'] as String?)?.isEmpty ?? true
+                        ? null
+                        : g['icon_url'] as String,
+                  ),
+              ];
+            });
           })
           .catchError((_) {
             // Pas d'accès Discord pour ce bot : la ligne reste masquée.
@@ -265,6 +287,7 @@ class _BotsPageState extends State<BotsPage> {
                                 bot: bot,
                                 runtime: _runtimes[bot.id],
                                 guildCount: _guildCounts[bot.id],
+                                guilds: _guilds[bot.id] ?? const [],
                                 busy: _busy.contains(bot.id),
                                 onToggle: () => _toggle(bot),
                                 onManage: () => widget.onOpenBot(bot),
@@ -340,6 +363,7 @@ class BotCard extends StatelessWidget {
     required this.bot,
     required this.runtime,
     this.guildCount,
+    this.guilds = const [],
     required this.busy,
     required this.onToggle,
     required this.onManage,
@@ -350,6 +374,7 @@ class BotCard extends StatelessWidget {
 
   /// Serveurs du bot, quand le Manager a pu les lire (sinon la ligne est masquée).
   final int? guildCount;
+  final List<GuildStackItem> guilds;
   final bool busy;
   final VoidCallback onToggle;
   final VoidCallback onManage;
@@ -366,6 +391,9 @@ class BotCard extends StatelessWidget {
       avatar: null,
       guildCount: guildCount ?? 0,
       showServers: guildCount != null,
+      serverAvatars: guildCount == null
+          ? null
+          : GuildAvatarStack(guildCount: guildCount!, guilds: guilds),
       isRunning: bot.running,
       canToggle: !busy,
       isTogglingThisBot: busy,
