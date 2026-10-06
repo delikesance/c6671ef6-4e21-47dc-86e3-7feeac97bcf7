@@ -11,7 +11,7 @@ import 'package:bot_creator/core/code_editor/script_editor_language.dart';
 import 'package:bot_creator/core/code_editor/script_editor_overlays.dart';
 import 'package:bot_creator/core/code_editor/script_editor_scaffold.dart';
 import 'package:bot_creator/core/code_editor/script_editor_snippet.dart';
-import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/js_editor/editor_theme_scope.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';

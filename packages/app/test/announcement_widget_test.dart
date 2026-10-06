@@ -10,8 +10,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
-import 'package:bot_creator/core/i18n/l10n/app_localizations_fr.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator_ui/src/l10n/app_localizations_fr.dart';
 import 'package:bot_creator/features/announcements/logic/announcement.dart';
 import 'package:bot_creator/features/announcements/presentation/announcement_banner.dart';
 import 'package:bot_creator/features/announcements/presentation/announcement_dialog.dart';
@@ -71,21 +71,23 @@ void main() {
       expect(dismissed, isTrue);
     });
 
-    testWidgets('annonce non refermable : aucune croix, mais bannière visible',
-        (tester) async {
-      await tester.pumpWidget(
-        host(
-          AnnouncementBanner(
-            announcement: buildAnnouncement(dismissible: false),
-            onDismiss: () {},
+    testWidgets(
+      'annonce non refermable : aucune croix, mais bannière visible',
+      (tester) async {
+        await tester.pumpWidget(
+          host(
+            AnnouncementBanner(
+              announcement: buildAnnouncement(dismissible: false),
+              onDismiss: () {},
+            ),
           ),
-        ),
-      );
+        );
 
-      expect(find.text('Maintenance planifiée'), findsOneWidget);
-      expect(find.byIcon(Icons.close), findsNothing);
-      expect(find.byTooltip(tr.announcement_dismiss), findsNothing);
-    });
+        expect(find.text('Maintenance planifiée'), findsOneWidget);
+        expect(find.byIcon(Icons.close), findsNothing);
+        expect(find.byTooltip(tr.announcement_dismiss), findsNothing);
+      },
+    );
 
     testWidgets('sans lien, pas de bouton « En savoir plus »', (tester) async {
       await tester.pumpWidget(

@@ -16,7 +16,7 @@
 //     chacune passe par la brique partagee.
 import 'dart:io';
 
-import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/subscriptions/presentation/widgets/premium_locked_hint.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,27 +32,32 @@ const List<String> _pagesVerrouillees = <String>[
 ];
 
 void main() {
-  testWidgets('le message dit la formule du compte et ou l\'abonnement s\'active', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: const Scaffold(body: Center(child: PremiumLockedHint())),
-      ),
-    );
+  testWidgets(
+    'le message dit la formule du compte et ou l\'abonnement s\'active',
+    (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const Scaffold(body: Center(child: PremiumLockedHint())),
+        ),
+      );
 
-    final attendu = arbFrText('premium_locked_hint');
-    expect(attendu, isNotEmpty, reason: 'la cle doit exister dans l\'ARB francais');
-    expect(find.text(attendu), findsOneWidget);
-    expect(
-      find.byIcon(Icons.lock_outline_rounded),
-      findsOneWidget,
-      reason: 'le cadenas est la convention premium de l\'app',
-    );
-  });
+      final attendu = arbFrText('premium_locked_hint');
+      expect(
+        attendu,
+        isNotEmpty,
+        reason: 'la cle doit exister dans l\'ARB francais',
+      );
+      expect(find.text(attendu), findsOneWidget);
+      expect(
+        find.byIcon(Icons.lock_outline_rounded),
+        findsOneWidget,
+        reason: 'le cadenas est la convention premium de l\'app',
+      );
+    },
+  );
 
   testWidgets('le message ne parle JAMAIS de plateforme', (tester) async {
     await tester.pumpWidget(
@@ -73,22 +78,26 @@ void main() {
     );
   });
 
-  test('les quatre pages verrouillees utilisent la brique partagee, aucune la phrase fautive', () {
-    for (final chemin in _pagesVerrouillees) {
-      final source = File(chemin).readAsStringSync();
+  test(
+    'les quatre pages verrouillees utilisent la brique partagee, aucune la phrase fautive',
+    () {
+      for (final chemin in _pagesVerrouillees) {
+        final source = File(chemin).readAsStringSync();
 
-      expect(
-        source.contains('PremiumLockedHint'),
-        isTrue,
-        reason: '$chemin doit passer par la brique partagee (sinon les textes divergent)',
-      );
-      expect(
-        source.contains('subscription_unavailable_platform'),
-        isFalse,
-        reason:
-            '$chemin affiche encore la phrase de plateforme : la cause du verrou est la formule '
-            'du compte (verite serveur), pas la plateforme',
-      );
-    }
-  });
+        expect(
+          source.contains('PremiumLockedHint'),
+          isTrue,
+          reason:
+              '$chemin doit passer par la brique partagee (sinon les textes divergent)',
+        );
+        expect(
+          source.contains('subscription_unavailable_platform'),
+          isFalse,
+          reason:
+              '$chemin affiche encore la phrase de plateforme : la cause du verrou est la formule '
+              'du compte (verite serveur), pas la plateforme',
+        );
+      }
+    },
+  );
 }

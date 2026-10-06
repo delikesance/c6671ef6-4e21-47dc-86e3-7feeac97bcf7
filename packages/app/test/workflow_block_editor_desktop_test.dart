@@ -1,4 +1,4 @@
-import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflow_block_editor.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/entry_point_block.dart';

@@ -11,6 +11,7 @@ import '../l10n_ext.dart';
 import '../layout.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
+import '../widgets/script_card.dart';
 
 /// Onglet « Workflows » : listes d'actions nommées et réutilisables, générales
 /// (appelées par des commandes ou d'autres workflows) ou déclenchées par un
@@ -38,7 +39,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
   Future<void> _create() async {
     final draft = await showDialog<WorkflowDraft>(
       context: context,
-      builder: (context) => const _NewWorkflowDialog(),
+      builder: (context) =>
+          _NewWorkflowDialog(javascript: widget.bot.isJavascript),
     );
     if (draft != null && mounted) setState(() => _creating = draft);
   }
@@ -202,7 +204,11 @@ String _modeLabel(AppLocalizations tr, String mode) => switch (mode) {
 };
 
 class _NewWorkflowDialog extends StatefulWidget {
-  const _NewWorkflowDialog();
+  const _NewWorkflowDialog({required this.javascript});
+
+  /// Bot JavaScript : seuls les workflows d'événement existent, écrits en
+  /// JavaScript (comme dans l'app) ; jamais de blocs ni de BDFD.
+  final bool javascript;
 
   @override
   State<_NewWorkflowDialog> createState() => _NewWorkflowDialogState();
@@ -216,7 +222,7 @@ class _NewWorkflowDialogState extends State<_NewWorkflowDialog> {
   }.toList();
   String _category = 'messages';
   String _event = 'messageCreate';
-  String _type = 'general';
+  late String _type = widget.javascript ? 'event' : 'general';
   String? _error;
 
   @override
@@ -236,6 +242,7 @@ class _NewWorkflowDialogState extends State<_NewWorkflowDialog> {
       type: _type,
       category: _category,
       event: _event,
+      executionMode: widget.javascript ? 'javascript' : 'workflow',
     );
     final problem = draft.validate();
     if (problem != null) {
@@ -267,31 +274,33 @@ class _NewWorkflowDialogState extends State<_NewWorkflowDialog> {
                 ),
               ),
             ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              isExpanded: true,
-              initialValue: _type,
-              decoration: InputDecoration(labelText: context.tr.common_type),
-              items: [
-                DropdownMenuItem(
-                  value: 'general',
-                  child: Text(
-                    context.l10n.workflowTypeGeneral,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+            if (!widget.javascript) ...[
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                isExpanded: true,
+                initialValue: _type,
+                decoration: InputDecoration(labelText: context.tr.common_type),
+                items: [
+                  DropdownMenuItem(
+                    value: 'general',
+                    child: Text(
+                      context.l10n.workflowTypeGeneral,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                DropdownMenuItem(
-                  value: 'event',
-                  child: Text(
-                    context.tr.scratch_wizard_trigger_event_title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  DropdownMenuItem(
+                    value: 'event',
+                    child: Text(
+                      context.tr.scratch_wizard_trigger_event_title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-              ],
-              onChanged: (v) => setState(() => _type = v ?? 'general'),
-            ),
+                ],
+                onChanged: (v) => setState(() => _type = v ?? 'general'),
+              ),
+            ],
             if (_type == 'event') ...[
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
@@ -551,7 +560,7 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
                 ),
                 const SizedBox(width: 8),
                 FilledButton.icon(
-                  onPressed: _saving || !draft.dirty || !draft.visual
+                  onPressed: _saving || !draft.dirty || !draft.editable
                       ? null
                       : _save,
                   icon: AppIcon.fromMaterial(
@@ -652,12 +661,23 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
                     children: [
                       header,
                       const SizedBox(height: 12),
-                      Text(
-                        context.l10n.workflowScriptNotice(
-                          _modeLabel(context.tr, draft.executionMode),
+                      if (draft.isJavascript)
+                        ScriptCard(
+                          api: widget.api,
+                          bot: widget.bot,
+                          title: draft.name,
+                          code: draft.jsScript,
+                          bdfd: false,
+                          onChanged: (code) =>
+                              setState(() => draft.jsScript = code),
+                        )
+                      else
+                        Text(
+                          context.l10n.workflowScriptNotice(
+                            _modeLabel(context.tr, draft.executionMode),
+                          ),
+                          style: const TextStyle(color: StudioColors.muted),
                         ),
-                        style: const TextStyle(color: StudioColors.muted),
-                      ),
                     ],
                   ),
           ),

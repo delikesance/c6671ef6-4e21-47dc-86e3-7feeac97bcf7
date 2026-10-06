@@ -13,7 +13,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bot_creator/core/analytics/analytics.dart';
-import 'package:bot_creator/core/i18n/l10n/app_localizations_fr.dart';
+import 'package:bot_creator_ui/src/l10n/app_localizations_fr.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';

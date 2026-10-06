@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_types.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/blueprint/blueprint_layout_engine.dart';

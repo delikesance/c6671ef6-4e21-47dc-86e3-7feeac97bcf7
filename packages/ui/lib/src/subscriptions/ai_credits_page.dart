@@ -34,6 +34,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
   int _offset = 0;
   bool _more = false;
   List<AiCreditsPack> _packs = const [];
+  bool _packsRequested = false;
   String? _packNotice;
   StreamSubscription<AiCreditsPackEvent>? _packEvents;
 
@@ -46,7 +47,6 @@ class _AICreditsPageState extends State<AICreditsPage> {
   void initState() {
     super.initState();
     unawaited(_load());
-    unawaited(_loadPacks());
     _packEvents = _host.packEvents.listen((event) {
       if (!mounted) return;
       switch (event) {
@@ -59,6 +59,16 @@ class _AICreditsPageState extends State<AICreditsPage> {
           setState(() => _packNotice = context.tr.ai_credits_pack_pending);
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // La locale se lit via le contexte : impossible dans initState (Flutter
+    // refuse la lecture d'un InheritedWidget avant la fin de initState).
+    if (_packsRequested) return;
+    _packsRequested = true;
+    unawaited(_loadPacks());
   }
 
   @override
