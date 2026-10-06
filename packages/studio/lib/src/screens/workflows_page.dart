@@ -275,11 +275,19 @@ class _NewWorkflowDialogState extends State<_NewWorkflowDialog> {
               items: [
                 DropdownMenuItem(
                   value: 'general',
-                  child: Text(context.l10n.workflowTypeGeneral),
+                  child: Text(
+                    context.l10n.workflowTypeGeneral,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 DropdownMenuItem(
                   value: 'event',
-                  child: Text(context.tr.scratch_wizard_trigger_event_title),
+                  child: Text(
+                    context.tr.scratch_wizard_trigger_event_title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
               onChanged: (v) => setState(() => _type = v ?? 'general'),
@@ -296,7 +304,11 @@ class _NewWorkflowDialogState extends State<_NewWorkflowDialog> {
                   for (final cat in _categories)
                     DropdownMenuItem(
                       value: cat,
-                      child: Text(workflowEventCategoryLabel(cat)),
+                      child: Text(
+                        workflowEventCategoryLabel(cat),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                 ],
                 onChanged: (value) {
