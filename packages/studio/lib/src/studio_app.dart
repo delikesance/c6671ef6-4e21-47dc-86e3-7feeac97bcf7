@@ -25,6 +25,8 @@ class _StudioAppState extends State<StudioApp> {
   late final AuthController _auth = widget.auth ?? AuthController();
   late final LocaleController _locale = widget.locale ?? LocaleController();
   late final ThemeProvider _theme = ThemeProvider();
+  late final CodeEditorSettingsProvider _codeSettings =
+      CodeEditorSettingsProvider()..load();
 
   @override
   void initState() {
@@ -35,8 +37,13 @@ class _StudioAppState extends State<StudioApp> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<ThemeProvider>.value(
-      value: _theme,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<ThemeProvider>.value(value: _theme),
+        ChangeNotifierProvider<CodeEditorSettingsProvider>.value(
+          value: _codeSettings,
+        ),
+      ],
       child: LocaleScope(
         controller: _locale,
         child: ListenableBuilder(

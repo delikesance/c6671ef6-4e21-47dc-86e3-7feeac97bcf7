@@ -130,3 +130,8 @@ export 'src/widgets/guild_avatar_stack.dart';
 export 'src/theme/theme_provider.dart';
 export 'src/settings/appearance_settings_section.dart';
 export 'src/settings/text_scale_settings_section.dart';
+export 'src/settings/code_editor_settings_card.dart';
+export 'src/history/command_history_host.dart';
+export 'src/history/command_history_sheet.dart';
+export 'src/history/history_version_actions.dart';
+export 'src/history/history_version_preview.dart';
