@@ -2,6 +2,7 @@ import 'package:bot_creator_ui/bot_creator_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
+import 'package:bot_creator_shared/types/workflow_event_definition.dart';
 import 'package:bot_creator_shared/utils/event_catalog.dart';
 
 import '../commands/workflow_draft.dart';
@@ -209,27 +210,32 @@ class _NewWorkflowDialog extends StatefulWidget {
 
 class _NewWorkflowDialogState extends State<_NewWorkflowDialog> {
   final _name = TextEditingController();
-  final _category = TextEditingController(text: 'messages');
-  final _event = TextEditingController(text: 'messageCreate');
+  final _events = EventCatalog.getEvents();
+  late final _categories = <String>{
+    for (final e in _events) e.category,
+  }.toList();
+  String _category = 'messages';
+  String _event = 'messageCreate';
   String _type = 'general';
   String? _error;
 
   @override
   void dispose() {
     _name.dispose();
-    _category.dispose();
-    _event.dispose();
     super.dispose();
   }
+
+  List<WorkflowEventDefinition> _eventsIn(String category) => [
+    for (final e in _events)
+      if (e.category == category) e,
+  ];
 
   void _submit() {
     final draft = WorkflowDraft.blank(
       name: _name.text.trim(),
       type: _type,
-      category: _category.text.trim().isEmpty
-          ? 'messages'
-          : _category.text.trim(),
-      event: _event.text.trim().isEmpty ? 'messageCreate' : _event.text.trim(),
+      category: _category,
+      event: _event,
     );
     final problem = draft.validate();
     if (problem != null) {
@@ -279,18 +285,44 @@ class _NewWorkflowDialogState extends State<_NewWorkflowDialog> {
             ),
             if (_type == 'event') ...[
               const SizedBox(height: 12),
-              TextField(
-                controller: _category,
+              DropdownButtonFormField<String>(
+                initialValue: _category,
                 decoration: InputDecoration(
                   labelText: context.l10n.workflowCategory,
                 ),
+                items: [
+                  for (final cat in _categories)
+                    DropdownMenuItem(
+                      value: cat,
+                      child: Text(workflowEventCategoryLabel(cat)),
+                    ),
+                ],
+                onChanged: (value) {
+                  if (value == null) return;
+                  setState(() {
+                    _category = value;
+                    _event = _eventsIn(value).first.event;
+                  });
+                },
               ),
               const SizedBox(height: 12),
-              TextField(
-                controller: _event,
+              DropdownButtonFormField<String>(
+                key: ValueKey(_category),
+                isExpanded: true,
+                initialValue: _event,
                 decoration: InputDecoration(
                   labelText: context.tr.workflows_type_badge_event,
                 ),
+                items: [
+                  for (final e in _eventsIn(_category))
+                    DropdownMenuItem(
+                      value: e.event,
+                      child: Text(e.label, overflow: TextOverflow.ellipsis),
+                    ),
+                ],
+                onChanged: (value) {
+                  if (value != null) setState(() => _event = value);
+                },
               ),
             ],
             if (_error != null)
