@@ -551,4 +551,10 @@ class StudioLocalizationsJa extends StudioLocalizations {
   @override
   String get webhooksPremiumOnly =>
       '受信Webhookはプレミアムアカウント専用です。サブスクリプションはアプリで管理します。';
+
+  @override
+  String get overviewEngine => 'ランタイム';
+
+  @override
+  String get overviewLive => 'ライブ';
 }

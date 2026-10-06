@@ -562,4 +562,10 @@ class StudioLocalizationsEn extends StudioLocalizations {
   @override
   String get webhooksPremiumOnly =>
       'Inbound webhooks are reserved for Premium accounts. The subscription is managed in the app.';
+
+  @override
+  String get overviewEngine => 'Runtime';
+
+  @override
+  String get overviewLive => 'Live';
 }

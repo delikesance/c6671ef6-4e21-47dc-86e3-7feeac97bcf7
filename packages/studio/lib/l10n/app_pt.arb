@@ -128,5 +128,7 @@
   "validationOptionDescription": "Opção “{name}”: descrição obrigatória (no máximo 100 caracteres).",
   "validationOptionRequiredOrder": "As opções obrigatórias devem vir antes das facultativas (“{name}”).",
   "schedulerPremiumOnly": "O agendador é reservado a contas Premium. A assinatura é gerenciada no app.",
-  "webhooksPremiumOnly": "Os webhooks de entrada são reservados a contas Premium. A assinatura é gerenciada no app."
+  "webhooksPremiumOnly": "Os webhooks de entrada são reservados a contas Premium. A assinatura é gerenciada no app.",
+  "overviewEngine": "Motor",
+  "overviewLive": "Ao vivo"
 }

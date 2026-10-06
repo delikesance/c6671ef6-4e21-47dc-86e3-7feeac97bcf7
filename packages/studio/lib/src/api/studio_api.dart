@@ -41,6 +41,7 @@ class StudioBot {
     this.running = false,
     this.stateKnown = true,
     this.avatarUrl,
+    this.runtimeEngine = 'dart',
   });
 
   final String id;
@@ -50,6 +51,12 @@ class StudioBot {
   /// Image du bot sur Discord, quand le Manager la connaît ; `null` : la carte
   /// affiche l'icône de repli.
   final String? avatarUrl;
+
+  /// `dart` (blocs et BDFD) ou `javascript` (scripts JS seulement) : le moteur
+  /// qui exécute le bot décide des modes d'écriture proposés (comme dans l'app).
+  final String runtimeEngine;
+
+  bool get isJavascript => runtimeEngine == 'javascript';
 
   /// `false` quand la liste n'a donné aucun état : il faut alors interroger
   /// `/status` bot par bot.
@@ -61,6 +68,7 @@ class StudioBot {
     running: running ?? this.running,
     stateKnown: stateKnown ?? this.stateKnown,
     avatarUrl: avatarUrl,
+    runtimeEngine: runtimeEngine,
   );
 }
 
@@ -376,6 +384,15 @@ class StudioApi {
       final avatar =
           _string(map, const ['avatar_url', 'avatar_hash', 'avatar']) ??
           _string(config, const ['avatar_url', 'avatar_hash', 'avatar']);
+      final engine =
+          _string(map, const ['runtimeEngine', 'runtime_engine']) ??
+          _string(config, const ['runtimeEngine']) ??
+          _string(
+            config?['config'] is Map
+                ? Map<String, dynamic>.from(config!['config'] as Map)
+                : null,
+            const ['runtimeEngine'],
+          );
       bots.add(
         StudioBot(
           id: id,
@@ -388,6 +405,10 @@ class StudioApi {
                   runtimeState != 'error'),
           stateKnown: known,
           avatarUrl: botAvatarUrl(id, avatar),
+          // Inconnu = Dart, comme l'app (`getBotRuntimeEngine`).
+          runtimeEngine: engine?.trim().toLowerCase() == 'javascript'
+              ? 'javascript'
+              : 'dart',
         ),
       );
     }
