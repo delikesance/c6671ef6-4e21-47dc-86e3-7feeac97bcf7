@@ -169,9 +169,13 @@ Le Studio n'a plus de palette ni d'éditeur « équivalent » : il importe `bot_
 - **Éditeur JavaScript** : l'éditeur de script de l'app (coloration, autocomplétion discord.js, signatures, diagnostics,
   réglages de la palette) pour les commandes en JavaScript et l'autocomplétion des options.
 
-- **Éditeur BDFD** : l'éditeur de l'app (coloration, autocomplétion, signatures). Le Studio affiche les diagnostics
-  lexicaux et syntaxiques (crochets non fermés, fonctions mal formées) ; la validation complète des arguments de chaque
-  fonction vient du moteur natif, qui ne se compile pas pour le web (l'app la garde via `BdfdEditorHooks`).
+- **Éditeur BDFD** : le Studio utilise l'éditeur partagé (coloration, autocomplétion, signatures) et les **mêmes
+  diagnostics que l'app**, y compris la validation native des arguments de chaque fonction (fonction inconnue ou non
+  prise en charge, mauvais nombre d'arguments, branches non prises comprises). Le moteur complet dépend de nyxx
+  (`dart:ffi`) et ne se compile pas pour le web : la validation passe par `bot_creator_shared/bdfd_validation.dart`
+  (`bdfdNativeDiagnostics`), qui s'appuie sur une table des signatures générée depuis le registre réel
+  (`dart run tool/gen_bdfd_signatures.dart` dans `packages/shared`). Un test de `shared` échoue si la table dérive du
+  moteur ; le branchement du Studio est `lib/src/editor/bdfd_hooks.dart`.
 
 - **Planificateur** : l'écran de l'app (déclencheurs, activation, limite du forfait), via les routes
   `scheduled-triggers` du Manager.

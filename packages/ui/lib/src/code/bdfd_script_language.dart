@@ -299,9 +299,10 @@ class BdfdScriptLanguage implements ScriptEditorLanguage {
 
 /// Diagnostics BDFD. Par défaut : l'analyse lexicale et syntaxique du moteur,
 /// qui ne dépend que de Dart pur (donc disponible sur le web) — parenthèses et
-/// crochets non fermés, fonctions mal formées. L'app y substitue la validation
-/// complète du moteur natif (arguments attendus de chaque fonction), qui ne se
-/// compile pas pour le web.
+/// crochets non fermés, fonctions mal formées. L'app et le Studio y substituent
+/// la validation complète du moteur natif (`bdfdNativeDiagnostics` de
+/// `bot_creator_shared/bdfd_validation.dart`, web-safe : arguments attendus de
+/// chaque fonction).
 abstract final class BdfdEditorHooks {
   static List<EditorDiagnostic> Function(String source, String backend)
   diagnostics = syntaxDiagnostics;

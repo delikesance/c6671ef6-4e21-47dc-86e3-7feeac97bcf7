@@ -318,6 +318,11 @@ class BdfdEngine {
 
   Set<String> get supportedFunctions => _runtime.supportedFunctions;
 
+  /// Argument signatures of every registered function. Source of the table the
+  /// web-safe validator in `bdfd_validation.dart` is generated from.
+  Map<String, BdfdFunctionSignature> get functionSignatures =>
+      _runtime.functionSignatures;
+
   /// Entry points can preflight source without performing any bot effects.
   BdfdProgram prepare(String source) => _runtime.prepare(source);
 

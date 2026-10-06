@@ -10,8 +10,9 @@ import '../screens/workflows_page.dart';
 
 /// [EditorHost] du Studio : tout passe par l'API du Manager.
 ///
-/// Pas d'éditeur BDFD ni d'éditeur d'image pour l'instant : les champs
-/// correspondants restent éditables en texte (`supportsBdfdEditor` = faux).
+/// L'éditeur BDFD est celui de `bot_creator_ui` (diagnostics branchés dans
+/// `bdfd_hooks.dart`) ; pas d'éditeur d'image pour l'instant : ce champ reste
+/// éditable en texte.
 class StudioEditorHost extends EditorHost {
   const StudioEditorHost({required this.api, required this.bot});
 
