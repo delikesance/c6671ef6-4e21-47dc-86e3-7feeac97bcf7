@@ -256,7 +256,7 @@ class _BotsPageState extends State<BotsPage> {
             else if (_error != null && bots == null)
               ErrorNotice(message: '$_error', onRetry: _load)
             else if (bots == null || bots.isEmpty)
-              const _EmptyBots()
+              _EmptyBots(onCreate: _create)
             else
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -431,7 +431,9 @@ class BotCard extends StatelessWidget {
 }
 
 class _EmptyBots extends StatelessWidget {
-  const _EmptyBots();
+  const _EmptyBots({required this.onCreate});
+
+  final VoidCallback onCreate;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -452,7 +454,14 @@ class _EmptyBots extends StatelessWidget {
           SizedBox(height: 8),
           Text(
             context.l10n.botsEmptyHint,
+            textAlign: TextAlign.center,
             style: TextStyle(color: StudioColors.muted, fontSize: 13),
+          ),
+          SizedBox(height: 20),
+          FilledButton.icon(
+            onPressed: onCreate,
+            icon: const AppIcon.fromMaterial(Icons.add_rounded, size: 18),
+            label: Text(context.l10n.botsCreate),
           ),
         ],
       ),

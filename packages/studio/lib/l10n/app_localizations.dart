@@ -523,7 +523,7 @@ abstract class StudioLocalizations {
   /// No description provided for @botsEmptyHint.
   ///
   /// In en, this message translates to:
-  /// **'Create your first bot from the Bot Creator app: it will show up here.'**
+  /// **'Create your first bot with the “Create a bot” button: it will show up here.'**
   String get botsEmptyHint;
 
   /// No description provided for @hostingIncludedTitle.

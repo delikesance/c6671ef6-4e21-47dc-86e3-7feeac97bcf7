@@ -54,6 +54,7 @@
   "botStop": "Durdur",
   "botStart": "Botu Başlat",
   "botsEmptyTitle": "Henüz uygulamanız yok.",
+  "botsEmptyHint": "“Bot oluştur” düğmesiyle ilk botunu oluştur: burada görünecek.",
   "hostingIncludedTitle": "Barındırma dahil",
   "hostingIncludedValue": "Aboneliğinle sınırsız",
   "hostingRemainingTitle": "Kalan süre",

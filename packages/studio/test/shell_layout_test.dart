@@ -19,14 +19,18 @@ const _command = '''
             {"id":"a2","type":"respondWithMessage","payload":{"content":"Banni."}}]}},
  "revision":"r1"}''';
 
+/// Le serveur ne connaît aucun bot (état vide de l'accueil).
+bool _noBots = false;
+
 http.Response _route(http.Request r) {
   final p = r.url.path;
   String body;
   if (p == '/gateway/runtime') {
     body = '{"plan":"FREE"}';
   } else if (p == '/gateway/bots') {
-    body =
-        '{"bots":[{"bot_id":"1","bot_name":"Modération","runtime_state":"running"}]}';
+    body = _noBots
+        ? '{"bots":[]}'
+        : '{"bots":[{"bot_id":"1","bot_name":"Modération","runtime_state":"running"}]}';
   } else if (p == '/gateway/bots/1/runtime') {
     body = '{"funding_mode":"free","free_minutes_balance":90}';
   } else if (p == '/gateway/bots/1/logs') {
@@ -278,4 +282,23 @@ void main() {
     expect(find.text('CRÉATION'), findsOneWidget);
     await _dispose(tester);
   });
+
+  // Régression : en grand écran la `Row` du shell centrait verticalement toute
+  // page plus courte que la fenêtre (le titre flottait au milieu de l'écran).
+  for (final empty in [false, true]) {
+    testWidgets("grand écran : l'accueil reste en haut de la page "
+        '(${empty ? 'aucun bot' : 'des bots'})', (tester) async {
+      _noBots = empty;
+      addTearDown(() => _noBots = false);
+      await _pumpApp(tester, const Size(1912, 920));
+      final top = tester.getTopLeft(find.text('Mes bots').first).dy;
+      expect(top, lessThan(120), reason: 'titre à $top px du haut');
+      if (empty) {
+        // L'état vide propose de créer un bot (et ne renvoie plus vers l'app).
+        expect(find.text('Créer un bot'), findsNWidgets(2));
+        expect(find.textContaining("depuis l'app Bot Creator"), findsNothing);
+      }
+      await _dispose(tester);
+    });
+  }
 }

@@ -54,6 +54,7 @@
   "botStop": "Stopp",
   "botStart": "Bot starten",
   "botsEmptyTitle": "Sie haben noch keine Apps.",
+  "botsEmptyHint": "Erstelle deinen ersten Bot mit „Bot erstellen“: Er erscheint dann hier.",
   "hostingIncludedTitle": "Hosting inklusive",
   "hostingIncludedValue": "Unbegrenzt mit deinem Abo",
   "hostingRemainingTitle": "Verbleibende Zeit",
