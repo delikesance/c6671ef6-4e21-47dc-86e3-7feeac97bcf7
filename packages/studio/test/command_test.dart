@@ -109,62 +109,6 @@ void main() {
     });
 
     test(
-      'déclencheurs planifiés : PUT par identifiant, DELETE, liste',
-      () async {
-        final calls = <String>[];
-        final a = api(
-          MockClient((r) async {
-            calls.add('${r.method} ${r.url.path}');
-            return http.Response(
-              '{"triggers":[{"id":"t1","workflowName":"w","everyMinutes":5}]}',
-              200,
-            );
-          }),
-        );
-        expect((await a.listScheduledTriggers('1')).single['id'], 't1');
-        await a.saveScheduledTrigger('1', 't1', {
-          'workflowName': 'w',
-          'everyMinutes': 5,
-        });
-        await a.deleteScheduledTrigger('1', 't1');
-        expect(calls, [
-          'GET /api/v2/bots/1/scheduled-triggers',
-          'PUT /api/v2/bots/1/scheduled-triggers/t1',
-          'DELETE /api/v2/bots/1/scheduled-triggers/t1',
-        ]);
-      },
-    );
-
-    test(
-      'webhooks entrants : le secret généré revient une fois, jamais relu',
-      () async {
-        final a = api(
-          MockClient((r) async {
-            if (r.method == 'PUT') {
-              return http.Response(
-                '{"webhook":{"id":"w1","has_secret":true},"generated_secret":"abc"}',
-                200,
-              );
-            }
-            return http.Response(
-              '{"webhooks":[{"id":"w1","path":"p","workflowName":"w","has_secret":true}]}',
-              200,
-            );
-          }),
-        );
-        expect(
-          await a.saveInboundWebhook('1', 'w1', {
-            'path': 'p',
-            'workflowName': 'w',
-          }),
-          'abc',
-        );
-        final list = await a.listInboundWebhooks('1');
-        expect(list.single.containsKey('secret'), isFalse);
-      },
-    );
-
-    test(
       'ressources Discord : serveurs, émojis (lecture, création, suppression)',
       () async {
         final calls = <String>[];

@@ -40,18 +40,6 @@ List<(String, List<_Module>)> _groups(StudioLocalizations l) => [
     ],
   ),
   (
-    l.modulesGroupAutomation,
-    [
-      _Module(
-        'sched',
-        l.modulesScheduler,
-        l.modulesDescScheduler,
-        Icons.schedule_rounded,
-      ),
-      _Module('hooks', l.navHooks, l.modulesDescHooks, Icons.webhook_rounded),
-    ],
-  ),
-  (
     l.modulesGroupManagement,
     [
       _Module('team', l.navTeam, l.modulesDescTeam, Icons.groups_outlined),
@@ -61,18 +49,6 @@ List<(String, List<_Module>)> _groups(StudioLocalizations l) => [
   (
     l.modulesGroupTools,
     [
-      _Module(
-        'dash',
-        l.navDashboard,
-        l.modulesDescDashboard,
-        Icons.bar_chart_rounded,
-      ),
-      _Module(
-        'replay',
-        l.navReplay,
-        l.modulesDescReplay,
-        Icons.bug_report_outlined,
-      ),
       _Module(
         'copilot',
         l.navCopilot,

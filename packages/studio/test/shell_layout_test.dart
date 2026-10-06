@@ -174,7 +174,10 @@ void main() {
     await tester.tap(find.text('Modules'));
     await _settle(tester);
     expect(find.text('CRÉATION'), findsOneWidget);
-    expect(find.text('AUTOMATISATION'), findsOneWidget);
+    expect(find.text('GESTION'), findsOneWidget);
+    // Ni Planif, ni Webhooks entrants, ni Tableau de bord, ni Rejeu.
+    expect(find.text('AUTOMATISATION'), findsNothing);
+    expect(find.text('Tableau de bord'), findsNothing);
     expect(tester.takeException(), isNull);
 
     await tester.tap(find.text('Variables'));
@@ -187,14 +190,6 @@ void main() {
     ); // « ‹ Modules » : retour liste
     await _settle(tester);
     expect(find.text('CRÉATION'), findsOneWidget);
-
-    // La ligne est sous le pli de l'écran : on la fait défiler avant de la toucher.
-    await tester.ensureVisible(find.text('Tableau de bord'));
-    await _settle(tester);
-    await tester.tap(find.text('Tableau de bord'));
-    await _settle(tester);
-    expect(find.text('Analytics Premium'), findsOneWidget);
-    expect(tester.takeException(), isNull);
     await _dispose(tester);
   });
 
@@ -219,7 +214,7 @@ void main() {
     await _dispose(tester);
   });
 
-  testWidgets('grand écran : rail, et le mode débutant masque les onglets', (
+  testWidgets('grand écran : un rail court, les modules derrière « Modules »', (
     tester,
   ) async {
     await _pumpApp(tester, desktop);
@@ -227,57 +222,60 @@ void main() {
     await _settle(tester);
 
     expect(find.text('Commandes'), findsOneWidget); // rail
-    expect(find.text('Vars'), findsOneWidget);
-    expect(find.text('Planif'), findsOneWidget);
+    expect(find.text('Copilote IA'), findsOneWidget);
+    expect(find.text('Modules'), findsOneWidget);
+    expect(find.text('Paramètres'), findsOneWidget);
+    for (final gone in [
+      'Vars',
+      'Flux',
+      'Équipe',
+      'Planif',
+      'Webhooks entrants',
+      'Tableau de bord',
+      'Mode débutant',
+    ]) {
+      expect(find.text(gone), findsNothing, reason: gone);
+    }
     expect(find.text('Cmd'), findsNothing); // pas de barre du bas
 
-    await tester.tap(find.text('Mode débutant'));
+    await tester.tap(find.text('Modules'));
     await _settle(tester);
-    expect(find.text('Vars'), findsNothing);
-    expect(find.text('Planif'), findsNothing);
-    expect(find.text('Équipe'), findsNothing);
-    expect(find.text('Commandes'), findsOneWidget);
-    expect(find.text('Copilote IA'), findsOneWidget);
+    expect(find.text('CRÉATION'), findsOneWidget);
+    expect(find.text('AUTOMATISATION'), findsNothing);
     expect(tester.takeException(), isNull);
 
-    await tester.tap(find.text('Mode débutant'));
+    await tester.tap(find.text('Variables'));
     await _settle(tester);
-    expect(find.text('Vars'), findsOneWidget);
+    expect(find.text('score'), findsOneWidget);
+
+    // Le rail ramène à la liste des modules.
+    await tester.tap(find.text('Modules').first);
+    await _settle(tester);
+    expect(find.text('score'), findsNothing);
+    expect(find.text('CRÉATION'), findsOneWidget);
     await _dispose(tester);
   });
 
-  testWidgets('grand écran : sortir du mode débutant depuis un onglet masqué', (
+  testWidgets('grand écran : le mode débutant se règle depuis Modules', (
     tester,
   ) async {
     await _pumpApp(tester, desktop);
     await tester.tap(find.text('Gérer'));
     await _settle(tester);
-    await tester.tap(find.text('Vars'));
+    await tester.tap(find.text('Modules'));
     await _settle(tester);
-    expect(find.text('score'), findsOneWidget);
 
-    await tester.tap(find.text('Mode débutant'));
+    await tester.tap(find.byType(Switch));
     await _settle(tester);
-    // On ne reste pas sur un onglet que le mode débutant masque.
-    expect(find.text('score'), findsNothing);
-    expect(find.text('JOURNAUX'), findsOneWidget);
+    expect(find.text('CRÉATION'), findsNothing);
+    expect(find.text('Commandes'), findsOneWidget);
+    expect(find.text('Copilote IA'), findsOneWidget);
+    expect(find.text('Modules'), findsWidgets); // reste dans le rail
     expect(tester.takeException(), isNull);
-    await _dispose(tester);
-  });
 
-  testWidgets('grand écran : le rejeu du débogueur est un onglet du bot, '
-      'verrouillé sur un compte gratuit', (tester) async {
-    final fr = await AppLocalizations.delegate.load(const Locale('fr'));
-    // Rail haut : les entrées du bas sont construites paresseusement.
-    await _pumpApp(tester, const Size(1280, 1600));
-    await tester.tap(find.text('Gérer'));
+    await tester.tap(find.byType(Switch));
     await _settle(tester);
-
-    await tester.tap(find.text(fr.debug_replay_title));
-    await _settle(tester);
-    expect(find.text(fr.debug_replay_premium_title), findsOneWidget);
-    expect(find.text(fr.debug_replay_start_capture), findsNothing);
-    expect(tester.takeException(), isNull);
+    expect(find.text('CRÉATION'), findsOneWidget);
     await _dispose(tester);
   });
 }

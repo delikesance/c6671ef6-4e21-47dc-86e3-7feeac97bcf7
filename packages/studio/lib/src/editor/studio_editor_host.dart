@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import '../api/studio_api.dart';
 import '../commands/action_list.dart';
-import '../l10n_ext.dart';
 import '../screens/variables_page.dart';
 import '../screens/workflows_page.dart';
 
@@ -116,115 +115,6 @@ class StudioEditorHost extends EditorHost {
         MaterialPageRoute(
           builder: (_) => Scaffold(appBar: AppBar(), body: page),
         ),
-      );
-}
-
-/// Planificateur du Studio : les déclencheurs passent par l'API du Manager.
-class StudioSchedulerController extends SchedulerController {
-  const StudioSchedulerController({
-    required this.api,
-    required this.botId,
-    required this.available,
-  });
-
-  final StudioApi api;
-  final String botId;
-
-  /// Le forfait du compte ouvre le planificateur.
-  final bool available;
-
-  @override
-  Future<List<Map<String, dynamic>>> triggers() =>
-      api.listScheduledTriggers(botId);
-
-  @override
-  Future<List<Map<String, dynamic>>> workflows() async => [
-    for (final w in await api.listWorkflows(botId))
-      {'name': w.name, 'workflowType': w.type},
-  ];
-
-  @override
-  Future<void> save({
-    required String workflowName,
-    required int everyMinutes,
-    required bool enabled,
-    String? triggerId,
-    String? label,
-  }) => api.saveScheduledTrigger(botId, triggerId ?? newStorageId(), {
-    'workflowName': workflowName,
-    'everyMinutes': everyMinutes,
-    'enabled': enabled,
-    'label': ?label,
-  });
-
-  @override
-  Future<void> delete(String triggerId) =>
-      api.deleteScheduledTrigger(botId, triggerId);
-
-  @override
-  bool get hasCapability => available;
-
-  @override
-  Widget? upsell(BuildContext context, Future<void> Function() reload) =>
-      Padding(
-        padding: const EdgeInsets.only(top: 12),
-        child: Text(context.l10n.schedulerPremiumOnly),
-      );
-}
-
-/// Webhooks entrants du Studio : le secret n'est jamais relu (le Manager ne le
-/// renvoie pas) ; un secret laissé vide est conservé, ou généré par le serveur
-/// à la création et montré une seule fois.
-class StudioInboundWebhooksController extends InboundWebhooksController {
-  const StudioInboundWebhooksController({
-    required this.api,
-    required this.botId,
-    required this.available,
-  });
-
-  final StudioApi api;
-  final String botId;
-  final bool available;
-
-  @override
-  Future<List<Map<String, dynamic>>> webhooks() =>
-      api.listInboundWebhooks(botId);
-
-  @override
-  Future<List<Map<String, dynamic>>> workflows() async => [
-    for (final w in await api.listWorkflows(botId))
-      {'name': w.name, 'workflowType': w.type},
-  ];
-
-  @override
-  Future<String?> save({
-    required String path,
-    required String workflowName,
-    required String? secret,
-    required bool enabled,
-    String? webhookId,
-  }) => api.saveInboundWebhook(botId, webhookId ?? newStorageId(), {
-    'path': path,
-    'workflowName': workflowName,
-    'enabled': enabled,
-    'secret': ?secret,
-  });
-
-  @override
-  Future<void> delete(String webhookId) =>
-      api.deleteInboundWebhook(botId, webhookId);
-
-  @override
-  bool get secretReadable => false;
-
-  @override
-  bool get hasCapability => available;
-
-  @override
-  Widget? upsell(BuildContext context, Future<void> Function() reload) =>
-      Padding(
-        padding: const EdgeInsets.only(top: 12),
-        child: Text(context.l10n.webhooksPremiumOnly),
       );
 }
 

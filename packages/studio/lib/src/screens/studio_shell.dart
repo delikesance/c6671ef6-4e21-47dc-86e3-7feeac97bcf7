@@ -7,18 +7,15 @@ import '../auth/studio_session.dart';
 import '../l10n_ext.dart';
 import '../layout.dart';
 import '../locale_controller.dart';
-import '../editor/studio_debug_replay_host.dart';
 import '../editor/studio_editor_host.dart';
 import '../editor/studio_hosted_containers_host.dart';
 import '../editor/studio_subscriptions_host.dart';
 import '../editor/studio_team_chat_host.dart';
-import '../premium/studio_feature.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 import 'beginner_mode.dart';
 import 'bots_page.dart';
 import 'commands_page.dart';
-import 'dashboard_page.dart';
 import 'modules_page.dart';
 import 'overview_page.dart';
 import 'variables_page.dart';
@@ -29,8 +26,9 @@ import 'guilds_page.dart';
 /// Coque connectée : accueil ou éditeur d'un bot. Jamais montrée sans session
 /// valide.
 ///
-/// Grand écran : rail latéral de 84 px. Téléphone (< 720 px) : barre du bas et
-/// page « Modules » qui regroupe les onglets secondaires, comme l'app.
+/// Grand écran : rail latéral de 84 px. Téléphone (< 720 px) : barre du bas.
+/// Dans les deux cas les onglets secondaires sont regroupés derrière « Modules »
+/// (et le mode débutant s'y règle) : la navigation reste courte.
 class StudioShell extends StatefulWidget {
   const StudioShell({super.key, required this.auth});
 
@@ -56,7 +54,7 @@ class _StudioShellState extends State<StudioShell> {
   String _homeSection = 'home';
   String _editorSection = 'overview';
 
-  /// Téléphone : module ouvert depuis la page « Modules » (`null` = la liste).
+  /// Module ouvert depuis la page « Modules » (`null` = la liste).
   String? _module;
 
   @override
@@ -93,7 +91,7 @@ class _StudioShellState extends State<StudioShell> {
   Widget _buildShell(BuildContext context) {
     final bot = _bot;
     final compact = isCompact(context);
-    final body = bot == null ? _homeBody() : _editorBody(bot, compact);
+    final body = bot == null ? _homeBody() : _editorBody(bot);
     if (compact) {
       return Scaffold(
         body: SafeArea(
@@ -207,17 +205,7 @@ class _StudioShellState extends State<StudioShell> {
       _NavEntry('overview', l.navHome, Icons.dashboard_rounded),
       _NavEntry('copilot', l.navCopilot, Icons.auto_awesome_outlined),
       _NavEntry('commands', l.navCommands, Icons.terminal_rounded),
-      null,
-      _NavEntry('flows', l.navFlows, Icons.account_tree_outlined),
-      _NavEntry('vars', l.navVars, Icons.data_object_rounded),
-      _NavEntry('sched', l.navSched, Icons.schedule_rounded),
-      _NavEntry('hooks', l.navHooks, Icons.webhook_rounded),
-      _NavEntry('emojis', l.navEmojis, Icons.emoji_emotions_outlined),
-      _NavEntry('team', l.navTeam, Icons.groups_outlined),
-      _NavEntry('guilds', l.navGuilds, Icons.dns_outlined),
-      null,
-      _NavEntry('dash', l.navDashboard, Icons.bar_chart_rounded),
-      _NavEntry('replay', l.navReplay, Icons.bug_report_outlined),
+      _NavEntry('modules', l.navModules, Icons.widgets_outlined),
     ];
   }
 
@@ -238,7 +226,9 @@ class _StudioShellState extends State<StudioShell> {
     for (final e in _editorItems(context)) {
       if (e == null) {
         if (out.isNotEmpty && out.last != null) out.add(null);
-      } else if (e.id == 'back' || _beginner.isVisible(e.id)) {
+      } else if (e.id == 'back' ||
+          e.id == 'modules' ||
+          _beginner.isVisible(e.id)) {
         out.add(e);
       }
     }
@@ -272,21 +262,21 @@ class _StudioShellState extends State<StudioShell> {
       sections: sections,
       activeItemId: _editorSection,
       showBackButton: true,
-      showBeginnerMode: true,
-      beginnerMode: _beginner.enabled,
-      onBeginnerModeChanged: _beginner.set,
       pinnedItem: EditorSidebarItem(
         id: 'settings',
         icon: Icons.settings_outlined,
         label: l.navSettings,
       ),
       onBack: _leaveBot,
-      onSelectItem: (id) => setState(() => _editorSection = id),
+      onSelectItem: (id) => setState(() {
+        _editorSection = id;
+        _module = null;
+      }),
     );
   }
 
-  Widget _editorBody(StudioBot bot, bool compact) {
-    if (compact && _editorSection == 'modules') {
+  Widget _editorBody(StudioBot bot) {
+    if (_editorSection == 'modules') {
       final open = _module;
       if (open == null) {
         return ModulesPage(
@@ -307,7 +297,6 @@ class _StudioShellState extends State<StudioShell> {
 
   Widget _sectionBody(StudioBot bot, String section) {
     final api = widget.auth.api;
-    final plan = widget.auth.plan;
     switch (section) {
       case 'commands':
         return CommandsPage(
@@ -319,13 +308,6 @@ class _StudioShellState extends State<StudioShell> {
         );
       case 'overview':
         return OverviewPage(key: ValueKey(bot.id), api: api, bot: bot);
-      case 'dash':
-        return DashboardPage(
-          key: ValueKey(bot.id),
-          api: api,
-          bot: bot,
-          plan: plan,
-        );
       case 'copilot':
         return CopilotPage(key: ValueKey(bot.id), api: api, bot: bot);
       case 'flows':
@@ -343,12 +325,6 @@ class _StudioShellState extends State<StudioShell> {
           // La barre de navigation du Studio est hors de la page.
           reserveNavBarClearance: false,
         );
-      case 'replay':
-        return DebugReplayPage(
-          key: ValueKey('replay-${bot.id}'),
-          botId: bot.id,
-          host: StudioDebugReplayHost(api, plan: plan),
-        );
       case 'guilds':
         return GuildsPage(
           key: ValueKey('guilds-${bot.id}'),
@@ -359,24 +335,6 @@ class _StudioShellState extends State<StudioShell> {
         return EmojisView(
           key: ValueKey('emojis-${bot.id}'),
           controller: StudioEmojisController(api: api, botId: bot.id),
-        );
-      case 'sched':
-        return SchedulerView(
-          key: ValueKey('sched-${bot.id}'),
-          controller: StudioSchedulerController(
-            api: api,
-            botId: bot.id,
-            available: StudioFeature.scheduler.isAvailableFor(plan),
-          ),
-        );
-      case 'hooks':
-        return InboundWebhooksView(
-          key: ValueKey('hooks-${bot.id}'),
-          controller: StudioInboundWebhooksController(
-            api: api,
-            botId: bot.id,
-            available: StudioFeature.inboundWebhooks.isAvailableFor(plan),
-          ),
         );
       default:
         return ComingSoon(title: _titleOf(section));

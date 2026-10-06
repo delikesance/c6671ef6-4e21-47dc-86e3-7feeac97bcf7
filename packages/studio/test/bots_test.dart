@@ -145,4 +145,67 @@ void main() {
     expect(kept.label, 'Temps préservé');
     expect(kept.value, 'Réserve : 45 min');
   });
+
+  test(
+    'avatar : lu dans la config du bot, résolu sur le CDN Discord',
+    () async {
+      final api = _api(
+        MockClient(
+          (_) async => http.Response('''
+{"bots":[
+ {"bot_id":"7","bot_name":"A","config":{"avatar_hash":"abc123"}},
+ {"bot_id":"8","bot_name":"B","avatar_url":"https://img.test/b.png"},
+ {"bot_id":"9","bot_name":"C"}
+]}''', 200),
+        ),
+      );
+      final bots = await api.listBots();
+      expect(
+        bots[0].avatarUrl,
+        'https://cdn.discordapp.com/avatars/7/abc123.png?size=128',
+      );
+      expect(bots[1].avatarUrl, 'https://img.test/b.png');
+      expect(bots[2].avatarUrl, isNull);
+      // La relecture de /status ne perd pas l'avatar.
+      expect(bots[0].copyWith(running: true).avatarUrl, bots[0].avatarUrl);
+    },
+  );
+
+  test(
+    'décompte : échéance du serveur, sinon solde compté depuis la lecture',
+    () {
+      final l = lookupStudioLocalizations(const Locale('fr'));
+      const running = StudioBot(id: '1', name: 'A', running: true);
+      final now = DateTime(2026, 1, 1, 12);
+      final deadline = now.add(const Duration(hours: 2));
+      expect(
+        hostingCopy(
+          l,
+          running,
+          StudioBotRuntime(sessionExpiresAt: deadline),
+          now: now,
+        )!.deadline,
+        deadline,
+      );
+      expect(
+        hostingCopy(
+          l,
+          running,
+          const StudioBotRuntime(freeMinutes: 90),
+          now: now,
+        )!.deadline,
+        now.add(const Duration(minutes: 90)),
+      );
+      // Bot arrêté : la réserve ne s'écoule pas.
+      expect(
+        hostingCopy(
+          l,
+          const StudioBot(id: '1', name: 'A'),
+          const StudioBotRuntime(freeMinutes: 90),
+          now: now,
+        )!.deadline,
+        isNull,
+      );
+    },
+  );
 }
