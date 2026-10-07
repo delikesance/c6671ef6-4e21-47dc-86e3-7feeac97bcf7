@@ -29,10 +29,15 @@ ToolResult _fail(String message) => {
 /// documentation. Pas de BDFD, de JavaScript ni de bac à sable local : le modèle
 /// ne les propose donc jamais.
 class CopilotTools {
-  CopilotTools(this.api, {http.Client? docsClient})
+  CopilotTools(this.api, {this.javascript = false, http.Client? docsClient})
     : _docs = docsClient ?? http.Client();
 
   final StudioApi api;
+
+  /// Le bot de la conversation tourne sur le moteur JavaScript : le langage
+  /// suit le moteur du bot, jamais le choix du modèle.
+  final bool javascript;
+  String get _engine => javascript ? 'javascript' : 'dart';
   final http.Client _docs;
 
   /// Outils exécutés par le SERVEUR après approbation (le client ne fait rien).
@@ -108,11 +113,11 @@ class CopilotTools {
         case 'local_set_variable':
           return _ok(await _setVariable(botId, args));
       }
-      return _fail('Outil non disponible dans le Studio : $name.');
+      return _fail('Tool not available in the Studio: $name.');
     } on StudioApiException catch (e) {
       return _fail(
         e.statusCode == 409
-            ? 'Révision périmée : relisez la ressource et réessayez avec sa révision actuelle.'
+            ? 'Stale revision: re-read the resource and retry with its current revision.'
             : e.message,
       );
     } on FormatException catch (e) {
@@ -133,6 +138,8 @@ class CopilotTools {
           if (wanted.isEmpty || c.name.toLowerCase() == wanted)
             {'id': c.id, 'name': c.name, 'trigger': c.trigger},
       ],
+      'runtime_engine': _engine,
+      'execution_mode': _defaultMode,
     };
   }
 
@@ -151,13 +158,13 @@ class CopilotTools {
   List<Map<String, dynamic>> _actions(Object? json) {
     final decoded = json is String ? jsonDecode(json) : json;
     if (decoded is! List) {
-      throw const FormatException('actions_json doit être un tableau JSON.');
+      throw const FormatException('actions_json must be a JSON array.');
     }
     final out = <Map<String, dynamic>>[];
     for (final item in decoded) {
       if (item is! Map || '${item['type'] ?? ''}'.isEmpty) {
         throw const FormatException(
-          'Chaque bloc doit avoir un "type" et un "payload".',
+          'Each block needs a "type" and a "payload".',
         );
       }
       out.add({
@@ -168,24 +175,42 @@ class CopilotTools {
             : <String, dynamic>{},
       });
     }
-    if (out.length > 80) throw const FormatException('80 blocs au maximum.');
+    if (out.length > 80) throw const FormatException('At most 80 blocks.');
     return out;
   }
 
-  void _requireVisual(Map<String, dynamic> args) {
-    final mode = '${args['execution_mode'] ?? 'workflow'}';
-    if (mode != 'workflow') {
-      throw const FormatException(
-        'Le Studio ne crée que des commandes et workflows visuels (execution_mode workflow).',
+  String get _defaultMode => javascript ? 'javascript' : 'workflow';
+
+  /// Le mode d'exécution demandé, ramené au seul mode que le moteur du bot sait
+  /// exécuter. Absent, il vaut le mode du bot : le modèle n'a pas à le deviner.
+  String _requireMode(Map<String, dynamic> args) {
+    final requested = '${args['execution_mode'] ?? ''}'.trim();
+    final mode = requested.isEmpty ? _defaultMode : requested;
+    if (mode != _defaultMode) {
+      throw FormatException(
+        javascript
+            ? 'This bot runs JavaScript: write the script in JavaScript (execution_mode javascript + script), not blocks or BDFD.'
+            : 'For a Dart bot the Studio only creates visual commands and workflows (execution_mode workflow).',
       );
     }
+    return mode;
+  }
+
+  String _script(Map<String, dynamic> args) {
+    final script = '${args['script'] ?? ''}';
+    if (script.trim().isEmpty) {
+      throw const FormatException(
+        'A JavaScript bot needs a non-empty script (script parameter).',
+      );
+    }
+    return script;
   }
 
   Future<Object?> _createCommand(
     String botId,
     Map<String, dynamic> args,
   ) async {
-    _requireVisual(args);
+    final mode = _requireMode(args);
     final draft = CommandDraft.blank(
       name: '${args['name'] ?? ''}'.trim(),
       description: '${args['description'] ?? ''}'.trim(),
@@ -195,7 +220,13 @@ class CopilotTools {
     if (problem != null) throw FormatException(problem.inLanguage('fr'));
     final raw = draft.toRaw();
     final data = Map<String, dynamic>.from(raw['data'] as Map);
-    data['actions'] = _actions(args['actions_json'] ?? '[]');
+    if (mode == 'javascript') {
+      data['executionMode'] = 'javascript';
+      data['jsScriptContent'] = _script(args);
+      data['actions'] = <dynamic>[];
+    } else {
+      data['actions'] = _actions(args['actions_json'] ?? '[]');
+    }
     if (args['options'] is List) data['options'] = args['options'];
     raw['data'] = data;
     final revision = await api.saveCommand(botId, '${raw['id']}', raw);
@@ -206,13 +237,18 @@ class CopilotTools {
     String botId,
     Map<String, dynamic> args,
   ) async {
-    _requireVisual(args);
+    final mode = _requireMode(args);
     final id = '${args['command_id']}';
     final detail = await api.getCommand(botId, id);
     final raw = Map<String, dynamic>.from(detail.raw);
     final data = Map<String, dynamic>.from((raw['data'] as Map?) ?? {});
-    data['actions'] = _actions(args['actions_json'] ?? '[]');
-    data['executionMode'] = 'workflow';
+    if (mode == 'javascript') {
+      data['jsScriptContent'] = _script(args);
+      data['actions'] = <dynamic>[];
+    } else {
+      data['actions'] = _actions(args['actions_json'] ?? '[]');
+    }
+    data['executionMode'] = mode;
     raw['data'] = data;
     final revision = await api.saveCommand(
       botId,
@@ -250,11 +286,24 @@ class CopilotTools {
     Map<String, dynamic> args, {
     required bool create,
   }) async {
-    _requireVisual(args);
+    if (javascript) {
+      throw const FormatException(
+        'This bot runs JavaScript: visual workflows do not apply to it (only JavaScript commands and events).',
+      );
+    }
+    _requireMode(args);
     final name = '${args['name'] ?? ''}'.trim();
-    if (name.isEmpty) throw const FormatException('Le nom est requis.');
+    if (name.isEmpty) throw const FormatException('The name is required.');
     Map<String, dynamic> raw;
     if (create) {
+      // Un workflow du même nom serait écrasé sans le dire (la route enregistre
+      // par nom) : on refuse et on demande de le mettre à jour.
+      final existing = await api.listWorkflows(botId);
+      if (existing.any((w) => w.name.toLowerCase() == name.toLowerCase())) {
+        throw FormatException(
+          'The workflow "$name" already exists: use local_update_workflow with its revision.',
+        );
+      }
       raw = {
         'name': name,
         'workflowType': args['workflow_type'] ?? 'general',
@@ -264,7 +313,14 @@ class CopilotTools {
         'actions': <dynamic>[],
       };
     } else {
-      raw = Map<String, dynamic>.from((await api.getWorkflow(botId, name)).raw);
+      final current = await api.getWorkflow(botId, name);
+      final expected = '${args['expected_revision'] ?? ''}';
+      if (expected.isNotEmpty && '${current.revision}' != expected) {
+        throw const FormatException(
+          'Stale revision: re-read the workflow and retry with its current revision.',
+        );
+      }
+      raw = Map<String, dynamic>.from(current.raw);
       if (args['workflow_type'] != null) {
         raw['workflowType'] = args['workflow_type'];
       }
@@ -284,7 +340,7 @@ class CopilotTools {
 
   Future<Object?> _setVariable(String botId, Map<String, dynamic> args) async {
     final key = '${args['key'] ?? ''}'.trim();
-    if (key.isEmpty) throw const FormatException('La clé est requise.');
+    if (key.isEmpty) throw const FormatException('The key is required.');
     final scope = '${args['scope'] ?? 'global'}';
     if (scope == 'global') {
       await api.setGlobalVariable(botId, key, args['value']);
@@ -329,7 +385,7 @@ class CopilotTools {
         )
         .timeout(const Duration(seconds: 20));
     if (response.statusCode >= 400) {
-      throw StateError('Documentation indisponible (${response.statusCode}).');
+      throw StateError('Documentation unavailable (${response.statusCode}).');
     }
     _docsSession = response.headers['mcp-session-id'] ?? _docsSession;
     if (notify) return const {};
@@ -345,7 +401,7 @@ class CopilotTools {
     }
     final envelope = jsonDecode(body);
     if (envelope is! Map || envelope['error'] != null) {
-      throw StateError('Réponse de documentation invalide.');
+      throw StateError('Invalid documentation response.');
     }
     return Map<String, dynamic>.from((envelope['result'] as Map?) ?? {});
   }
@@ -371,8 +427,8 @@ class CopilotTools {
     } catch (e) {
       // Le navigateur peut refuser l'appel (CORS) : le modèle continue sans.
       return _fail(
-        'La documentation officielle est indisponible depuis le Studio ($e). '
-        'Poursuivez avec vos connaissances des blocs et dites-le à l\'utilisateur.',
+        'The official documentation is unavailable from the Studio ($e). '
+        'Continue with your knowledge of the blocks and tell the user.',
       );
     }
   }

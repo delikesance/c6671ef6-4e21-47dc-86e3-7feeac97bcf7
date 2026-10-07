@@ -27,7 +27,7 @@ Future<void> explainBotError(
       refusal?.title(l, context.tr) ??
       (bot.running ? l.botStopFailed : l.botStartFailed);
   final body =
-      refusal?.body(l, context.tr) ??
+      refusal?.bodyFor(l, context.tr, error) ??
       (error is StudioApiException ? error.message : '$error');
   return showDialog<void>(
     context: context,

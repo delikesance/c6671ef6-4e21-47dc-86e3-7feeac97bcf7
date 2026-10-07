@@ -25,6 +25,10 @@ enum RuntimeNotice {
   startupFailed,
   startupFailedWithDetail,
   unreachable,
+  runnerCapacity,
+  runnerUpdating,
+  invalidBotConfig,
+  freeTimeDesktop,
   requestFailed,
 }
 
@@ -80,6 +84,14 @@ String resolveRuntimeNotice(
       return l10n.runtime_startup_failed_with_detail(detail, error);
     case RuntimeNotice.unreachable:
       return l10n.runtime_unreachable(error);
+    case RuntimeNotice.runnerCapacity:
+      return l10n.runtime_runner_capacity;
+    case RuntimeNotice.runnerUpdating:
+      return l10n.runtime_runner_updating;
+    case RuntimeNotice.invalidBotConfig:
+      return l10n.runtime_invalid_bot_config(detail);
+    case RuntimeNotice.freeTimeDesktop:
+      return l10n.runtime_free_time_desktop;
     case RuntimeNotice.requestFailed:
       return l10n.runtime_request_failed(error);
     case RuntimeNotice.runnerEmbeddedDesync:

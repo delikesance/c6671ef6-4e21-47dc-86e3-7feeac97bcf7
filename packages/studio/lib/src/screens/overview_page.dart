@@ -595,6 +595,18 @@ class _OverviewPageState extends State<OverviewPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _header(context, wide: wide),
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                context.tr.studio_engine_hint(
+                  _bot.isJavascript ? 'JavaScript' : 'Dart / BDFD',
+                ),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 12,
+                ),
+              ),
+            ),
             SizedBox(height: wide ? 24 : 18),
             if (wide)
               BotHomeCardGrid(children: [?hosting, commands, workflows])

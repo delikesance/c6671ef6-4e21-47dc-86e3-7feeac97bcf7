@@ -437,6 +437,32 @@ Future<void> pushWholeBotDocumentToManager(String botId) async {
 /// d'accroche ajouté à un chemin qui tourne déjà en production.
 Future<void> Function(String botId)? onBotDocumentPushed;
 
+/// Raison pour laquelle la dernière synchronisation d'un bot n'a pas pu partir
+/// (charge utile invalide, garde de moteur…), par identifiant de bot. Vide quand
+/// tout va bien. Sans cela, l'utilisateur modifiait pendant des heures sans
+/// voir que le serveur ne recevait plus rien.
+final ValueNotifier<Map<String, String>> botSyncProblems = ValueNotifier(
+  const <String, String>{},
+);
+
+void _setBotSyncProblem(String botId, String? reason) {
+  final current = botSyncProblems.value;
+  if (reason == null) {
+    if (!current.containsKey(botId)) return;
+    botSyncProblems.value = Map.of(current)..remove(botId);
+  } else if (current[botId] != reason) {
+    botSyncProblems.value = {...current, botId: reason};
+  }
+}
+
+String _syncProblemText(Object error) {
+  final text = error.toString().replaceFirst(
+    RegExp(r'^(Bad state|StateError): '),
+    '',
+  );
+  return text.length > 240 ? '${text.substring(0, 240)}…' : text;
+}
+
 Future<void> _executeSync(String botId) async {
   try {
     final engine = await getBotRuntimeEngine(botId);
@@ -445,6 +471,7 @@ Future<void> _executeSync(String botId) async {
         await validateJsBotPayloadOrThrow(botId);
       } catch (error) {
         debugPrint('[AutoReload] JS payload not ready for $botId: $error');
+        _setBotSyncProblem(botId, _syncProblemText(error));
         return;
       }
     }
@@ -453,6 +480,7 @@ Future<void> _executeSync(String botId) async {
       botId,
     )).keys.toList();
     final payload = await buildRemotePayload(botId);
+    _setBotSyncProblem(botId, null);
     final app = await _appManager.getApp(botId);
     final botName = (app['username'] ?? app['name'] ?? '').toString().trim();
     final botToken = (app['token'] ?? '').toString().trim();
@@ -505,11 +533,14 @@ Future<void> _executeSync(String botId) async {
             );
             // This endpoint persists the config AND synchronizes the runner.
             // A second syncBot call would repeat upload/reload/rehydration.
+            final switchConfirmed = await hasEngineSwitchConfirmation(botId);
             await mainApiClient.saveDiscordBotSnapshot(
               botId: botId,
               botToken: botToken,
               config: payload,
+              confirmOvershrink: switchConfirmed,
             );
+            if (switchConfirmed) await clearEngineSwitchConfirmation(botId);
             debugPrint('[AutoReload] Synced bot $botId to cloud (batched).');
             // The cloud document now lacks the commands deleted before this push.
             await _appManager.clearPendingCommandDeletions(
@@ -554,6 +585,7 @@ Future<void> _executeSync(String botId) async {
     await Future.wait(futures);
   } catch (error) {
     debugPrint('[AutoReload] Auto-reload failed for $botId: $error');
+    _setBotSyncProblem(botId, _syncProblemText(error));
   }
 }
 

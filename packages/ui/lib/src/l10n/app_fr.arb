@@ -8608,7 +8608,7 @@
   "ok": "OK",
   "onboarding_command_button": "Continuer",
   "onboarding_command_desc": "Créez votre première commande",
-  "onboarding_command_example": "Exemple:\n/hello → Le bot répond \"Bonjour! 👋\"",
+  "onboarding_command_example": "Exemple:\n/hello → Le bot répond \"Bonjour!\"",
   "onboarding_command_text": "Les commandes sont le cœur de votre bot. Elles permettent aux utilisateurs d'interagir avec votre bot via Discord.",
   "onboarding_command_title": "Étape 2: Ajouter une commande",
   "onboarding_create_button": "Continuer",
@@ -8826,6 +8826,42 @@
   "runtime_startup_failed_with_detail": "Le démarrage sur les serveurs Bot Creator a échoué. Détails : {detail} Erreur initiale : {error}",
   "runtime_startup_in_progress": "Le démarrage sur les serveurs Bot Creator est encore en cours ({status}). Le traitement peut être en attente ou toujours en cours. Erreur initiale : {error}",
   "runtime_unreachable": "Les serveurs Bot Creator sont temporairement injoignables. Erreur initiale : {error}",
+  "settings_runtime_engine_switch_left_out": "\n\nCes éléments ne peuvent pas s'exécuter sur le nouveau moteur et seront laissés de côté : {items}",
+  "@settings_runtime_engine_switch_left_out": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "studio_engine_hint": "Ce bot fonctionne avec {engine}. Le moteur se choisit à la création du bot ; pour le changer, utilisez l'application Bot Creator.",
+  "@studio_engine_hint": {
+    "placeholders": {
+      "engine": {
+        "type": "String"
+      }
+    }
+  },
+  "legacy_item_js_notice": "Cette commande a été créée avec des blocs ou du BDFD, qu'un bot JavaScript ne peut pas exécuter : elle ne tournait donc pas. Écrivez-la en JavaScript ci-dessous pour qu'elle fonctionne.",
+  "bot_sync_blocked": "Vos dernières modifications sont enregistrées sur cet appareil mais pas encore synchronisées : {reason}",
+  "@bot_sync_blocked": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "runtime_runner_capacity": "Aucun emplacement d'hébergement n'est disponible pour le moment. Réessayez dans quelques minutes.",
+  "runtime_runner_updating": "La plateforme Bot Creator est en cours de mise à jour. Réessayez dans une minute.",
+  "runtime_invalid_bot_config": "La configuration du bot a été refusée : {detail}",
+  "@runtime_invalid_bot_config": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "runtime_free_time_desktop": "Ce bot a besoin de temps d'hébergement gratuit pour démarrer. Les publicités récompensées ne sont disponibles que dans l'application mobile : regardez-en une là-bas, puis relancez le bot.",
   "sync_cloud_update_applied": "Mise à jour Cloud appliquée avec succès",
   "sync_conflict_message": "Des modifications divergentes existent entre cette session locale et la version Cloud (Mobile). Choisissez comment résoudre ce conflit :",
   "sync_conflict_title": "Conflit de synchronisation",

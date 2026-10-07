@@ -93,6 +93,8 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
     }
   }
 
+  bool _legacyNotice = false;
+
   Future<void> _load() async {
     setState(() {
       _draft = null;
@@ -105,7 +107,15 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
       );
       if (!mounted) return;
       final draft = CommandDraft(detail.raw, revision: detail.revision);
-      setState(() => _draft = draft);
+      // Une commande en blocs ou en BDFD sur un bot JavaScript ne tournait pas
+      // (le serveur la retire) : on ouvre l'éditeur JavaScript et on le dit.
+      final legacy =
+          widget.bot.isJavascript && draft.executionMode != 'javascript';
+      if (legacy) draft.executionMode = 'javascript';
+      setState(() {
+        _draft = draft;
+        _legacyNotice = legacy;
+      });
     } catch (e) {
       if (mounted) setState(() => _loadError = e);
     }
@@ -262,6 +272,18 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (_legacyNotice)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(context.tr.legacy_item_js_notice),
+            ),
+          ),
         Padding(
           padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
           child: Row(

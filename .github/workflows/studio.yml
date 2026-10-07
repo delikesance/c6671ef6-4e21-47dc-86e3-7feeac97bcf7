@@ -8,6 +8,14 @@
 # par environnement.
 #   dev          -> https://dev.bot-creator.fr   (studio-dev.bot-creator.fr)
 #   main/master  -> https://api.bot-creator.fr   (studio.bot-creator.fr)
+#
+# VERSION : le Studio a sa propre version SemVer, distincte de celle de l'app
+# (tags `studio-vX.Y.Z`, car `vX.Y.Z` appartient à l'app dans ce même dépôt). Elle
+# se déduit des Conventional Commits qui touchent packages/studio et packages/ui
+# depuis le dernier tag `studio-v*` ; la première part du `version:` du pubspec du
+# Studio. Elle est posée sur le tag Git, l'image (étiquettes de registre + labels
+# OCI) ET le build (version.json), pour que Kubernetes puisse épingler une version
+# précise et qu'on lise sur le site déployé ce qui tourne.
 name: Studio
 
 on:
@@ -25,10 +33,18 @@ on:
       - "pubspec.yaml"
       - ".github/workflows/studio.yml"
   workflow_dispatch:
+    inputs:
+      bump:
+        description: "Type de montée de version (auto = déduite des Conventional Commits)"
+        type: choice
+        default: auto
+        options: [auto, patch, minor, major]
 
+# Une release en cours ne doit jamais être annulée par le push suivant : un tag
+# posé sans image (ou l'inverse) laisse une version fantôme.
 concurrency:
   group: studio-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref == 'refs/heads/dev' || github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -85,10 +101,93 @@ jobs:
           path: packages/studio/build/web
           retention-days: 14
 
+  # Pose le tag `studio-vX.Y.Z` et la release GitHub. Seulement sur main/master :
+  # dev ne publie que des versions de pré-version (voir l'étape « Version » de l'image).
+  release:
+    name: SemVer tag & release
+    needs: [check]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    runs-on: [self-hosted, Linux, X64]
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute SemVer tag
+        id: version
+        env:
+          FORCED_BUMP: ${{ github.event.inputs.bump }}
+        run: |
+          set -euo pipefail
+          # Seuls les commits qui touchent le Studio ou le paquet partagé comptent :
+          # le dépôt contient aussi l'app, dont les `feat:` ne changent pas le Studio.
+          paths=(packages/studio packages/ui)
+          last_tag=$(git tag --list 'studio-v*' --sort=-v:refname | head -n1 || true)
+          if [ -z "$last_tag" ]; then
+            # Première release : la version du pubspec du Studio.
+            base=$(sed -n 's/^version: *\([0-9][0-9.]*\).*/\1/p' packages/studio/pubspec.yaml | head -n1)
+            tag="studio-v${base:-0.1.0}"
+          else
+            base="${last_tag#studio-v}"
+            major="${base%%.*}"
+            rest="${base#*.}"
+            minor="${rest%%.*}"
+            patch="${rest#*.}"
+            patch="${patch%%[-+]*}"
+            bump="${FORCED_BUMP:-auto}"
+            range="${last_tag}..HEAD"
+            if [ "$bump" = "auto" ]; then
+              if git log --format='%s%n%b' "$range" -- "${paths[@]}" | grep -qE '^[a-zA-Z]+(\([^)]*\))?!:|^BREAKING[ -]CHANGE:'; then
+                bump="major"
+              elif git log --format='%s' "$range" -- "${paths[@]}" | grep -qE '^feat(\([^)]*\))?:'; then
+                bump="minor"
+              else
+                bump="patch"
+              fi
+            fi
+            case "$bump" in
+              major) major=$((major + 1)); minor=0; patch=0 ;;
+              minor) minor=$((minor + 1)); patch=0 ;;
+              patch) patch=$((patch + 1)) ;;
+              *) echo "bump invalide: $bump"; exit 1 ;;
+            esac
+            tag="studio-v${major}.${minor}.${patch}"
+            echo "Bump: $bump (dernier tag: $last_tag)"
+          fi
+          # Relance du workflow ou tag posé à la main : on n'écrase jamais un tag.
+          while git rev-parse -q --verify "refs/tags/$tag" >/dev/null; do
+            n="${tag##*.}"
+            tag="${tag%.*}.$((n + 1))"
+            echo "Tag déjà existant, on continue en $tag"
+          done
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=${tag#studio-v}" >> "$GITHUB_OUTPUT"
+          echo "Calculated tag: $tag"
+
+      # `make_latest: false` : « Latest release » de GitHub reste celle de l'app.
+      - name: Create Git tag & release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Studio ${{ steps.version.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          generate_release_notes: true
+          make_latest: "false"
+
   image:
     name: Build, smoke-test & publish image
-    needs: [check]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    needs: [check, release]
+    # `release` est ignoré sur dev : il ne doit pas bloquer l'image de staging.
+    if: >-
+      always() && needs.check.result == 'success'
+      && (needs.release.result == 'success' || needs.release.result == 'skipped')
+      && github.event_name == 'push'
+      && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     runs-on: [self-hosted, Linux, X64]
     permissions:
       contents: read
@@ -96,8 +195,12 @@ jobs:
     env:
       # L'environnement se déduit de la branche, jamais d'une entrée utilisateur.
       IS_DEV: ${{ github.ref == 'refs/heads/dev' }}
+      RELEASE_VERSION: ${{ needs.release.outputs.version }}
     steps:
+      # L'historique complet : la version de pré-version de dev part du dernier tag.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: subosito/flutter-action@v2
         with:
@@ -109,22 +212,50 @@ jobs:
         run: flutter pub get
         working-directory: packages/studio
 
-      - name: Pick the API for this environment
+      # Une version par image. main : la version de la release posée juste avant.
+      # dev : la dernière version publiée + `-dev.<n° d'exécution>`, qui sert
+      # d'étiquette de registre ; le build, lui, ne porte que la base numérique
+      # (Flutter n'accepte que x.y.z comme --build-name).
+      - name: Version & environment
         id: env
         run: |
           set -euo pipefail
           if [ "$IS_DEV" = "true" ]; then
-            echo "api_url=https://dev.bot-creator.fr" >> "$GITHUB_OUTPUT"
-            echo "tags=dev-${GITHUB_SHA},dev" >> "$GITHUB_OUTPUT"
+            last_tag=$(git tag --list 'studio-v*' --sort=-v:refname | head -n1 || true)
+            if [ -n "$last_tag" ]; then
+              base="${last_tag#studio-v}"
+            else
+              base=$(sed -n 's/^version: *\([0-9][0-9.]*\).*/\1/p' packages/studio/pubspec.yaml | head -n1)
+            fi
+            base="${base%%[-+]*}"
+            version="${base}-dev.${GITHUB_RUN_NUMBER}"
+            {
+              echo "api_url=https://dev.bot-creator.fr"
+              echo "build_name=${base}"
+              echo "version=${version}"
+              echo "tags=dev-${GITHUB_SHA},dev,${version}"
+            } >> "$GITHUB_OUTPUT"
           else
-            echo "api_url=https://api.bot-creator.fr" >> "$GITHUB_OUTPUT"
-            echo "tags=sha-${GITHUB_SHA},latest" >> "$GITHUB_OUTPUT"
+            if [ -z "$RELEASE_VERSION" ]; then
+              echo "Pas de version de release : l'image de production ne se publie pas sans tag."
+              exit 1
+            fi
+            {
+              echo "api_url=https://api.bot-creator.fr"
+              echo "build_name=${RELEASE_VERSION}"
+              echo "version=${RELEASE_VERSION}"
+              echo "tags=${RELEASE_VERSION},sha-${GITHUB_SHA},latest"
+            } >> "$GITHUB_OUTPUT"
           fi
 
+      # --build-name/--build-number alimentent `version.json` : sans eux il disait
+      # toujours « 0.1.0 », quel que soit ce qui était déployé.
       - name: Build web for this environment
         run: >
           flutter build web --release --wasm
           --dart-define=STUDIO_API_URL=${{ steps.env.outputs.api_url }}
+          --build-name=${{ steps.env.outputs.build_name }}
+          --build-number=${{ github.run_number }}
         working-directory: packages/studio
 
       - name: Build image locally
@@ -133,10 +264,12 @@ jobs:
       # Vérifie ce que nginx sert réellement : si une règle de cache, un en-tête
       # de sécurité ou le repli SPA saute, l'image n'est pas publiée.
       - name: Smoke-test image
+        env:
+          BUILD_NAME: ${{ steps.env.outputs.build_name }}
         run: |
           set -euo pipefail
           docker run -d --name studio-smoke -p 18080:8080 studio:smoke
-          for i in $(seq 1 20); do
+          for _ in $(seq 1 20); do
             curl -fsS http://127.0.0.1:18080/healthz >/dev/null 2>&1 && break
             sleep 1
           done
@@ -170,6 +303,13 @@ jobs:
           # Entrée revalidée à chaque visite, sinon une mise à jour n'arrive pas.
           expect_header "$h" '^cache-control: no-cache'
           expect_header "$(headers /flutter_bootstrap.js)" '^cache-control: no-cache'
+
+          # Le site sert bien la version qu'on est en train de publier, et ne la met
+          # pas en cache (sinon on lirait celle d'un déploiement précédent).
+          v="$(curl -fsS http://127.0.0.1:18080/version.json)"
+          grep -Eq "\"version\" *: *\"${BUILD_NAME}\"" <<< "$v" \
+            || { echo "version.json ne porte pas ${BUILD_NAME} : $v"; exit 1; }
+          expect_header "$(headers /version.json)" '^cache-control: no-cache'
 
           # Le moteur WebAssembly doit avoir le bon type MIME.
           expect_header "$(headers /main.dart.wasm)" '^content-type: application/wasm'
@@ -214,3 +354,8 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.tags.outputs.list }}
+          labels: |
+            org.opencontainers.image.version=${{ steps.env.outputs.version }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.title=bot-creator-studio
