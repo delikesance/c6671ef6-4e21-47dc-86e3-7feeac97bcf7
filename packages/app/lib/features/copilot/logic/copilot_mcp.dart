@@ -477,7 +477,7 @@ class CopilotMcp {
           'runner_synced': synced,
           'message': synced
               ? 'Commande active sur le bot cloud'
-              : 'Enregistrée, pas encore active sur le bot cloud',
+              : 'Saved, not yet active on the cloud bot',
           'revision': HashUtil.calculateHash(
             await AppManager().getAppCommand(botID, commandID),
           ),
@@ -540,7 +540,7 @@ class CopilotMcp {
             'derived_from_library': ?libraryId,
             'message': synced
                 ? 'Commande active sur le bot cloud'
-                : 'Créée sur Discord, pas encore active sur le bot',
+                : 'Created on Discord, not yet active on the bot',
           };
           if (libraryId != null) {
             // Ranking signal only: never let it affect the creation.
