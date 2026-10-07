@@ -49,12 +49,23 @@ String? synthesizeJsFromWorkflowActions(
 /// que la charge utile ne contienne jamais deux noms identiques (le runner JS
 /// refuse cela avec un 400).
 String deduplicateCommandName(String name, Set<String> usedNames) {
-  if (usedNames.add(name)) return name;
+  // Le runner compare `trim().toLowerCase()` : « Ping » et « ping » sont un
+  // doublon pour lui. Le schéma limite aussi le nom à 32 caractères, suffixe
+  // compris.
+  String fit(String base, String suffix) {
+    final room = 32 - suffix.length;
+    final head = base.length > room ? base.substring(0, room) : base;
+    return '$head$suffix';
+  }
+
+  final trimmed = name.trim();
+  var candidate = fit(trimmed, '');
+  if (usedNames.add(candidate.toLowerCase())) return candidate;
   var suffix = 2;
-  var candidate = '${name}_$suffix';
-  while (!usedNames.add(candidate)) {
+  candidate = fit(trimmed, '_$suffix');
+  while (!usedNames.add(candidate.toLowerCase())) {
     suffix += 1;
-    candidate = '${name}_$suffix';
+    candidate = fit(trimmed, '_$suffix');
   }
   debugPrint('[buildJsBotPayload] Duplicate "$name" -> "$candidate".');
   return candidate;

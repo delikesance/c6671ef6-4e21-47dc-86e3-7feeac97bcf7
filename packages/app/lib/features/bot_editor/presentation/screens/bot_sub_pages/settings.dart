@@ -111,10 +111,23 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       return;
     }
 
+    final leftOut = await previewEngineSwitchLeftOut(
+      widget.client.user.id.toString(),
+      value,
+    );
+    if (!mounted) return;
+    final leftOutNote = leftOut.isEmpty
+        ? ''
+        : context.tr.settings_runtime_engine_switch_left_out(
+            leftOut.length > 12
+                ? '${leftOut.take(12).join(', ')}, …'
+                : leftOut.join(', '),
+          );
     final confirm = await AppTheme.showConfirmDialog(
       context,
       title: context.tr.settings_runtime_engine_switch_dialog_title,
-      content: context.tr.settings_runtime_engine_switch_dialog_desc,
+      content:
+          context.tr.settings_runtime_engine_switch_dialog_desc + leftOutNote,
       confirmLabel: context.tr.settings_runtime_engine_switch_dialog_confirm,
       isDestructive: true,
     );

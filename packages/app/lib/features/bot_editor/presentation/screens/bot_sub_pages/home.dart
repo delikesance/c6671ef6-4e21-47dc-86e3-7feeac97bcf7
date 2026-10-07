@@ -290,6 +290,26 @@ class _AppHomePageState extends State<AppHomePage>
     }
   }
 
+  void _onSyncProblems() {
+    if (!mounted) return;
+    final botId = widget.client.user.id.toString();
+    final reason = botSyncProblems.value[botId];
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentMaterialBanner();
+    if (reason == null) return;
+    messenger.showMaterialBanner(
+      MaterialBanner(
+        content: Text(context.tr.bot_sync_blocked(reason)),
+        actions: [
+          TextButton(
+            onPressed: messenger.hideCurrentMaterialBanner,
+            child: Text(MaterialLocalizations.of(context).closeButtonLabel),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -299,6 +319,7 @@ class _AppHomePageState extends State<AppHomePage>
     );
     WidgetsBinding.instance.addObserver(this);
     BotConfigRefreshNotifier.instance.addListener(_onConfigReplaced);
+    botSyncProblems.addListener(_onSyncProblems);
     unawaited(_loadHomePreviews());
     if (_supportsForegroundTask) {
       _taskDataCallback = (Object data) {
@@ -373,6 +394,7 @@ class _AppHomePageState extends State<AppHomePage>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     BotConfigRefreshNotifier.instance.removeListener(_onConfigReplaced);
+    botSyncProblems.removeListener(_onSyncProblems);
     _statusPulseController.dispose();
     _runtimeBalanceTimer?.cancel();
     unawaited(_gatewayEventsSub?.cancel());
