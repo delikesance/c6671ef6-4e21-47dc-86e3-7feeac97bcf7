@@ -42,6 +42,45 @@ String _text(Map<String, dynamic> result) =>
     (result['content'] as List).first['text'] as String;
 
 void main() {
+  test(
+    'bot JavaScript : le script JavaScript est enregistré, les blocs refusés',
+    () async {
+      final calls = <Map<String, dynamic>>[];
+      final api = StudioApi(
+        baseUrl: 'https://api.test',
+        client: MockClient((request) async {
+          if (request.body.isNotEmpty) {
+            calls.add(jsonDecode(request.body) as Map<String, dynamic>);
+          }
+          return http.Response(jsonEncode({'revision': 'r1'}), 200);
+        }),
+      )..accessToken = ({bool force = false}) async => 'tok';
+      final tools = CopilotTools(api, javascript: true);
+
+      final ok = await tools.run('local_create_command', {
+        'bot_id': 'b1',
+        'name': 'ping',
+        'description': 'x',
+        'script': 'await ctx.reply("pong")',
+      });
+      expect(ok['isError'], isNot(true), reason: _text(ok));
+      final data = (calls.single['command'] as Map)['data'] as Map;
+      expect(data['executionMode'], 'javascript');
+      expect(data['jsScriptContent'], contains('pong'));
+
+      final blocks = await tools.run('local_create_command', {
+        'bot_id': 'b1',
+        'name': 'ping2',
+        'description': 'x',
+        'execution_mode': 'workflow',
+        'actions_json': '[]',
+      });
+      expect(blocks['isError'], isTrue);
+      expect(_text(blocks), contains('JavaScript'));
+      expect(calls, hasLength(1), reason: 'les blocs ne partent jamais');
+    },
+  );
+
   test('seuls les outils que le Studio sait exécuter sont annoncés', () {
     final names = CopilotTools.names;
     expect(names, contains('local_create_command'));
@@ -90,7 +129,7 @@ void main() {
       'script': r'$sendMessage[pong]',
     });
     expect(result['isError'], isTrue);
-    expect(_text(result), contains('visuel'));
+    expect(_text(result), contains('visual'));
     expect(calls, isEmpty, reason: 'rien ne part vers le serveur');
   });
 
@@ -155,7 +194,7 @@ void main() {
       'actions_json': '[]',
     });
     expect(result['isError'], isTrue);
-    expect(_text(result), contains('Révision périmée'));
+    expect(_text(result), contains('Stale revision'));
   });
 
   test('variable globale ou à portée', () async {

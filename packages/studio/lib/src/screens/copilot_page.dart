@@ -29,7 +29,10 @@ class CopilotPage extends StatefulWidget {
 }
 
 class _CopilotPageState extends State<CopilotPage> {
-  late final CopilotTools _tools = CopilotTools(widget.api);
+  late final CopilotTools _tools = CopilotTools(
+    widget.api,
+    javascript: widget.bot.isJavascript,
+  );
   final _prompt = TextEditingController();
   final _search = TextEditingController();
   final _scroll = ScrollController();
@@ -42,6 +45,7 @@ class _CopilotPageState extends State<CopilotPage> {
   String? _error;
   String? _requestKey;
   Map<String, dynamic>? _pending; // tour en cours d'envoi (rejouable)
+  String _lastPrompt = '';
 
   String get _id => '${_chat?['id'] ?? ''}';
 
@@ -98,6 +102,8 @@ class _CopilotPageState extends State<CopilotPage> {
   }
 
   Future<void> _open(String id) async {
+    // Changing conversation mid-turn would send the result of a running tool to the wrong one.
+    if (_busy) return;
     setState(() {
       _busy = true;
       _error = null;
@@ -105,10 +111,18 @@ class _CopilotPageState extends State<CopilotPage> {
     try {
       final chat = await widget.api.aiConversation(id);
       if (!mounted) return;
+      // Un tour encore en cours (flux coupé, onglet rouvert) : on le suit au lieu
+      // d'afficher une discussion figée dont l'envoi suivant ferait un 409.
+      final active = '${chat['active_key'] ?? ''}';
       setState(() {
         _chat = chat;
-        _busy = false;
+        _busy = active.isNotEmpty;
+        _requestKey = active.isEmpty ? null : active;
       });
+      if (active.isNotEmpty) {
+        await _follow();
+        return;
+      }
       await _readActions();
     } catch (e) {
       if (mounted) {
@@ -120,17 +134,41 @@ class _CopilotPageState extends State<CopilotPage> {
     }
   }
 
-  void _newChat() => setState(() {
+  void _newChat() {
+    if (_busy) return;
+    setState(_resetChat);
+  }
+
+  void _resetChat() {
     _chat = null;
     _pending = null;
     _requestKey = null;
     _error = null;
-  });
+  }
 
   Future<void> _delete(String id) async {
+    if (_busy) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr.copilot_delete_confirm_title),
+        content: Text(context.tr.copilot_delete_confirm_body),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(context.tr.copilot_cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(context.tr.copilot_delete),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
     try {
       await widget.api.deleteAiConversation(id);
-      if (_id == id) _newChat();
+      if (_id == id) setState(_resetChat);
       await _loadSide();
     } catch (e) {
       if (mounted) setState(() => _error = _describe(e));
@@ -159,8 +197,10 @@ class _CopilotPageState extends State<CopilotPage> {
         'revision': _chat!['revision'],
         'prompt': text,
         'tools': CopilotTools.names,
+        'runtime_engine': widget.bot.isJavascript ? 'javascript' : 'dart',
       };
       _requestKey = _pending!['idempotency_key'] as String;
+      if (continuation == null) _lastPrompt = text;
       await widget.api.startAiTurn(_id, _pending!);
       _pending = null;
       if (continuation == null) _prompt.clear();
@@ -191,7 +231,7 @@ class _CopilotPageState extends State<CopilotPage> {
 
   /// Attend la fin de la génération, relit la conversation puis enchaîne sur les
   /// outils proposés.
-  Future<void> _follow() async {
+  Future<void> _follow([int attempt = 0]) async {
     final key = _requestKey;
     if (key == null) {
       if (mounted) setState(() => _busy = false);
@@ -208,6 +248,10 @@ class _CopilotPageState extends State<CopilotPage> {
       final chat = await widget.api.aiConversation(_id);
       if (!mounted) return;
       if (failedCode.isNotEmpty || chat['last_request_status'] == 'failed') {
+        // Rendre le texte envoyé : sans cela l'utilisateur doit le retaper.
+        if (_prompt.text.trim().isEmpty && _lastPrompt.isNotEmpty) {
+          _prompt.text = _lastPrompt;
+        }
         throw StudioApiException(
           context.l10n.copilotGenerationFailed,
           code: failedCode.isEmpty ? '${chat['last_error_code']}' : failedCode,
@@ -227,6 +271,17 @@ class _CopilotPageState extends State<CopilotPage> {
       try {
         latest = await widget.api.aiConversation(_id);
       } catch (_) {}
+      // Le flux a été coupé (délai) mais le serveur génère encore : on reprend
+      // l'attente plutôt que de montrer une erreur et de laisser la réponse
+      // arriver dans le vide.
+      if (mounted &&
+          latest != null &&
+          '${latest['active_key'] ?? ''}'.isNotEmpty &&
+          attempt < 12) {
+        await Future<void>.delayed(const Duration(seconds: 2));
+        if (mounted) await _follow(attempt + 1);
+        return;
+      }
       if (mounted) {
         setState(() {
           if (latest != null) _chat = latest;
@@ -287,12 +342,14 @@ class _CopilotPageState extends State<CopilotPage> {
     final fn = ((a['call'] as Map)['function'] as Map);
     final name = '${fn['name']}';
     final callId = '${a['call_id']}';
+    final conversationId =
+        _id; // fixé : la navigation est bloquée pendant l'action
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
-      await widget.api.aiAction(_id, callId, {'approve': approve});
+      await widget.api.aiAction(conversationId, callId, {'approve': approve});
       if (approve && !CopilotTools.serverSide.contains(name)) {
         ToolResult result;
         try {
@@ -309,16 +366,14 @@ class _CopilotPageState extends State<CopilotPage> {
           };
         }
         if (utf8.encode(jsonEncode(result)).length > 24000) {
-          result = {
-            'message': 'Résultat trop volumineux : relisez plus précisément.',
-          };
+          result = {'message': 'Result too large: re-read more precisely.'};
         }
-        await widget.api.aiAction(_id, callId, {
+        await widget.api.aiAction(conversationId, callId, {
           'state': result['isError'] == true ? 'failed' : 'succeeded',
           'result': result,
         });
       }
-      final chat = await widget.api.aiConversation(_id);
+      final chat = await widget.api.aiConversation(conversationId);
       if (!mounted) return;
       setState(() {
         _chat = chat;
@@ -427,7 +482,8 @@ class _CopilotPageState extends State<CopilotPage> {
     final visible = [
       for (final m in messages)
         if ((m['role'] == 'user' || m['role'] == 'assistant') &&
-            '${m['content'] ?? ''}'.trim().isNotEmpty)
+            '${m['content'] ?? ''}'.trim().isNotEmpty &&
+            !'${m['content']}'.startsWith('[continuation-summary]'))
           m,
     ];
     final approvals = _actions.where(_needsApproval).toList();
@@ -615,23 +671,71 @@ class _CopilotPageState extends State<CopilotPage> {
             ),
           ),
           const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton(
-                onPressed: _busy ? null : () => _action(a, false),
-                child: Text(context.tr.copilot_decline),
+          if (a['state'] == 'uncertain')
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: _busy ? null : () => _closeUncertain(a),
+                child: Text(context.tr.copilot_close_without_replay),
               ),
-              const SizedBox(width: 8),
-              FilledButton(
-                onPressed: _busy ? null : () => _action(a, true),
-                child: Text(context.tr.copilot_approve),
-              ),
-            ],
+            )
+          else
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: _busy ? null : () => _action(a, false),
+                  child: Text(context.tr.copilot_decline),
+                ),
+                const SizedBox(width: 8),
+                FilledButton(
+                  onPressed: _busy ? null : () => _action(a, true),
+                  child: Text(context.tr.copilot_approve),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// Une action dont l'issue est inconnue (onglet fermé en plein effet) ne peut
+  /// ni être approuvée de nouveau ni refusée : on la clôt comme échouée, sans
+  /// rejeu, pour débloquer la conversation.
+  Future<void> _closeUncertain(Map<String, dynamic> a) async {
+    final conversationId = _id;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr.copilot_close_without_replay),
+        content: Text(context.tr.copilot_close_unconfirmed_warning),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(context.tr.copilot_cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(context.tr.copilot_close_action),
           ),
         ],
       ),
     );
+    if (confirmed != true || !mounted) return;
+    try {
+      await widget.api.aiAction(conversationId, '${a['call_id']}', {
+        'state': 'failed',
+        'result': {
+          'isError': true,
+          'message':
+              'Execution outcome unconfirmed; user acknowledged after inspection. No replay authorized.',
+        },
+      });
+      final chat = await widget.api.aiConversation(conversationId);
+      if (mounted) setState(() => _chat = chat);
+    } catch (e) {
+      if (mounted) setState(() => _error = _describe(e));
+    }
   }
 
   String _toolLabel(String name) => copilotToolLabel(context, name);

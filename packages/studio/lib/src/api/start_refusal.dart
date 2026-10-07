@@ -12,7 +12,10 @@ enum StartRefusal {
   botQuotaReached,
   excludesTurnkey,
   turnkeyQuotaReached,
-  noFreeTime;
+  noFreeTime,
+  runnerCapacity,
+  runnerUpdating,
+  invalidConfig;
 
   String title(StudioLocalizations l, AppLocalizations tr) => switch (this) {
     excludesOwnBots => tr.plan_limit_own_bots_title,
@@ -20,6 +23,8 @@ enum StartRefusal {
     excludesTurnkey => tr.plan_limit_turnkey_title,
     turnkeyQuotaReached => tr.plan_limit_turnkey_quota_title,
     noFreeTime => l.refusalNoFreeTimeTitle,
+    runnerCapacity || runnerUpdating => l.botStartFailed,
+    invalidConfig => l.botStartFailed,
   };
 
   String body(StudioLocalizations l, AppLocalizations tr) => switch (this) {
@@ -28,6 +33,10 @@ enum StartRefusal {
     excludesTurnkey => tr.plan_limit_turnkey_desc,
     turnkeyQuotaReached => tr.plan_limit_turnkey_quota_desc,
     noFreeTime => l.refusalNoFreeTimeBody,
+    runnerCapacity => tr.runtime_runner_capacity,
+    runnerUpdating => tr.runtime_runner_updating,
+    // Le détail précis vient du serveur : voir [bodyFor].
+    invalidConfig => tr.runtime_invalid_bot_config(''),
   };
 
   /// Le même refus dans la boîte de l'app (`PlanLimitDialog`, avec son bouton
@@ -38,8 +47,21 @@ enum StartRefusal {
     botQuotaReached => PlanLimitBlock.planBotQuotaReached,
     excludesTurnkey => PlanLimitBlock.planExcludesTurnkey,
     turnkeyQuotaReached => PlanLimitBlock.planTurnkeyQuotaReached,
-    noFreeTime => null,
+    noFreeTime || runnerCapacity || runnerUpdating || invalidConfig => null,
   };
+
+  /// Le texte à montrer : pour une config refusée, le détail du serveur
+  /// (« commands[1].script: Required ») est intercalé dans la phrase.
+  String bodyFor(StudioLocalizations l, AppLocalizations tr, Object error) {
+    if (this == invalidConfig && error is StudioApiException) {
+      final marker = error.message.toLowerCase().indexOf('invalid config:');
+      final detail = marker >= 0
+          ? error.message.substring(marker + 'invalid config:'.length)
+          : error.message;
+      return tr.runtime_invalid_bot_config(detail.trim());
+    }
+    return body(l, tr);
+  }
 
   static StartRefusal? fromError(Object error) {
     if (error is! StudioApiException) return null;
@@ -57,6 +79,11 @@ enum StartRefusal {
     }
     if (has('turnkey_quota_reached', 'turnkey app limit reached')) {
       return turnkeyQuotaReached;
+    }
+    if (code == 'runner_capacity') return runnerCapacity;
+    if (code == 'runner_updating') return runnerUpdating;
+    if (code == 'invalid_bot_config' || message.contains('invalid config:')) {
+      return invalidConfig;
     }
     if (error.isTransientStartRefusal && code == 'bot_free_time_required') {
       return noFreeTime;
