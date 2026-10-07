@@ -2,6 +2,7 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
+import 'package:bot_creator/core/platform/run_platform.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/storage/runtime_preferences.dart';
 import 'package:flutter/foundation.dart';
@@ -128,27 +129,30 @@ void main() {
     },
   );
 
-  test('poste de travail : un bot associé au manager reste piloté à distance', () async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
-    await MainApiSettingsStore.saveConfig(
-      const MainApiConfig(baseUrl: 'https://api.example.com'),
-    );
-    await MainApiSettingsStore.saveSession(
-      MainApiSession(
-        accessToken: 'token',
-        expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
-      ),
-    );
-    RunnerSettings.associateBotWithRunner('bot-associe', 'manager');
+  test(
+    'poste de travail : un bot associé au manager reste piloté à distance',
+    () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      await MainApiSettingsStore.saveConfig(
+        const MainApiConfig(baseUrl: 'https://api.example.com'),
+      );
+      await MainApiSettingsStore.saveSession(
+        MainApiSession(
+          accessToken: 'token',
+          expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+        ),
+      );
+      RunnerSettings.associateBotWithRunner('bot-associe', 'manager');
 
-    final runtime = await resolveRemoteRuntime(
-      supportsManagerRuntime: true,
-      botId: 'bot-associe',
-    );
+      final runtime = await resolveRemoteRuntime(
+        supportsManagerRuntime: true,
+        botId: 'bot-associe',
+      );
 
-    expect(runtime.source, RemoteRuntimeSource.manager);
-    expect(runtime.client, isNotNull);
-  });
+      expect(runtime.source, RemoteRuntimeSource.manager);
+      expect(runtime.client, isNotNull);
+    },
+  );
 
   test('desktop falls back to local when no runner is configured', () async {
     debugDefaultTargetPlatformOverride = TargetPlatform.windows;
@@ -244,5 +248,48 @@ void main() {
     );
 
     expect(attempts, 3);
+  });
+
+  group('named server refusals become readable notices', () {
+    MainApiClient clientThatMustNotBeAsked() => MainApiClient(
+      baseUrl: 'https://api.example.com',
+      accessToken: 'token',
+      httpClient: MockClient((_) async => http.Response('{}', 500)),
+    );
+
+    test('capacity and platform update', () async {
+      final capacity = await describeManagerRuntimeFailure(
+        clientThatMustNotBeAsked(),
+        Exception('[503] runner_capacity: no hosting slot'),
+      );
+      expect(capacity.notice, RuntimeNotice.runnerCapacity);
+      final updating = await describeManagerRuntimeFailure(
+        clientThatMustNotBeAsked(),
+        Exception('[503] runner_updating'),
+      );
+      expect(updating.notice, RuntimeNotice.runnerUpdating);
+    });
+
+    test(
+      'a rejected config shows the readable detail, not a raw array',
+      () async {
+        final notice = await describeManagerRuntimeFailure(
+          clientThatMustNotBeAsked(),
+          Exception('[422] Invalid config: commands[1].script: Required'),
+        );
+        expect(notice.notice, RuntimeNotice.invalidBotConfig);
+        expect(notice.detail, contains('commands[1].script'));
+      },
+    );
+
+    test('no free hosting time on desktop points to the mobile ads', () async {
+      debugForceDesktopPlatform = true;
+      addTearDown(() => debugForceDesktopPlatform = null);
+      final notice = await describeManagerRuntimeFailure(
+        clientThatMustNotBeAsked(),
+        Exception('[403] bot requires free runtime credits before start'),
+      );
+      expect(notice.notice, RuntimeNotice.freeTimeDesktop);
+    });
   });
 }

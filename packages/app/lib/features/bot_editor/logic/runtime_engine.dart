@@ -1,3 +1,4 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 
 import 'package:bot_creator/core/network/main_api_client.dart';
@@ -213,8 +214,89 @@ Future<Map<String, dynamic>> _buildEnginePayloadOrThrow(
       ? await buildJsBotPayload(botId)
       : await buildBotPayload(botId);
   payload['runtimeEngine'] = normalizeRuntimeEngine(engine);
-  assertNonDegenerateBotPayload(payload, source: 'switchBotRuntimeEngine');
+  // Un bot Dart n'exécute pas de JavaScript : pousser ces éléments donnerait au
+  // serveur une configuration mixte que l'éditeur local ne voit ni n'édite, et
+  // que le runner refuse. On les retire de la charge cible.
+  var removed = 0;
+  if (normalizeRuntimeEngine(engine) == runtimeEngineDart) {
+    for (final key in const ['commands', 'workflows']) {
+      final raw = payload[key];
+      if (raw is! List) continue;
+      payload[key] = raw.where((entry) {
+        final isJs = configurationContainsJavascript({
+          key: [entry],
+        });
+        if (isJs) removed += 1;
+        return !isJs;
+      }).toList();
+    }
+  }
+  // Une charge vide parce qu'on a retiré le JavaScript est un canevas vierge
+  // voulu ; sinon, la garde contre l'effacement accidentel reste entière.
+  if (removed == 0) {
+    assertNonDegenerateBotPayload(payload, source: 'switchBotRuntimeEngine');
+  }
   return payload;
+}
+
+/// Noms des commandes et workflows locaux qui ne passeront PAS sur le moteur
+/// [engine] (aucun équivalent, ou JavaScript vers Dart). Sert à les lister dans
+/// la confirmation, au lieu de les laisser disparaître sans le dire.
+Future<List<String>> previewEngineSwitchLeftOut(
+  String botId,
+  String engine,
+) async {
+  try {
+    final target = normalizeRuntimeEngine(engine);
+    final payload = target == runtimeEngineJavascript
+        ? await buildJsBotPayload(botId)
+        : await buildBotPayload(botId);
+    final carried = <String>{
+      for (final key in const ['commands', 'workflows'])
+        if (payload[key] is List)
+          for (final entry in payload[key] as List)
+            if (entry is Map &&
+                !(target == runtimeEngineDart &&
+                    configurationContainsJavascript({
+                      key: [entry],
+                    })))
+              '${entry['name'] ?? ''}'.toLowerCase(),
+    };
+    final local = <String>[
+      for (final c in await AppManager().listAppCommands(botId))
+        '${c['name'] ?? ''}',
+      for (final w in await AppManager().getWorkflows(botId))
+        '${w['name'] ?? ''}',
+    ];
+    final leftOut = <String>{
+      for (final name in local)
+        if (name.isNotEmpty && !carried.contains(name.toLowerCase())) name,
+    };
+    return leftOut.toList()..sort();
+  } catch (_) {
+    return const [];
+  }
+}
+
+String _engineSwitchKey(String botId) => 'engine_switch_confirmed:$botId';
+
+/// Après une bascule de moteur, le serveur garde la configuration convertie
+/// alors que le local repart vide : la première poussée suivante paraîtrait une
+/// suppression massive que l'utilisateur n'a jamais faite (il a seulement
+/// confirmé la bascule). On retient donc cet accord pour la première poussée.
+Future<void> _markEngineSwitchConfirmed(String botId) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setBool(_engineSwitchKey(botId), true);
+}
+
+Future<bool> hasEngineSwitchConfirmation(String botId) async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getBool(_engineSwitchKey(botId)) ?? false;
+}
+
+Future<void> clearEngineSwitchConfirmation(String botId) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove(_engineSwitchKey(botId));
 }
 
 Future<void> switchBotRuntimeEngine(
@@ -275,5 +357,6 @@ Future<void> switchBotRuntimeEngine(
   //    a validé et persisté la bascule avec succès.
   await clearBotAutomationData(trimmedBotId);
   await setBotRuntimeEngine(trimmedBotId, targetEngine);
+  await _markEngineSwitchConfirmed(trimmedBotId);
   await AppManager().invalidatePayloadCache(trimmedBotId);
 }
