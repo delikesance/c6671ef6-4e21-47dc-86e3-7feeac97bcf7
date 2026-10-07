@@ -4,10 +4,33 @@ Le Studio est un site statique (build web Flutter) servi par nginx. L'image est
 publiée par la CI (`.github/workflows/studio.yml`) à chaque push sur `dev` ou
 `main`/`master` qui touche `packages/studio/`.
 
-| Environnement | Branche | Site | API figée dans le build | Image GHCR |
+| Environnement | Branche | Site | API figée dans le build | Étiquettes de l'image GHCR |
 |---|---|---|---|---|
-| Staging | `dev` | `https://studio-dev.bot-creator.fr` | `https://dev.bot-creator.fr` | `bot-creator-studio:dev-<sha>`, `:dev` |
-| Production | `main` / `master` | `https://studio.bot-creator.fr` | `https://api.bot-creator.fr` | `bot-creator-studio:sha-<sha>`, `:latest` |
+| Staging | `dev` | `https://studio-dev.bot-creator.fr` | `https://dev.bot-creator.fr` | `dev-<sha>`, `dev`, `<x.y.z>-dev.<n°>` |
+| Production | `main` / `master` | `https://studio.bot-creator.fr` | `https://api.bot-creator.fr` | `<x.y.z>`, `sha-<sha>`, `latest` |
+
+## Versions
+
+Le Studio a sa propre version SemVer, indépendante de celle de l'app (tags Git
+`studio-vX.Y.Z` ; `vX.Y.Z` reste celui de l'app). Sur `main`/`master`, la CI :
+
+1. déduit la montée des Conventional Commits qui touchent `packages/studio` et
+   `packages/ui` depuis le dernier tag `studio-v*` (`!:` ou `BREAKING CHANGE` →
+   majeure, `feat` → mineure, le reste → correctif ; la première version est celle
+   du `pubspec.yaml` du Studio) ;
+2. pose le tag et la release GitHub (jamais marquée « latest » : celle de l'app le
+   reste) ;
+3. publie l'image sous `<x.y.z>`, avec les labels OCI `version` et `revision`, et
+   compile le site avec cette version : `/version.json` du site déployé la donne.
+
+Un lancement manuel (`workflow_dispatch`) accepte un `bump` pour forcer le type de
+montée. Sur `dev`, l'image porte `<dernière version>-dev.<n°>` en plus de `dev`.
+
+**Kubernetes** : `latest` et `dev` sont mobiles. Pour figer un environnement sur une
+version, mettre cette version dans `newTag` de l'overlay
+(`kube-infra/overlays/<env>/kustomization.yaml`, image
+`ghcr.io/<owner>/bot-creator-studio`) ; pour savoir ce qui tourne :
+`curl https://studio.bot-creator.fr/version.json`.
 
 L'URL de l'API est **figée à la compilation** : une image par environnement, on
 ne peut pas pointer l'image de staging vers la production en changeant une
@@ -44,5 +67,5 @@ docker build -t bot-creator-studio .
 Elle construit l'image, la lance et contrôle : la sonde de santé, le repli vers
 `index.html` (le retour OAuth arrive sur `/?code=…&state=…`), les en-têtes de
 sécurité, le cache désactivé sur les fichiers d'entrée (sinon une mise à jour
-n'arrive jamais chez ceux qui ont déjà ouvert le site) et le type MIME de
-`main.dart.wasm`. Si l'un saute, l'image n'est pas publiée.
+n'arrive jamais chez ceux qui ont déjà ouvert le site), que `/version.json` porte
+bien la version publiée, et le type MIME de `main.dart.wasm`. Si l'un saute, l'image n'est pas publiée.
