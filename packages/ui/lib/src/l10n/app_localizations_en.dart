@@ -5337,7 +5337,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboarding_command_example =>
-      'Example:\n/hello → Bot replies \"Hello! 👋\"';
+      'Example:\n/hello → Bot replies \"Hello!\"';
 
   @override
   String get onboarding_command_learn => 'Learn how commands work';
@@ -5364,7 +5364,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboarding_create_tip =>
-      '💡 Tip: Never share your token! It gives full access to your bot.';
+      'Tip: Never share your token! It gives full access to your bot.';
 
   @override
   String get onboarding_create_title => 'Step 1: Create a Bot';
@@ -5401,7 +5401,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboarding_start_tip =>
-      '✨ Great! You\'ve created your first Discord bot. You can now add more commands and customize it!';
+      'Great! You\'ve created your first Discord bot. You can now add more commands and customize it!';
 
   @override
   String get onboarding_start_title => 'Step 3: Start the Bot';
@@ -5427,7 +5427,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboarding_success_tip3 => 'Backup your data';
 
   @override
-  String get onboarding_success_title => 'Congratulations! 🎉';
+  String get onboarding_success_title => 'Congratulations!';
 
   @override
   String get onboarding_success_whatsnext => 'What\'s next?';
@@ -6227,6 +6227,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String runtime_unreachable(String error) {
     return 'Bot Creator servers are temporarily unreachable. Original error: $error';
   }
+
+  @override
+  String settings_runtime_engine_switch_left_out(String items) {
+    return '\n\nThese items cannot run on the new engine and will be left out: $items';
+  }
+
+  @override
+  String studio_engine_hint(String engine) {
+    return 'This bot runs on $engine. The engine is chosen when a bot is created; to change it, use the Bot Creator app.';
+  }
+
+  @override
+  String get legacy_item_js_notice =>
+      'This command was built with blocks or BDFD, which a JavaScript bot cannot run, so it was not running. Write it in JavaScript below to make it work.';
+
+  @override
+  String bot_sync_blocked(String reason) {
+    return 'Your latest changes are saved on this device but not synced yet: $reason';
+  }
+
+  @override
+  String get runtime_runner_capacity =>
+      'No hosting slot is available right now. Please retry in a few minutes.';
+
+  @override
+  String get runtime_runner_updating =>
+      'The Bot Creator platform is updating. Please retry in a minute.';
+
+  @override
+  String runtime_invalid_bot_config(String detail) {
+    return 'The bot configuration was rejected: $detail';
+  }
+
+  @override
+  String get runtime_free_time_desktop =>
+      'This bot needs free hosting time before it can start. Rewarded ads are only available in the mobile app: watch one there, then start the bot again.';
 
   @override
   String get sync_cloud_update_applied => 'Cloud update applied successfully';

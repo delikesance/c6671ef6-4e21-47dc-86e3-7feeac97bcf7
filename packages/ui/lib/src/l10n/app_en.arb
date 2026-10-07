@@ -10023,7 +10023,7 @@
   "ok": "OK",
   "onboarding_command_button": "Continue",
   "onboarding_command_desc": "Create your first command",
-  "onboarding_command_example": "Example:\n/hello → Bot replies \"Hello! 👋\"",
+  "onboarding_command_example": "Example:\n/hello → Bot replies \"Hello!\"",
   "onboarding_command_learn": "Learn how commands work",
   "onboarding_command_text": "Commands are the heart of your bot. They allow users to interact with your bot via Discord.",
   "onboarding_command_title": "Step 2: Add a Command",
@@ -10031,7 +10031,7 @@
   "onboarding_create_desc": "Get your Discord token",
   "onboarding_create_open_portal": "Open Discord Developer Portal",
   "onboarding_create_steps": "1. Go to Discord Developer Portal\n2. Create a new app\n3. Copy the bot token\n4. Paste it below",
-  "onboarding_create_tip": "💡 Tip: Never share your token! It gives full access to your bot.",
+  "onboarding_create_tip": "Tip: Never share your token! It gives full access to your bot.",
   "onboarding_create_title": "Step 1: Create a Bot",
   "onboarding_create_tutorial": "Tutorial: How to get a token",
   "onboarding_remind_later": "Remind me later",
@@ -10042,7 +10042,7 @@
   "onboarding_start_desc": "Launch your bot!",
   "onboarding_start_hint": "Once your bot is created, you'll find the Start button on its card in the app.",
   "onboarding_start_text": "Click the \"Start\" button on your bot card. Then test your command in Discord!",
-  "onboarding_start_tip": "✨ Great! You've created your first Discord bot. You can now add more commands and customize it!",
+  "onboarding_start_tip": "Great! You've created your first Discord bot. You can now add more commands and customize it!",
   "onboarding_start_title": "Step 3: Start the Bot",
   "onboarding_step_indicator": "Step {current} of {total}",
   "onboarding_success_button": "Start!",
@@ -10050,7 +10050,7 @@
   "onboarding_success_tip1": "Add more commands",
   "onboarding_success_tip2": "Create workflows",
   "onboarding_success_tip3": "Backup your data",
-  "onboarding_success_title": "Congratulations! 🎉",
+  "onboarding_success_title": "Congratulations!",
   "onboarding_success_whatsnext": "What's next?",
   "onboarding_welcome_desc": "Create your first Discord bot in 3 simple steps. We'll guide you through each step.",
   "onboarding_welcome_skip": "Skip",
@@ -10249,6 +10249,42 @@
   "runtime_startup_failed_with_detail": "Bot Creator server startup failed. Details: {detail} Original error: {error}",
   "runtime_startup_in_progress": "Bot Creator server startup is still in progress ({status}). Processing may still be queued or running. Original error: {error}",
   "runtime_unreachable": "Bot Creator servers are temporarily unreachable. Original error: {error}",
+  "settings_runtime_engine_switch_left_out": "\n\nThese items cannot run on the new engine and will be left out: {items}",
+  "@settings_runtime_engine_switch_left_out": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "studio_engine_hint": "This bot runs on {engine}. The engine is chosen when a bot is created; to change it, use the Bot Creator app.",
+  "@studio_engine_hint": {
+    "placeholders": {
+      "engine": {
+        "type": "String"
+      }
+    }
+  },
+  "legacy_item_js_notice": "This command was built with blocks or BDFD, which a JavaScript bot cannot run, so it was not running. Write it in JavaScript below to make it work.",
+  "bot_sync_blocked": "Your latest changes are saved on this device but not synced yet: {reason}",
+  "@bot_sync_blocked": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "runtime_runner_capacity": "No hosting slot is available right now. Please retry in a few minutes.",
+  "runtime_runner_updating": "The Bot Creator platform is updating. Please retry in a minute.",
+  "runtime_invalid_bot_config": "The bot configuration was rejected: {detail}",
+  "@runtime_invalid_bot_config": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "runtime_free_time_desktop": "This bot needs free hosting time before it can start. Rewarded ads are only available in the mobile app: watch one there, then start the bot again.",
   "sync_cloud_update_applied": "Cloud update applied successfully",
   "sync_conflict_message": "Divergent changes exist between this local session and Cloud (Mobile). Choose how to resolve this conflict:",
   "sync_conflict_title": "Sync Conflict Detected",

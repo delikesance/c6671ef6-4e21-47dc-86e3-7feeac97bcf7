@@ -8555,26 +8555,26 @@
   "ok": "OK",
   "onboarding_command_button": "続ける",
   "onboarding_command_desc": "最初のコマンドを作成",
-  "onboarding_command_example": "例:\n/hello → ボットが \"こんにちは！ 👋\" と返信",
+  "onboarding_command_example": "例:\n/hello → ボットが \"こんにちは！\"と返信",
   "onboarding_command_text": "コマンドはボットの心臓部です。ユーザーはコマンドを通じてボットと対話します。",
   "onboarding_command_title": "ステップ2: コマンドを追加",
   "onboarding_create_button": "続ける",
   "onboarding_create_desc": "Discordトークンを取得",
   "onboarding_create_steps": "1. Discord Developer Portal にアクセス\n2. 新しいアプリを作成\n3. ボットトークンをコピー\n4. ここに貼り付け",
-  "onboarding_create_tip": "💡 ヒント: トークンは絶対に共有しないでください！ボットへの完全なアクセス権を与えます。",
+  "onboarding_create_tip": "ヒント: トークンは絶対に共有しないでください！ボットへの完全なアクセス権を与えます。",
   "onboarding_create_title": "ステップ1: ボットを作成",
   "onboarding_create_tutorial": "チュートリアル: トークンの取得方法",
   "onboarding_start_button": "続ける",
   "onboarding_start_desc": "ボットを起動！",
   "onboarding_start_text": "ボットカードの「起動」ボタンをクリックしてください。その後Discordでコマンドをテストしましょう！",
-  "onboarding_start_tip": "✨ 素晴らしい！最初のDiscordボットを作成しました。さらにコマンドを追加して",
+  "onboarding_start_tip": "素晴らしい！最初のDiscordボットを作成しました。さらにコマンドを追加して",
   "onboarding_start_title": "ステップ3: ボットを起動",
   "onboarding_success_button": "始める！",
   "onboarding_success_desc": "Discordボットの準備ができました！",
   "onboarding_success_tip1": "さらにコマンドを追加",
   "onboarding_success_tip2": "ワークフローを作成",
   "onboarding_success_tip3": "データをバックアップ",
-  "onboarding_success_title": "おめでとうございます！ 🎉",
+  "onboarding_success_title": "おめでとうございます！",
   "onboarding_success_whatsnext": "次は何をしますか？",
   "onboarding_welcome_desc": "3つの簡単なステップで最初のDiscordボットを作成します。各ステップをガイドします。",
   "onboarding_welcome_skip": "スキップ",
@@ -8773,6 +8773,42 @@
   "runtime_startup_failed_with_detail": "Bot Creatorサーバーでの起動に失敗しました。詳細: {detail} 元のエラー: {error}",
   "runtime_startup_in_progress": "Bot Creatorサーバーでの起動がまだ進行中です（{status}）。処理は待機中または実行中の可能性があります。元のエラー: {error}",
   "runtime_unreachable": "Bot Creatorサーバーに一時的に接続できません。元のエラー: {error}",
+  "settings_runtime_engine_switch_left_out": "\n\n次の項目は新しいエンジンでは実行できないため、引き継がれません: {items}",
+  "@settings_runtime_engine_switch_left_out": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "studio_engine_hint": "このボットは {engine} で動作しています。エンジンはボット作成時に選択します。変更するには Bot Creator アプリを使用してください。",
+  "@studio_engine_hint": {
+    "placeholders": {
+      "engine": {
+        "type": "String"
+      }
+    }
+  },
+  "legacy_item_js_notice": "このコマンドはブロックまたは BDFD で作成されており、JavaScript ボットでは実行できないため動作していませんでした。動作させるには、下で JavaScript として書いてください。",
+  "bot_sync_blocked": "最新の変更はこの端末に保存されていますが、まだ同期されていません: {reason}",
+  "@bot_sync_blocked": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "runtime_runner_capacity": "現在、利用できるホスティング枠がありません。数分後にもう一度お試しください。",
+  "runtime_runner_updating": "Bot Creator プラットフォームを更新中です。1分後にもう一度お試しください。",
+  "runtime_invalid_bot_config": "ボットの設定が拒否されました: {detail}",
+  "@runtime_invalid_bot_config": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "runtime_free_time_desktop": "このボットを起動するには無料のホスティング時間が必要です。リワード広告はモバイルアプリでのみ利用できます。そちらで広告を視聴してから、もう一度ボットを起動してください。",
   "sync_cloud_update_applied": "クラウドの更新を適用しました",
   "sync_conflict_message": "このローカルセッションとクラウド版（モバイル）で変更が分かれています。解決方法を選択してください。",
   "sync_conflict_title": "同期の競合を検出しました",
