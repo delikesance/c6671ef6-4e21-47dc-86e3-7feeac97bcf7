@@ -208,4 +208,27 @@ void main() {
       );
     },
   );
+
+  test('refus nommés : capacité, mise à jour, config refusée', () {
+    StudioApiException e(String msg, String code, int status) =>
+        StudioApiException(msg, statusCode: status, code: code);
+    expect(
+      StartRefusal.fromError(e('x', 'runner_capacity', 503)),
+      StartRefusal.runnerCapacity,
+    );
+    expect(
+      StartRefusal.fromError(e('x', 'runner_updating', 503)),
+      StartRefusal.runnerUpdating,
+    );
+    expect(
+      StartRefusal.fromError(
+        e(
+          'Invalid config: commands[1].script: Required',
+          'invalid_bot_config',
+          422,
+        ),
+      ),
+      StartRefusal.invalidConfig,
+    );
+  });
 }

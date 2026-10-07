@@ -5118,8 +5118,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get onboarding_command_desc => '最初のコマンドを作成';
 
   @override
-  String get onboarding_command_example =>
-      '例:\n/hello → ボットが \"こんにちは！ 👋\" と返信';
+  String get onboarding_command_example => '例:\n/hello → ボットが \"こんにちは！\"と返信';
 
   @override
   String get onboarding_command_learn => 'コマンドの仕組みを学ぶ';
@@ -5146,7 +5145,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get onboarding_create_tip =>
-      '💡 ヒント: トークンは絶対に共有しないでください！ボットへの完全なアクセス権を与えます。';
+      'ヒント: トークンは絶対に共有しないでください！ボットへの完全なアクセス権を与えます。';
 
   @override
   String get onboarding_create_title => 'ステップ1: ボットを作成';
@@ -5181,8 +5180,7 @@ class AppLocalizationsJa extends AppLocalizations {
       'ボットカードの「起動」ボタンをクリックしてください。その後Discordでコマンドをテストしましょう！';
 
   @override
-  String get onboarding_start_tip =>
-      '✨ 素晴らしい！最初のDiscordボットを作成しました。さらにコマンドを追加して';
+  String get onboarding_start_tip => '素晴らしい！最初のDiscordボットを作成しました。さらにコマンドを追加して';
 
   @override
   String get onboarding_start_title => 'ステップ3: ボットを起動';
@@ -5208,7 +5206,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get onboarding_success_tip3 => 'データをバックアップ';
 
   @override
-  String get onboarding_success_title => 'おめでとうございます！ 🎉';
+  String get onboarding_success_title => 'おめでとうございます！';
 
   @override
   String get onboarding_success_whatsnext => '次は何をしますか？';
@@ -5921,6 +5919,42 @@ class AppLocalizationsJa extends AppLocalizations {
   String runtime_unreachable(String error) {
     return 'Bot Creatorサーバーに一時的に接続できません。元のエラー: $error';
   }
+
+  @override
+  String settings_runtime_engine_switch_left_out(String items) {
+    return '\n\n次の項目は新しいエンジンでは実行できないため、引き継がれません: $items';
+  }
+
+  @override
+  String studio_engine_hint(String engine) {
+    return 'このボットは $engine で動作しています。エンジンはボット作成時に選択します。変更するには Bot Creator アプリを使用してください。';
+  }
+
+  @override
+  String get legacy_item_js_notice =>
+      'このコマンドはブロックまたは BDFD で作成されており、JavaScript ボットでは実行できないため動作していませんでした。動作させるには、下で JavaScript として書いてください。';
+
+  @override
+  String bot_sync_blocked(String reason) {
+    return '最新の変更はこの端末に保存されていますが、まだ同期されていません: $reason';
+  }
+
+  @override
+  String get runtime_runner_capacity =>
+      '現在、利用できるホスティング枠がありません。数分後にもう一度お試しください。';
+
+  @override
+  String get runtime_runner_updating =>
+      'Bot Creator プラットフォームを更新中です。1分後にもう一度お試しください。';
+
+  @override
+  String runtime_invalid_bot_config(String detail) {
+    return 'ボットの設定が拒否されました: $detail';
+  }
+
+  @override
+  String get runtime_free_time_desktop =>
+      'このボットを起動するには無料のホスティング時間が必要です。リワード広告はモバイルアプリでのみ利用できます。そちらで広告を視聴してから、もう一度ボットを起動してください。';
 
   @override
   String get sync_cloud_update_applied => 'クラウドの更新を適用しました';

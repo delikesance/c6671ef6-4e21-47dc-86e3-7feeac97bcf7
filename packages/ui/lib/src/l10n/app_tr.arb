@@ -8468,26 +8468,26 @@
   "ok": "Tamam",
   "onboarding_command_button": "Devam Et",
   "onboarding_command_desc": "İlk komutunuzu oluşturun",
-  "onboarding_command_example": "Örnek:\n/hello → Bot \"Merhaba! 👋\" yanıtını verir",
+  "onboarding_command_example": "Örnek:\n/hello → Bot \"Merhaba!\" yanıtını verir",
   "onboarding_command_text": "Komutlar botunuzun kalbidir. Kullanıcıların Discord üzerinden botunuzla etkileşime girmesini sağlarlar.",
   "onboarding_command_title": "Adım 2: Bir Komut Ekleyin",
   "onboarding_create_button": "Devam Et",
   "onboarding_create_desc": "Discord jetonunuzu (token) alın",
   "onboarding_create_steps": "1. Discord Geliştirici Portalı'na gidin\n2. Yeni bir uygulama oluşturun\n3. Bot jetonunu kopyalayın\n4. Aşağıya yapıştırın",
-  "onboarding_create_tip": "💡 İpucu: Jetonunuzu asla paylaşmayın! Botunuza tam erişim sağlar.",
+  "onboarding_create_tip": "İpucu: Jetonunuzu asla paylaşmayın! Botunuza tam erişim sağlar.",
   "onboarding_create_title": "Adım 1: Bir Bot Oluşturun",
   "onboarding_create_tutorial": "Eğitim: Jeton nasıl alınır",
   "onboarding_start_button": "Devam Et",
   "onboarding_start_desc": "Botunuzu yayınlayın!",
   "onboarding_start_text": "Bot kartınızdaki \"Başlat\" düğmesine tıklayın. Ardından komutunuzu Discord'da test edin!",
-  "onboarding_start_tip": "✨ Harika! İlk Discord botunuzu oluşturdunuz. Şimdi daha fazla komut ekleyebilir ve özelleştirebilirsiniz!",
+  "onboarding_start_tip": "Harika! İlk Discord botunuzu oluşturdunuz. Şimdi daha fazla komut ekleyebilir ve özelleştirebilirsiniz!",
   "onboarding_start_title": "Adım 3: Botu Başlatın",
   "onboarding_success_button": "Başla!",
   "onboarding_success_desc": "Discord botunuz kullanıma hazır!",
   "onboarding_success_tip1": "Daha fazla komut ekle",
   "onboarding_success_tip2": "İş akışları oluştur",
   "onboarding_success_tip3": "Verilerini yedekle",
-  "onboarding_success_title": "Tebrikler! 🎉",
+  "onboarding_success_title": "Tebrikler!",
   "onboarding_success_whatsnext": "Sırada ne var?",
   "onboarding_welcome_desc": "3 basit adımda ilk Discord botunuzu oluşturun. Her adımda size rehberlik edeceğiz.",
   "onboarding_welcome_skip": "Atla",
@@ -8686,6 +8686,42 @@
   "runtime_startup_failed_with_detail": "Bot Creator sunucularında başlatma başarısız oldu. Ayrıntılar: {detail} Özgün hata: {error}",
   "runtime_startup_in_progress": "Bot Creator sunucularında başlatma hâlâ sürüyor ({status}). İşlem kuyrukte veya çalışıyor olabilir. Özgün hata: {error}",
   "runtime_unreachable": "Bot Creator sunucularına geçici olarak ulaşılamıyor. Özgün hata: {error}",
+  "settings_runtime_engine_switch_left_out": "\n\nBu öğeler yeni motorda çalışamaz ve dışarıda bırakılacak: {items}",
+  "@settings_runtime_engine_switch_left_out": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "studio_engine_hint": "Bu bot {engine} ile çalışıyor. Motor, bot oluşturulurken seçilir; değiştirmek için Bot Creator uygulamasını kullanın.",
+  "@studio_engine_hint": {
+    "placeholders": {
+      "engine": {
+        "type": "String"
+      }
+    }
+  },
+  "legacy_item_js_notice": "Bu komut bloklar veya BDFD ile oluşturulmuş; JavaScript botu bunları çalıştıramaz, bu yüzden çalışmıyordu. Çalışması için aşağıda JavaScript ile yazın.",
+  "bot_sync_blocked": "Son değişiklikleriniz bu cihaza kaydedildi ancak henüz eşitlenmedi: {reason}",
+  "@bot_sync_blocked": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "runtime_runner_capacity": "Şu anda boş bir barındırma yuvası yok. Lütfen birkaç dakika sonra tekrar deneyin.",
+  "runtime_runner_updating": "Bot Creator platformu güncelleniyor. Lütfen bir dakika sonra tekrar deneyin.",
+  "runtime_invalid_bot_config": "Bot yapılandırması reddedildi: {detail}",
+  "@runtime_invalid_bot_config": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "runtime_free_time_desktop": "Bu botun başlaması için ücretsiz barındırma süresi gerekiyor. Ödüllü reklamlar yalnızca mobil uygulamada bulunur: orada bir reklam izleyin, sonra botu yeniden başlatın.",
   "sync_cloud_update_applied": "Bulut güncellemesi başarıyla uygulandı",
   "sync_conflict_message": "Bu yerel oturum ile Bulut sürümü (Mobil) arasında farklı değişiklikler var. Bu çakışmayı nasıl çözeceğinizi seçin:",
   "sync_conflict_title": "Eşitleme çakışması algılandı",

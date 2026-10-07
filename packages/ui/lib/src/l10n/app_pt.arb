@@ -8501,26 +8501,26 @@
   "ok": "OK",
   "onboarding_command_button": "Continuar",
   "onboarding_command_desc": "Crie o seu primeiro comando",
-  "onboarding_command_example": "Exemplo:\n/hello → O bot responde \"Olá! 👋\"",
+  "onboarding_command_example": "Exemplo:\n/hello → O bot responde \"Olá!\"",
   "onboarding_command_text": "Os comandos são o coração do seu bot. Eles permitem que os utilizadores interajam com o seu bot via Discord.",
   "onboarding_command_title": "Passo 2: Adicionar um Comando",
   "onboarding_create_button": "Continuar",
   "onboarding_create_desc": "Obtenha o seu token do Discord",
   "onboarding_create_steps": "1. Vá ao Portal de Programadores do Discord\n2. Crie uma nova aplicação\n3. Copie o token do bot\n4. Cole-o abaixo",
-  "onboarding_create_tip": "💡 Dica: Nunca partilhe o seu token! Ele dá acesso total ao seu bot.",
+  "onboarding_create_tip": "Dica: Nunca partilhe o seu token! Ele dá acesso total ao seu bot.",
   "onboarding_create_title": "Passo 1: Criar um Bot",
   "onboarding_create_tutorial": "Tutorial: Como obter um token",
   "onboarding_start_button": "Continuar",
   "onboarding_start_desc": "Lance o seu bot!",
   "onboarding_start_text": "Clique no botão \"Iniciar\" no cartão do seu bot. Depois teste o seu comando no Discord!",
-  "onboarding_start_tip": "✨ Fantástico! Criou o seu primeiro bot do Discord. Agora pode adicionar mais comandos e personalizá-lo!",
+  "onboarding_start_tip": "Fantástico! Criou o seu primeiro bot do Discord. Agora pode adicionar mais comandos e personalizá-lo!",
   "onboarding_start_title": "Passo 3: Iniciar o Bot",
   "onboarding_success_button": "Iniciar!",
   "onboarding_success_desc": "O seu bot do Discord está pronto a funcionar!",
   "onboarding_success_tip1": "Adicionar mais comandos",
   "onboarding_success_tip2": "Criar fluxos de trabalho",
   "onboarding_success_tip3": "Fazer cópia de segurança dos dados",
-  "onboarding_success_title": "Parabéns! 🎉",
+  "onboarding_success_title": "Parabéns!",
   "onboarding_success_whatsnext": "O que se segue?",
   "onboarding_welcome_desc": "Crie o seu primeiro bot do Discord em 3 passos simples. Vamos guiá-lo em cada etapa.",
   "onboarding_welcome_skip": "Saltar",
@@ -8719,6 +8719,42 @@
   "runtime_startup_failed_with_detail": "O arranque nos servidores Bot Creator falhou. Detalhes: {detail} Erro original: {error}",
   "runtime_startup_in_progress": "O arranque nos servidores Bot Creator ainda está em curso ({status}). O processamento pode estar em fila ou a decorrer. Erro original: {error}",
   "runtime_unreachable": "Os servidores Bot Creator estão temporariamente inacessíveis. Erro original: {error}",
+  "settings_runtime_engine_switch_left_out": "\n\nEstes itens não funcionam no novo mecanismo e serão deixados de fora: {items}",
+  "@settings_runtime_engine_switch_left_out": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "studio_engine_hint": "Este bot funciona com {engine}. O mecanismo é escolhido ao criar o bot; para alterá-lo, use o aplicativo Bot Creator.",
+  "@studio_engine_hint": {
+    "placeholders": {
+      "engine": {
+        "type": "String"
+      }
+    }
+  },
+  "legacy_item_js_notice": "Este comando foi criado com blocos ou BDFD, que um bot JavaScript não consegue executar, então ele não estava funcionando. Escreva-o em JavaScript abaixo para que funcione.",
+  "bot_sync_blocked": "Suas últimas alterações estão salvas neste dispositivo, mas ainda não sincronizadas: {reason}",
+  "@bot_sync_blocked": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "runtime_runner_capacity": "Nenhum espaço de hospedagem está disponível no momento. Tente novamente em alguns minutos.",
+  "runtime_runner_updating": "A plataforma Bot Creator está sendo atualizada. Tente novamente em um minuto.",
+  "runtime_invalid_bot_config": "A configuração do bot foi recusada: {detail}",
+  "@runtime_invalid_bot_config": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "runtime_free_time_desktop": "Este bot precisa de tempo de hospedagem gratuito para iniciar. Os anúncios com recompensa só estão disponíveis no aplicativo móvel: assista a um lá e inicie o bot novamente.",
   "sync_cloud_update_applied": "Atualização da Cloud aplicada com sucesso",
   "sync_conflict_message": "Existem alterações divergentes entre esta sessão local e a versão da Cloud (Mobile). Escolha como resolver este conflito:",
   "sync_conflict_title": "Conflito de sincronização detetado",

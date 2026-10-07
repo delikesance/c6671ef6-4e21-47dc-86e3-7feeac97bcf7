@@ -50,6 +50,8 @@ class WorkflowDraft implements ActionListHost {
   /// `workflow` | `bdfd_script` | `javascript`.
   String get executionMode => '${_raw['executionMode'] ?? 'workflow'}';
 
+  set executionMode(String value) => _raw['executionMode'] = value;
+
   bool get visual => executionMode == 'workflow';
 
   bool get isJavascript => executionMode == 'javascript';

@@ -23,6 +23,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/utils/hash_util.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_mcp.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_catalog.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_tool_result.dart';
@@ -77,6 +78,7 @@ class _CopilotPageState extends State<CopilotPage> {
   String? _error;
   bool _catalogMismatch = false;
   String _partial = '';
+  String _lastSentPrompt = '';
   int _cursor = 0, _viewEpoch = 0;
   String? _requestKey;
   String? _summaryKey;
@@ -189,6 +191,11 @@ class _CopilotPageState extends State<CopilotPage> {
       final role = message['role'];
       if (role != 'user' && role != 'assistant') continue;
       final content = (message['content'] ?? '').toString().trim();
+      // The summary request that opens a continuation is an instruction to the
+      // model, not something the user wrote.
+      if (role == 'user' && content.startsWith('[continuation-summary]')) {
+        continue;
+      }
       final calls = (message['tool_calls'] as List? ?? const []);
       if (role == 'user' || calls.isEmpty) {
         flushActivity();
@@ -464,6 +471,10 @@ class _CopilotPageState extends State<CopilotPage> {
           );
         case 'ai_spending_blocked':
           return context.tr.copilot_err_spending_blocked;
+        case 'ai_insufficient_tokens':
+          // Running out mid-turn arrives as a stream error (no HTTP status),
+          // so it never reached the 402 branch below.
+          return context.tr.copilot_err_insufficient_balance;
         case 'ai_revision_conflict':
           return context.tr.copilot_err_revision_conflict;
         case 'ai_action_already_claimed':
@@ -726,14 +737,20 @@ class _CopilotPageState extends State<CopilotPage> {
         await prefs.remove(oldKey);
         if (!mounted) return;
       }
+      final bot = (_chat?['bot_id'] ?? widget.botId)?.toString();
       _pending ??= {
         'idempotency_key': const Uuid().v4(),
         'revision': _chat!['revision'],
         'prompt': prompt,
         'tools': _mcp!.tools.map((t) => t['name']).toList(),
+        // The server picks its prompt guidance from the bot's engine, so the
+        // model neither probes for it nor writes another language.
+        if (bot != null && bot.isNotEmpty)
+          'runtime_engine': await getBotRuntimeEngine(bot),
       };
       _requestKey = _pending!['idempotency_key'] as String;
       _pendingRejected = false;
+      if (prompt.isNotEmpty) _lastSentPrompt = prompt;
       await _api!.startAITurn(_id, _pending!);
       if (!mounted) return;
       _pending = null;
@@ -933,6 +950,12 @@ class _CopilotPageState extends State<CopilotPage> {
           if (latest != null) _chat = latest;
           _busy = false;
           _summarizing = false;
+          // A half-streamed bubble would otherwise stay on screen as if it were the answer.
+          _partial = '';
+          // Give the text back: the turn failed, and retyping it would also duplicate the user message.
+          if (_prompt.text.trim().isEmpty && _lastSentPrompt.isNotEmpty) {
+            _prompt.text = _lastSentPrompt;
+          }
           _error = _describe(e);
         });
       }
@@ -1301,9 +1324,9 @@ class _CopilotPageState extends State<CopilotPage> {
             ),
           );
           if (yes == true) {
+            await _api!.deleteAIConversation(_id);
             final prefs = await SharedPreferences.getInstance();
             await prefs.remove(_draftKey);
-            await _api!.deleteAIConversation(_id);
             _chat = null;
             _prompt.clear();
           }
@@ -2025,7 +2048,10 @@ class _CopilotPageState extends State<CopilotPage> {
                                 horizontal: 18,
                               ),
                             ),
-                            onPressed: _busy || _chat?['archived'] == true
+                            onPressed:
+                                _busy ||
+                                    _mcp == null ||
+                                    _chat?['archived'] == true
                                 ? null
                                 : () {
                                     FocusScope.of(context).unfocus();

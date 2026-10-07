@@ -8467,26 +8467,26 @@
   "ok": "OK",
   "onboarding_command_button": "Weiter",
   "onboarding_command_desc": "Erstellen Sie Ihren ersten Befehl",
-  "onboarding_command_example": "Beispiel:\n/hello → Bot antwortet \"Hallo! 👋\"",
+  "onboarding_command_example": "Beispiel:\n/hello → Bot antwortet \"Hallo!\"",
   "onboarding_command_text": "Befehle sind das Herzstück Ihres Bots. Sie ermöglichen es Benutzern, über Discord mit Ihrem Bot zu interagieren.",
   "onboarding_command_title": "Schritt 2: Einen Befehl hinzufügen",
   "onboarding_create_button": "Weiter",
   "onboarding_create_desc": "Holen Sie sich Ihr Discord-Token",
   "onboarding_create_steps": "1. Gehen Sie zum Discord Developer Portal\n2. Erstellen Sie eine neue App\n3. Kopieren Sie das Bot-Token\n4. Fügen Sie es unten ein",
-  "onboarding_create_tip": "💡 Tipp: Teilen Sie niemals Ihr Token! Es gibt vollen Zugriff auf Ihren Bot.",
+  "onboarding_create_tip": "Tipp: Teilen Sie niemals Ihr Token! Es gibt vollen Zugriff auf Ihren Bot.",
   "onboarding_create_title": "Schritt 1: Einen Bot erstellen",
   "onboarding_create_tutorial": "Tutorial: So erhalten Sie ein Token",
   "onboarding_start_button": "Weiter",
   "onboarding_start_desc": "Starten Sie Ihren Bot!",
   "onboarding_start_text": "Klicken Sie auf die Schaltfläche \"Start\" auf Ihrer Bot-Karte. Testen Sie dann Ihren Befehl in Discord!",
-  "onboarding_start_tip": "✨ Großartig! Sie haben Ihren ersten Discord-Bot erstellt. Sie können jetzt weitere Befehle hinzufügen und ihn anpassen!",
+  "onboarding_start_tip": "Großartig! Sie haben Ihren ersten Discord-Bot erstellt. Sie können jetzt weitere Befehle hinzufügen und ihn anpassen!",
   "onboarding_start_title": "Schritt 3: Den Bot starten",
   "onboarding_success_button": "Starten!",
   "onboarding_success_desc": "Ihr Discord-Bot ist startklar!",
   "onboarding_success_tip1": "Weitere Befehle hinzufügen",
   "onboarding_success_tip2": "Workflows erstellen",
   "onboarding_success_tip3": "Sichern Sie Ihre Daten",
-  "onboarding_success_title": "Herzlichen Glückwunsch! 🎉",
+  "onboarding_success_title": "Herzlichen Glückwunsch!",
   "onboarding_success_whatsnext": "Was kommt als Nächstes?",
   "onboarding_welcome_desc": "Erstellen Sie Ihren ersten Discord-Bot in 3 einfachen Schritten. Wir führen Sie durch jeden Schritt.",
   "onboarding_welcome_skip": "Überspringen",
@@ -8685,6 +8685,42 @@
   "runtime_startup_failed_with_detail": "Der Start auf den Bot-Creator-Servern ist fehlgeschlagen. Details: {detail} Ursprünglicher Fehler: {error}",
   "runtime_startup_in_progress": "Der Start auf den Bot-Creator-Servern läuft noch ({status}). Die Verarbeitung kann noch in der Warteschlange stehen oder laufen. Ursprünglicher Fehler: {error}",
   "runtime_unreachable": "Die Bot-Creator-Server sind vorübergehend nicht erreichbar. Ursprünglicher Fehler: {error}",
+  "settings_runtime_engine_switch_left_out": "\n\nDiese Elemente laufen auf der neuen Engine nicht und werden weggelassen: {items}",
+  "@settings_runtime_engine_switch_left_out": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "studio_engine_hint": "Dieser Bot läuft mit {engine}. Die Engine wird beim Erstellen eines Bots gewählt; um sie zu ändern, nutze die Bot-Creator-App.",
+  "@studio_engine_hint": {
+    "placeholders": {
+      "engine": {
+        "type": "String"
+      }
+    }
+  },
+  "legacy_item_js_notice": "Dieser Befehl wurde mit Blöcken oder BDFD erstellt, was ein JavaScript-Bot nicht ausführen kann, daher lief er nicht. Schreibe ihn unten in JavaScript, damit er funktioniert.",
+  "bot_sync_blocked": "Deine letzten Änderungen sind auf diesem Gerät gespeichert, aber noch nicht synchronisiert: {reason}",
+  "@bot_sync_blocked": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "runtime_runner_capacity": "Im Moment ist kein Hosting-Platz frei. Bitte versuche es in einigen Minuten erneut.",
+  "runtime_runner_updating": "Die Bot-Creator-Plattform wird gerade aktualisiert. Bitte versuche es in einer Minute erneut.",
+  "runtime_invalid_bot_config": "Die Bot-Konfiguration wurde abgelehnt: {detail}",
+  "@runtime_invalid_bot_config": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "runtime_free_time_desktop": "Dieser Bot braucht kostenlose Hosting-Zeit, um zu starten. Belohnungswerbung gibt es nur in der mobilen App: Sieh dir dort eine an und starte den Bot dann erneut.",
   "sync_cloud_update_applied": "Cloud-Aktualisierung erfolgreich angewendet",
   "sync_conflict_message": "Zwischen dieser lokalen Sitzung und der Cloud-Version (Mobil) gibt es abweichende Änderungen. Wähle, wie der Konflikt gelöst werden soll:",
   "sync_conflict_title": "Synchronisierungskonflikt erkannt",

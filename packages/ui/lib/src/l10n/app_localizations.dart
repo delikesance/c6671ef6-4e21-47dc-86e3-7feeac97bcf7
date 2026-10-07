@@ -9438,7 +9438,7 @@ abstract class AppLocalizations {
   /// /hello → Bot replies "Hello! 👋"
   ///
   /// In en, this message translates to:
-  /// **'Example:\n/hello → Bot replies \"Hello! 👋\"'**
+  /// **'Example:\n/hello → Bot replies \"Hello!\"'**
   String get onboarding_command_example;
 
   /// Link button that opens the commands tutorial
@@ -9489,7 +9489,7 @@ abstract class AppLocalizations {
   /// 💡 Tip: Never share your token! It gives full access to your bot.
   ///
   /// In en, this message translates to:
-  /// **'💡 Tip: Never share your token! It gives full access to your bot.'**
+  /// **'Tip: Never share your token! It gives full access to your bot.'**
   String get onboarding_create_tip;
 
   /// Step 1: Create a Bot
@@ -9555,7 +9555,7 @@ abstract class AppLocalizations {
   /// ✨ Great! You've created your first Discord bot. You can now add more commands and customize it!
   ///
   /// In en, this message translates to:
-  /// **'✨ Great! You\'ve created your first Discord bot. You can now add more commands and customize it!'**
+  /// **'Great! You\'ve created your first Discord bot. You can now add more commands and customize it!'**
   String get onboarding_start_tip;
 
   /// Step 3: Start the Bot
@@ -9603,7 +9603,7 @@ abstract class AppLocalizations {
   /// Congratulations! 🎉
   ///
   /// In en, this message translates to:
-  /// **'Congratulations! 🎉'**
+  /// **'Congratulations!'**
   String get onboarding_success_title;
 
   /// What's next?
@@ -10798,6 +10798,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bot Creator servers are temporarily unreachable. Original error: {error}'**
   String runtime_unreachable(String error);
+
+  /// No description provided for @settings_runtime_engine_switch_left_out.
+  ///
+  /// In en, this message translates to:
+  /// **'\n\nThese items cannot run on the new engine and will be left out: {items}'**
+  String settings_runtime_engine_switch_left_out(String items);
+
+  /// No description provided for @studio_engine_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'This bot runs on {engine}. The engine is chosen when a bot is created; to change it, use the Bot Creator app.'**
+  String studio_engine_hint(String engine);
+
+  /// No description provided for @legacy_item_js_notice.
+  ///
+  /// In en, this message translates to:
+  /// **'This command was built with blocks or BDFD, which a JavaScript bot cannot run, so it was not running. Write it in JavaScript below to make it work.'**
+  String get legacy_item_js_notice;
+
+  /// No description provided for @bot_sync_blocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Your latest changes are saved on this device but not synced yet: {reason}'**
+  String bot_sync_blocked(String reason);
+
+  /// No description provided for @runtime_runner_capacity.
+  ///
+  /// In en, this message translates to:
+  /// **'No hosting slot is available right now. Please retry in a few minutes.'**
+  String get runtime_runner_capacity;
+
+  /// No description provided for @runtime_runner_updating.
+  ///
+  /// In en, this message translates to:
+  /// **'The Bot Creator platform is updating. Please retry in a minute.'**
+  String get runtime_runner_updating;
+
+  /// No description provided for @runtime_invalid_bot_config.
+  ///
+  /// In en, this message translates to:
+  /// **'The bot configuration was rejected: {detail}'**
+  String runtime_invalid_bot_config(String detail);
+
+  /// No description provided for @runtime_free_time_desktop.
+  ///
+  /// In en, this message translates to:
+  /// **'This bot needs free hosting time before it can start. Rewarded ads are only available in the mobile app: watch one there, then start the bot again.'**
+  String get runtime_free_time_desktop;
 
   /// No description provided for @sync_cloud_update_applied.
   ///

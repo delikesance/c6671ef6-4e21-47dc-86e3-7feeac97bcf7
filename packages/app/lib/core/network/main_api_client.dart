@@ -1648,6 +1648,7 @@ class MainApiClient implements RemoteRuntimeClient {
     required String botToken,
     required Map<String, dynamic> config,
     bool force = false,
+    bool confirmOvershrink = false,
   }) async {
     // Même refus que `syncBot` (mêmes critères, garde partagée) : la sauvegarde
     // Discord est un second chemin de poussée, il ne doit pas être le maillon
@@ -1681,6 +1682,7 @@ class MainApiClient implements RemoteRuntimeClient {
         'bot_token': botToken,
         'config': config,
         'bot_id': normalizedBotId,
+        if (confirmOvershrink) 'confirmOvershrink': true,
       },
       timeout: _configPushTimeout,
       retryOnFailure: false,

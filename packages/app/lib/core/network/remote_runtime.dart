@@ -5,6 +5,7 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runtime_notice.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
+import 'package:bot_creator/core/platform/run_platform.dart';
 import 'package:bot_creator/core/storage/runtime_preferences.dart';
 import 'package:bot_creator/core/utils/bot_payload_guard.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
@@ -287,6 +288,31 @@ Future<RuntimeNoticeMessage> describeManagerRuntimeFailure(
       RuntimeNotice.invalidBotId,
       error: originalError,
     );
+  }
+
+  // Refus que le serveur sait nommer : un message lisible plutôt que le texte
+  // brut (qui pour une config refusée est un tableau d'erreurs de validation).
+  final lowered = originalError.toLowerCase();
+  if (lowered.contains('runner_updating')) {
+    return const RuntimeNoticeMessage(RuntimeNotice.runnerUpdating);
+  }
+  if (lowered.contains('runner_capacity')) {
+    return const RuntimeNoticeMessage(RuntimeNotice.runnerCapacity);
+  }
+  if (lowered.contains('invalid_bot_config') ||
+      lowered.contains('invalid config:')) {
+    final marker = lowered.indexOf('invalid config:');
+    return RuntimeNoticeMessage(
+      RuntimeNotice.invalidBotConfig,
+      detail:
+          (marker >= 0
+                  ? originalError.substring(marker + 'invalid config:'.length)
+                  : originalError)
+              .trim(),
+    );
+  }
+  if (isPendingFreeRuntimeCreditError(error) && isDesktopRunPlatform) {
+    return const RuntimeNoticeMessage(RuntimeNotice.freeTimeDesktop);
   }
 
   try {

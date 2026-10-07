@@ -133,6 +133,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     ])
       if (raw is List) ...raw,
   ];
+  final usedWebhookPaths = <String>{};
   for (final endpoint in endpoints) {
     if (endpoint is! Map) {
       continue;
@@ -140,6 +141,12 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     final map = Map<String, dynamic>.from(endpoint);
     final script = linkedScript(map);
     if (script.trim().isEmpty) {
+      continue;
+    }
+    final hookPath = (map['path'] ?? '').toString().trim();
+    // Le runner refuse toute la config pour un chemin vide ou en double.
+    if (hookPath.isEmpty || !usedWebhookPaths.add(hookPath.toLowerCase())) {
+      debugPrint('[buildJsBotPayload] Skipping inbound webhook "$hookPath".');
       continue;
     }
     inboundWebhooks.add({
@@ -168,8 +175,10 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     if (everyMinutes <= 0) {
       continue;
     }
+    final scheduleId = (map['id'] ?? map['workflowName'] ?? '').toString();
+    if (scheduleId.trim().isEmpty) continue; // `id` doit être non vide
     scheduled.add({
-      'id': (map['id'] ?? map['workflowName'] ?? '').toString(),
+      'id': scheduleId,
       'type': 'scheduled',
       'name': (map['workflowName'] ?? '').toString(),
       'everyMinutes': everyMinutes,
@@ -179,6 +188,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   }
 
   final events = <Map<String, dynamic>>[];
+  final usedEventIds = <String>{};
   for (final rawWorkflow in workflows) {
     final wf = normalizeStoredWorkflowDefinition(
       Map<String, dynamic>.from(rawWorkflow),
@@ -210,8 +220,16 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
       continue;
     }
 
+    var eventId = (wf['name'] ?? eventName).toString();
+    if (eventId.trim().isEmpty) eventId = eventName;
+    final baseEventId = eventId;
+    var eventSuffix = 2;
+    while (!usedEventIds.add(eventId)) {
+      eventId = '${baseEventId}_$eventSuffix';
+      eventSuffix += 1;
+    }
     events.add({
-      'id': (wf['name'] ?? eventName).toString(),
+      'id': eventId,
       'type': 'event',
       'name': eventName,
       'enabled': true,

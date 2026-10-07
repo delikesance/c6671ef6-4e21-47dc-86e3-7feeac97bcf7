@@ -398,6 +398,7 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
   bool _changed = false;
   bool _isNew = false;
   String? _formError;
+  bool _legacyNotice = false;
   Iterable<String> _globalKeys = const [];
   Iterable<({String scope, String key})> _scoped = const [];
 
@@ -436,9 +437,16 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
     try {
       final detail = await widget.api.getWorkflow(widget.bot.id, widget.name);
       if (mounted) {
-        setState(
-          () => _draft = WorkflowDraft(detail.raw, revision: detail.revision),
-        );
+        final draft = WorkflowDraft(detail.raw, revision: detail.revision);
+        // Un workflow en blocs sur un bot JavaScript ne s'exécutait pas : on
+        // ouvre l'éditeur JavaScript et on le signale.
+        final legacy =
+            widget.bot.isJavascript && draft.executionMode != 'javascript';
+        if (legacy) draft.executionMode = 'javascript';
+        setState(() {
+          _draft = draft;
+          _legacyNotice = legacy;
+        });
       }
     } catch (e) {
       if (mounted) setState(() => _loadError = e);
@@ -636,6 +644,14 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (_legacyNotice)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Text(
+                context.tr.legacy_item_js_notice,
+                style: const TextStyle(color: StudioColors.muted),
+              ),
+            ),
           if (_formError != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),

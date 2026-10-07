@@ -5410,7 +5410,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get onboarding_command_example =>
-      'Exemplo:\n/hello → O bot responde \"Olá! 👋\"';
+      'Exemplo:\n/hello → O bot responde \"Olá!\"';
 
   @override
   String get onboarding_command_learn => 'Aprenda como os comandos funcionam';
@@ -5438,7 +5438,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get onboarding_create_tip =>
-      '💡 Dica: Nunca partilhe o seu token! Ele dá acesso total ao seu bot.';
+      'Dica: Nunca partilhe o seu token! Ele dá acesso total ao seu bot.';
 
   @override
   String get onboarding_create_title => 'Passo 1: Criar um Bot';
@@ -5475,7 +5475,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get onboarding_start_tip =>
-      '✨ Fantástico! Criou o seu primeiro bot do Discord. Agora pode adicionar mais comandos e personalizá-lo!';
+      'Fantástico! Criou o seu primeiro bot do Discord. Agora pode adicionar mais comandos e personalizá-lo!';
 
   @override
   String get onboarding_start_title => 'Passo 3: Iniciar o Bot';
@@ -5502,7 +5502,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get onboarding_success_tip3 => 'Fazer cópia de segurança dos dados';
 
   @override
-  String get onboarding_success_title => 'Parabéns! 🎉';
+  String get onboarding_success_title => 'Parabéns!';
 
   @override
   String get onboarding_success_whatsnext => 'O que se segue?';
@@ -6308,6 +6308,42 @@ class AppLocalizationsPt extends AppLocalizations {
   String runtime_unreachable(String error) {
     return 'Os servidores Bot Creator estão temporariamente inacessíveis. Erro original: $error';
   }
+
+  @override
+  String settings_runtime_engine_switch_left_out(String items) {
+    return '\n\nEstes itens não funcionam no novo mecanismo e serão deixados de fora: $items';
+  }
+
+  @override
+  String studio_engine_hint(String engine) {
+    return 'Este bot funciona com $engine. O mecanismo é escolhido ao criar o bot; para alterá-lo, use o aplicativo Bot Creator.';
+  }
+
+  @override
+  String get legacy_item_js_notice =>
+      'Este comando foi criado com blocos ou BDFD, que um bot JavaScript não consegue executar, então ele não estava funcionando. Escreva-o em JavaScript abaixo para que funcione.';
+
+  @override
+  String bot_sync_blocked(String reason) {
+    return 'Suas últimas alterações estão salvas neste dispositivo, mas ainda não sincronizadas: $reason';
+  }
+
+  @override
+  String get runtime_runner_capacity =>
+      'Nenhum espaço de hospedagem está disponível no momento. Tente novamente em alguns minutos.';
+
+  @override
+  String get runtime_runner_updating =>
+      'A plataforma Bot Creator está sendo atualizada. Tente novamente em um minuto.';
+
+  @override
+  String runtime_invalid_bot_config(String detail) {
+    return 'A configuração do bot foi recusada: $detail';
+  }
+
+  @override
+  String get runtime_free_time_desktop =>
+      'Este bot precisa de tempo de hospedagem gratuito para iniciar. Os anúncios com recompensa só estão disponíveis no aplicativo móvel: assista a um lá e inicie o bot novamente.';
 
   @override
   String get sync_cloud_update_applied =>

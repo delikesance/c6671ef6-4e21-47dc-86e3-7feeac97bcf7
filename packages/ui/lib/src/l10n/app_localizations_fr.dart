@@ -5428,7 +5428,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboarding_command_example =>
-      'Exemple:\n/hello → Le bot répond \"Bonjour! 👋\"';
+      'Exemple:\n/hello → Le bot répond \"Bonjour!\"';
 
   @override
   String get onboarding_command_learn =>
@@ -6331,6 +6331,42 @@ class AppLocalizationsFr extends AppLocalizations {
   String runtime_unreachable(String error) {
     return 'Les serveurs Bot Creator sont temporairement injoignables. Erreur initiale : $error';
   }
+
+  @override
+  String settings_runtime_engine_switch_left_out(String items) {
+    return '\n\nCes éléments ne peuvent pas s\'exécuter sur le nouveau moteur et seront laissés de côté : $items';
+  }
+
+  @override
+  String studio_engine_hint(String engine) {
+    return 'Ce bot fonctionne avec $engine. Le moteur se choisit à la création du bot ; pour le changer, utilisez l\'application Bot Creator.';
+  }
+
+  @override
+  String get legacy_item_js_notice =>
+      'Cette commande a été créée avec des blocs ou du BDFD, qu\'un bot JavaScript ne peut pas exécuter : elle ne tournait donc pas. Écrivez-la en JavaScript ci-dessous pour qu\'elle fonctionne.';
+
+  @override
+  String bot_sync_blocked(String reason) {
+    return 'Vos dernières modifications sont enregistrées sur cet appareil mais pas encore synchronisées : $reason';
+  }
+
+  @override
+  String get runtime_runner_capacity =>
+      'Aucun emplacement d\'hébergement n\'est disponible pour le moment. Réessayez dans quelques minutes.';
+
+  @override
+  String get runtime_runner_updating =>
+      'La plateforme Bot Creator est en cours de mise à jour. Réessayez dans une minute.';
+
+  @override
+  String runtime_invalid_bot_config(String detail) {
+    return 'La configuration du bot a été refusée : $detail';
+  }
+
+  @override
+  String get runtime_free_time_desktop =>
+      'Ce bot a besoin de temps d\'hébergement gratuit pour démarrer. Les publicités récompensées ne sont disponibles que dans l\'application mobile : regardez-en une là-bas, puis relancez le bot.';
 
   @override
   String get sync_cloud_update_applied =>
