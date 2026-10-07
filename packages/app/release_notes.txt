@@ -1,3 +1,25 @@
+Bot Creator v2.10.0
+
+New Features:
+- A redesigned onboarding that matches the rest of the app: three clear steps, one main action per screen, and a step list on large screens
+- When a bot cannot start, the app now explains why: hosting is busy, the platform is updating, the configuration was rejected (with the exact item), or free hosting time has to be earned from the mobile app
+- A banner tells you when your latest changes are saved on the device but could not be synced, with the reason
+- Switching a bot's engine lists the commands and workflows that cannot be carried over
+
+Improvements:
+- The AI Copilot writes in your bot's own language: JavaScript for a JavaScript bot, BDFD or blocks for a Dart bot, without asking
+- Copilot answers and conversation summaries follow the language you write in
+- A long Copilot answer cut by the length limit is kept instead of failing, and a failed reply gives your text back
+- Continuing a conversation reopens the same continuation instead of creating duplicate chats that spend credits
+- Copilot prompts are shorter for JavaScript bots, which saves credits
+
+Bug Fixes:
+- JavaScript bots: commands, events, schedules and webhooks created in Studio now run, and one malformed item no longer stops the whole bot from starting
+- Command names that differ only by case, names over 32 characters, and webhooks without a path no longer break a JavaScript bot
+- A failed start no longer uses up your bot quota
+- A runner authentication hiccup during a platform update no longer marks your Discord token as invalid
+- Running out of credits during a Copilot reply now shows the balance message instead of a raw code
+
 Bot Creator v2.9.0
 
 New Features:
