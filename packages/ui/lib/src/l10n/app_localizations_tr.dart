@@ -5356,7 +5356,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get onboarding_command_example =>
-      'Örnek:\n/hello → Bot \"Merhaba! 👋\" yanıtını verir';
+      'Örnek:\n/hello → Bot \"Merhaba!\" yanıtını verir';
 
   @override
   String get onboarding_command_learn => 'Komutların nasıl çalıştığını öğrenin';
@@ -5384,7 +5384,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get onboarding_create_tip =>
-      '💡 İpucu: Jetonunuzu asla paylaşmayın! Botunuza tam erişim sağlar.';
+      'İpucu: Jetonunuzu asla paylaşmayın! Botunuza tam erişim sağlar.';
 
   @override
   String get onboarding_create_title => 'Adım 1: Bir Bot Oluşturun';
@@ -5421,7 +5421,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get onboarding_start_tip =>
-      '✨ Harika! İlk Discord botunuzu oluşturdunuz. Şimdi daha fazla komut ekleyebilir ve özelleştirebilirsiniz!';
+      'Harika! İlk Discord botunuzu oluşturdunuz. Şimdi daha fazla komut ekleyebilir ve özelleştirebilirsiniz!';
 
   @override
   String get onboarding_start_title => 'Adım 3: Botu Başlatın';
@@ -5447,7 +5447,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get onboarding_success_tip3 => 'Verilerini yedekle';
 
   @override
-  String get onboarding_success_title => 'Tebrikler! 🎉';
+  String get onboarding_success_title => 'Tebrikler!';
 
   @override
   String get onboarding_success_whatsnext => 'Sırada ne var?';
@@ -6253,6 +6253,42 @@ class AppLocalizationsTr extends AppLocalizations {
   String runtime_unreachable(String error) {
     return 'Bot Creator sunucularına geçici olarak ulaşılamıyor. Özgün hata: $error';
   }
+
+  @override
+  String settings_runtime_engine_switch_left_out(String items) {
+    return '\n\nBu öğeler yeni motorda çalışamaz ve dışarıda bırakılacak: $items';
+  }
+
+  @override
+  String studio_engine_hint(String engine) {
+    return 'Bu bot $engine ile çalışıyor. Motor, bot oluşturulurken seçilir; değiştirmek için Bot Creator uygulamasını kullanın.';
+  }
+
+  @override
+  String get legacy_item_js_notice =>
+      'Bu komut bloklar veya BDFD ile oluşturulmuş; JavaScript botu bunları çalıştıramaz, bu yüzden çalışmıyordu. Çalışması için aşağıda JavaScript ile yazın.';
+
+  @override
+  String bot_sync_blocked(String reason) {
+    return 'Son değişiklikleriniz bu cihaza kaydedildi ancak henüz eşitlenmedi: $reason';
+  }
+
+  @override
+  String get runtime_runner_capacity =>
+      'Şu anda boş bir barındırma yuvası yok. Lütfen birkaç dakika sonra tekrar deneyin.';
+
+  @override
+  String get runtime_runner_updating =>
+      'Bot Creator platformu güncelleniyor. Lütfen bir dakika sonra tekrar deneyin.';
+
+  @override
+  String runtime_invalid_bot_config(String detail) {
+    return 'Bot yapılandırması reddedildi: $detail';
+  }
+
+  @override
+  String get runtime_free_time_desktop =>
+      'Bu botun başlaması için ücretsiz barındırma süresi gerekiyor. Ödüllü reklamlar yalnızca mobil uygulamada bulunur: orada bir reklam izleyin, sonra botu yeniden başlatın.';
 
   @override
   String get sync_cloud_update_applied =>
