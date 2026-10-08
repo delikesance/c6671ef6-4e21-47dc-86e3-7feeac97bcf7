@@ -18,4 +18,57 @@ void main() {
     expect(second.endsWith('_2'), isTrue);
     expect(used.length, 2);
   });
+
+  test('a payload rename is reported through onRenamed', () {
+    final used = <String>{'ping'};
+    final seen = <String>[];
+    deduplicateCommandName(
+      'Ping',
+      used,
+      onRenamed: (o, r) => seen.add('$o->$r'),
+    );
+    expect(seen, ['Ping->Ping_2']);
+  });
+
+  group('isCommandNameTaken', () {
+    test('rejects an exact duplicate', () {
+      expect(isCommandNameTaken('ping', ['ping', 'help']), isTrue);
+    });
+
+    test('ignores case and surrounding spaces', () {
+      expect(isCommandNameTaken(' PING ', ['ping']), isTrue);
+    });
+
+    test('accepts a free name and an empty one', () {
+      expect(isCommandNameTaken('pong', ['ping']), isFalse);
+      expect(isCommandNameTaken('  ', ['ping']), isFalse);
+    });
+
+    test('renaming to its own name is allowed once it is excluded', () {
+      final all = ['ping', 'help'];
+      final others = all.where((n) => n != 'ping');
+      expect(isCommandNameTaken('Ping', others), isFalse);
+      expect(isCommandNameTaken('help', others), isTrue);
+    });
+  });
+
+  group('suggestDuplicateCommandName', () {
+    test('proposes <name>_copie when free', () {
+      expect(suggestDuplicateCommandName('ping', ['ping']), 'ping_copie');
+    });
+
+    test('adds a numeric suffix when the copy name is taken', () {
+      expect(
+        suggestDuplicateCommandName('ping', ['ping', 'Ping_copie']),
+        'ping_copie_2',
+      );
+    });
+
+    test('stays within 32 characters', () {
+      final long = 'a' * 32;
+      final name = suggestDuplicateCommandName(long, [long]);
+      expect(name.length, lessThanOrEqualTo(32));
+      expect(name.endsWith('_copie'), isTrue);
+    });
+  });
 }

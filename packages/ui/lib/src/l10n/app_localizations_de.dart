@@ -8756,6 +8756,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Bitte geben Sie einen Befehlsnamen ein';
 
   @override
+  String validation_command_name_duplicate(String name) {
+    return 'Ein Befehl mit dem Namen \"$name\" existiert bereits. Wähle einen anderen Namen.';
+  }
+
+  @override
   String get validation_interaction_no_response =>
       'Interaktionsbefehle müssen mindestens eine Antwortaktion enthalten (Mit Nachricht antworten, Komponente V2 oder Modal).';
 

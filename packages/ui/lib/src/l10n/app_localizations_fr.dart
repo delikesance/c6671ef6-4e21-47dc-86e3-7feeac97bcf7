@@ -8775,6 +8775,11 @@ class AppLocalizationsFr extends AppLocalizations {
       'Veuillez entrer un nom de commande';
 
   @override
+  String validation_command_name_duplicate(String name) {
+    return 'Une commande nommée \"$name\" existe déjà. Choisissez un autre nom.';
+  }
+
+  @override
   String get validation_interaction_no_response =>
       'Les commandes d\'interaction doivent inclure au moins une action de réponse (Répondre avec un message, Composant V2 ou Modal).';
 

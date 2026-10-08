@@ -14853,6 +14853,12 @@ abstract class AppLocalizations {
   /// **'Please enter a command name'**
   String get validation_command_name_required;
 
+  /// No description provided for @validation_command_name_duplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'A command named \"{name}\" already exists. Choose another name.'**
+  String validation_command_name_duplicate(String name);
+
   /// Interaction commands must include at least one response action (Respond with Message, Component V2, or Modal).
   ///
   /// In en, this message translates to:

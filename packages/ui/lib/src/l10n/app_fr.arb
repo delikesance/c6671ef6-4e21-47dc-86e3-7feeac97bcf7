@@ -9471,6 +9471,14 @@
   "validation_command_name_no_spaces": "Le nom de commande ne peut pas contenir d'espaces",
   "validation_command_name_no_underscore": "Le nom de commande ne peut pas commencer par un underscore",
   "validation_command_name_required": "Veuillez entrer un nom de commande",
+  "validation_command_name_duplicate": "Une commande nommée \"{name}\" existe déjà. Choisissez un autre nom.",
+  "@validation_command_name_duplicate": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "validation_interaction_no_response": "Les commandes d'interaction doivent inclure au moins une action de réponse (Répondre avec un message, Composant V2 ou Modal).",
   "validation_interaction_no_response_short": "Aucune action de réponse",
   "validation_invalid_permissions": "Champ de bits de permissions par défaut invalide. Utilisez un entier positif ou laissez vide.",

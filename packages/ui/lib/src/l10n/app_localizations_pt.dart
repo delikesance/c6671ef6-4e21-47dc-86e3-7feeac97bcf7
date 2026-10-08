@@ -8742,6 +8742,11 @@ class AppLocalizationsPt extends AppLocalizations {
       'Por favor, insira um nome para o comando';
 
   @override
+  String validation_command_name_duplicate(String name) {
+    return 'Já existe um comando chamado \"$name\". Escolha outro nome.';
+  }
+
+  @override
   String get validation_interaction_no_response =>
       'Comandos de interação devem incluir pelo menos uma ação de resposta (Responder com mensagem, Componente V2 ou Modal).';
 

@@ -11065,6 +11065,14 @@
   "validation_command_name_no_spaces": "Command name cannot contain spaces",
   "validation_command_name_no_underscore": "Command name cannot start with an underscore",
   "validation_command_name_required": "Please enter a command name",
+  "validation_command_name_duplicate": "A command named \"{name}\" already exists. Choose another name.",
+  "@validation_command_name_duplicate": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "validation_interaction_no_response": "Interaction commands must include at least one response action (Respond with Message, Component V2, or Modal).",
   "validation_interaction_no_response_short": "No response action",
   "validation_invalid_permissions": "Invalid default member permissions bitfield. Use a positive integer or leave empty.",

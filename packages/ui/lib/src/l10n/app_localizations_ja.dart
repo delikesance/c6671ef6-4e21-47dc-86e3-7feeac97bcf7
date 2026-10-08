@@ -8226,6 +8226,11 @@ class AppLocalizationsJa extends AppLocalizations {
   String get validation_command_name_required => 'コマンド名を入力してください';
 
   @override
+  String validation_command_name_duplicate(String name) {
+    return '「$name」という名前のコマンドは既に存在します。別の名前を選んでください。';
+  }
+
+  @override
   String get validation_interaction_no_response =>
       'インタラクションコマンドには少なくとも1つの応答アクションが必要です（メッセージで応答、コンポーネントで応答';
 

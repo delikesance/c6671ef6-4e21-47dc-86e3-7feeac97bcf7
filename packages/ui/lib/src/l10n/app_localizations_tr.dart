@@ -8684,6 +8684,11 @@ class AppLocalizationsTr extends AppLocalizations {
   String get validation_command_name_required => 'Lütfen bir komut adı girin';
 
   @override
+  String validation_command_name_duplicate(String name) {
+    return '\"$name\" adlı bir komut zaten var. Başka bir ad seçin.';
+  }
+
+  @override
   String get validation_interaction_no_response =>
       'Etkileşim komutları en az bir yanıt eylemi içermelidir (Mesajla yanıtla, Bileşen V2 veya Modal).';
 
