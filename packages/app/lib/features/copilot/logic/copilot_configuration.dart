@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bot_creator/core/utils/hash_util.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_command.dart';
+import 'package:bot_creator/features/copilot/logic/copilot_tool_result.dart';
 import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator_shared/types/action.dart' as blocks;
 import 'package:bot_creator_shared/utils/event_catalog.dart';
@@ -32,14 +33,19 @@ List<Map<String, dynamic>> validateCopilotOptions(List raw, {int depth = 0}) {
     final option = copyCopilotMap(item);
     final name = option['name'];
     final description = option['description'];
-    if (name is! String ||
-        !RegExp(r"^[a-z0-9_\-]{1,32}$").hasMatch(name) ||
-        !names.add(name) ||
-        description is! String ||
+    if (name is! String || !isValidDiscordName(name)) {
+      throw const CopilotArgumentError(
+        'option name: use 1-32 lowercase letters (any language), digits, "-" or "_", no spaces',
+      );
+    }
+    if (!names.add(name)) {
+      throw CopilotArgumentError('option name "$name" is duplicated');
+    }
+    if (description is! String ||
         description.trim().isEmpty ||
         description.length > 100) {
-      throw const FormatException(
-        'Invalid or duplicate option name/description',
+      throw CopilotArgumentError(
+        'option "$name": description is required (1-100 characters)',
       );
     }
     final type = option['type'];
@@ -476,3 +482,8 @@ Map<String, dynamic> buildCopilotWorkflow(
   }
   return copy;
 }
+
+/// Discord accepts lowercase letters of any script, digits, "-" and "_" in command and option names.
+bool isValidDiscordName(String name) =>
+    RegExp(r'^[-_\p{L}\p{N}]{1,32}$', unicode: true).hasMatch(name) &&
+    name == name.toLowerCase();
