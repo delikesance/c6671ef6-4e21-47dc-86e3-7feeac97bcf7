@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
 
@@ -48,7 +49,15 @@ String? synthesizeJsFromWorkflowActions(
 /// Ajoute un suffixe numérique (`name`, `name_2`, ...) en cas de collision, pour
 /// que la charge utile ne contienne jamais deux noms identiques (le runner JS
 /// refuse cela avec un 400).
-String deduplicateCommandName(String name, Set<String> usedNames) {
+///
+/// Filet de sécurité pour les configs existantes : l'éditeur refuse désormais
+/// les doublons (voir [isCommandNameTaken]). Chaque renommage est signalé en
+/// avertissement et via [onRenamed].
+String deduplicateCommandName(
+  String name,
+  Set<String> usedNames, {
+  void Function(String original, String renamed)? onRenamed,
+}) {
   // Le runner compare `trim().toLowerCase()` : « Ping » et « ping » sont un
   // doublon pour lui. Le schéma limite aussi le nom à 32 caractères, suffixe
   // compris.
@@ -67,7 +76,42 @@ String deduplicateCommandName(String name, Set<String> usedNames) {
     suffix += 1;
     candidate = fit(trimmed, '_$suffix');
   }
-  debugPrint('[buildJsBotPayload] Duplicate "$name" -> "$candidate".');
+  final message =
+      'Duplicate command name "$name" renamed to "$candidate" in the payload.';
+  debugPrint('[buildJsBotPayload] WARNING: $message');
+  developer.log(message, name: 'buildJsBotPayload', level: 900);
+  onRenamed?.call(name, candidate);
+  return candidate;
+}
+
+/// Vrai si [name] est déjà pris par une autre commande (comparaison
+/// `trim().toLowerCase()`, comme le runner). Renommer vers son propre nom reste
+/// permis : l'appelant retire le nom courant de [existingNames].
+bool isCommandNameTaken(String name, Iterable<String> existingNames) {
+  final key = name.trim().toLowerCase();
+  if (key.isEmpty) return false;
+  return existingNames.any((e) => e.trim().toLowerCase() == key);
+}
+
+/// Nom libre proposé pour une copie : `<nom>_copie`, puis `<nom>_copie_2`, ...
+/// (32 caractères max, suffixe compris).
+String suggestDuplicateCommandName(
+  String name,
+  Iterable<String> existingNames, {
+  String copySuffix = '_copie',
+}) {
+  String fit(String suffix) {
+    final base = name.trim();
+    final room = 32 - suffix.length;
+    return '${base.length > room ? base.substring(0, room) : base}$suffix';
+  }
+
+  var candidate = fit(copySuffix);
+  var n = 2;
+  while (isCommandNameTaken(candidate, existingNames)) {
+    candidate = fit('${copySuffix}_$n');
+    n += 1;
+  }
   return candidate;
 }
 

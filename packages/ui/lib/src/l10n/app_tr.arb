@@ -9329,6 +9329,14 @@
   "validation_command_name_no_spaces": "Komut adı boşluk içeremez",
   "validation_command_name_no_underscore": "Komut adı alt çizgi ile başlayamaz",
   "validation_command_name_required": "Lütfen bir komut adı girin",
+  "validation_command_name_duplicate": "\"{name}\" adlı bir komut zaten var. Başka bir ad seçin.",
+  "@validation_command_name_duplicate": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "validation_interaction_no_response": "Etkileşim komutları en az bir yanıt eylemi içermelidir (Mesajla yanıtla, Bileşen V2 veya Modal).",
   "validation_interaction_no_response_short": "Yanıt eylemi yok",
   "validation_invalid_permissions": "Geçersiz varsayılan üye izinleri bit alanı. Pozitif bir tam sayı kullanın veya boş bırakın.",

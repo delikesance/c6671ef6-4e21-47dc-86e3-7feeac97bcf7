@@ -9328,6 +9328,14 @@
   "validation_command_name_no_spaces": "Der Befehlsname darf keine Leerzeichen enthalten",
   "validation_command_name_no_underscore": "Der Befehlsname darf nicht mit einem Unterstrich beginnen",
   "validation_command_name_required": "Bitte geben Sie einen Befehlsnamen ein",
+  "validation_command_name_duplicate": "Ein Befehl mit dem Namen \"{name}\" existiert bereits. Wähle einen anderen Namen.",
+  "@validation_command_name_duplicate": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "validation_interaction_no_response": "Interaktionsbefehle müssen mindestens eine Antwortaktion enthalten (Mit Nachricht antworten, Komponente V2 oder Modal).",
   "validation_interaction_no_response_short": "Keine Antwortaktion",
   "validation_invalid_permissions": "Ungültiges Bitfeld für Standard-Mitgliedsberechtigungen. Verwenden Sie eine positive Ganzzahl oder lassen Sie es leer.",

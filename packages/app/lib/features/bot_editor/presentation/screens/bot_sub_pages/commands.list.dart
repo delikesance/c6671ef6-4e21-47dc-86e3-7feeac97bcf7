@@ -20,6 +20,9 @@ import 'package:bot_creator/core/widgets/notion_filter_bar.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_config_refresh.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart'
+    show buildRemotePayload;
+import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_overshrink_dialog.dart';
 import 'package:bot_creator/features/bot_editor/logic/command_folder_tree.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/folder_picker_dialog.dart';
 import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
@@ -273,6 +276,10 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       isDestructive: true,
     );
     if (!confirmed || !mounted) return;
+    final deletedSnapshot = await appManager.getAppCommand(
+      widget.botId,
+      commandId,
+    );
     await appManager.deleteAppCommand(widget.botId, commandId);
     var remaining = await appManager.listAppCommands(widget.botId);
 
@@ -286,15 +293,109 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       );
     }
 
+    final serverKeptConfig = !await _pushDeletionToManager(
+      commandId,
+      deletedSnapshot,
+    );
+    if (serverKeptConfig) {
+      remaining = await appManager.listAppCommands(
+        widget.botId,
+        forceRefresh: true,
+      );
+    }
+
     unawaited(refreshBotRuntime(widget.botId));
     if (!mounted) return;
     setState(() {
       _commands = remaining;
       _selectedCommandIds.remove(commandId);
     });
+    if (serverKeptConfig) {
+      // Le serveur a refusé la configuration réduite : la commande a été
+      // remise en place localement (voir [_pushDeletionToManager]), le message
+      // dit que rien n'a été envoyé et que la configuration locale est intacte.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            localizedBotConfigOvershrinkConfirmation(context.tr).body,
+          ),
+          backgroundColor: AppTheme.error,
+        ),
+      );
+      return;
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(context.tr.cmd_delete_success(name))),
     );
+  }
+
+  /// Pousse la configuration SANS la commande supprimée vers le manager et
+  /// traite son refus de sur-réduction (`409 bot_config_overshrink`, p. ex. la
+  /// seule grosse commande du bot).
+  ///
+  /// Le refus n'est jamais silencieux : l'utilisateur est interrogé (dialogue de
+  /// confirmation), la poussée n'est rejouée avec `confirmOvershrink` que sur
+  /// accord, et sans accord (ou si le serveur refuse même confirmé) la
+  /// suppression locale est ANNULÉE — la commande est remise en place — pour que
+  /// l'app et le serveur ne divergent pas.
+  ///
+  /// Rend `false` quand la suppression a été annulée ; `true` sinon (poussée
+  /// acceptée, pas de compte cloud, ou panne autre que ce refus, laissée à la
+  /// resynchronisation habituelle).
+  Future<bool> _pushDeletionToManager(
+    String commandId,
+    Map<String, dynamic> deletedSnapshot,
+  ) async {
+    try {
+      final config = await MainApiSettingsStore.loadConfig();
+      if (!config.isConfigured) return true;
+      final session = await MainApiSettingsStore.loadSession();
+      if (session == null || session.isExpired) return true;
+
+      final client = MainApiClient(
+        baseUrl: config.baseUrl,
+        accessToken: session.accessToken,
+      );
+      final app = await appManager.getApp(widget.botId);
+      final botName = (app['username'] ?? app['name'] ?? '').toString().trim();
+      final payload = await buildRemotePayload(widget.botId);
+
+      final outcome = await pushBotConfigToleratingOvershrink(
+        push: (confirmOvershrink) => client.syncBot(
+          widget.botId,
+          botName,
+          payload,
+          force: true,
+          confirmOvershrink: confirmOvershrink,
+        ),
+        askConfirmation: () async {
+          if (!mounted) return false;
+          return showBotConfigOvershrinkConfirmation(context);
+        },
+      );
+      if (outcome == BotConfigPushOutcome.sent) {
+        await appManager.clearPendingCommandDeletions(
+          widget.botId,
+          ids: [commandId],
+        );
+        return true;
+      }
+    } catch (error) {
+      if (!isBotConfigOvershrinkRefusal(error)) {
+        debugPrint('[Commands] Delete push to manager failed: $error');
+        return true;
+      }
+    }
+
+    // Refus (ou accord non donné) : annuler la suppression locale.
+    if (deletedSnapshot.isNotEmpty) {
+      await appManager.clearPendingCommandDeletions(
+        widget.botId,
+        ids: [commandId],
+      );
+      await appManager.saveAppCommand(widget.botId, commandId, deletedSnapshot);
+    }
+    return false;
   }
 
   /// Fallback for buggy commands whose filename doesn't match their internal id.

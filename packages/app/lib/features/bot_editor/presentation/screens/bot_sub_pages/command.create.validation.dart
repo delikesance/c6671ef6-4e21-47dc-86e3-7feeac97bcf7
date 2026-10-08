@@ -19,6 +19,10 @@ extension _CommandCreateValidation on _CommandCreatePageState {
       return context.tr.validation_command_name_required;
     }
 
+    if (isCommandNameTaken(normalized, _otherCommandNames)) {
+      return context.tr.validation_command_name_duplicate(normalized);
+    }
+
     if (_isAwaitedCallbackTrigger(normalized)) {
       if (!_allowsInternalLegacyCallbackNames) {
         return context.tr.validation_awaited_callback_local_only;
@@ -64,17 +68,16 @@ extension _CommandCreateValidation on _CommandCreatePageState {
     if (nameError != null) {
       showDialog(
         context: context,
-        builder:
-            (context) => AlertDialog(
-              title: Text(context.tr.error),
-              content: Text(nameError),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(context.tr.ok),
-                ),
-              ],
+        builder: (context) => AlertDialog(
+          title: Text(context.tr.error),
+          content: Text(nameError),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(context.tr.ok),
             ),
+          ],
+        ),
       );
       return false;
     }
@@ -91,17 +94,16 @@ extension _CommandCreateValidation on _CommandCreatePageState {
       if (descriptionError != null) {
         showDialog(
           context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text(context.tr.error),
-                content: Text(descriptionError),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(context.tr.ok),
-                  ),
-                ],
+          builder: (context) => AlertDialog(
+            title: Text(context.tr.error),
+            content: Text(descriptionError),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr.ok),
               ),
+            ],
+          ),
         );
         return false;
       }
@@ -117,17 +119,16 @@ extension _CommandCreateValidation on _CommandCreatePageState {
       if (descriptionError != null) {
         showDialog(
           context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text(context.tr.error),
-                content: Text(descriptionError),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(context.tr.ok),
-                  ),
-                ],
+          builder: (context) => AlertDialog(
+            title: Text(context.tr.error),
+            content: Text(descriptionError),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr.ok),
               ),
+            ],
+          ),
         );
         return false;
       }
@@ -148,17 +149,16 @@ extension _CommandCreateValidation on _CommandCreatePageState {
       if (payloadError != null) {
         showDialog(
           context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text(context.tr.error),
-                content: Text(payloadError),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(context.tr.ok),
-                  ),
-                ],
+          builder: (context) => AlertDialog(
+            title: Text(context.tr.error),
+            content: Text(payloadError),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr.ok),
               ),
+            ],
+          ),
         );
         return false;
       }
@@ -173,17 +173,16 @@ extension _CommandCreateValidation on _CommandCreatePageState {
       if (optionsError != null) {
         showDialog(
           context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text(context.tr.error),
-                content: Text(optionsError),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(context.tr.ok),
-                  ),
-                ],
+          builder: (context) => AlertDialog(
+            title: Text(context.tr.error),
+            content: Text(optionsError),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr.ok),
               ),
+            ],
+          ),
         );
         return false;
       }
@@ -213,17 +212,16 @@ extension _CommandCreateValidation on _CommandCreatePageState {
       if (_commandType != ApplicationCommandType.chatInput) {
         showDialog(
           context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text(context.tr.error),
-                content: Text(context.tr.validation_legacy_chat_input_only),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(context.tr.ok),
-                  ),
-                ],
+          builder: (context) => AlertDialog(
+            title: Text(context.tr.error),
+            content: Text(context.tr.validation_legacy_chat_input_only),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr.ok),
               ),
+            ],
+          ),
         );
         return false;
       }
@@ -246,21 +244,20 @@ extension _CommandCreateValidation on _CommandCreatePageState {
       if (!hasRespondAction) {
         final proceed = await showDialog<bool>(
           context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text(context.tr.validation_interaction_no_response_short),
-                content: Text(context.tr.validation_interaction_no_response),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: Text(context.tr.cancel),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: Text(context.tr.save),
-                  ),
-                ],
+          builder: (context) => AlertDialog(
+            title: Text(context.tr.validation_interaction_no_response_short),
+            content: Text(context.tr.validation_interaction_no_response),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(context.tr.cancel),
               ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text(context.tr.save),
+              ),
+            ],
+          ),
         );
         if (proceed != true) return false;
       }
@@ -270,19 +267,16 @@ extension _CommandCreateValidation on _CommandCreatePageState {
       if (!_legacyModeEnabled) {
         showDialog(
           context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text(context.tr.error),
-                content: Text(
-                  context.tr.validation_legacy_only_requires_legacy,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(context.tr.ok),
-                  ),
-                ],
+          builder: (context) => AlertDialog(
+            title: Text(context.tr.error),
+            content: Text(context.tr.validation_legacy_only_requires_legacy),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr.ok),
               ),
+            ],
+          ),
         );
         return false;
       }
@@ -290,17 +284,16 @@ extension _CommandCreateValidation on _CommandCreatePageState {
       if (!_canToggleLegacyOnlyLocal) {
         showDialog(
           context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text(context.tr.error),
-                content: Text(context.tr.validation_legacy_only_new_or_local),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(context.tr.ok),
-                  ),
-                ],
+          builder: (context) => AlertDialog(
+            title: Text(context.tr.error),
+            content: Text(context.tr.validation_legacy_only_new_or_local),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr.ok),
               ),
+            ],
+          ),
         );
         return false;
       }

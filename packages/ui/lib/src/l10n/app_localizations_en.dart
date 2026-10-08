@@ -8628,6 +8628,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validation_command_name_required => 'Please enter a command name';
 
   @override
+  String validation_command_name_duplicate(String name) {
+    return 'A command named \"$name\" already exists. Choose another name.';
+  }
+
+  @override
   String get validation_interaction_no_response =>
       'Interaction commands must include at least one response action (Respond with Message, Component V2, or Modal).';
 

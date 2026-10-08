@@ -9362,6 +9362,14 @@
   "validation_command_name_no_spaces": "O nome do comando não pode conter espaços",
   "validation_command_name_no_underscore": "O nome do comando não pode começar com um sublinhado",
   "validation_command_name_required": "Por favor, insira um nome para o comando",
+  "validation_command_name_duplicate": "Já existe um comando chamado \"{name}\". Escolha outro nome.",
+  "@validation_command_name_duplicate": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "validation_interaction_no_response": "Comandos de interação devem incluir pelo menos uma ação de resposta (Responder com mensagem, Componente V2 ou Modal).",
   "validation_interaction_no_response_short": "Nenhuma ação de resposta",
   "validation_invalid_permissions": "Bitfield de permissões de membro padrão inválido. Use um número inteiro positivo ou deixe vazio.",
