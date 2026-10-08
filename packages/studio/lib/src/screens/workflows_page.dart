@@ -11,6 +11,7 @@ import '../l10n_ext.dart';
 import '../layout.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
+import '../widgets/confirm_discard.dart';
 import '../widgets/script_card.dart';
 
 /// Onglet « Workflows » : listes d'actions nommées et réutilisables, générales
@@ -466,12 +467,18 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
     });
     try {
       final raw = draft.toRaw();
-      await widget.api.saveWorkflow(widget.bot.id, widget.bot.name, raw);
+      final revision = await widget.api.saveWorkflow(
+        widget.bot.id,
+        widget.bot.name,
+        raw,
+        revision: draft.revision,
+      );
       if (!mounted) return;
       _changed = true;
       // On marque enregistré ce qui est PARTI ; une édition faite pendant la
       // requête reste en attente au lieu d'être jetée.
       draft.markSaved(raw);
+      if (revision != null) draft.revision = revision;
       setState(() {
         _isNew = false;
       });
@@ -479,7 +486,13 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
         context,
       ).showSnackBar(SnackBar(content: Text(context.l10n.workflowSaved)));
     } on StudioApiException catch (e) {
-      if (mounted) setState(() => _formError = e.message);
+      if (mounted) {
+        setState(
+          () => _formError = e.statusCode == 409
+              ? context.l10n.commandChangedElsewhere
+              : e.message,
+        );
+      }
     } catch (e) {
       if (mounted) setState(() => _formError = '$e');
     } finally {
@@ -543,7 +556,14 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
             children: [
               IconButton(
                 tooltip: context.tr.common_back,
-                onPressed: () => widget.onClose(_changed),
+                onPressed: () async {
+                  if (await confirmDiscardChanges(
+                    context,
+                    dirty: (_draft?.dirty ?? false) && !_saving,
+                  )) {
+                    widget.onClose(_changed);
+                  }
+                },
                 icon: const AppIcon.fromMaterial(
                   Icons.arrow_back_rounded,
                   size: 20,

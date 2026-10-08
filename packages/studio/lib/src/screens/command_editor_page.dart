@@ -12,6 +12,7 @@ import '../editor/studio_sandbox_host.dart';
 import '../l10n_ext.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
+import '../widgets/confirm_discard.dart';
 import '../widgets/script_card.dart';
 import '../commands/options_validation.dart';
 
@@ -292,7 +293,14 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
             children: [
               IconButton(
                 tooltip: context.tr.common_back,
-                onPressed: () => widget.onClose(_changed),
+                onPressed: () async {
+                  if (await confirmDiscardChanges(
+                    context,
+                    dirty: (_draft?.dirty ?? false) && !_saving,
+                  )) {
+                    widget.onClose(_changed);
+                  }
+                },
                 icon: const AppIcon.fromMaterial(
                   Icons.arrow_back_rounded,
                   size: 20,
