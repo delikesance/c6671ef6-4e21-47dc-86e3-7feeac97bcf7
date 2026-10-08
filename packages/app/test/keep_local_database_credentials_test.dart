@@ -2,6 +2,7 @@ import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  automationDefinitionsTests();
   final Map<String, dynamic> local = {
     'databaseConfig': {'type': 'postgres', 'host': 'h', 'password': 'p'},
   };
@@ -22,5 +23,36 @@ void main() {
     final merged = <String, dynamic>{...local}..addAll(remote);
     keepLocalDatabaseCredentials(merged, local, remote);
     expect((merged['databaseConfig'] as Map)['type'], 'mysql');
+  });
+}
+
+void automationDefinitionsTests() {
+  test('local webhook endpoints and local-only globals survive a pull', () {
+    final Map<String, dynamic> local = {
+      'inboundWebhooks': [
+        {'id': 'h1', 'path': '/a'},
+      ],
+      'globalVariables': {'mine': 1, 'both': 'local'},
+    };
+    final Map<String, dynamic> remote = {
+      'inboundWebhooks': true,
+      'globalVariables': {'both': 'remote'},
+    };
+    final merged = <String, dynamic>{...local}..addAll(remote);
+    keepLocalAutomationDefinitions(merged, local, remote);
+    expect((merged['inboundWebhooks'] as List).single['id'], 'h1');
+    expect(merged['globalVariables'], {'mine': 1, 'both': 'remote'});
+  });
+
+  test('a remote endpoint list is adopted only when nothing is local', () {
+    final Map<String, dynamic> remote = {
+      'inboundWebhooks': false,
+      'inboundWebhookEndpoints': [
+        {'id': 'r1', 'path': '/r'},
+      ],
+    };
+    final merged = <String, dynamic>{}..addAll(remote);
+    keepLocalAutomationDefinitions(merged, <String, dynamic>{}, remote);
+    expect((merged['inboundWebhooks'] as List).single['id'], 'r1');
   });
 }

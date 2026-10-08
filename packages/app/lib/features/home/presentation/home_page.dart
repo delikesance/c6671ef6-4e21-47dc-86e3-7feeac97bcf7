@@ -2313,6 +2313,7 @@ class HomePageState extends State<HomePage>
                 botId: botId,
                 remoteConfig: remoteConfig,
                 appManager: appManager,
+                automatic: true,
               );
             }
           }
