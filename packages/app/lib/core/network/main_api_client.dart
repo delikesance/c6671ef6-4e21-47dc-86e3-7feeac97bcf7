@@ -1364,6 +1364,14 @@ class MainApiClient implements RemoteRuntimeClient {
     return RunnerMetrics.fromJson(json);
   }
 
+  Map<String, dynamic>? _databaseCredentialsOf(Map<String, dynamic> config) {
+    final db = config['databaseConfig'];
+    if (db is! Map) return null;
+    final type = (db['type'] ?? 'none').toString().trim().toLowerCase();
+    if (type.isEmpty || type == 'none' || db['encrypted'] == true) return null;
+    return Map<String, dynamic>.from(db);
+  }
+
   Map<String, dynamic> _sanitizeConfigForUpload(Map<String, dynamic> source) {
     final sanitized = Map<String, dynamic>.from(source);
     sanitized.remove('token');
@@ -1437,6 +1445,10 @@ class MainApiClient implements RemoteRuntimeClient {
     // à ce champ près.
     final overshrinkConsent = <String, dynamic>{
       if (confirmOvershrink) 'confirmOvershrink': true,
+      // Le document envoyé est SANS secret (mot de passe retiré,
+      // `encrypted: true`) : le serveur le prendrait pour déjà chiffré et ne
+      // rangerait jamais les identifiants. On les lui remet par ce champ dédié.
+      'databaseConfig': ?_databaseCredentialsOf(config),
     };
 
     // Le document est-il DÉJÀ dans le stockage d'objets ? C'est ce qui décide si
