@@ -923,13 +923,18 @@ class StudioApi {
   }
 
   /// Crée ou remplace un workflow (la clé de fusion est son nom).
-  Future<void> saveWorkflow(
+  ///
+  /// [revision] est la révision lue avec le workflow : si le document a changé
+  /// depuis (autre éditeur, app), le serveur répond 409 et n'écrit rien. Rend la
+  /// nouvelle révision pour réarmer la prochaine sauvegarde.
+  Future<String?> saveWorkflow(
     String botId,
     String botName,
-    Map<String, dynamic> workflow,
-  ) async {
+    Map<String, dynamic> workflow, {
+    String? revision,
+  }) async {
     final name = '${workflow['name'] ?? ''}'.trim();
-    await _send(
+    final json = await _send(
       'POST',
       '/gateway/bots/${Uri.encodeComponent(botId)}/workflows/sync',
       body: {
@@ -937,9 +942,11 @@ class StudioApi {
         'botName': botName,
         'workflowName': name,
         'workflow': workflow,
+        if (revision != null && revision.isNotEmpty) 'expectRevision': revision,
       },
       timeout: const Duration(seconds: 60),
     );
+    return _string(json, const ['revision']);
   }
 
   Future<void> deleteWorkflow(String botId, String botName, String name) =>

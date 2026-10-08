@@ -213,6 +213,27 @@ void main() {
       expect((jsonDecode(seen.body) as Map).keys, ['command']);
     });
 
+    test(
+      'saveWorkflow : envoie expectRevision et rend la nouvelle révision',
+      () async {
+        late http.Request seen;
+        final a = api(
+          MockClient((r) async {
+            seen = r;
+            return http.Response('{"ok":true,"revision":"r9"}', 200);
+          }),
+        );
+        final rev = await a.saveWorkflow('b1', 'Bot', {
+          'name': 'w',
+        }, revision: 'r8');
+        expect(rev, 'r9');
+        expect(jsonDecode(seen.body)['expectRevision'], 'r8');
+        // Sans révision connue (workflow neuf), aucun If-Match n'est exigé.
+        await a.saveWorkflow('b1', 'Bot', {'name': 'w'});
+        expect(jsonDecode(seen.body).containsKey('expectRevision'), isFalse);
+      },
+    );
+
     test('save : un 409 de révision n\'est pas rejoué', () async {
       var calls = 0;
       final a = api(
