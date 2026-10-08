@@ -2,6 +2,12 @@ import 'dart:async';
 import 'dart:io';
 import 'package:nyxx/nyxx.dart';
 
+/// A validation failure whose message is written by this app (never copied from user or remote
+/// content), so it is safe to hand back to the assistant verbatim.
+class CopilotArgumentError extends FormatException {
+  const CopilotArgumentError(super.message);
+}
+
 /// Preserve actionable failures for the assistant without exposing HTTP bodies,
 /// credentials, scripts or arbitrary exception text.
 Map<String, dynamic> copilotToolFailure(Object error) {
@@ -59,6 +65,11 @@ Map<String, dynamic> copilotToolFailure(Object error) {
           ),
           _ => null,
         }
+      : error is CopilotArgumentError
+      ? (
+          'invalid_tool_arguments',
+          'The tool rejected the proposed arguments: ${error.message.length > 400 ? error.message.substring(0, 400) : error.message}. Correct only that argument and keep every other field (options, script) unchanged.',
+        )
       : error is FormatException
       ? (
           'invalid_tool_arguments',

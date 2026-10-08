@@ -11,6 +11,8 @@ import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/utils/hash_util.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_command.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_configuration.dart';
+import 'package:bot_creator/features/copilot/logic/copilot_js_check.dart';
+import 'package:bot_creator/features/copilot/logic/copilot_tool_result.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_library.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_serialization.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
@@ -207,6 +209,17 @@ class CopilotMcp {
         actionsJson: args['actions_json'] as String?,
         legacyUserVariables: semantics == 1,
       );
+      if (executionMode == 'javascript' && script != null) {
+        final problems = checkCopilotJavascript(
+          script,
+          declaredOptions: name == 'local_create_command'
+              ? copilotDeclaredOptionNames(args['options'])
+              : null,
+        );
+        if (problems.isNotEmpty) {
+          throw CopilotArgumentError('script: ${problems.join('; ')}');
+        }
+      }
     }
     if (tool['mutating'] == true &&
         !alreadyApproved &&
@@ -224,7 +237,14 @@ class CopilotMcp {
     Object? value;
     switch (name) {
       case 'docs_search':
-        return _documentation('search_docs', args);
+        // A JavaScript bot gets JavaScript pages, not the BDFD function catalog that dominates the index.
+        final jsBot =
+            botID != null &&
+            await getBotRuntimeEngine(botID) == runtimeEngineJavascript;
+        return _documentation('search_docs', {
+          ...args,
+          if (jsBot && args['api_type'] == null) 'api_type': 'javascript',
+        });
       case 'docs_get':
         return _documentation('get_doc', args);
       case 'docs_plan':
@@ -360,6 +380,19 @@ class CopilotMcp {
                 'This bundled reference describes the BDFD runtime only. Use JavaScript documentation for this bot.',
         };
       case 'local_test_command':
+        if (botID != null &&
+            await getBotRuntimeEngine(botID) == runtimeEngineJavascript) {
+          return {
+            'content': [
+              {
+                'type': 'text',
+                'text':
+                    'local_test_command only runs BDFD and visual blocks. This bot runs JavaScript: create the command and say the script was not executed.',
+              },
+            ],
+            'isError': true,
+          };
+        }
         final result = await testCommandInSandbox({
           ...Map<String, dynamic>.from(args['scenario'] as Map? ?? {}),
           if (args['script'] != null) 'script': args['script'],
@@ -485,8 +518,10 @@ class CopilotMcp {
       case 'local_create_command':
         final app = await _localBot(botID!);
         final name = args['name'] as String;
-        if (!RegExp(r'^[a-z0-9_-]{1,32}$').hasMatch(name)) {
-          throw const FormatException('Invalid slash command name');
+        if (!isValidDiscordName(name)) {
+          throw const CopilotArgumentError(
+            'name: use 1-32 lowercase letters (any language), digits, "-" or "_", no spaces',
+          );
         }
         if ((await AppManager().listAppCommands(
           botID,
