@@ -469,8 +469,10 @@ class _WorkflowEditorPageState extends State<WorkflowEditorPage> {
       await widget.api.saveWorkflow(widget.bot.id, widget.bot.name, raw);
       if (!mounted) return;
       _changed = true;
+      // On marque enregistré ce qui est PARTI ; une édition faite pendant la
+      // requête reste en attente au lieu d'être jetée.
+      draft.markSaved(raw);
       setState(() {
-        _draft = WorkflowDraft(raw, revision: draft.revision);
         _isNew = false;
       });
       ScaffoldMessenger.of(

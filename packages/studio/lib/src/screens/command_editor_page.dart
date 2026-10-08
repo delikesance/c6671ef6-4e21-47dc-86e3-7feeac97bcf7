@@ -133,18 +133,20 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
       _formError = null;
     });
     try {
+      // Un seul instantané : c'est CE contenu qui part, et c'est lui qu'on marque
+      // enregistré. Relire `draft.toRaw()` après l'attente déclarait sauvegardées
+      // des modifications faites pendant la requête, qui n'étaient pas parties.
+      final sent = draft.toRaw();
       final revision = await widget.api.saveCommand(
         widget.bot.id,
         widget.command.id,
-        draft.toRaw(),
+        sent,
         revision: draft.revision,
       );
       if (!mounted) return;
       _changed = true;
-      // Repart de l'état enregistré : plus de modification en attente.
-      final fresh = CommandDraft(draft.toRaw(), revision: revision);
+      draft.markSaved(sent, revision: revision);
       setState(() {
-        _draft = fresh;
         _isNew = false;
       });
       ScaffoldMessenger.of(
