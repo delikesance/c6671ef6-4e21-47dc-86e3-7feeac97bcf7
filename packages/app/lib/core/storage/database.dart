@@ -1051,6 +1051,19 @@ class AppManager implements BotDataStore {
     });
   }
 
+  /// Comme [saveApp], mais la LECTURE et l'écriture se font DANS la chaîne
+  /// d'écriture du bot : un `getApp` fait avant, puis un `saveApp` après,
+  /// réécrivait un document périmé et perdait toute écriture arrivée entre les
+  /// deux (variable globale, réglage, autre workflow).
+  Future<void> _mutateAppAndNotify(
+    String id,
+    void Function(Map<String, dynamic> data) mutate,
+  ) async {
+    await _mutateApp(id, mutate);
+    await invalidatePayloadCache(id);
+    unawaited((onAfterSave ?? (_) async {}).call(id));
+  }
+
   @override
   Future<void> updateGuildCount(String id, int count) async {
     final index = _apps.indexWhere((a) => a['id'] == id);
@@ -2267,81 +2280,83 @@ class AppManager implements BotDataStore {
     String? bdfdScriptContent,
     String? bdfdBackend,
   }) async {
-    final app = Map<String, dynamic>.from(await getApp(id));
-    final workflows = _coerceWorkflowList(app['workflows']);
-
     final normalizedName = name.trim();
-    final index = workflows.indexWhere(
-      (workflow) =>
-          (workflow['name'] ?? '').toString().toLowerCase() ==
-          normalizedName.toLowerCase(),
-    );
-    final existing = index >= 0
-        ? _normalizeStoredWorkflow(Map<String, dynamic>.from(workflows[index]))
-        : null;
-    final normalizedEntryPoint = entryPoint == null
-        ? normalizeWorkflowEntryPoint(existing?['entryPoint'])
-        : normalizeWorkflowEntryPoint(entryPoint);
-    final normalizedWorkflowType = workflowType == null
-        ? normalizeWorkflowType(existing?['workflowType'])
-        : normalizeWorkflowType(workflowType);
-    final normalizedArguments = serializeWorkflowArgumentDefinitions(
-      parseWorkflowArgumentDefinitions(
-        arguments ?? existing?['arguments'] ?? const [],
-      ),
-    );
-
-    final resolvedFolder = (folder ?? existing?['folder'] ?? '')
-        .toString()
-        .trim();
-
-    // Preserve existing aliases when not explicitly passed.
-    final resolvedAliases =
-        eventVariableAliases ??
-        (existing?['eventVariableAliases'] as Map<String, dynamic>?)?.map(
-          (k, v) => MapEntry(k.toString(), v.toString()),
-        );
-
-    final resolvedExecutionMode = normalizeWorkflowExecutionMode(
-      executionMode ?? existing?['executionMode'],
-    );
-    final resolvedJsScript = normalizeWorkflowJsScriptContent(
-      jsScriptContent ?? existing?['jsScriptContent'],
-    );
-
-    final payload = <String, dynamic>{
-      'name': normalizedName,
-      'actions': List<Map<String, dynamic>>.from(actions),
-      'workflowType': normalizedWorkflowType,
-      'entryPoint': normalizedEntryPoint,
-      'arguments': normalizedArguments,
-      'executionMode': resolvedExecutionMode,
-      if (bdfdScriptContent != null || existing?['bdfdScriptContent'] != null)
-        'bdfdScriptContent':
-            bdfdScriptContent ?? existing!['bdfdScriptContent'],
-      if (bdfdBackend != null || existing?['bdfdBackend'] != null)
-        'bdfdBackend': bdfdBackend ?? existing!['bdfdBackend'],
-      'updatedAt': DateTime.now().toIso8601String(),
-      if (resolvedFolder.isNotEmpty) 'folder': resolvedFolder,
-      if (resolvedAliases != null && resolvedAliases.isNotEmpty)
-        'eventVariableAliases': resolvedAliases,
-      if (resolvedJsScript.isNotEmpty) 'jsScriptContent': resolvedJsScript,
-    };
-
-    if (normalizedWorkflowType == workflowTypeEvent) {
-      payload['eventTrigger'] = normalizeWorkflowEventTrigger(
-        eventTrigger ?? existing?['eventTrigger'],
+    late final Map<String, dynamic> payload;
+    await _mutateAppAndNotify(id, (app) {
+      final workflows = _coerceWorkflowList(app['workflows']);
+      final index = workflows.indexWhere(
+        (workflow) =>
+            (workflow['name'] ?? '').toString().toLowerCase() ==
+            normalizedName.toLowerCase(),
       );
-    }
+      final existing = index >= 0
+          ? _normalizeStoredWorkflow(
+              Map<String, dynamic>.from(workflows[index]),
+            )
+          : null;
+      final normalizedEntryPoint = entryPoint == null
+          ? normalizeWorkflowEntryPoint(existing?['entryPoint'])
+          : normalizeWorkflowEntryPoint(entryPoint);
+      final normalizedWorkflowType = workflowType == null
+          ? normalizeWorkflowType(existing?['workflowType'])
+          : normalizeWorkflowType(workflowType);
+      final normalizedArguments = serializeWorkflowArgumentDefinitions(
+        parseWorkflowArgumentDefinitions(
+          arguments ?? existing?['arguments'] ?? const [],
+        ),
+      );
 
-    if (index >= 0) {
-      workflows[index] = payload;
-    } else {
-      workflows.add(payload);
-    }
+      final resolvedFolder = (folder ?? existing?['folder'] ?? '')
+          .toString()
+          .trim();
 
-    app['workflows'] = workflows;
-    await saveApp(id, app);
+      // Preserve existing aliases when not explicitly passed.
+      final resolvedAliases =
+          eventVariableAliases ??
+          (existing?['eventVariableAliases'] as Map<String, dynamic>?)?.map(
+            (k, v) => MapEntry(k.toString(), v.toString()),
+          );
+
+      final resolvedExecutionMode = normalizeWorkflowExecutionMode(
+        executionMode ?? existing?['executionMode'],
+      );
+      final resolvedJsScript = normalizeWorkflowJsScriptContent(
+        jsScriptContent ?? existing?['jsScriptContent'],
+      );
+
+      payload = <String, dynamic>{
+        'name': normalizedName,
+        'actions': List<Map<String, dynamic>>.from(actions),
+        'workflowType': normalizedWorkflowType,
+        'entryPoint': normalizedEntryPoint,
+        'arguments': normalizedArguments,
+        'executionMode': resolvedExecutionMode,
+        if (bdfdScriptContent != null || existing?['bdfdScriptContent'] != null)
+          'bdfdScriptContent':
+              bdfdScriptContent ?? existing!['bdfdScriptContent'],
+        if (bdfdBackend != null || existing?['bdfdBackend'] != null)
+          'bdfdBackend': bdfdBackend ?? existing!['bdfdBackend'],
+        'updatedAt': DateTime.now().toIso8601String(),
+        if (resolvedFolder.isNotEmpty) 'folder': resolvedFolder,
+        if (resolvedAliases != null && resolvedAliases.isNotEmpty)
+          'eventVariableAliases': resolvedAliases,
+        if (resolvedJsScript.isNotEmpty) 'jsScriptContent': resolvedJsScript,
+      };
+
+      if (normalizedWorkflowType == workflowTypeEvent) {
+        payload['eventTrigger'] = normalizeWorkflowEventTrigger(
+          eventTrigger ?? existing?['eventTrigger'],
+        );
+      }
+
+      if (index >= 0) {
+        workflows[index] = payload;
+      } else {
+        workflows.add(payload);
+      }
+
+      app['workflows'] = workflows;
+    });
     unawaited(
       (onAfterWorkflowSave ?? (_, _, _) async {}).call(
         id,
@@ -2352,17 +2367,15 @@ class AppManager implements BotDataStore {
   }
 
   Future<void> deleteWorkflow(String id, String name) async {
-    final app = Map<String, dynamic>.from(await getApp(id));
-    final workflows = _coerceWorkflowList(app['workflows']);
-
-    workflows.removeWhere(
-      (workflow) =>
-          (workflow['name'] ?? '').toString().toLowerCase() ==
-          name.toLowerCase(),
-    );
-
-    app['workflows'] = workflows;
-    await saveApp(id, app);
+    await _mutateAppAndNotify(id, (app) {
+      final workflows = _coerceWorkflowList(app['workflows']);
+      workflows.removeWhere(
+        (workflow) =>
+            (workflow['name'] ?? '').toString().toLowerCase() ==
+            name.toLowerCase(),
+      );
+      app['workflows'] = workflows;
+    });
     unawaited((onAfterWorkflowDelete ?? (_, _) async {}).call(id, name));
   }
 
