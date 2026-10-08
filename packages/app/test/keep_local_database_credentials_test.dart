@@ -2,6 +2,7 @@ import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  lavalinkImportTests();
   automationDefinitionsTests();
   final Map<String, dynamic> local = {
     'databaseConfig': {'type': 'postgres', 'host': 'h', 'password': 'p'},
@@ -55,4 +56,25 @@ void automationDefinitionsTests() {
     keepLocalAutomationDefinitions(merged, <String, dynamic>{}, remote);
     expect((merged['inboundWebhooks'] as List).single['id'], 'r1');
   });
+}
+
+void lavalinkImportTests() {
+  test(
+    'remote lavalink is adopted only when nothing is configured locally',
+    () {
+      final Map<String, dynamic> remote = {
+        'lavalink': {'enabled': true, 'custom_servers': []},
+      };
+      final merged = <String, dynamic>{}..addAll(remote);
+      keepLocalAutomationDefinitions(merged, <String, dynamic>{}, remote);
+      expect((merged['lavalinkConfig'] as Map)['enabled'], true);
+
+      final Map<String, dynamic> local = {
+        'lavalinkConfig': {'enabled': true, 'host': 'mine'},
+      };
+      final merged2 = <String, dynamic>{...local}..addAll(remote);
+      keepLocalAutomationDefinitions(merged2, local, remote);
+      expect((merged2['lavalinkConfig'] as Map)['host'], 'mine');
+    },
+  );
 }
