@@ -1758,6 +1758,10 @@ Future<Map<String, String>> _handleActions(
         variables['error.column'] = '';
         results[resultKey] = 'Error: $e';
         recordTrace(resultOverride: 'Error: $e');
+        // Le mode par défaut (continuer) avale l'erreur : sans cette ligne, un
+        // addRole refusé (userId vide, rôle au-dessus du bot...) n'apparaissait
+        // nulle part, ni dans les erreurs ni dans les journaux.
+        onLog?.call('Action ${action.type.name} failed: $e');
         if (throwOnError || e is CommandExecutionTimeout) rethrow;
         switch (action.onErrorMode) {
           case ActionOnErrorMode.stop:

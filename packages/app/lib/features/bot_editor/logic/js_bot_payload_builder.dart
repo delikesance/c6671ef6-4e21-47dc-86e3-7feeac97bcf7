@@ -295,6 +295,26 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     'events': events,
     'scheduled': scheduled,
     'inboundWebhooks': inboundWebhooks,
+    // Les définitions d'ÉDITEUR doivent voyager avec les listes converties du
+    // runner : le document serveur est REMPLACÉ en entier par cette poussée, et
+    // sans ces clés les workflows, déclencheurs planifiés et webhooks entrants
+    // enregistrés disparaissaient à chaque synchro (le Studio les affichait
+    // vides, l'app les perdait au prochain aller-retour).
+    'workflows': [for (final w in workflows) Map<String, dynamic>.from(w)],
+    'scheduledTriggers': [
+      for (final t
+          in appData['scheduledTriggers'] is List
+              ? appData['scheduledTriggers'] as List
+              : const [])
+        if (t is Map) Map<String, dynamic>.from(t),
+    ],
+    'inboundWebhookEndpoints': [
+      for (final e
+          in appData['inboundWebhooks'] is List
+              ? appData['inboundWebhooks'] as List
+              : const [])
+        if (e is Map) Map<String, dynamic>.from(e),
+    ],
     'globalVariables': Map<String, dynamic>.from(
       (appData['globalVariables'] as Map?) ?? const {},
     ),
