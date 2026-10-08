@@ -134,7 +134,8 @@
           "type": "string",
           "enum": [
             "bdfd",
-            "blocks"
+            "blocks",
+            "javascript"
           ]
         },
         "budget": {
