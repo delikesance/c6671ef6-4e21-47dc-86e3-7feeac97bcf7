@@ -1,3 +1,4 @@
+import 'package:bot_creator/features/bot_editor/logic/lavalink_config.dart';
 import 'package:bot_creator/core/discord/discord_intent_sync.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/utils/bot_payload_guard.dart';
@@ -335,6 +336,14 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   // « vide sans automatisation » — exactement la charge de 378 octets qui a
   // remplacé la config d'un bot. On refuse explicitement au lieu de rendre du
   // vide : l'appelant reçoit une erreur lisible, et rien n'est poussé.
+  // Même schéma Lavalink FIGÉ que le payload Dart : sans lui, un bot JavaScript
+  // perdait ses serveurs de musique à chaque poussée complète.
+  applyLavalinkSchema(
+    payload,
+    appData['lavalinkConfig'] is Map
+        ? Map<String, dynamic>.from(appData['lavalinkConfig'] as Map)
+        : null,
+  );
   assertNonDegenerateBotPayload(payload, source: 'buildJsBotPayload');
   return payload;
 }

@@ -7,6 +7,7 @@ import 'package:bot_creator_studio/src/commands/options_validation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  markSavedTests();
   optionsTests();
   validationTexts();
   group('CommandDraft', () {
@@ -201,5 +202,22 @@ void optionsTests() {
         expect(d.dirty, isTrue);
       },
     );
+  });
+}
+
+void markSavedTests() {
+  test('an edit made during a save stays dirty after markSaved(sent)', () {
+    final draft = CommandDraft({
+      'id': 'c1',
+      'name': 'ping',
+      'description': 'd',
+      'type': 'chatInput',
+      'data': {'actions': <dynamic>[], 'options': <dynamic>[]},
+    }, revision: 'r1');
+    final sent = draft.toRaw();
+    draft.name = 'pong'; // l'utilisateur tape pendant la requête
+    draft.markSaved(sent, revision: 'r2');
+    expect(draft.revision, 'r2');
+    expect(draft.dirty, isTrue);
   });
 }

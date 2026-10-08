@@ -52,6 +52,72 @@ String localCommandTypeFromRemote(
   }
 }
 
+/// Le Manager ne renvoie JAMAIS les identifiants de la base personnalisée : sa
+/// copie est un repère expurgé (`{type, encrypted: true}`, sans hôte ni mot de
+/// passe). La recopier telle quelle sur la configuration locale effaçait les
+/// identifiants saisis à chaque synchro entrante, d'où une base qui « ne reste
+/// pas » tant qu'on ne ré-enregistre pas. On garde donc la copie locale tant que
+/// le repère distant ne désigne pas un autre type de base.
+void keepLocalDatabaseCredentials(
+  Map<String, dynamic> merged,
+  Map<String, dynamic> existingApp,
+  Map<String, dynamic> remoteConfig,
+) {
+  final local = existingApp['databaseConfig'];
+  final remote = remoteConfig['databaseConfig'];
+  if (local is! Map || remote is! Map || remote['encrypted'] != true) return;
+  final localType = (local['type'] ?? 'none').toString().trim().toLowerCase();
+  final remoteType = (remote['type'] ?? 'none').toString().trim().toLowerCase();
+  if (localType == 'none') return;
+  if (remoteType == 'none' || remoteType.isEmpty || remoteType == localType) {
+    merged['databaseConfig'] = Map<String, dynamic>.from(local);
+  }
+}
+
+/// `addAll(remoteConfig)` écrase aussi deux clés dont la forme distante n'est
+/// PAS celle du stockage local :
+/// - `inboundWebhooks` : localement la liste des endpoints saisis, à distance un
+///   booléen (moteur Dart) ou la forme runner (id, path, secret, script) ; la
+///   vraie liste revient dans `inboundWebhookEndpoints`. On garde la liste
+///   locale, et on n'adopte la liste distante que si rien n'existe localement.
+/// - `globalVariables` : les variables écrites par le runtime local et pas encore
+///   poussées disparaissaient à la synchro suivante. Les clés distantes gagnent,
+///   les clés seulement locales sont conservées.
+void keepLocalAutomationDefinitions(
+  Map<String, dynamic> merged,
+  Map<String, dynamic> existingApp,
+  Map<String, dynamic> remoteConfig,
+) {
+  final localHooks = existingApp['inboundWebhooks'];
+  if (localHooks is List) {
+    merged['inboundWebhooks'] = List<dynamic>.from(localHooks);
+  } else if (remoteConfig['inboundWebhookEndpoints'] is List) {
+    merged['inboundWebhooks'] = List<dynamic>.from(
+      remoteConfig['inboundWebhookEndpoints'] as List,
+    );
+  } else if (merged['inboundWebhooks'] is! List) {
+    merged.remove('inboundWebhooks');
+  }
+
+  // Le serveur renvoie la musique sous `lavalink` (schéma figé), l'app la lit
+  // sous `lavalinkConfig`. On l'adopte seulement si rien n'est configuré ici : le
+  // serveur éteint Lavalink pour un compte gratuit, alors que le bot local peut
+  // légitimement garder la musique sur cet appareil.
+  final remoteLavalink = remoteConfig['lavalink'];
+  if (existingApp['lavalinkConfig'] is! Map && remoteLavalink is Map) {
+    merged['lavalinkConfig'] = Map<String, dynamic>.from(remoteLavalink);
+  }
+
+  final localGlobals = existingApp['globalVariables'];
+  final remoteGlobals = remoteConfig['globalVariables'];
+  if (localGlobals is Map && remoteGlobals is Map) {
+    merged['globalVariables'] = <String, dynamic>{
+      ...localGlobals.map((k, v) => MapEntry(k.toString(), v)),
+      ...remoteGlobals.map((k, v) => MapEntry(k.toString(), v)),
+    };
+  }
+}
+
 /// Imports runtime identity without triggering an outbound synchronization.
 Future<void> applyManagerRuntimeMetadataToLocal({
   required AppManager appManager,
@@ -93,6 +159,8 @@ Future<void> applyManagerConfigToLocal({
       // Le Manager ne porte que `statuses` ; sans cette recopie, les anciennes
       // `activities` locales (lues en premier) masquent le statut tiré du cloud.
       mirrorPresenceActivities(merged, remoteConfig);
+      keepLocalDatabaseCredentials(merged, existingApp, remoteConfig);
+      keepLocalAutomationDefinitions(merged, existingApp, remoteConfig);
 
       if (remoteConfig['prefix'] == null && existingApp.containsKey('prefix')) {
         merged['prefix'] = existingApp['prefix'];

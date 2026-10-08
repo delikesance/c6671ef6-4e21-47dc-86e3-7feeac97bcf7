@@ -901,6 +901,7 @@ extension _AppHomePageSync on _AppHomePageState {
               botId: botId,
               remoteConfig: result.remoteConfig!,
               appManager: appManager,
+              automatic: true,
             );
             await _reloadAppLocally();
             if (mounted) {

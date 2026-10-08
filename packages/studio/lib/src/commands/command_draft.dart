@@ -42,6 +42,14 @@ class CommandDraft implements ActionListHost {
 
   void markNew() => _original = '';
 
+  /// Marque comme enregistré ce qui a été ENVOYÉ ([sent]), pas ce que le brouillon
+  /// contient maintenant : une modification faite pendant la requête reste donc
+  /// « en attente » au lieu d'être déclarée sauvegardée sans l'avoir été.
+  void markSaved(Map<String, dynamic> sent, {String? revision}) {
+    _original = jsonEncode(sent);
+    if (revision != null) this.revision = revision;
+  }
+
   static Map<String, dynamic> _deepCopy(Map<String, dynamic> m) =>
       jsonDecode(jsonEncode(m)) as Map<String, dynamic>;
 

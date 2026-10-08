@@ -11,6 +11,14 @@ class BotSyncBatcher {
   final Set<String> _running = {};
   final Map<String, Future<void> Function(String)> _pending = {};
 
+  /// Vrai tant qu'une synchronisation de [botId] est planifiée, en cours ou en
+  /// attente derrière celle qui tourne : le cloud est alors PLUS ANCIEN que le
+  /// local, et l'appliquer par-dessus écraserait l'édition qui part.
+  bool isBusy(String botId) =>
+      _timers.containsKey(botId) ||
+      _running.contains(botId) ||
+      _pending.containsKey(botId);
+
   void requestSync(
     String botId,
     Future<void> Function(String) task, {
