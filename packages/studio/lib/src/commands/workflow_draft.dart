@@ -96,6 +96,9 @@ class WorkflowDraft implements ActionListHost {
     for (final e in _list.whereType<Map>()) Map<String, dynamic>.from(e),
   ];
 
+  /// Voir CommandDraft.markSaved : on enregistre l'état ENVOYÉ.
+  void markSaved(Map<String, dynamic> sent) => _original = jsonEncode(sent);
+
   bool get dirty => jsonEncode(_raw) != _original;
 
   @override

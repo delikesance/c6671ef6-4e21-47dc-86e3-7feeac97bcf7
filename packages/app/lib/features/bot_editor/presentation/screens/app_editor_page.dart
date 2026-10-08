@@ -1,3 +1,4 @@
+import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'dart:async';
 import 'package:bot_creator/features/copilot/presentation/copilot_page.dart';
 import 'dart:developer' as developer;
@@ -1189,9 +1190,6 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
       try {
         final apiConfig = await MainApiSettingsStore.loadConfig();
         if (apiConfig.isConfigured) {
-          final appData = Map<String, dynamic>.from(
-            await appManager.getApp(discordUser.id.toString()),
-          );
           final client = MainApiClient(baseUrl: apiConfig.baseUrl);
           final session = await client.exchangeDiscordBotToken(
             botToken: newToken,
@@ -1200,10 +1198,13 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
             baseUrl: apiConfig.baseUrl,
             accessToken: session.accessToken,
           );
+          // La charge COMPLÈTE du moteur, pas le document local brut : celui-ci
+          // n'a pas de `commands` et la synchro serveur le lirait comme « plus
+          // aucune commande ».
           await apiClient.syncBot(
             discordUser.id.toString(),
             discordUser.username,
-            appData,
+            await buildRemotePayload(discordUser.id.toString()),
           );
         }
       } catch (e) {
