@@ -1,3 +1,4 @@
+import 'package:bot_creator/features/copilot/logic/copilot_configuration.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_tool_result.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nyxx/nyxx.dart';
@@ -91,5 +92,22 @@ void main() {
       expect(result['approved'], isTrue);
       expect(result['success_confirmed'], isFalse);
     }
+  });
+
+  test('app-written validation errors name the rejected field', () {
+    final result = copilotToolFailure(
+      const CopilotArgumentError('option name: use 1-32 lowercase letters'),
+    );
+    expect(result['code'], 'invalid_tool_arguments');
+    expect(result['message'], contains('option name: use 1-32 lowercase'));
+  });
+
+  test('command and option names accept any lowercase script', () {
+    expect(isValidDiscordName('чат'), isTrue);
+    expect(isValidDiscordName('вгадати'), isTrue);
+    expect(isValidDiscordName('ping_2-x'), isTrue);
+    expect(isValidDiscordName('Чат'), isFalse);
+    expect(isValidDiscordName('a b'), isFalse);
+    expect(isValidDiscordName(''), isFalse);
   });
 }
