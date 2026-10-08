@@ -52,6 +52,28 @@ String localCommandTypeFromRemote(
   }
 }
 
+/// Le Manager ne renvoie JAMAIS les identifiants de la base personnalisée : sa
+/// copie est un repère expurgé (`{type, encrypted: true}`, sans hôte ni mot de
+/// passe). La recopier telle quelle sur la configuration locale effaçait les
+/// identifiants saisis à chaque synchro entrante, d'où une base qui « ne reste
+/// pas » tant qu'on ne ré-enregistre pas. On garde donc la copie locale tant que
+/// le repère distant ne désigne pas un autre type de base.
+void keepLocalDatabaseCredentials(
+  Map<String, dynamic> merged,
+  Map<String, dynamic> existingApp,
+  Map<String, dynamic> remoteConfig,
+) {
+  final local = existingApp['databaseConfig'];
+  final remote = remoteConfig['databaseConfig'];
+  if (local is! Map || remote is! Map || remote['encrypted'] != true) return;
+  final localType = (local['type'] ?? 'none').toString().trim().toLowerCase();
+  final remoteType = (remote['type'] ?? 'none').toString().trim().toLowerCase();
+  if (localType == 'none') return;
+  if (remoteType == 'none' || remoteType.isEmpty || remoteType == localType) {
+    merged['databaseConfig'] = Map<String, dynamic>.from(local);
+  }
+}
+
 /// Imports runtime identity without triggering an outbound synchronization.
 Future<void> applyManagerRuntimeMetadataToLocal({
   required AppManager appManager,
@@ -93,6 +115,7 @@ Future<void> applyManagerConfigToLocal({
       // Le Manager ne porte que `statuses` ; sans cette recopie, les anciennes
       // `activities` locales (lues en premier) masquent le statut tiré du cloud.
       mirrorPresenceActivities(merged, remoteConfig);
+      keepLocalDatabaseCredentials(merged, existingApp, remoteConfig);
 
       if (remoteConfig['prefix'] == null && existingApp.containsKey('prefix')) {
         merged['prefix'] = existingApp['prefix'];
