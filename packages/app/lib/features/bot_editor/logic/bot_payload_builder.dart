@@ -60,6 +60,17 @@ final _appManager = AppManager();
 
 final _batcher = BotSyncBatcher();
 
+/// Bots dont la dernière poussée a échoué : leur copie locale est plus récente
+/// que le cloud tant qu'une poussée n'a pas réussi.
+final Set<String> _botsWithFailedPush = <String>{};
+
+/// Vrai quand le local porte des modifications que le cloud n'a pas encore
+/// (poussée planifiée, en cours, ou échouée). Les applications AUTOMATIQUES du
+/// cloud sur le local doivent s'abstenir dans ce cas : sinon une édition non
+/// partie est écrasée, et les éléments « manquants » du cloud supprimés.
+bool botHasUnpushedLocalChanges(String botId) =>
+    _batcher.isBusy(botId) || _botsWithFailedPush.contains(botId);
+
 /// Registers the runner sync hooks so that command saves use localized
 /// updates while broader bot saves still fall back to a full reload.
 ///
@@ -542,6 +553,7 @@ Future<void> _executeSync(String botId) async {
             );
             if (switchConfirmed) await clearEngineSwitchConfirmation(botId);
             debugPrint('[AutoReload] Synced bot $botId to cloud (batched).');
+            _botsWithFailedPush.remove(botId);
             // The cloud document now lacks the commands deleted before this push.
             await _appManager.clearPendingCommandDeletions(
               botId,
@@ -569,6 +581,7 @@ Future<void> _executeSync(String botId) async {
           );
         }
       } catch (error) {
+        _botsWithFailedPush.add(botId);
         if (_isTransientNetworkError(error)) {
           debugPrint('[AutoReload] Cloud sync skipped for $botId (offline).');
         } else {

@@ -1,3 +1,4 @@
+import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:bot_creator/core/platform/run_platform.dart';
@@ -583,10 +584,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             baseUrl: apiConfig.baseUrl,
             accessToken: session.accessToken,
           );
+          // La charge COMPLÈTE du moteur, pas le document local brut : celui-ci
+          // n'a pas de `commands` et la synchro serveur le lirait comme « plus
+          // aucune commande ».
           await apiClient.syncBot(
             discordUser.id.toString(),
             discordUser.username,
-            appData,
+            await buildRemotePayload(discordUser.id.toString()),
           );
         }
       } catch (e) {

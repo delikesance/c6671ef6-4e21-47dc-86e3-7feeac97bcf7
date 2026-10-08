@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/utils/hash_util.dart';
@@ -137,7 +138,17 @@ class BotReconciliationService {
     required String botId,
     required Map<String, dynamic> remoteConfig,
     AppManager? appManager,
+
+    /// Application déclenchée SANS geste de l'utilisateur (démarrage, ouverture,
+    /// connexion) : elle s'abstient quand le local porte une édition non poussée.
+    bool automatic = false,
   }) async {
+    if (automatic && botHasUnpushedLocalChanges(botId)) {
+      debugPrint(
+        '[Reconciliation] Cloud apply skipped for $botId: local changes not pushed yet.',
+      );
+      return;
+    }
     final mgr = appManager ?? AppManager();
     remoteConfig = await _withoutPendingDeletions(mgr, botId, remoteConfig);
     final existingApp = await mgr.getApp(botId);

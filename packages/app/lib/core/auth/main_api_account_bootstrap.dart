@@ -117,6 +117,7 @@ Future<int> syncManagedBotsAfterDiscordLogin({
         botId: botId,
         remoteConfig: config,
         appManager: appManager,
+        automatic: true,
       );
     } catch (e) {
       developer.log(
