@@ -99,6 +99,15 @@ void keepLocalAutomationDefinitions(
     merged.remove('inboundWebhooks');
   }
 
+  // Le serveur renvoie la musique sous `lavalink` (schéma figé), l'app la lit
+  // sous `lavalinkConfig`. On l'adopte seulement si rien n'est configuré ici : le
+  // serveur éteint Lavalink pour un compte gratuit, alors que le bot local peut
+  // légitimement garder la musique sur cet appareil.
+  final remoteLavalink = remoteConfig['lavalink'];
+  if (existingApp['lavalinkConfig'] is! Map && remoteLavalink is Map) {
+    merged['lavalinkConfig'] = Map<String, dynamic>.from(remoteLavalink);
+  }
+
   final localGlobals = existingApp['globalVariables'];
   final remoteGlobals = remoteConfig['globalVariables'];
   if (localGlobals is Map && remoteGlobals is Map) {
