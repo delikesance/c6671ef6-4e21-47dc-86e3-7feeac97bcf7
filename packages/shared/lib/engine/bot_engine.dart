@@ -52,8 +52,8 @@ class BotEngine {
       lavalinkConfig = LavalinkConfig.fromJson(raw);
       callbacks.onLog?.call(
         'Lavalink config resolved: enabled=${lavalinkConfig.enabled}, '
-        'serveurs personnels=${lavalinkConfig.customServers.length} '
-        '(hérité ${lavalinkConfig.host}:${lavalinkConfig.port}, '
+        'custom servers=${lavalinkConfig.customServers.length} '
+        '(legacy ${lavalinkConfig.host}:${lavalinkConfig.port}, '
         'SSL: ${lavalinkConfig.useSsl})',
         botId: botId,
       );
