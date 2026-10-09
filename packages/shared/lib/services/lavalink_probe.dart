@@ -287,7 +287,7 @@ class LavalinkProbe {
     try {
       entries = await _listService.getServers(forceRefresh: forceRefresh);
     } catch (error) {
-      onLog?.call('Lavalink probe : liste publique indisponible ($error)');
+      onLog?.call('Lavalink probe: public list unavailable ($error)');
       return _cachedResults;
     }
 
@@ -307,8 +307,8 @@ class LavalinkProbe {
     results.sort((a, b) => a.latency.compareTo(b.latency));
 
     onLog?.call(
-      'Lavalink probe : ${results.length}/${targets.length} serveur(s) v4 '
-      'ont répondu en ${stopwatch.elapsedMilliseconds} ms',
+      'Lavalink probe: ${results.length}/${targets.length} v4 server(s) '
+      'responded in ${stopwatch.elapsedMilliseconds} ms',
     );
 
     // Un échec total n'est pas mémorisé : le prochain démarrage réessaiera.
@@ -420,12 +420,12 @@ class LavalinkProbe {
 
       stopwatch.stop();
       if (error != null) {
-        onLog?.call('Lavalink probe : ${target.endpoint} a échoué ($error)');
+        onLog?.call('Lavalink probe: ${target.endpoint} failed ($error)');
         return null;
       }
       return LavalinkProbeResult(target: target, latency: stopwatch.elapsed);
     } catch (error) {
-      onLog?.call('Lavalink probe : ${target.endpoint} a échoué ($error)');
+      onLog?.call('Lavalink probe: ${target.endpoint} failed ($error)');
       return null;
     }
   }

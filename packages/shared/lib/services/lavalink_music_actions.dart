@@ -59,7 +59,7 @@ Future<Map<String, String>> playMusicAction({
       final userId = Snowflake.parse(payload['userId'].toString());
       voiceChannelId = _findUserVoiceChannel(client, guildId, userId);
       if (voiceChannelId == null) {
-        return {'error': "Vous devez etre dans un salon vocal"};
+        return {'error': 'You must be in a voice channel'};
       }
     }
 
@@ -114,7 +114,7 @@ Future<Map<String, String>> joinVoiceAction({
       final userId = Snowflake.parse(payload['userId'].toString());
       voiceChannelId = _findUserVoiceChannel(client, guildId, userId);
       if (voiceChannelId == null) {
-        return {'error': 'Vous devez etre dans un salon vocal'};
+        return {'error': 'You must be in a voice channel'};
       }
     }
     if (voiceChannelId == null) {
