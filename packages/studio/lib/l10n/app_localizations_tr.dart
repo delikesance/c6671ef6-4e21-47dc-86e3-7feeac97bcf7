@@ -382,6 +382,10 @@ class StudioLocalizationsTr extends StudioLocalizations {
   }
 
   @override
+  String get commandSavedNoScript =>
+      'Komut kaydedildi, ancak JavaScript betiği yok: siz bir tane ekleyene kadar botta çalışmayacak.';
+
+  @override
   String get commandChangedElsewhere =>
       'Bu bot başka bir yerde (uygulama veya başka bir oturum) değiştirildi. Kaydetmeden önce komutu yeniden yükleyin.';
 

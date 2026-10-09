@@ -386,6 +386,10 @@ class StudioLocalizationsFr extends StudioLocalizations {
   }
 
   @override
+  String get commandSavedNoScript =>
+      'Commande enregistrée, mais elle n\'a pas de script JavaScript : elle ne s\'exécutera pas sur le bot tant que vous n\'en ajoutez pas un.';
+
+  @override
   String get commandChangedElsewhere =>
       'Ce bot a été modifié ailleurs (app ou autre session). Rechargez la commande avant d\'enregistrer.';
 

@@ -585,6 +585,10 @@ class StudioApi {
       revision: _string(json, const ['revision']) ?? revision,
       runnerSynced: json['runner_synced'] != false,
       runnerSyncError: _string(json, const ['runner_sync_error']),
+      warnings: [
+        if (json['warnings'] is List)
+          for (final w in json['warnings'] as List) '$w',
+      ],
     );
   }
 
@@ -1642,9 +1646,15 @@ class StudioCommandSaveResult {
     this.revision,
     this.runnerSynced = true,
     this.runnerSyncError,
+    this.warnings = const [],
   });
 
   final String? revision;
   final bool runnerSynced;
   final String? runnerSyncError;
+
+  /// Avertissements non bloquants du Manager (`command_without_script`…).
+  final List<String> warnings;
+
+  bool get hasNoScriptWarning => warnings.contains('command_without_script');
 }

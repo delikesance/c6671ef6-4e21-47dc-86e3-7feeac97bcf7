@@ -226,6 +226,20 @@ void main() {
       expect(res.runnerSyncError, 'boom');
     });
 
+    test('save : relaie les avertissements du Manager', () async {
+      final a = api(
+        MockClient(
+          (_) async => http.Response(
+            '{"revision":"r9","warnings":["command_without_script"]}',
+            200,
+          ),
+        ),
+      );
+      final res = await a.saveCommand('b1', 'c1', _command());
+      expect(res.hasNoScriptWarning, isTrue);
+      expect(res.runnerSynced, isTrue);
+    });
+
     test('save : PATCH, If-Match entre guillemets, corps enveloppé', () async {
       late http.Request seen;
       final a = api(

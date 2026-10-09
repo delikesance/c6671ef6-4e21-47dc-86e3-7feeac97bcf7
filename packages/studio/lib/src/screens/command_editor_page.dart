@@ -156,11 +156,15 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            syncError.isEmpty
-                ? context.l10n.commandSaved
-                : context.l10n.commandSavedNotApplied(syncError),
+            syncError.isNotEmpty
+                ? context.l10n.commandSavedNotApplied(syncError)
+                : result.hasNoScriptWarning
+                ? context.l10n.commandSavedNoScript
+                : context.l10n.commandSaved,
           ),
-          duration: Duration(seconds: syncError.isEmpty ? 4 : 10),
+          duration: Duration(
+            seconds: syncError.isEmpty && !result.hasNoScriptWarning ? 4 : 10,
+          ),
         ),
       );
     } on StudioApiException catch (e) {

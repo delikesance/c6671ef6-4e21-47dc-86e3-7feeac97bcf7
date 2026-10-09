@@ -180,6 +180,7 @@
       }
     }
   },
+  "commandSavedNoScript": "Command saved, but it has no JavaScript script: it will not run on the bot until you add one.",
   "commandChangedElsewhere": "This bot was modified elsewhere (app or another session). Reload the command before saving.",
   "scriptEdit": "Edit script",
   "commandTriggerHybrid": "Slash + text message",
