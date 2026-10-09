@@ -61,7 +61,11 @@ Map<String, BdfdNativeFunction> bdfdMusicFunctions([BotMusicService? service]) {
       handler: (call) async {
         final query = (await call.argument(0)).trim();
         if (query.isEmpty) {
-          throw BdfdNativeError('Music query is required.', call.location);
+          throw BdfdNativeError(
+            'Music query is required. Type a song name or link after the '
+            'command (slash command: fill in its option).',
+            call.location,
+          );
         }
         final channel = call.argumentCount > 1
             ? (await call.argument(1)).trim()

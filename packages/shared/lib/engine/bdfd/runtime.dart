@@ -11,6 +11,7 @@ import '../../services/text_utility_operations.dart'
 import '../../services/http_service.dart';
 import '../../utils/bdfd_functions.dart';
 import '../../utils/math_parser.dart';
+import '../../utils/template_resolver.dart';
 import '../execution_budget.dart';
 import 'program.dart';
 import 'loop_syntax.dart';
@@ -461,15 +462,19 @@ class BdfdRuntime {
             _location(program, node),
           );
         }
-        if (node.arguments.length < function.minArguments ||
-            node.arguments.length > function.maxArguments ||
+        // `$fn[]` on a function without parameters is the same as `$fn`.
+        final argumentCount =
+            function.maxArguments == 0 &&
+                node.arguments.length == 1 &&
+                node.arguments.single.isEmpty
+            ? 0
+            : node.arguments.length;
+        if (argumentCount < function.minArguments ||
+            argumentCount > function.maxArguments ||
             (function.allowedArgumentCounts != null &&
-                !function.allowedArgumentCounts!.contains(
-                  node.arguments.length,
-                ))) {
+                !function.allowedArgumentCounts!.contains(argumentCount))) {
           throw BdfdNativeError(
-            'Invalid argument count for ${node.name}: '
-            '${node.arguments.length}.',
+            'Invalid argument count for ${node.name}: $argumentCount.',
             _location(program, node),
           );
         }
@@ -952,6 +957,44 @@ class BdfdRuntime {
         (match) => _loopVariable(match[0]!.toLowerCase(), context) ?? match[0]!,
       );
 
+  static final _dynamicPlaceholder = RegExp(r'\(\(([^()]+)\)\)');
+
+  /// Literal script text with its `((name))` dynamic variables (the same ones
+  /// visual blocks use: `opts.*`, `user.*`, `guild.*`...) substituted from the
+  /// context. Substitution happens while evaluating, on each text node, so the
+  /// values are data exactly like `$message`: they are never parsed as BDFD.
+  /// A `((...))` that names no known variable stays literal text.
+  String _expandText(
+    String text,
+    BdfdProgram program,
+    BdfdContext context,
+    bool replaceLoopIdentifiers,
+  ) {
+    String literal(String value) => replaceLoopIdentifiers
+        ? _replaceLoopIdentifiers(value, context)
+        : value;
+    if (!program.expandDynamicVariables || !text.contains('((')) {
+      return literal(text);
+    }
+    final output = StringBuffer();
+    var last = 0;
+    for (final match in _dynamicPlaceholder.allMatches(text)) {
+      final expression = match[1]!.trim();
+      if (resolveTemplateExpressionValue(expression, context.variables) ==
+          null) {
+        continue;
+      }
+      output
+        ..write(literal(text.substring(last, match.start)))
+        ..write(
+          resolveTemplateExpressionToString(expression, context.variables),
+        );
+      last = match.end;
+    }
+    output.write(literal(text.substring(last)));
+    return output.toString();
+  }
+
   Future<String> _evaluate(
     List<BdfdAstNode> nodes,
     BdfdProgram program,
@@ -964,9 +1007,7 @@ class BdfdRuntime {
       context._check(location);
       if (node is BdfdTextAst) {
         output.write(
-          replaceLoopIdentifiers
-              ? _replaceLoopIdentifiers(node.value, context)
-              : node.value,
+          _expandText(node.value, program, context, replaceLoopIdentifiers),
         );
       } else if (node is BdfdFunctionCallAst) {
         final variable = node.arguments.isEmpty
