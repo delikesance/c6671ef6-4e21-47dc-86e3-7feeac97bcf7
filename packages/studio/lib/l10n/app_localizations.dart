@@ -784,6 +784,12 @@ abstract class StudioLocalizations {
   /// **'Command saved.'**
   String get commandSaved;
 
+  /// No description provided for @commandSavedNotApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Command saved, but not applied to the running bot (it will apply at the next restart or reload). Error: {error}'**
+  String commandSavedNotApplied(String error);
+
   /// No description provided for @commandChangedElsewhere.
   ///
   /// In en, this message translates to:

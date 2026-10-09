@@ -263,6 +263,7 @@ class StudioMarketplaceController extends MarketplaceController {
     }
 
     var added = 0, replaced = 0, kept = 0;
+    final deleteFailures = <String>[];
     Future<void> write(String name, dynamic cmd) async {
       final description =
           resolveTemplateVariables(cmd.description, variables) as String;
@@ -293,9 +294,15 @@ class StudioMarketplaceController extends MarketplaceController {
         kept++;
         continue;
       }
-      await api.deleteCommand(botId, existing[name]!.id, botName: bot.name);
+      // Écrire d'abord le remplaçant (nouvel id), ne supprimer l'ancienne
+      // commande qu'ensuite : si l'écriture échoue, rien n'est perdu.
       await write(name, conflict['cmd']);
       replaced++;
+      try {
+        await api.deleteCommand(botId, existing[name]!.id, botName: bot.name);
+      } catch (e) {
+        deleteFailures.add('$name ($e)');
+      }
     }
 
     for (final workflow in template.workflows) {
@@ -309,8 +316,14 @@ class StudioMarketplaceController extends MarketplaceController {
       if (replaced > 0) '$replaced replaced',
       if (kept > 0) '$kept kept',
     ];
-    return parts.isEmpty
+    final summary = parts.isEmpty
         ? doneMessage
         : 'Template applied: ${parts.join(', ')}';
+    // Le remplaçant est écrit mais l'ancienne commande n'a pas pu être
+    // supprimée : on le signale (aucune donnée perdue, un doublon subsiste).
+    return deleteFailures.isEmpty
+        ? summary
+        : '$summary. Old command not deleted (replacement already saved): '
+              '${deleteFailures.join(', ')}';
   }
 }

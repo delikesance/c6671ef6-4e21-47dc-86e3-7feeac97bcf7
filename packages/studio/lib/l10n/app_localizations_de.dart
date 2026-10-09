@@ -382,6 +382,11 @@ class StudioLocalizationsDe extends StudioLocalizations {
   String get commandSaved => 'Befehl gespeichert.';
 
   @override
+  String commandSavedNotApplied(String error) {
+    return 'Befehl gespeichert, aber nicht auf den laufenden Bot angewendet (wird beim nächsten Neustart oder Neuladen übernommen). Fehler: $error';
+  }
+
+  @override
   String get commandChangedElsewhere =>
       'Dieser Bot wurde an anderer Stelle geändert (App oder andere Sitzung). Laden Sie den Befehl neu, bevor Sie speichern.';
 

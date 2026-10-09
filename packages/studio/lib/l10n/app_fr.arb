@@ -172,6 +172,7 @@
   },
   "commandNew": "Nouvelle commande",
   "commandSaved": "Commande enregistrée.",
+  "commandSavedNotApplied": "Commande enregistrée, mais non appliquée au bot en cours d'exécution (elle le sera au prochain redémarrage ou rechargement). Erreur : {error}",
   "commandChangedElsewhere": "Ce bot a été modifié ailleurs (app ou autre session). Rechargez la commande avant d'enregistrer.",
   "scriptEdit": "Modifier le script",
   "commandTriggerHybrid": "Slash + message texte",
