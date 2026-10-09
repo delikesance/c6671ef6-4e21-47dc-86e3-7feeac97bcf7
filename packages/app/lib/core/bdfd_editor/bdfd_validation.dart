@@ -41,3 +41,27 @@ List<BdfdCompileDiagnostic> bdfdSlashWithoutOptionsWarnings(
     ),
   ];
 }
+
+/// `((opts.x))` placeholders belong to visual blocks. A BDFD script runs its
+/// text as is, so the placeholder would reach the function unresolved.
+List<BdfdCompileDiagnostic> bdfdPlaceholderSyntaxWarnings(String source) {
+  final match = RegExp(r'\(\(([A-Za-z0-9_.\[\]-]+)\)\)').firstMatch(source);
+  if (match == null) return const [];
+  final before = source.substring(0, match.start).split('\n');
+  final name = match.group(1)!;
+  final option = name.startsWith('opts.') ? name.substring(5) : null;
+  return [
+    BdfdCompileDiagnostic(
+      message:
+          '${match.group(0)} is not resolved in a BDFD script. '
+          '${option == null ? 'Use a BDFD function instead.' : 'Write \$message[$option] instead.'}',
+      severity: BdfdCompileDiagnosticSeverity.warning,
+      stage: BdfdCompileDiagnosticStage.native,
+      start: match.start,
+      end: match.end,
+      line: before.length,
+      column: before.last.length + 1,
+      functionName: match.group(0),
+    ),
+  ];
+}
