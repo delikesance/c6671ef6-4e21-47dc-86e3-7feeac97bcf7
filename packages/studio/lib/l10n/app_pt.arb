@@ -81,6 +81,7 @@
   "deleteNamedTitle": "Excluir “{name}”?",
   "commandNew": "Novo comando",
   "commandSaved": "Comando salvo.",
+  "commandSavedNotApplied": "Comando salvo, mas não aplicado ao bot em execução (será aplicado na próxima reinicialização ou recarga). Erro: {error}",
   "commandChangedElsewhere": "Este bot foi modificado em outro lugar (app ou outra sessão). Recarregue o comando antes de salvar.",
   "scriptEdit": "Editar script",
   "commandTriggerHybrid": "Slash + mensagem de texto",

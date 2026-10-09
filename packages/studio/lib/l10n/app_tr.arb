@@ -81,6 +81,7 @@
   "deleteNamedTitle": "“{name}” silinsin mi?",
   "commandNew": "Yeni komut",
   "commandSaved": "Komut kaydedildi.",
+  "commandSavedNotApplied": "Komut kaydedildi, ancak çalışan bota uygulanmadı (bir sonraki yeniden başlatma veya yenilemede uygulanır). Hata: {error}",
   "commandChangedElsewhere": "Bu bot başka bir yerde (uygulama veya başka bir oturum) değiştirildi. Kaydetmeden önce komutu yeniden yükleyin.",
   "scriptEdit": "Betiği düzenle",
   "commandTriggerHybrid": "Slash + metin mesajı",

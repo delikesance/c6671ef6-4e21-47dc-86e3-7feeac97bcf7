@@ -377,6 +377,11 @@ class StudioLocalizationsTr extends StudioLocalizations {
   String get commandSaved => 'Komut kaydedildi.';
 
   @override
+  String commandSavedNotApplied(String error) {
+    return 'Komut kaydedildi, ancak çalışan bota uygulanmadı (bir sonraki yeniden başlatma veya yenilemede uygulanır). Hata: $error';
+  }
+
+  @override
   String get commandChangedElsewhere =>
       'Bu bot başka bir yerde (uygulama veya başka bir oturum) değiştirildi. Kaydetmeden önce komutu yeniden yükleyin.';
 

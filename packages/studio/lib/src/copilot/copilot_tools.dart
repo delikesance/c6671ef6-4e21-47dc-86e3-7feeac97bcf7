@@ -229,7 +229,11 @@ class CopilotTools {
     }
     if (args['options'] is List) data['options'] = args['options'];
     raw['data'] = data;
-    final revision = await api.saveCommand(botId, '${raw['id']}', raw);
+    final revision = (await api.saveCommand(
+      botId,
+      '${raw['id']}',
+      raw,
+    )).revision;
     return {'command_id': raw['id'], 'revision': revision, 'saved': true};
   }
 
@@ -250,12 +254,12 @@ class CopilotTools {
     }
     data['executionMode'] = mode;
     raw['data'] = data;
-    final revision = await api.saveCommand(
+    final revision = (await api.saveCommand(
       botId,
       id,
       raw,
       revision: '${args['expected_revision'] ?? ''}',
-    );
+    )).revision;
     return {'command_id': id, 'revision': revision, 'saved': true};
   }
 

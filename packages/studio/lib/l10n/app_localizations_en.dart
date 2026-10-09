@@ -379,6 +379,11 @@ class StudioLocalizationsEn extends StudioLocalizations {
   String get commandSaved => 'Command saved.';
 
   @override
+  String commandSavedNotApplied(String error) {
+    return 'Command saved, but not applied to the running bot (it will apply at the next restart or reload). Error: $error';
+  }
+
+  @override
   String get commandChangedElsewhere =>
       'This bot was modified elsewhere (app or another session). Reload the command before saving.';
 

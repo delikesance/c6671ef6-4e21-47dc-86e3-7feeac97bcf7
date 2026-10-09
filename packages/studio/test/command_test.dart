@@ -44,6 +44,19 @@ void main() {
       expect(d.actions.length, 2);
     });
 
+    test('jsScript met à jour un `script` de premier niveau périmé', () {
+      final d = CommandDraft({..._command(), 'script': 'old()'})
+        ..jsScript = 'new()';
+      final raw = d.toRaw();
+      expect(raw['script'], 'new()');
+      expect((raw['data'] as Map)['jsScriptContent'], 'new()');
+    });
+
+    test('jsScript ne crée pas `script` s\'il était absent', () {
+      final d = CommandDraft(_command())..jsScript = 'new()';
+      expect(d.toRaw().containsKey('script'), isFalse);
+    });
+
     test('les champs inconnus survivent à une édition', () {
       final d = CommandDraft(_command())..description = 'Nouveau';
       expect(d.dirty, isTrue);
@@ -198,6 +211,21 @@ void main() {
       expect(d.raw['name'], 'ban');
     });
 
+    test('save : rend le résultat de la synchro runner', () async {
+      final a = api(
+        MockClient(
+          (_) async => http.Response(
+            '{"revision":"r8","runner_synced":false,"runner_sync_error":"boom"}',
+            200,
+          ),
+        ),
+      );
+      final res = await a.saveCommand('b1', 'c1', _command());
+      expect(res.revision, 'r8');
+      expect(res.runnerSynced, isFalse);
+      expect(res.runnerSyncError, 'boom');
+    });
+
     test('save : PATCH, If-Match entre guillemets, corps enveloppé', () async {
       late http.Request seen;
       final a = api(
@@ -206,8 +234,10 @@ void main() {
           return http.Response('{"revision":"r8"}', 200);
         }),
       );
-      final rev = await a.saveCommand('b1', 'c1', _command(), revision: 'r7');
-      expect(rev, 'r8');
+      final res = await a.saveCommand('b1', 'c1', _command(), revision: 'r7');
+      expect(res.revision, 'r8');
+      expect(res.runnerSynced, isTrue);
+      expect(res.runnerSyncError, isNull);
       expect(seen.method, 'PATCH');
       expect(seen.headers['if-match'], '"r7"');
       expect((jsonDecode(seen.body) as Map).keys, ['command']);
