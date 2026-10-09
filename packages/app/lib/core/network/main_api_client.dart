@@ -65,6 +65,42 @@ class MainApiClientException implements Exception {
   }
 }
 
+/// La poussée COMPLÈTE est refusée AVANT d'être envoyée : le serveur porte des
+/// commandes que la copie locale n'a pas, et sa révision n'est plus celle que cet
+/// appareil a vue en dernier (lue ou poussée).
+///
+/// POURQUOI cette garde est côté client : `POST /gateway/bots/sync` n'accepte
+/// aucune révision attendue, donc il remplace le document entier. Sans elle, une
+/// commande créée ou éditée dans le Studio (qui, lui, écrit avec une
+/// précondition) disparaît à la poussée suivante du mobile. Rien n'est parti et
+/// rien n'a été effacé en local ; « pousser quand même » reste possible via
+/// `overwriteServerChanges: true`.
+class BotConfigServerAheadException implements Exception {
+  const BotConfigServerAheadException({
+    required this.botId,
+    required this.serverRevision,
+    required this.knownRevision,
+    required this.serverOnlyCommandIds,
+  });
+
+  final String botId;
+
+  /// Révision du document sur le serveur, à l'instant de la poussée.
+  final String serverRevision;
+
+  /// Dernière révision vue par cet appareil ; `null` si aucune.
+  final String? knownRevision;
+
+  /// Identifiants des commandes présentes sur le serveur et absentes en local.
+  final List<String> serverOnlyCommandIds;
+
+  @override
+  String toString() =>
+      'bot_config_server_ahead: server revision $serverRevision differs from '
+      'the last known ${knownRevision ?? "(none)"} and holds '
+      '${serverOnlyCommandIds.length} command(s) missing locally';
+}
+
 /// Réduit une exception d'API à une raison lisible : statut, code, message.
 ///
 /// POURQUOI elle est partagée : les écrans qui annoncent un échec doivent dire
@@ -174,6 +210,11 @@ class MainApiClient implements RemoteRuntimeClient {
   static const int _maxHashCacheEntries = 100;
 
   static const String _lastSyncedHashesKey = 'main_api_last_synced_hashes';
+
+  /// Dernière révision du document de commandes vue par cet appareil, par bot
+  /// (lue via la v2 ou rendue après une poussée). Clé : "${baseUrl}:${botId}".
+  static final Map<String, String> _knownRevisions = <String, String>{};
+  static const String _knownRevisionsKey = 'main_api_known_revisions';
   static const String _lastSavedSnapshotsKey =
       'main_api_last_saved_snapshots_v2';
 
@@ -187,6 +228,14 @@ class MainApiClient implements RemoteRuntimeClient {
         final decoded = jsonDecode(syncedHashesJson);
         if (decoded is Map) {
           _lastSyncedHashes.addAll(decoded.cast<String, String>());
+        }
+      }
+
+      final knownRevisionsJson = prefs.getString(_knownRevisionsKey);
+      if (knownRevisionsJson != null) {
+        final decoded = jsonDecode(knownRevisionsJson);
+        if (decoded is Map) {
+          _knownRevisions.addAll(decoded.cast<String, String>());
         }
       }
 
@@ -1399,6 +1448,7 @@ class MainApiClient implements RemoteRuntimeClient {
     Map<String, dynamic> config, {
     bool force = false,
     bool confirmOvershrink = false,
+    bool overwriteServerChanges = false,
   }) async {
     await _syncBotWithStatus(
       botId,
@@ -1406,6 +1456,7 @@ class MainApiClient implements RemoteRuntimeClient {
       config,
       force: force,
       confirmOvershrink: confirmOvershrink,
+      overwriteServerChanges: overwriteServerChanges,
     );
   }
 
@@ -1421,6 +1472,7 @@ class MainApiClient implements RemoteRuntimeClient {
     Map<String, dynamic> config, {
     bool force = false,
     bool confirmOvershrink = false,
+    bool overwriteServerChanges = false,
   }) async {
     // POURQUOI la garde est en TÊTE de méthode : c'est le dernier point avant le
     // réseau. Une charge utile vide (aucune commande, aucun événement, aucun
@@ -1435,6 +1487,10 @@ class MainApiClient implements RemoteRuntimeClient {
     if (!force && _lastSyncedHashes[cacheKey] == currentHash) {
       debugPrint('[MainApiClient] Sync skipped for $botId (already current).');
       return false;
+    }
+
+    if (!overwriteServerChanges) {
+      await _assertServerNotAhead(botId, config);
     }
 
     final safeConfig = _sanitizeConfigForUpload(config);
@@ -1525,7 +1581,73 @@ class MainApiClient implements RemoteRuntimeClient {
     _lastSyncedHashes[cacheKey] = currentHash;
     _evictOldestHashEntries(_lastSyncedHashes);
     unawaited(_persistHashes(_lastSyncedHashesKey, _lastSyncedHashes));
+    // La poussée a changé la révision du document : on la retient, sinon la
+    // poussée suivante verrait « un autre auteur » dans notre propre écriture.
+    await _refreshKnownRevision(botId);
     return runnerSynced;
+  }
+
+  /// Retient [revision] comme la dernière vue par cet appareil pour [botId].
+  /// Une révision vide ne retient rien (elle ne prouverait rien).
+  void rememberServerRevision(String botId, String? revision) {
+    final normalized = revision?.trim() ?? '';
+    if (normalized.isEmpty) return;
+    _knownRevisions['$_baseUrl:${botId.trim()}'] = normalized;
+    _evictOldestHashEntries(_knownRevisions);
+    unawaited(_persistHashes(_knownRevisionsKey, _knownRevisions));
+  }
+
+  Future<void> _refreshKnownRevision(String botId) async {
+    try {
+      final page = await listCommandsV2(botId);
+      rememberServerRevision(botId, page.revision);
+    } catch (error) {
+      debugPrint('[MainApiClient] Revision refresh skipped for $botId: $error');
+    }
+  }
+
+  /// Garde « le serveur a avancé » d'une poussée complète (voir
+  /// [BotConfigServerAheadException]). BEST-EFFORT : si la lecture v2 échoue
+  /// (hors ligne, serveur ancien) ou ne porte pas de révision, la poussée part
+  /// comme avant.
+  Future<void> _assertServerNotAhead(
+    String botId,
+    Map<String, dynamic> config,
+  ) async {
+    final CommandPage page;
+    try {
+      page = await listCommandsV2(botId);
+    } catch (error) {
+      debugPrint(
+        '[MainApiClient] Server-ahead check skipped for $botId: $error',
+      );
+      return;
+    }
+    final serverRevision = page.revision?.trim() ?? '';
+    if (serverRevision.isEmpty) return;
+
+    final knownRevision = _knownRevisions['$_baseUrl:${botId.trim()}'];
+    if (knownRevision == serverRevision) return;
+
+    final localIds = <String>{
+      for (final command in (config['commands'] as List?) ?? const <Object?>[])
+        if (command is Map) (command['id'] ?? '').toString().trim(),
+    };
+    final serverOnly = <String>[
+      for (final command in page.commands)
+        if (!localIds.contains(command.id.trim())) command.id,
+    ];
+    if (serverOnly.isEmpty) {
+      // Rien ne risque de disparaître : cette révision devient la référence.
+      rememberServerRevision(botId, serverRevision);
+      return;
+    }
+    throw BotConfigServerAheadException(
+      botId: botId,
+      serverRevision: serverRevision,
+      knownRevision: knownRevision,
+      serverOnlyCommandIds: List<String>.unmodifiable(serverOnly),
+    );
   }
 
   @override

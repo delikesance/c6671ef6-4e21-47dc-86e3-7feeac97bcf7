@@ -87,7 +87,13 @@ class CommandDraft implements ActionListHost {
   String get bdfdBackend => '${_data['bdfdBackend'] ?? 'native-v1'}';
 
   String get jsScript => '${_data['jsScriptContent'] ?? ''}';
-  set jsScript(String value) => _data['jsScriptContent'] = value;
+  set jsScript(String value) {
+    _data['jsScriptContent'] = value;
+    // Une commande créée par l'app garde un `script` de premier niveau : s'il
+    // restait périmé, il serait renvoyé tel quel à chaque sauvegarde. On ne le
+    // crée jamais s'il est absent.
+    if (_raw.containsKey('script')) _raw['script'] = value;
+  }
 
   /// `workflow` | `bdfd_script` | `javascript`.
   String get executionMode => '${_data['executionMode'] ?? 'workflow'}';

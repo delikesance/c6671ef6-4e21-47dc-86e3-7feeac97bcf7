@@ -8742,6 +8742,11 @@ class AppLocalizationsPt extends AppLocalizations {
       'Por favor, insira um nome para o comando';
 
   @override
+  String validation_command_name_duplicate(String name) {
+    return 'Já existe um comando chamado \"$name\". Escolha outro nome.';
+  }
+
+  @override
   String get validation_interaction_no_response =>
       'Comandos de interação devem incluir pelo menos uma ação de resposta (Responder com mensagem, Componente V2 ou Modal).';
 
@@ -10580,6 +10585,17 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get bot_config_overshrink_keep_local => 'Manter local, sem enviar';
+
+  @override
+  String get bot_config_server_ahead_title =>
+      'Tem certeza de que deseja substituir as alterações feitas no servidor?';
+
+  @override
+  String get bot_config_server_ahead_body =>
+      'O servidor contém comandos que este dispositivo não tem (criados ou editados no Studio ou em outro dispositivo). Nada foi enviado ainda e sua configuração local está intacta. Enviar agora removeria esses comandos do servidor.';
+
+  @override
+  String get bot_config_server_ahead_keep => 'Não enviar';
 
   @override
   String get command_history_title => 'Histórico de versões deste comando';

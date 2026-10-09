@@ -287,10 +287,12 @@ class _SettingPageState extends State<SettingPage> {
 
   Future<void> _initializeDriveApi() async {
     String userId = 'unknown';
-    // getSignedInAccount() works on both Android and iOS.
+    // Only users who already enabled Drive backup get a silent lookup; others
+    // must never see any Google UI just by opening Settings.
     if (!kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.iOS ||
-            defaultTargetPlatform == TargetPlatform.android)) {
+            defaultTargetPlatform == TargetPlatform.android) &&
+        await isGoogleDriveEnabled()) {
       try {
         final account = await getSignedInAccount(interactive: false);
         userId = account.id;

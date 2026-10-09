@@ -36,3 +36,21 @@ Future<bool> showBotConfigOvershrinkConfirmation(BuildContext context) {
     isDestructive: true,
   );
 }
+
+/// Demande si la poussée doit ÉCRASER des commandes présentes sur le serveur et
+/// absentes en local (`BotConfigServerAheadException`).
+///
+/// Même contrat que [showBotConfigOvershrinkConfirmation] : `true` uniquement
+/// sur accord explicite, `false` sinon (rien n'est alors envoyé).
+Future<bool> showBotConfigServerAheadConfirmation(BuildContext context) {
+  final l10n = context.tr;
+  return AppTheme.showConfirmDialog(
+    context,
+    title: l10n.bot_config_server_ahead_title,
+    content: l10n.bot_config_server_ahead_body,
+    confirmLabel: l10n.bot_config_overshrink_send_anyway,
+    cancelLabel: l10n.bot_config_server_ahead_keep,
+    // Écraser le travail fait ailleurs est destructif, donc rouge.
+    isDestructive: true,
+  );
+}

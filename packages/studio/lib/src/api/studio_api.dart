@@ -564,8 +564,9 @@ class StudioApi {
   /// `PATCH /api/v2/bots/{b}/commands/{c}` : corps `{"command": <entier>}`,
   /// `If-Match` = révision lue (entre guillemets). Un 409 signale une
   /// révision périmée : quelqu'un d'autre a modifié le bot entre-temps.
-  /// Rend la nouvelle révision.
-  Future<String?> saveCommand(
+  /// Rend la nouvelle révision et l'état de la synchro vers le runner : la
+  /// commande est enregistrée même si `runnerSynced` est faux.
+  Future<StudioCommandSaveResult> saveCommand(
     String botId,
     String commandId,
     Map<String, dynamic> raw, {
@@ -580,7 +581,15 @@ class StudioApi {
       },
       timeout: const Duration(seconds: 60),
     );
-    return _string(json, const ['revision']) ?? revision;
+    return StudioCommandSaveResult(
+      revision: _string(json, const ['revision']) ?? revision,
+      runnerSynced: json['runner_synced'] != false,
+      runnerSyncError: _string(json, const ['runner_sync_error']),
+      warnings: [
+        if (json['warnings'] is List)
+          for (final w in json['warnings'] as List) '$w',
+      ],
+    );
   }
 
   /// Dernières versions journalisées d'une commande, la plus récente d'abord.
@@ -1628,4 +1637,24 @@ String? _string(Map<String, dynamic>? map, List<String> keys) {
     if (s.isNotEmpty) return s;
   }
   return null;
+}
+
+/// Résultat d'un `saveCommand`. Une commande peut être enregistrée sans avoir
+/// été appliquée au bot en cours d'exécution (`runnerSynced` faux).
+class StudioCommandSaveResult {
+  const StudioCommandSaveResult({
+    this.revision,
+    this.runnerSynced = true,
+    this.runnerSyncError,
+    this.warnings = const [],
+  });
+
+  final String? revision;
+  final bool runnerSynced;
+  final String? runnerSyncError;
+
+  /// Avertissements non bloquants du Manager (`command_without_script`…).
+  final List<String> warnings;
+
+  bool get hasNoScriptWarning => warnings.contains('command_without_script');
 }

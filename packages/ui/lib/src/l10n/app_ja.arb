@@ -9416,6 +9416,14 @@
   "validation_command_name_no_spaces": "コマンド名にスペースを含めることはできません",
   "validation_command_name_no_underscore": "コマンド名をアンダースコアで始めることはできません",
   "validation_command_name_required": "コマンド名を入力してください",
+  "validation_command_name_duplicate": "「{name}」という名前のコマンドは既に存在します。別の名前を選んでください。",
+  "@validation_command_name_duplicate": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "validation_interaction_no_response": "インタラクションコマンドには少なくとも1つの応答アクションが必要です（メッセージで応答、コンポーネントで応答",
   "validation_interaction_no_response_short": "応答アクションがありません",
   "validation_invalid_permissions": "無効なデフォルトメンバー権限ビットフィールドです。正の整数を使用するか空欄にしてください。",
@@ -10866,6 +10874,9 @@
   "bot_config_overshrink_body": "このBotの設定の大部分が削除されました。まだ何も送信されていません。サーバーは以前のバージョンを実行し続けており、ローカルの設定はそのままです。",
   "bot_config_overshrink_send_anyway": "それでも送信",
   "bot_config_overshrink_keep_local": "送信せずローカルに保持",
+  "bot_config_server_ahead_title": "サーバー上の変更を本当に上書きしますか？",
+  "bot_config_server_ahead_body": "サーバーには、この端末にないコマンド（Studio または別の端末で作成・編集されたもの）があります。まだ何も送信されておらず、ローカルの設定はそのままです。今送信すると、それらのコマンドはサーバーから削除されます。",
+  "bot_config_server_ahead_keep": "送信しない",
   "command_history_title": "このコマンドのバージョン履歴",
   "command_history_empty": "このコマンドにはまだバージョンが記録されていません。保存するとここに表示されます。",
   "command_history_restore": "復元",
