@@ -1,3 +1,4 @@
+import 'package:bot_creator_shared/bdfd_validation.dart';
 import 'package:bot_creator/features/bot_editor/logic/normalize_command_data.dart';
 import 'package:bot_creator/core/bdfd_editor/bdfd_script_language.dart';
 import 'package:bot_creator/core/bdfd_editor/bdfd_validation.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  slashWithoutOptionsTests();
   test(
     'native validation accepts opaque unknown calls without inspecting their arguments',
     () {
@@ -120,4 +122,34 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+}
+
+void slashWithoutOptionsTests() {
+  test(r'warns when $message is used in a slash command without options', () {
+    final w = bdfdSlashWithoutOptionsWarnings(
+      'x\n\$playMusic[\$message]',
+      isSlash: true,
+      hasOptions: false,
+    );
+    expect(w.single.severity, BdfdCompileDiagnosticSeverity.warning);
+    expect(w.single.line, 2);
+    for (final ok in [(true, true), (false, false)]) {
+      expect(
+        bdfdSlashWithoutOptionsWarnings(
+          r'$message',
+          isSlash: ok.$1,
+          hasOptions: ok.$2,
+        ),
+        isEmpty,
+      );
+    }
+    expect(
+      bdfdSlashWithoutOptionsWarnings(
+        r'$messageID',
+        isSlash: true,
+        hasOptions: false,
+      ),
+      isEmpty,
+    );
+  });
 }
