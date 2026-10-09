@@ -12699,6 +12699,18 @@
   "@bot_config_overshrink_keep_local": {
     "description": "Cancel button of the overshrink dialog: send nothing, keep the local work."
   },
+  "bot_config_server_ahead_title": "Are you sure you want to overwrite changes made on the server?",
+  "@bot_config_server_ahead_title": {
+    "description": "Client-side guard before a full push: the server holds commands the device lacks. Ask whether to overwrite them."
+  },
+  "bot_config_server_ahead_body": "The server holds commands that this device doesn't have (created or edited in the Studio or on another device). Nothing has been sent yet and your local configuration is intact. Sending now would remove those commands from the server.",
+  "@bot_config_server_ahead_body": {
+    "description": "States that nothing was sent, local data is intact, and that sending would remove the server-only commands."
+  },
+  "bot_config_server_ahead_keep": "Don't send",
+  "@bot_config_server_ahead_keep": {
+    "description": "Cancel button of the server-ahead dialog: send nothing."
+  },
   "command_history_title": "Version history of this command",
   "@command_history_title": {
     "description": "Title of the per-command history sheet, opened from the command editor."

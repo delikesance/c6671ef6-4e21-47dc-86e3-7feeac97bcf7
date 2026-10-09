@@ -10633,6 +10633,17 @@ class AppLocalizationsFr extends AppLocalizations {
       'Garder en local, sans envoyer';
 
   @override
+  String get bot_config_server_ahead_title =>
+      'Voulez-vous vraiment écraser les modifications faites sur le serveur?';
+
+  @override
+  String get bot_config_server_ahead_body =>
+      'Le serveur contient des commandes que cet appareil n\'a pas (créées ou modifiées dans le Studio ou sur un autre appareil). Rien n\'a encore été envoyé et votre configuration locale est intacte. Envoyer maintenant supprimerait ces commandes du serveur.';
+
+  @override
+  String get bot_config_server_ahead_keep => 'Ne pas envoyer';
+
+  @override
   String get command_history_title =>
       'Historique des versions de cette commande';
 

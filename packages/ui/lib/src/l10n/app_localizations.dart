@@ -18031,6 +18031,24 @@ abstract class AppLocalizations {
   /// **'Keep local, don\'t send'**
   String get bot_config_overshrink_keep_local;
 
+  /// Client-side guard before a full push: the server holds commands the device lacks. Ask whether to overwrite them.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to overwrite changes made on the server?'**
+  String get bot_config_server_ahead_title;
+
+  /// States that nothing was sent, local data is intact, and that sending would remove the server-only commands.
+  ///
+  /// In en, this message translates to:
+  /// **'The server holds commands that this device doesn\'t have (created or edited in the Studio or on another device). Nothing has been sent yet and your local configuration is intact. Sending now would remove those commands from the server.'**
+  String get bot_config_server_ahead_body;
+
+  /// Cancel button of the server-ahead dialog: send nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t send'**
+  String get bot_config_server_ahead_keep;
+
   /// Title of the per-command history sheet, opened from the command editor.
   ///
   /// In en, this message translates to:
