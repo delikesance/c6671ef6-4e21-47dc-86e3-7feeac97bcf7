@@ -211,7 +211,7 @@ void main() {
         expect(store.calls, 0, reason: 'aucune lecture du magasin');
         expect(
           logs.join('\n'),
-          contains('musique indisponible'),
+          contains('music unavailable'),
           reason: 'l\'utilisateur doit voir pourquoi la musique est absente',
         );
         expect(
@@ -299,7 +299,7 @@ void main() {
           port: 2333,
           password: 'mot-de-passe',
         );
-        final tester = _FakeTester((_) => 'Connexion refusée');
+        final tester = _FakeTester((_) => 'Connection refused');
         final logs = <String>[];
         final session = _session(
           probe: _FixedProbe(target),
@@ -318,7 +318,7 @@ void main() {
           reason: 'le repli est revérifié en REST',
         );
         expect(session.selectedServer, isNull);
-        expect(logs.join('\n'), contains('musique indisponible'));
+        expect(logs.join('\n'), contains('music unavailable'));
       },
     );
 
@@ -345,7 +345,7 @@ void main() {
         expect(plugin, isNotNull);
         expect(session.selectedServer?.endpoint, 'lavalink.perso:2333');
         expect(tester.calls.single.host, 'lavalink.perso');
-        expect(logs.join('\n'), contains('plugin prêt'));
+        expect(logs.join('\n'), contains('plugin ready'));
 
         final plugins = BotSession.buildGatewayPlugins(lavalinkPlugin: plugin);
         expect(
