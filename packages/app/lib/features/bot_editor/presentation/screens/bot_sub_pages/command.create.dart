@@ -274,7 +274,16 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
 
   void _refreshBdfdCompileResult({bool notify = true}) {
     final source = _bdfdScriptController.text;
-    final nextResult = bdfdDiagnosticsFor(source, backend: _bdfdBackend);
+    final nextResult = [
+      ...bdfdDiagnosticsFor(source, backend: _bdfdBackend),
+      ...bdfdSlashWithoutOptionsWarnings(
+        source,
+        isSlash:
+            _commandType == ApplicationCommandType.chatInput &&
+            !_legacyModeEnabled,
+        hasOptions: _options.isNotEmpty,
+      ),
+    ];
     if (!notify || !mounted) {
       _bdfdScriptContent = source;
       _bdfdDiagnosticsValue = nextResult;
@@ -648,6 +657,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   void _applyOptionsUpdate(List<CommandOptionBuilder> options) {
     _hasUnsavedChanges = true;
     _options = options;
+    _refreshBdfdCompileResult(notify: false);
     if (_containsHierarchyOption(_options)) {
       _editorMode = _editorModeAdvanced;
     } else if (!_supportsSimpleMode) {

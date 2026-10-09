@@ -130,6 +130,19 @@ void main() {
       expect(h.output.componentState.rows, isEmpty);
     },
   );
+  test('addButton names the wrong yes/no argument and its value', () async {
+    final h = _Harness();
+    await expectLater(
+      h.run(r'$addButton[no;a;Go;secondary;⏸️]'),
+      throwsA(
+        predicate(
+          (e) =>
+              e.toString().contains('for disabled') &&
+              e.toString().contains('"⏸️"'),
+        ),
+      ),
+    );
+  });
   test('component-only response and labels remain opaque data', () async {
     final h = _Harness();
     await h.run(r'$addButton[no;a;$unknown[$var[x;bad]];secondary]');

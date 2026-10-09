@@ -132,6 +132,12 @@ class BdfdProgram {
   final String source;
   final List<BdfdStatement> statements;
 
+  /// When true the literal `((name))` dynamic variables of this program are
+  /// substituted at run time. Only the entry points that run a user's command
+  /// script turn it on; visual script blocks and the visual runner's own
+  /// programs keep their placeholders as plain text.
+  bool expandDynamicVariables = false;
+
   static BdfdProgram parse(String source) {
     final lexer = BdfdLexer().tokenize(source);
     if (lexer.diagnostics.isNotEmpty) {

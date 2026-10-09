@@ -501,8 +501,8 @@ class LavalinkService {
         await s.enqueue(track);
       }
       onLog?.call(
-        'Lavalink: playlist ajoutée — ${tracks.length} morceaux, '
-        '${s.queueSize} en attente',
+        'Lavalink: playlist added — ${tracks.length} tracks, '
+        '${s.queueSize} queued',
       );
       return s.currentTrack;
     } else if (result is SearchLoadResult) {
@@ -603,7 +603,7 @@ class LavalinkService {
     );
 
     final maskedPassword = password.isEmpty
-        ? '[VIDE]'
+        ? '[EMPTY]'
         : (password.length > 4
               ? '${password.substring(0, 2)}***${password.substring(password.length - 2)}'
               : '***');
@@ -634,15 +634,15 @@ class LavalinkService {
       print(
         'Lavalink Connection Test: FAILED with status code ${response.statusCode}',
       );
-      return 'Erreur ${response.statusCode}';
+      return 'Error ${response.statusCode}';
     } on http.ClientException catch (e) {
       print(
         'Lavalink Connection Test: ClientException (Connection Refused): ${e.message}',
       );
-      return 'Connexion refusée : ${e.message}';
+      return 'Connection refused: ${e.message}';
     } on TimeoutException {
       print('Lavalink Connection Test: TimeoutException (5s exceeded)');
-      return 'Délai dépassé (5s)';
+      return 'Timed out (5s)';
     } catch (e) {
       print('Lavalink Connection Test: Unknown Error: $e');
       return e.toString();
