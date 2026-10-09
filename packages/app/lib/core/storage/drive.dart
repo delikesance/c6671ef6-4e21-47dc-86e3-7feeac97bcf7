@@ -95,6 +95,17 @@ Future<void> setGoogleDriveEnabled(bool enabled) async {
   } catch (_) {}
 }
 
+/// Whether a Google sign-in attempt (even a silent/lightweight one) is allowed.
+///
+/// Google UI must never appear for users who do not use Drive backup: silent
+/// attempts are only made once Drive backup has been enabled, and interactive
+/// ones only on an explicit user action.
+@visibleForTesting
+bool shouldAttemptGoogleSignIn({
+  required bool driveEnabled,
+  required bool interactive,
+}) => interactive || driveEnabled;
+
 // ---------------------------------------------------------------------------
 // Platform helpers
 // ---------------------------------------------------------------------------
@@ -164,6 +175,12 @@ Future<GoogleSignIn> _getInitializedGoogleSignIn() async {
 Future<GoogleSignInAccount> _getMobileSignedInAccount({
   bool interactive = true,
 }) async {
+  if (!shouldAttemptGoogleSignIn(
+    driveEnabled: await isGoogleDriveEnabled(),
+    interactive: interactive,
+  )) {
+    throw Exception('Google Drive backup is not enabled.');
+  }
   final signIn = await _getInitializedGoogleSignIn();
 
   // 1. Try silent / lightweight sign-in first.
