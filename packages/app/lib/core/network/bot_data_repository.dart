@@ -380,6 +380,9 @@ class BotDataRepository {
       return;
     }
     _revisions[botId.trim()] = normalized;
+    // La poussée complète compare à cette révision-là : une lecture v2 est le
+    // moment où cet appareil apprend où en est le document.
+    client.rememberServerRevision(botId, normalized);
   }
 }
 

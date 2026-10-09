@@ -272,6 +272,25 @@ extension _AppHomePageSync on _AppHomePageState {
           )
           .timeout(const Duration(seconds: 20)),
       askConfirmation: _askOvershrinkConfirmation,
+      // Le serveur porte des commandes absentes ici (Studio, autre appareil) :
+      // on demande avant de les écraser, et « envoyer quand même » rejoue la
+      // poussée avec `overwriteServerChanges`.
+      askServerAheadConfirmation: (_) async {
+        if (!mounted) {
+          return false;
+        }
+        return showBotConfigServerAheadConfirmation(context);
+      },
+      pushOverwritingServer: (confirmOvershrink) => client
+          .syncBot(
+            botId,
+            botName,
+            payload,
+            force: true,
+            confirmOvershrink: confirmOvershrink,
+            overwriteServerChanges: true,
+          )
+          .timeout(const Duration(seconds: 20)),
     );
 
     if (outcome == BotConfigPushOutcome.sent) {
@@ -282,7 +301,11 @@ extension _AppHomePageSync on _AppHomePageState {
       '[_pushToRemote] Nothing sent ($outcome): local configuration kept for $botId',
     );
     if (notify) {
-      _reportOvershrinkNothingSent();
+      if (outcome == BotConfigPushOutcome.serverAheadDeclined) {
+        _reportServerAheadNothingSent();
+      } else {
+        _reportOvershrinkNothingSent();
+      }
     }
     return false;
   }
@@ -313,6 +336,20 @@ extension _AppHomePageSync on _AppHomePageState {
         content: Text(
           localizedBotConfigOvershrinkConfirmation(context.tr).body,
         ),
+        backgroundColor: AppTheme.error,
+      ),
+    );
+  }
+
+  /// Dit que la poussée n'a rien envoyé : le serveur a des commandes absentes
+  /// ici et l'utilisateur a gardé la version du serveur.
+  void _reportServerAheadNothingSent() {
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(context.tr.bot_config_server_ahead_body),
         backgroundColor: AppTheme.error,
       ),
     );

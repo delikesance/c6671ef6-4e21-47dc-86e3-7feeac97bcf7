@@ -10606,6 +10606,17 @@ class AppLocalizationsDe extends AppLocalizations {
   String get bot_config_overshrink_keep_local => 'Lokal behalten, nicht senden';
 
   @override
+  String get bot_config_server_ahead_title =>
+      'Möchten Sie die auf dem Server vorgenommenen Änderungen wirklich überschreiben?';
+
+  @override
+  String get bot_config_server_ahead_body =>
+      'Der Server enthält Befehle, die dieses Gerät nicht hat (im Studio oder auf einem anderen Gerät erstellt oder bearbeitet). Es wurde noch nichts gesendet und Ihre lokale Konfiguration ist unverändert. Beim Senden würden diese Befehle vom Server entfernt.';
+
+  @override
+  String get bot_config_server_ahead_keep => 'Nicht senden';
+
+  @override
   String get command_history_title => 'Versionsverlauf dieses Befehls';
 
   @override
