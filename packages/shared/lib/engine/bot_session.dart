@@ -71,7 +71,7 @@ class BotSession {
   /// (cache ~10 min) évite de re-sonder à chaque redémarrage.
   LavalinkProbe? _probe;
 
-  /// Dernier serveur retenu par la sélection automatique (diagnostic).
+  /// Dernier selected server par la sélection automatique (diagnostic).
   LavalinkProbeTarget? _selectedServer;
 
   LavalinkProbeTarget? get selectedServer => _selectedServer;
@@ -184,7 +184,7 @@ class BotSession {
     try {
       selection = probe.findBestServer(customServers: customServers);
     } catch (error) {
-      return _lavalinkUnavailable('sélection impossible ($error)');
+      return _lavalinkUnavailable('selection failed ($error)');
     }
 
     LavalinkProbeTarget? retained;
@@ -194,12 +194,12 @@ class BotSession {
           // Une erreur tardive du sondage ne doit jamais remonter jusqu'ici.
           .catchError((Object _) => null);
     } catch (error) {
-      return _lavalinkUnavailable('sélection impossible ($error)');
+      return _lavalinkUnavailable('selection failed ($error)');
     }
 
     if (retained == null) {
       return _lavalinkUnavailable(
-        'aucun serveur n\'a répondu en ${stopwatch.elapsedMilliseconds} ms',
+        'no server responded within ${stopwatch.elapsedMilliseconds} ms',
       );
     }
 
@@ -212,16 +212,16 @@ class BotSession {
     if (!justVerified) {
       final remaining = lavalinkSelectionTimeout - stopwatch.elapsed;
       if (remaining <= Duration.zero) {
-        return _lavalinkUnavailable('budget de sélection épuisé');
+        return _lavalinkUnavailable('selection budget exhausted');
       }
       final error = await _testLavalinkConnection(
         retained,
-      ).timeout(remaining, onTimeout: () => 'budget épuisé');
+      ).timeout(remaining, onTimeout: () => 'budget exhausted');
       if (error != null) {
         _selectedServer = null;
         callbacks.onLog?.call(
-          'Lavalink: ${retained.endpoint} ne répond pas ($error) — '
-          'musique indisponible',
+          'Lavalink: ${retained.endpoint} is not responding ($error) — '
+          'music unavailable',
           botId: botId,
         );
         return null;
@@ -230,9 +230,9 @@ class BotSession {
 
     _selectedServer = retained;
     callbacks.onLog?.call(
-      'Lavalink: serveur retenu ${retained.endpoint}'
-      '${retained.isCustom ? ' (serveur personnel)' : ''} '
-      'en ${stopwatch.elapsedMilliseconds} ms — plugin prêt',
+      'Lavalink: selected server ${retained.endpoint}'
+      '${retained.isCustom ? ' (custom server)' : ''} '
+      'in ${stopwatch.elapsedMilliseconds} ms — plugin ready',
       botId: botId,
     );
     return LavalinkService.createPluginForServer(
@@ -255,8 +255,8 @@ class BotSession {
   LavalinkPlugin? _lavalinkUnavailable(String reason) {
     _selectedServer = null;
     callbacks.onLog?.call(
-      'Lavalink: $reason — musique indisponible, la passerelle Discord '
-      'continue sans attendre',
+      'Lavalink: $reason — music unavailable, the Discord gateway '
+      'continues without waiting',
       botId: botId,
     );
     return null;
