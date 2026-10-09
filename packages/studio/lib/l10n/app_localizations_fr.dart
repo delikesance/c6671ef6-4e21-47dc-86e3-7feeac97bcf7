@@ -381,6 +381,15 @@ class StudioLocalizationsFr extends StudioLocalizations {
   String get commandSaved => 'Commande enregistrée.';
 
   @override
+  String commandSavedNotApplied(String error) {
+    return 'Commande enregistrée, mais non appliquée au bot en cours d\'exécution (elle le sera au prochain redémarrage ou rechargement). Erreur : $error';
+  }
+
+  @override
+  String get commandSavedNoScript =>
+      'Commande enregistrée, mais elle n\'a pas de script JavaScript : elle ne s\'exécutera pas sur le bot tant que vous n\'en ajoutez pas un.';
+
+  @override
   String get commandChangedElsewhere =>
       'Ce bot a été modifié ailleurs (app ou autre session). Rechargez la commande avant d\'enregistrer.';
 
