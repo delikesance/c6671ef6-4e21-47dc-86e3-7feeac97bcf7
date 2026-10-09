@@ -8775,6 +8775,11 @@ class AppLocalizationsFr extends AppLocalizations {
       'Veuillez entrer un nom de commande';
 
   @override
+  String validation_command_name_duplicate(String name) {
+    return 'Une commande nommée \"$name\" existe déjà. Choisissez un autre nom.';
+  }
+
+  @override
   String get validation_interaction_no_response =>
       'Les commandes d\'interaction doivent inclure au moins une action de réponse (Répondre avec un message, Composant V2 ou Modal).';
 
@@ -10626,6 +10631,17 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get bot_config_overshrink_keep_local =>
       'Garder en local, sans envoyer';
+
+  @override
+  String get bot_config_server_ahead_title =>
+      'Voulez-vous vraiment écraser les modifications faites sur le serveur?';
+
+  @override
+  String get bot_config_server_ahead_body =>
+      'Le serveur contient des commandes que cet appareil n\'a pas (créées ou modifiées dans le Studio ou sur un autre appareil). Rien n\'a encore été envoyé et votre configuration locale est intacte. Envoyer maintenant supprimerait ces commandes du serveur.';
+
+  @override
+  String get bot_config_server_ahead_keep => 'Ne pas envoyer';
 
   @override
   String get command_history_title =>

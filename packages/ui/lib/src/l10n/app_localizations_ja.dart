@@ -8226,6 +8226,11 @@ class AppLocalizationsJa extends AppLocalizations {
   String get validation_command_name_required => 'コマンド名を入力してください';
 
   @override
+  String validation_command_name_duplicate(String name) {
+    return '「$name」という名前のコマンドは既に存在します。別の名前を選んでください。';
+  }
+
+  @override
   String get validation_interaction_no_response =>
       'インタラクションコマンドには少なくとも1つの応答アクションが必要です（メッセージで応答、コンポーネントで応答';
 
@@ -10003,6 +10008,16 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get bot_config_overshrink_keep_local => '送信せずローカルに保持';
+
+  @override
+  String get bot_config_server_ahead_title => 'サーバー上の変更を本当に上書きしますか？';
+
+  @override
+  String get bot_config_server_ahead_body =>
+      'サーバーには、この端末にないコマンド（Studio または別の端末で作成・編集されたもの）があります。まだ何も送信されておらず、ローカルの設定はそのままです。今送信すると、それらのコマンドはサーバーから削除されます。';
+
+  @override
+  String get bot_config_server_ahead_keep => '送信しない';
 
   @override
   String get command_history_title => 'このコマンドのバージョン履歴';

@@ -8684,6 +8684,11 @@ class AppLocalizationsTr extends AppLocalizations {
   String get validation_command_name_required => 'Lütfen bir komut adı girin';
 
   @override
+  String validation_command_name_duplicate(String name) {
+    return '\"$name\" adlı bir komut zaten var. Başka bir ad seçin.';
+  }
+
+  @override
   String get validation_interaction_no_response =>
       'Etkileşim komutları en az bir yanıt eylemi içermelidir (Mesajla yanıtla, Bileşen V2 veya Modal).';
 
@@ -10520,6 +10525,17 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get bot_config_overshrink_keep_local => 'Yerel kalsın, gönderme';
+
+  @override
+  String get bot_config_server_ahead_title =>
+      'Sunucuda yapılan değişikliklerin üzerine yazmak istediğinizden emin misiniz?';
+
+  @override
+  String get bot_config_server_ahead_body =>
+      'Sunucuda bu cihazda olmayan komutlar var (Studio\'da veya başka bir cihazda oluşturulmuş ya da düzenlenmiş). Henüz hiçbir şey gönderilmedi ve yerel yapılandırmanız bozulmadı. Şimdi göndermek bu komutları sunucudan kaldırır.';
+
+  @override
+  String get bot_config_server_ahead_keep => 'Gönderme';
 
   @override
   String get command_history_title => 'Bu komutun sürüm geçmişi';

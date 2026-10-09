@@ -8756,6 +8756,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Bitte geben Sie einen Befehlsnamen ein';
 
   @override
+  String validation_command_name_duplicate(String name) {
+    return 'Ein Befehl mit dem Namen \"$name\" existiert bereits. Wähle einen anderen Namen.';
+  }
+
+  @override
   String get validation_interaction_no_response =>
       'Interaktionsbefehle müssen mindestens eine Antwortaktion enthalten (Mit Nachricht antworten, Komponente V2 oder Modal).';
 
@@ -10599,6 +10604,17 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get bot_config_overshrink_keep_local => 'Lokal behalten, nicht senden';
+
+  @override
+  String get bot_config_server_ahead_title =>
+      'Möchten Sie die auf dem Server vorgenommenen Änderungen wirklich überschreiben?';
+
+  @override
+  String get bot_config_server_ahead_body =>
+      'Der Server enthält Befehle, die dieses Gerät nicht hat (im Studio oder auf einem anderen Gerät erstellt oder bearbeitet). Es wurde noch nichts gesendet und Ihre lokale Konfiguration ist unverändert. Beim Senden würden diese Befehle vom Server entfernt.';
+
+  @override
+  String get bot_config_server_ahead_keep => 'Nicht senden';
 
   @override
   String get command_history_title => 'Versionsverlauf dieses Befehls';

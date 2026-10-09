@@ -26,6 +26,7 @@ import 'package:bot_creator/core/diagnostics/ui_stall_bindings.dart';
 import 'package:bot_creator/features/bot_editor/logic/app_emoji_api.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/command_registration_signature.dart';
+import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_helpers.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/logic/discord_application_command_rules.dart';
@@ -193,6 +194,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   String _folder = '';
   final TextEditingController _folderController = TextEditingController();
   List<String> _existingFolders = const <String>[];
+  // Noms des AUTRES commandes du bot (la commande éditée est exclue).
+  Set<String> _otherCommandNames = const <String>{};
   String _legacyPrefixOverride = '';
 
   /// Alias (mots déclencheurs supplémentaires) de la commande message legacy.
@@ -1548,7 +1551,15 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             commands,
             excludeId: _existingCommandStorageId,
           );
+          final otherNames = commands
+              .where(
+                (c) => (c['id'] ?? '').toString() != _existingCommandStorageId,
+              )
+              .map((c) => (c['name'] ?? '').toString())
+              .where((n) => n.trim().isNotEmpty)
+              .toSet();
           _applyStateUpdate(() {
+            _otherCommandNames = otherNames;
             _existingFolders = folders;
             _legacyAliasOwners = aliasOwners;
           });
