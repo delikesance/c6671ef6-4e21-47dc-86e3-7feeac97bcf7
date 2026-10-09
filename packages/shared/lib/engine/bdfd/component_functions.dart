@@ -56,11 +56,13 @@ Map<String, BdfdNativeFunction> bdfdComponentFunctions(
   Future<List<String>> args(BdfdInvocation call) async => [
     for (var i = 0; i < call.argumentCount; i++) await call.argument(i),
   ];
-  bool boolean(String value, {bool fallback = false}) {
+  bool boolean(String value, {bool fallback = false, String? name}) {
     if (value.isEmpty) return fallback;
     if (value == 'yes' || value == 'true') return true;
     if (value == 'no' || value == 'false') return false;
-    throw ArgumentError('Expected yes or no.');
+    throw ArgumentError(
+      'Expected yes or no${name == null ? '' : ' for $name'}, got "$value".',
+    );
   }
 
   void length(String value, int max, String label, {bool empty = false}) {
@@ -172,7 +174,9 @@ Map<String, BdfdNativeFunction> bdfdComponentFunctions(
 
   Map<String, dynamic> button(List<String> a, int offset) {
     final id = a[offset], label = a[offset + 1], style = a[offset + 2];
-    final disabled = a.length > offset + 3 ? boolean(a[offset + 3]) : false;
+    final disabled = a.length > offset + 3
+        ? boolean(a[offset + 3], name: 'disabled')
+        : false;
     final emoji = a.length > offset + 4 ? a[offset + 4] : '';
     length(label, 80, 'Button label', empty: true);
     if (label.isEmpty && emoji.isEmpty) {
@@ -227,7 +231,7 @@ Map<String, BdfdNativeFunction> bdfdComponentFunctions(
   );
   return {
     'addbutton': fn(4, 7, (call, a) async {
-      final node = button(a, 1), newRow = boolean(a[0]);
+      final node = button(a, 1), newRow = boolean(a[0], name: 'newRow');
       await mutate(
         call,
         message(a, 6),

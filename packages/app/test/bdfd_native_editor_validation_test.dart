@@ -125,6 +125,15 @@ void main() {
 }
 
 void slashWithoutOptionsTests() {
+  test('warns about ((opts.x)) placeholders in a BDFD script', () {
+    final w = bdfdPlaceholderSyntaxWarnings('a\n\$playMusic[((opts.music))]');
+    expect(w.single.line, 2);
+    expect(w.single.message, contains(r'$message[music]'));
+    expect(
+      bdfdPlaceholderSyntaxWarnings(r'$playMusic[$message[music]]'),
+      isEmpty,
+    );
+  });
   test(r'warns when $message is used in a slash command without options', () {
     final w = bdfdSlashWithoutOptionsWarnings(
       'x\n\$playMusic[\$message]',
