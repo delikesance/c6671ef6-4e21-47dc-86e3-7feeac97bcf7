@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:nyxx/nyxx.dart';
 
 import 'command_autocomplete.dart';
+import 'message_runtime.dart';
 
 const String discordUrl = "https://discord.com/api/v10";
 
@@ -1072,7 +1073,28 @@ Future<Map<String, String>> generateKeyValues(
       }
     }
   }
+  // BDFD semantics: in a slash command $message / $message[n] / $argCount
+  // read the option values in order, as if they had been typed after a prefix.
+  final slashArgs = collectSlashArgumentValues(interaction.data.options);
+  if (slashArgs.isNotEmpty) {
+    listOfArgs.addAll(buildCommandArgumentRuntimeVariables(slashArgs));
+  }
   return listOfArgs;
+}
+
+/// Leaf option values (raw, in declaration order) of a slash command,
+/// descending into sub-commands and groups.
+List<String> collectSlashArgumentValues(List<InteractionOption>? options) {
+  final values = <String>[];
+  for (final option in options ?? const <InteractionOption>[]) {
+    if (option.type == CommandOptionType.subCommand ||
+        option.type == CommandOptionType.subCommandGroup) {
+      values.addAll(collectSlashArgumentValues(option.options));
+    } else if (option.value != null) {
+      values.add(option.value.toString());
+    }
+  }
+  return values;
 }
 
 Future<Map<String, String>> generateKeyValuesFromInteractionOption(
