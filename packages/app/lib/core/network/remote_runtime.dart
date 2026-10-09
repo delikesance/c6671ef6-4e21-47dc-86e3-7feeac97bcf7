@@ -601,6 +601,11 @@ enum BotConfigPushOutcome {
   /// explicite (plancher absolu — configuration quasi vide). Redemander la même
   /// chose ne changerait rien.
   overshrinkFloorRefused,
+
+  /// Rien n'est parti : le serveur porte des commandes absentes en local
+  /// ([BotConfigServerAheadException]) et l'utilisateur n'a pas accepté de les
+  /// écraser. La copie locale est intacte.
+  serverAheadDeclined,
 }
 
 /// Pousse une configuration vers le manager en traitant le refus SERVEUR de
@@ -622,11 +627,29 @@ Future<BotConfigPushOutcome> pushBotConfigToleratingOvershrink({
   required Future<void> Function(bool confirmOvershrink) push,
   required Future<bool> Function() askConfirmation,
   bool confirmOvershrink = false,
+  Future<bool> Function(BotConfigServerAheadException conflict)?
+  askServerAheadConfirmation,
+  Future<void> Function(bool confirmOvershrink)? pushOverwritingServer,
 }) async {
   try {
     await push(confirmOvershrink);
     return BotConfigPushOutcome.sent;
   } catch (error) {
+    if (error is BotConfigServerAheadException &&
+        askServerAheadConfirmation != null &&
+        pushOverwritingServer != null) {
+      // Le serveur a des commandes que nous n'avons pas (Studio, autre
+      // appareil) : on demande, et sur accord SEULEMENT on rejoue la poussée en
+      // écrasant. Elle ne rouvre pas cette question (pas de callback passé).
+      if (!await askServerAheadConfirmation(error)) {
+        return BotConfigPushOutcome.serverAheadDeclined;
+      }
+      return pushBotConfigToleratingOvershrink(
+        push: pushOverwritingServer,
+        askConfirmation: askConfirmation,
+        confirmOvershrink: confirmOvershrink,
+      );
+    }
     if (!isBotConfigOvershrinkRefusal(error)) {
       rethrow;
     }
