@@ -461,15 +461,19 @@ class BdfdRuntime {
             _location(program, node),
           );
         }
-        if (node.arguments.length < function.minArguments ||
-            node.arguments.length > function.maxArguments ||
+        // `$fn[]` on a function without parameters is the same as `$fn`.
+        final argumentCount =
+            function.maxArguments == 0 &&
+                node.arguments.length == 1 &&
+                node.arguments.single.isEmpty
+            ? 0
+            : node.arguments.length;
+        if (argumentCount < function.minArguments ||
+            argumentCount > function.maxArguments ||
             (function.allowedArgumentCounts != null &&
-                !function.allowedArgumentCounts!.contains(
-                  node.arguments.length,
-                ))) {
+                !function.allowedArgumentCounts!.contains(argumentCount))) {
           throw BdfdNativeError(
-            'Invalid argument count for ${node.name}: '
-            '${node.arguments.length}.',
+            'Invalid argument count for ${node.name}: $argumentCount.',
             _location(program, node),
           );
         }
