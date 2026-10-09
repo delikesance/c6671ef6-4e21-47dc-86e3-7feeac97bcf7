@@ -10587,6 +10587,17 @@ class AppLocalizationsPt extends AppLocalizations {
   String get bot_config_overshrink_keep_local => 'Manter local, sem enviar';
 
   @override
+  String get bot_config_server_ahead_title =>
+      'Tem certeza de que deseja substituir as alterações feitas no servidor?';
+
+  @override
+  String get bot_config_server_ahead_body =>
+      'O servidor contém comandos que este dispositivo não tem (criados ou editados no Studio ou em outro dispositivo). Nada foi enviado ainda e sua configuração local está intacta. Enviar agora removeria esses comandos do servidor.';
+
+  @override
+  String get bot_config_server_ahead_keep => 'Não enviar';
+
+  @override
   String get command_history_title => 'Histórico de versões deste comando';
 
   @override

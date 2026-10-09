@@ -10527,6 +10527,17 @@ class AppLocalizationsTr extends AppLocalizations {
   String get bot_config_overshrink_keep_local => 'Yerel kalsın, gönderme';
 
   @override
+  String get bot_config_server_ahead_title =>
+      'Sunucuda yapılan değişikliklerin üzerine yazmak istediğinizden emin misiniz?';
+
+  @override
+  String get bot_config_server_ahead_body =>
+      'Sunucuda bu cihazda olmayan komutlar var (Studio\'da veya başka bir cihazda oluşturulmuş ya da düzenlenmiş). Henüz hiçbir şey gönderilmedi ve yerel yapılandırmanız bozulmadı. Şimdi göndermek bu komutları sunucudan kaldırır.';
+
+  @override
+  String get bot_config_server_ahead_keep => 'Gönderme';
+
+  @override
   String get command_history_title => 'Bu komutun sürüm geçmişi';
 
   @override
