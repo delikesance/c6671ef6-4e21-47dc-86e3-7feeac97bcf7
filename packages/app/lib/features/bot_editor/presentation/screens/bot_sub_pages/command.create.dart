@@ -276,7 +276,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     final source = _bdfdScriptController.text;
     final nextResult = [
       ...bdfdDiagnosticsFor(source, backend: _bdfdBackend),
-      ...bdfdPlaceholderSyntaxWarnings(source),
       ...bdfdSlashWithoutOptionsWarnings(
         source,
         isSlash:

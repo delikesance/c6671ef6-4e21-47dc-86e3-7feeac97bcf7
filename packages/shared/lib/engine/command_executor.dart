@@ -240,6 +240,7 @@ class CommandExecutor {
     required Map<String, String> runtimeVariables,
   }) async {
     final execution = BdfdScriptExecution(
+      expandDynamicVariables: true,
       onReplayCaptured: (callbacks.isDebugReplayCapturing?.call(botId) ?? false)
           ? (frames, totalMs) => callbacks.onReplayCaptured?.call(
               botId,

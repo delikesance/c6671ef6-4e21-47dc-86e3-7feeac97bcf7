@@ -40,6 +40,7 @@ class BdfdScriptExecution {
     BdfdContext? context,
     this.interaction,
     this.onReplayCaptured,
+    this.expandDynamicVariables = false,
   }) : engine = BdfdEngine(
          store: store,
          botId: botId,
@@ -59,6 +60,10 @@ class BdfdScriptExecution {
   final BdfdEngine engine;
   final BdfdContext context;
   final Interaction? interaction;
+
+  /// Substitutes `((name))` dynamic variables (opts.*, user.*...) in the
+  /// script's literal text, as data. Off for scripts embedded in visual blocks.
+  final bool expandDynamicVariables;
   final void Function(List<Map<String, dynamic>> frames, int totalMs)?
   onReplayCaptured;
 
@@ -110,7 +115,8 @@ class BdfdScriptExecution {
     Future<void> Function()? onNativePrepared,
   }) async {
     BdfdBackend.parse(backend);
-    final program = engine.prepare(source);
+    final program = engine.prepare(source)
+      ..expandDynamicVariables = expandDynamicVariables;
     context.budget.check();
     var deferredHere = false;
     try {
