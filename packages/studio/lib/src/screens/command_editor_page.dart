@@ -138,7 +138,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
       // enregistré. Relire `draft.toRaw()` après l'attente déclarait sauvegardées
       // des modifications faites pendant la requête, qui n'étaient pas parties.
       final sent = draft.toRaw();
-      final revision = await widget.api.saveCommand(
+      final result = await widget.api.saveCommand(
         widget.bot.id,
         widget.command.id,
         sent,
@@ -146,13 +146,27 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
       );
       if (!mounted) return;
       _changed = true;
-      draft.markSaved(sent, revision: revision);
+      draft.markSaved(sent, revision: result.revision);
       setState(() {
         _isNew = false;
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.commandSaved)));
+      final syncError = result.runnerSyncError?.trim() ?? '';
+      // Non bloquant : la commande est bien enregistrée, seule l'application
+      // immédiate au bot en cours d'exécution a échoué.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            syncError.isNotEmpty
+                ? context.l10n.commandSavedNotApplied(syncError)
+                : result.hasNoScriptWarning
+                ? context.l10n.commandSavedNoScript
+                : context.l10n.commandSaved,
+          ),
+          duration: Duration(
+            seconds: syncError.isEmpty && !result.hasNoScriptWarning ? 4 : 10,
+          ),
+        ),
+      );
     } on StudioApiException catch (e) {
       if (!mounted) return;
       setState(
@@ -165,6 +179,40 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
     } finally {
       if (mounted) setState(() => _saving = false);
     }
+  }
+
+  /// Bouton d'enregistrement ; sur un écran étroit (téléphone) il se réduit à
+  /// une icône pour que titre + historique + suppression ne débordent pas.
+  Widget _saveButton(CommandDraft draft) {
+    final compact = MediaQuery.sizeOf(context).width < 480;
+    final label = draft.dirty
+        ? context.tr.common_save
+        : context.l10n.commonSaved;
+    final onPressed = _saving || !draft.dirty ? null : _save;
+    final icon = _saving
+        ? const SizedBox(
+            width: 14,
+            height: 14,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        : AppIcon.fromMaterial(
+            draft.dirty ? Icons.save_outlined : Icons.check_rounded,
+            size: 16,
+          );
+    if (compact) {
+      return IconButton.filled(
+        key: const ValueKey('command-save'),
+        tooltip: label,
+        onPressed: onPressed,
+        icon: icon,
+      );
+    }
+    return FilledButton.icon(
+      key: const ValueKey('command-save'),
+      onPressed: onPressed,
+      icon: icon,
+      label: Text(label),
+    );
   }
 
   Future<void> _history() async {
@@ -309,6 +357,8 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
               Expanded(
                 child: Text(
                   '/${draft?.name ?? widget.command.name}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -334,26 +384,7 @@ class _CommandEditorPageState extends State<CommandEditorPage> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                FilledButton.icon(
-                  onPressed: _saving || !draft.dirty ? null : _save,
-                  icon: _saving
-                      ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : AppIcon.fromMaterial(
-                          draft.dirty
-                              ? Icons.save_outlined
-                              : Icons.check_rounded,
-                          size: 16,
-                        ),
-                  label: Text(
-                    draft.dirty
-                        ? context.tr.common_save
-                        : context.l10n.commonSaved,
-                  ),
-                ),
+                _saveButton(draft),
               ],
             ],
           ),

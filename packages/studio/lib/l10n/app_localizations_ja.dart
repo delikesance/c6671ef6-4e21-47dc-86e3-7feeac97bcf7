@@ -372,6 +372,15 @@ class StudioLocalizationsJa extends StudioLocalizations {
   String get commandSaved => 'コマンドを保存しました。';
 
   @override
+  String commandSavedNotApplied(String error) {
+    return 'コマンドは保存されましたが、実行中のボットには反映されていません（次回の再起動または再読み込み時に反映されます）。エラー: $error';
+  }
+
+  @override
+  String get commandSavedNoScript =>
+      'コマンドを保存しましたが、JavaScript スクリプトがありません。スクリプトを追加するまでボットでは実行されません。';
+
+  @override
   String get commandChangedElsewhere =>
       'このボットは別の場所（アプリまたは別のセッション）で変更されました。保存する前にコマンドを再読み込みしてください。';
 

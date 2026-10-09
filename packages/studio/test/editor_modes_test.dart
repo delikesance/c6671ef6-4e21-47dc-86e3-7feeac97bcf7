@@ -24,9 +24,10 @@ StudioApi _api() => StudioApi(
 Future<void> _pumpEditor(
   WidgetTester tester,
   StudioBot bot,
-  CommandDraft draft,
-) async {
-  tester.view.physicalSize = const Size(1000, 1600);
+  CommandDraft draft, {
+  double width = 1000,
+}) async {
+  tester.view.physicalSize = Size(width, 1600);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(() {
     tester.view.resetPhysicalSize();
@@ -84,6 +85,28 @@ void main() {
     expect(find.text('Code BDFD'), findsNothing);
     expect(find.text('JavaScript'), findsWidgets);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('téléphone 360px : l\'en-tête ne déborde pas, Enregistrer reste '
+      'accessible', (tester) async {
+    final draft = CommandDraft.blank(
+      name: 'une-commande-au-nom-vraiment-tres-long',
+      description: 'Ping',
+    );
+    final errors = <FlutterErrorDetails>[];
+    final prev = FlutterError.onError;
+    FlutterError.onError = errors.add;
+    addTearDown(() => FlutterError.onError = prev);
+    await _pumpEditor(tester, dartBot, draft, width: 360);
+    // Seul l'en-tête de l'éditeur est en cause ici (un débordement de 0,75 px
+    // du bloc métadonnées, dans packages/ui, est hors périmètre).
+    expect(
+      errors.where((e) => e.toString().contains('command_editor_page')),
+      isEmpty,
+    );
+    final save = find.byKey(const ValueKey('command-save'));
+    expect(save, findsOneWidget);
+    expect(tester.getRect(save).right, lessThanOrEqualTo(360));
   });
 
   testWidgets('pas de « + » entre les métadonnées et le point de départ', (
