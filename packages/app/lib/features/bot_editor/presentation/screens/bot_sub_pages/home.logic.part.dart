@@ -338,7 +338,10 @@ extension _AppHomePageLogic on _AppHomePageState {
         if (remoteRuntime.blocksLocalFallback) {
           final message = remoteRuntime.unavailableReason == null
               ? context.tr.bot_start_sign_in_required
-              : resolveRuntimeNotice(context.tr, remoteRuntime.unavailableReason!);
+              : resolveRuntimeNotice(
+                  context.tr,
+                  remoteRuntime.unavailableReason!,
+                );
 
           throw Exception(message);
         }
@@ -394,6 +397,27 @@ extension _AppHomePageLogic on _AppHomePageState {
               botId: botId,
               source: remoteRuntime.source,
             );
+            // Le cloud d'abord : une modification faite sur le site depuis la
+            // dernière synchro serait sinon remplacée par la copie locale.
+            var overwriteServer = false;
+            if (remoteClient is MainApiClient) {
+              final pull = await BotReconciliationService.pullCloudBeforePush(
+                botId: botId,
+                client: remoteClient,
+                appManager: appManager,
+              );
+              if (pull == PreStartPullOutcome.applied) {
+                await _reloadAppLocally();
+              } else if (pull ==
+                  PreStartPullOutcome.serverChangedLocalPending) {
+                if (!mounted ||
+                    !await showBotConfigServerAheadConfirmation(context)) {
+                  _reportServerAheadNothingSent();
+                  return;
+                }
+                overwriteServer = true;
+              }
+            }
             if (await getBotRuntimeEngine(botId) == runtimeEngineJavascript) {
               await validateJsBotPayloadOrThrow(botId);
             }
@@ -424,9 +448,17 @@ extension _AppHomePageLogic on _AppHomePageState {
                 botName: _appName,
                 config: payload,
                 askConfirmation: _askOvershrinkConfirmation,
+                overwriteServerChanges: overwriteServer,
+                askServerAheadConfirmation: (_) async =>
+                    mounted &&
+                    await showBotConfigServerAheadConfirmation(context),
               );
               if (pushOutcome != BotConfigPushOutcome.sent) {
-                _reportOvershrinkNothingSent();
+                if (pushOutcome == BotConfigPushOutcome.serverAheadDeclined) {
+                  _reportServerAheadNothingSent();
+                } else {
+                  _reportOvershrinkNothingSent();
+                }
                 return;
               }
               await startManagerBotWithCreditRetry(
