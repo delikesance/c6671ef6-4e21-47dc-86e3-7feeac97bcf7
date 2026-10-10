@@ -158,6 +158,57 @@ Future<void> applyManagerRuntimeMetadataToLocal({
   if (changed) await appManager.saveApp(botId, app, notifyRuntime: false);
 }
 
+/// Clés qui décident COMMENT une commande se déclenche (préfixe, slash, les deux,
+/// local seulement) et le mot qui la déclenche.
+const List<String> _triggerKeys = [
+  'triggerType',
+  'legacyModeEnabled',
+  'legacyLocalOnly',
+  'legacyPrefixOverride',
+  'legacyAliases',
+  'legacyResponseTarget',
+];
+
+/// Vrai quand le document distant dit lui-même comment la commande se déclenche.
+bool remoteDeclaresTrigger(
+  Map<String, dynamic> cmd,
+  Map<String, dynamic> data,
+) {
+  bool has(Map<String, dynamic> m) =>
+      const {
+        'prefix',
+        'slash',
+        'hybrid',
+        'none',
+      }.contains((m['triggerType'] ?? '').toString().trim().toLowerCase()) ||
+      m['legacyModeEnabled'] is bool ||
+      m['legacyLocalOnly'] is bool ||
+      m['localOnly'] is bool;
+  return has(data) || has(cmd);
+}
+
+/// Les versions de l'application qui poussaient une commande JavaScript ne
+/// disaient PAS comment elle se déclenche (ni `triggerType`, ni `legacy*`) : le
+/// document cloud d'une commande à préfixe ne la distingue donc pas d'une commande
+/// slash. Remplacer la copie locale par un tel document faisait tomber toutes les
+/// commandes à préfixe en « les deux » (hybride), donc visibles comme des
+/// commandes slash. Quand le distant reste muet, on garde ce que la copie locale
+/// de la MÊME commande sait déjà ; sans copie locale, rien ne change.
+void keepLocalTriggerWhenRemoteIsSilent(
+  Map<String, dynamic> cmd,
+  Map<String, dynamic> cmdData,
+  Map<String, dynamic> localCmd,
+) {
+  if (remoteDeclaresTrigger(cmd, cmdData)) return;
+  final localData = localCmd['data'];
+  if (localData is! Map) return;
+  final local = Map<String, dynamic>.from(localData);
+  if (!remoteDeclaresTrigger(localCmd, local)) return;
+  for (final key in _triggerKeys) {
+    if (local.containsKey(key)) cmdData[key] = local[key];
+  }
+}
+
 /// Overwrites local commands and workflows from a Manager config payload.
 Future<void> applyManagerConfigToLocal({
   required AppManager appManager,
@@ -235,12 +286,10 @@ Future<void> applyManagerConfigToLocal({
           cmdData[key] = cmd[key];
         }
       }
+      keepLocalTriggerWhenRemoteIsSilent(cmd, cmdData, localCmd);
       // Infer before nesting flattened handlers: absent legacy JS modes remain
       // hybrid, while any historical prefix/local-only flags remain authoritative.
-      cmdData['triggerType'] = commandTriggerType({
-        ...cmd,
-        if (cmd['data'] is Map) 'data': cmdData,
-      });
+      cmdData['triggerType'] = commandTriggerType({...cmd, 'data': cmdData});
       if (cmd['type'] == 'command' && cmd['script'] is String) {
         cmdData['executionMode'] = 'javascript';
         cmdData['jsScriptContent'] = cmd['script'];

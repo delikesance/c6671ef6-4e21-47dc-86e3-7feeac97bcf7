@@ -330,4 +330,62 @@ void main() {
       );
     },
   );
+
+  test(
+    'restoring an old cloud document without trigger info keeps local prefix commands',
+    () async {
+      await appManager.saveAppCommand(botId, 'old-prefix', {
+        'id': 'old-prefix',
+        'name': 'old-prefix',
+        'type': 'chatInput',
+        'data': {
+          'executionMode': 'javascript',
+          'jsScriptContent': 'return;',
+          'legacyModeEnabled': true,
+          'legacyLocalOnly': true,
+          'legacyPrefixOverride': 'p',
+          'legacyAliases': ['alias'],
+        },
+      });
+      // Shape pushed by app versions that did not send any trigger info.
+      final remote = <String, dynamic>{
+        'commands': [
+          {
+            'id': 'old-prefix',
+            'type': 'command',
+            'name': 'old-prefix',
+            'description': 'x',
+            'discordType': 'chatInput',
+            'aliases': <String>[],
+            'options': <dynamic>[],
+            'enabled': true,
+            'script': 'return;',
+          },
+          {
+            'id': 'brand-new',
+            'type': 'command',
+            'name': 'brand-new',
+            'description': 'x',
+            'discordType': 'chatInput',
+            'script': 'return;',
+          },
+        ],
+      };
+      await applyManagerConfigToLocal(
+        appManager: appManager,
+        botId: botId,
+        remoteConfig: remote,
+      );
+      final kept = await appManager.getAppCommand(botId, 'old-prefix');
+      expect(commandTriggerType(kept), 'prefix');
+      expect(kept['data']['legacyModeEnabled'], true);
+      expect(kept['data']['legacyPrefixOverride'], 'p');
+      expect(kept['data']['legacyAliases'], ['alias']);
+      // No local copy: unchanged behaviour (old JS handlers stay hybrid).
+      expect(
+        commandTriggerType(await appManager.getAppCommand(botId, 'brand-new')),
+        'hybrid',
+      );
+    },
+  );
 }
