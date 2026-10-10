@@ -11143,5 +11143,10 @@
   "subscriptions_hub_ai_credits_roulette": "Créditos de IA e roleta",
   "ai_credits_reserved": "{credits} créditos em uso neste momento",
   "ai_credits_when_today": "Hoje, {time}",
-  "ai_credits_when_yesterday": "Ontem, {time}"
+  "ai_credits_when_yesterday": "Ontem, {time}",
+  "bot_settings_database_elsewhere_title": "Já configurada em outro dispositivo",
+  "bot_settings_database_elsewhere_body": "Os dados de conexão são salvos com segurança na sua conta e nunca são exibidos em outro dispositivo. Deixe os campos vazios para mantê-los como estão ou preencha-os para substituí-los.",
+  "bot_settings_database_replace_title": "Substituir a conexão salva?",
+  "bot_settings_database_replace_body": "Já existe uma conexão salva para este bot, possivelmente a partir de outro dispositivo. Salvar estes dados a substitui em todos os lugares, e outros dispositivos que ainda guardam a antiga podem enviá-la novamente na próxima sincronização.",
+  "bot_settings_database_replace_confirm": "Substituir"
 }
