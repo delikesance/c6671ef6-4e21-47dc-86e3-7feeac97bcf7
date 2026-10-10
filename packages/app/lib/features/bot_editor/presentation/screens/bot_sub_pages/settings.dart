@@ -1,3 +1,5 @@
+import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart'
+    show databaseConfigHasCredentials;
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'dart:io';
 import 'dart:async';
@@ -91,6 +93,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   bool _showAdvancedDbFields = false;
   bool _isSavingDatabase = false;
   bool _databasePasswordVisible = false;
+  // Le Manager garde une copie chiffrée des identifiants mais ne la renvoie
+  // jamais : cet appareil ne la voit pas, il sait seulement qu'elle existe.
+  bool _databaseCredentialsElsewhere = false;
 
   static const List<String> _statusTypes = <String>[
     'playing',
@@ -337,6 +342,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       _databasePasswordController.text = (databaseConfig['password'] ?? '')
           .toString();
       _databaseSsl = databaseConfig['ssl'] == true;
+      _databaseCredentialsElsewhere =
+          databaseConfig['hasCredentials'] == true &&
+          !databaseConfigHasCredentials(databaseConfig);
     });
   }
 
@@ -403,16 +411,52 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         throw Exception(context.tr.bot_settings_save_token_first);
       }
 
-      final databaseConfig = <String, dynamic>{
-        'type': _databaseType,
-        'uri': _databaseUriController.text.trim(),
-        'host': _databaseHostController.text.trim(),
-        'port': _databasePortController.text.trim(),
-        'database': _databaseNameController.text.trim(),
-        'user': _databaseUserController.text.trim(),
+      final typedCredentials = databaseConfigHasCredentials({
+        'uri': _databaseUriController.text,
+        'host': _databaseHostController.text,
+        'user': _databaseUserController.text,
         'password': _databasePasswordController.text,
-        'ssl': _databaseSsl,
-      };
+      });
+      if (_databaseCredentialsElsewhere && typedCredentials) {
+        final replace = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(ctx.tr.bot_settings_database_replace_title),
+            content: Text(ctx.tr.bot_settings_database_replace_body),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(ctx.tr.cancel),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: Text(ctx.tr.bot_settings_database_replace_confirm),
+              ),
+            ],
+          ),
+        );
+        if (replace != true) return;
+      }
+
+      // Aucun identifiant saisi alors qu'une copie existe ailleurs : on garde le
+      // repère (jamais de champs vides) pour que rien ne soit écrasé.
+      final databaseConfig =
+          (_databaseCredentialsElsewhere && !typedCredentials)
+          ? <String, dynamic>{
+              'type': _databaseType,
+              'encrypted': true,
+              'hasCredentials': true,
+            }
+          : <String, dynamic>{
+              'type': _databaseType,
+              'uri': _databaseUriController.text.trim(),
+              'host': _databaseHostController.text.trim(),
+              'port': _databasePortController.text.trim(),
+              'database': _databaseNameController.text.trim(),
+              'user': _databaseUserController.text.trim(),
+              'password': _databasePasswordController.text,
+              'ssl': _databaseSsl,
+            };
 
       final latestAppData = Map<String, dynamic>.from(appData);
       latestAppData['token'] = token;
@@ -424,6 +468,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       applyDesktopRuntimeSettings(botId: botId, appData: latestAppData);
 
       if (!mounted) return;
+      if (typedCredentials) _databaseCredentialsElsewhere = false;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.tr.bot_settings_save_success)),
@@ -1742,11 +1787,49 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
                 const SizedBox(height: 16),
 
+                if (_databaseCredentialsElsewhere &&
+                    !databaseConfigHasCredentials({
+                      'uri': _databaseUriController.text,
+                      'host': _databaseHostController.text,
+                      'user': _databaseUserController.text,
+                      'password': _databasePasswordController.text,
+                    })) ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Colors.green.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr.bot_settings_database_elsewhere_title,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          context.tr.bot_settings_database_elsewhere_body,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
                 // URI Connection String
                 Text(context.tr.bot_settings_database_uri_label),
                 const SizedBox(height: 6),
                 TextField(
                   controller: _databaseUriController,
+                  onChanged: (_) => setState(() {}),
                   decoration: inputDecoration.copyWith(
                     hintText: _databaseType == 'postgres'
                         ? 'postgresql://user:password@localhost:5432/dbname'

@@ -11440,4 +11440,23 @@ class AppLocalizationsTr extends AppLocalizations {
   String ai_credits_when_yesterday(String time) {
     return 'Dün, $time';
   }
+
+  @override
+  String get bot_settings_database_elsewhere_title =>
+      'Already configured on another device';
+
+  @override
+  String get bot_settings_database_elsewhere_body =>
+      'Connection details are saved securely on your account and are never shown on another device. Leave the fields empty to keep them as they are, or fill them in to replace them.';
+
+  @override
+  String get bot_settings_database_replace_title =>
+      'Replace the saved connection?';
+
+  @override
+  String get bot_settings_database_replace_body =>
+      'A connection is already saved for this bot, possibly from another device. Saving these details replaces it everywhere, and other devices that still hold the old one may send it again on their next sync.';
+
+  @override
+  String get bot_settings_database_replace_confirm => 'Replace';
 }
