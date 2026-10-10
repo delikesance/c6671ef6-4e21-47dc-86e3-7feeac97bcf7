@@ -29,6 +29,28 @@ enum BotSyncStatus {
   error,
 }
 
+/// Issue de [BotReconciliationService.pullCloudBeforePush].
+enum PreStartPullOutcome {
+  /// Le local est déjà identique au cloud.
+  upToDate,
+
+  /// Le cloud avait avancé (édition faite sur le site) : il a été appliqué au
+  /// local. Le payload doit être reconstruit APRÈS cet appel.
+  applied,
+
+  /// Le local porte des modifications non poussées et le cloud n'a pas bougé
+  /// depuis la dernière révision vue : la poussée est sûre.
+  localChangesPending,
+
+  /// Le local porte des modifications non poussées ET le cloud a changé depuis
+  /// la dernière révision vue : pousser écraserait le site. Il faut demander.
+  serverChangedLocalPending,
+
+  /// Cloud injoignable, sans configuration, ou serveur sans révision : on ne
+  /// peut rien affirmer, la poussée part comme avant.
+  unavailable,
+}
+
 class BotReconciliationCheckResult {
   const BotReconciliationCheckResult({
     required this.status,
@@ -112,6 +134,70 @@ class BotReconciliationService {
       remoteTimestamp: remoteTs,
       localTimestamp: localTs,
     );
+  }
+
+  /// À appeler JUSTE AVANT la poussée d'un démarrage / redémarrage.
+  ///
+  /// POURQUOI : un démarrage envoie la configuration LOCALE au Manager, qui la
+  /// substitue au document entier. Si le bot a été modifié sur le site depuis la
+  /// dernière ouverture de la page (ou si le démarrage part de la liste des
+  /// bots, qui ne réconcilie jamais), la poussée remplaçait ces modifications
+  /// par la copie périmée du téléphone. La garde « le serveur a avancé » ne voit
+  /// que les commandes ABSENTES en local, pas l'édition d'une commande qui
+  /// existe des deux côtés.
+  ///
+  /// On lit donc la révision AVANT le document (une écriture qui arrive entre
+  /// les deux est vue au prochain contrôle, jamais masquée), on applique le
+  /// cloud au local quand rien n'est en attente d'envoi, et on retient cette
+  /// révision comme la dernière vue.
+  static Future<PreStartPullOutcome> pullCloudBeforePush({
+    required String botId,
+    required MainApiClient client,
+    AppManager? appManager,
+  }) async {
+    final String serverRevision;
+    try {
+      serverRevision =
+          (await client.listCommandsV2(botId)).revision?.trim() ?? '';
+    } catch (error) {
+      debugPrint('[Reconciliation] Pre-start pull skipped for $botId: $error');
+      return PreStartPullOutcome.unavailable;
+    }
+    if (serverRevision.isEmpty) return PreStartPullOutcome.unavailable;
+
+    if (botHasUnpushedLocalChanges(botId)) {
+      final known = client.knownRevisionOf(botId);
+      return known != null && known != serverRevision
+          ? PreStartPullOutcome.serverChangedLocalPending
+          : PreStartPullOutcome.localChangesPending;
+    }
+
+    final result = await checkSyncStatus(
+      botId: botId,
+      client: client,
+      appManager: appManager,
+    );
+    switch (result.status) {
+      case BotSyncStatus.inSync:
+        client.rememberServerRevision(botId, serverRevision);
+        return PreStartPullOutcome.upToDate;
+      case BotSyncStatus.cloudNewer:
+      case BotSyncStatus.conflict:
+      case BotSyncStatus.localNewer:
+        final remote = result.remoteConfig;
+        if (remote == null) return PreStartPullOutcome.unavailable;
+        await applyCloudToLocal(
+          botId: botId,
+          remoteConfig: remote,
+          appManager: appManager,
+          automatic: true,
+        );
+        client.rememberServerRevision(botId, serverRevision);
+        return PreStartPullOutcome.applied;
+      case BotSyncStatus.noRemoteConfig:
+      case BotSyncStatus.error:
+        return PreStartPullOutcome.unavailable;
+    }
   }
 
   /// The remote document minus the commands deleted locally and not yet confirmed in the cloud: a

@@ -426,4 +426,138 @@ void main() {
       expect(syncPayloadPushed, isTrue);
     },
   );
+
+  // Régression : modifs du site écrasées au démarrage depuis l'app mobile. La
+  // poussée du démarrage remplaçait le document entier par la copie locale ;
+  // la garde existante ne voit que les commandes ABSENTES en local, pas
+  // l'édition d'une commande présente des deux côtés.
+  MainApiClient clientWithRevision(
+    Map<String, dynamic> config, {
+    String revision = 'r-site',
+    int commandsStatus = 200,
+  }) {
+    return MainApiClient(
+      baseUrl: 'https://manager.example.com',
+      accessToken: 'dummy_token',
+      httpClient: MockClient((request) async {
+        if (request.url.host == 'r2.example.com') {
+          return http.Response(
+            jsonEncode(config),
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }
+        if (request.url.path == '/api/v2/bots/$botId/commands') {
+          if (commandsStatus != 200) {
+            return http.Response('{"message":"nope"}', commandsStatus);
+          }
+          return http.Response(
+            jsonEncode({
+              'bot_id': botId,
+              'revision': revision,
+              'commands': [
+                {'id': 'cmd_ping', 'name': 'ping'},
+              ],
+            }),
+            200,
+          );
+        }
+        if (request.url.path.endsWith('/config')) {
+          return http.Response(
+            jsonEncode({'configUrl': 'https://r2.example.com/config.json'}),
+            200,
+          );
+        }
+        return http.Response('{"error":"not found"}', 404);
+      }),
+    );
+  }
+
+  test(
+    'pullCloudBeforePush applies a site edit of an existing command',
+    () async {
+      await appManager.saveAppCommand(botId, 'cmd_ping', {
+        'id': 'cmd_ping',
+        'name': 'ping',
+        'script': 'reply("ancien");',
+        'updatedAt': '2026-09-01T10:00:00.000Z',
+      });
+      final client = clientWithRevision({
+        'commands': [
+          {
+            'id': 'cmd_ping',
+            'name': 'ping',
+            'script': 'reply("du site");',
+            'updatedAt': '2026-09-04T12:00:00.000Z',
+          },
+        ],
+        'workflows': [],
+        'globalVariables': {},
+      });
+
+      final outcome = await BotReconciliationService.pullCloudBeforePush(
+        botId: botId,
+        client: client,
+        appManager: appManager,
+      );
+
+      expect(outcome, PreStartPullOutcome.applied);
+      final local = (await appManager.listAppCommands(
+        botId,
+        forceRefresh: true,
+      )).firstWhere((c) => c['id'] == 'cmd_ping');
+      expect(jsonEncode(local), contains('du site'));
+      expect(client.knownRevisionOf(botId), 'r-site');
+    },
+  );
+
+  test('pullCloudBeforePush reports upToDate when nothing differs', () async {
+    await appManager.saveAppCommand(botId, 'cmd_ping', {
+      'id': 'cmd_ping',
+      'name': 'ping',
+      'updatedAt': '2026-09-04T12:00:00.000Z',
+    });
+    final client = clientWithRevision({
+      'commands': [
+        {
+          'id': 'cmd_ping',
+          'name': 'ping',
+          'updatedAt': '2026-09-04T12:00:00.000Z',
+        },
+      ],
+      'workflows': [],
+      'globalVariables': {},
+    });
+
+    final outcome = await BotReconciliationService.pullCloudBeforePush(
+      botId: botId,
+      client: client,
+      appManager: appManager,
+    );
+
+    expect(outcome, PreStartPullOutcome.upToDate);
+    expect(client.knownRevisionOf(botId), 'r-site');
+  });
+
+  test(
+    'pullCloudBeforePush leaves local untouched when the server is unreadable',
+    () async {
+      await appManager.saveAppCommand(botId, 'cmd_ping', {
+        'id': 'cmd_ping',
+        'name': 'ping',
+        'script': 'reply("local");',
+      });
+      final client = clientWithRevision(const {}, commandsStatus: 500);
+
+      final outcome = await BotReconciliationService.pullCloudBeforePush(
+        botId: botId,
+        client: client,
+        appManager: appManager,
+      );
+
+      expect(outcome, PreStartPullOutcome.unavailable);
+      final local = await appManager.listAppCommands(botId, forceRefresh: true);
+      expect(jsonEncode(local), contains(r'reply(\"local\")'));
+    },
+  );
 }
