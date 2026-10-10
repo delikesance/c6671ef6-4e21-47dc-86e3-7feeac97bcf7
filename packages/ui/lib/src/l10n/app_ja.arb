@@ -11197,5 +11197,10 @@
   "subscriptions_hub_ai_credits_roulette": "AI クレジットとルーレット",
   "ai_credits_reserved": "{credits} クレジットを現在使用中",
   "ai_credits_when_today": "今日 {time}",
-  "ai_credits_when_yesterday": "昨日 {time}"
+  "ai_credits_when_yesterday": "昨日 {time}",
+  "bot_settings_database_elsewhere_title": "別のデバイスで設定済み",
+  "bot_settings_database_elsewhere_body": "接続情報はアカウントに安全に保存されており、他のデバイスには表示されません。そのままにするには入力欄を空のままにし、置き換えるには入力してください。",
+  "bot_settings_database_replace_title": "保存済みの接続を置き換えますか？",
+  "bot_settings_database_replace_body": "このボットには、別のデバイスからかもしれませんが、すでに接続が保存されています。これらの情報を保存するとすべての場所で置き換えられ、古い接続を保持している他のデバイスが次回の同期で再送信する場合があります。",
+  "bot_settings_database_replace_confirm": "置き換える"
 }
