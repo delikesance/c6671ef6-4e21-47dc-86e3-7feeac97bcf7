@@ -11567,4 +11567,23 @@ class AppLocalizationsFr extends AppLocalizations {
   String ai_credits_when_yesterday(String time) {
     return 'Hier, $time';
   }
+
+  @override
+  String get bot_settings_database_elsewhere_title =>
+      'Déjà configurée sur un autre appareil';
+
+  @override
+  String get bot_settings_database_elsewhere_body =>
+      'Les identifiants sont enregistrés de façon sécurisée sur votre compte et ne sont jamais affichés sur un autre appareil. Laissez les champs vides pour les conserver tels quels, ou remplissez-les pour les remplacer.';
+
+  @override
+  String get bot_settings_database_replace_title =>
+      'Remplacer la connexion enregistrée ?';
+
+  @override
+  String get bot_settings_database_replace_body =>
+      'Une connexion est déjà enregistrée pour ce bot, peut-être depuis un autre appareil. Enregistrer ces identifiants la remplace partout, et un autre appareil qui garde l\'ancienne peut la renvoyer à sa prochaine synchronisation.';
+
+  @override
+  String get bot_settings_database_replace_confirm => 'Remplacer';
 }

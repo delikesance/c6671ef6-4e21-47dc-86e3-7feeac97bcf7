@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:bot_creator/core/utils/hash_util.dart';
+import 'package:bot_creator/features/copilot/logic/copilot_tool_result.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator_shared/utils/bdfd_functions.dart';
 import 'package:bot_creator_shared/utils/bdfd_lexer.dart';
@@ -40,7 +41,7 @@ BdfdCompileResult checkCopilotBdfd(
   for (final token in lexical.tokens) {
     if (token.type == BdfdTokenType.function &&
         !allBdfdFunctions.contains(token.lexeme.substring(1).toLowerCase())) {
-      throw FormatException(
+      throw CopilotArgumentError(
         'Unknown function ${token.lexeme}; use the local block registry',
       );
     }
@@ -50,7 +51,7 @@ BdfdCompileResult checkCopilotBdfd(
   // bracketed call itself.
   for (final match in RegExp(r'(?<!\\)\$([A-Za-z_]\w*)\[').allMatches(script)) {
     if (!allBdfdFunctions.contains(match.group(1)!.toLowerCase())) {
-      throw FormatException(
+      throw CopilotArgumentError(
         'Unknown function \$${match.group(1)}; use the local block registry',
       );
     }
@@ -59,7 +60,7 @@ BdfdCompileResult checkCopilotBdfd(
     legacyUserVariables: legacyUserVariables,
   ).compile(script);
   if (result.hasErrors) {
-    throw FormatException(result.diagnostics.map((d) => d.message).join('\n'));
+    throw CopilotArgumentError(result.diagnostics.map((d) => d.message).join('\n'));
   }
   return result;
 }
