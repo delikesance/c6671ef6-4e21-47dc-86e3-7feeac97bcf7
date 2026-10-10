@@ -2478,6 +2478,24 @@ class HomePageState extends State<HomePage>
             if (await getBotRuntimeEngine(botId) == runtimeEngineJavascript) {
               await validateJsBotPayloadOrThrow(botId);
             }
+            // Le cloud d'abord : une modification faite sur le site depuis la
+            // dernière synchro serait sinon remplacée par la copie locale.
+            var overwriteServer = false;
+            if (client is MainApiClient) {
+              final pull = await BotReconciliationService.pullCloudBeforePush(
+                botId: botId,
+                client: client,
+                appManager: appManager,
+              );
+              if (pull == PreStartPullOutcome.serverChangedLocalPending) {
+                if (!mounted ||
+                    !await showBotConfigServerAheadConfirmation(context)) {
+                  _reportServerAheadNothingSent();
+                  return;
+                }
+                overwriteServer = true;
+              }
+            }
             final payload = await buildRemotePayload(botId);
             if (client is MainApiClient) {
               final app = await appManager.getApp(botId);
@@ -2508,9 +2526,17 @@ class HomePageState extends State<HomePage>
                 botName: botName,
                 config: payload,
                 askConfirmation: _askOvershrinkConfirmation,
+                overwriteServerChanges: overwriteServer,
+                askServerAheadConfirmation: (_) async =>
+                    mounted &&
+                    await showBotConfigServerAheadConfirmation(context),
               );
               if (pushOutcome != BotConfigPushOutcome.sent) {
-                _reportOvershrinkNothingSent();
+                if (pushOutcome == BotConfigPushOutcome.serverAheadDeclined) {
+                  _reportServerAheadNothingSent();
+                } else {
+                  _reportOvershrinkNothingSent();
+                }
                 return;
               }
               // Encadré : la demande part, puis le RÉSULTAT est écrit. Sans ces deux
@@ -2918,6 +2944,20 @@ class HomePageState extends State<HomePage>
         content: Text(
           localizedBotConfigOvershrinkConfirmation(context.tr).body,
         ),
+        backgroundColor: AppTheme.error,
+      ),
+    );
+  }
+
+  /// Dit que la poussée n'a rien envoyé : le site (ou un autre appareil) a
+  /// modifié le bot et l'utilisateur a gardé la version du serveur.
+  void _reportServerAheadNothingSent() {
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(context.tr.bot_config_server_ahead_body),
         backgroundColor: AppTheme.error,
       ),
     );

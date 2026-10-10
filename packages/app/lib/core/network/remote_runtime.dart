@@ -694,6 +694,9 @@ Future<BotConfigPushOutcome> pushStartBotConfigToleratingOvershrink({
   required String botName,
   required Map<String, dynamic> config,
   required Future<bool> Function() askConfirmation,
+  Future<bool> Function(BotConfigServerAheadException conflict)?
+  askServerAheadConfirmation,
+  bool overwriteServerChanges = false,
 }) => pushBotConfigToleratingOvershrink(
   push: (confirmOvershrink) => client is MainApiClient
       ? client.syncBot(
@@ -701,7 +704,20 @@ Future<BotConfigPushOutcome> pushStartBotConfigToleratingOvershrink({
           botName,
           config,
           confirmOvershrink: confirmOvershrink,
+          overwriteServerChanges: overwriteServerChanges,
         )
       : client.syncBot(botId, botName, config),
   askConfirmation: askConfirmation,
+  askServerAheadConfirmation: client is MainApiClient
+      ? askServerAheadConfirmation
+      : null,
+  pushOverwritingServer: client is MainApiClient
+      ? (confirmOvershrink) => client.syncBot(
+          botId,
+          botName,
+          config,
+          confirmOvershrink: confirmOvershrink,
+          overwriteServerChanges: true,
+        )
+      : null,
 );

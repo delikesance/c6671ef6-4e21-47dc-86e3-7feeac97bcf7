@@ -1587,6 +1587,11 @@ class MainApiClient implements RemoteRuntimeClient {
     return runnerSynced;
   }
 
+  /// Dernière révision du document vue par cet appareil pour [botId] ; `null`
+  /// si aucune.
+  String? knownRevisionOf(String botId) =>
+      _knownRevisions['$_baseUrl:${botId.trim()}'];
+
   /// Retient [revision] comme la dernière vue par cet appareil pour [botId].
   /// Une révision vide ne retient rien (elle ne prouverait rien).
   void rememberServerRevision(String botId, String? revision) {
