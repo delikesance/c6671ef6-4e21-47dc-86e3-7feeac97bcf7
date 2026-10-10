@@ -17,6 +17,22 @@ void main() {
     expect((merged['databaseConfig'] as Map)['password'], 'p');
   });
 
+  test('an empty local copy adopts the remote hint that a copy exists', () {
+    final Map<String, dynamic> emptyLocal = {
+      'databaseConfig': {'type': 'mongo', 'uri': '', 'password': ''},
+    };
+    final Map<String, dynamic> remote = {
+      'databaseConfig': {
+        'type': 'mongo',
+        'encrypted': true,
+        'hasCredentials': true,
+      },
+    };
+    final merged = <String, dynamic>{...emptyLocal}..addAll(remote);
+    keepLocalDatabaseCredentials(merged, emptyLocal, remote);
+    expect((merged['databaseConfig'] as Map)['hasCredentials'], true);
+  });
+
   test('a different remote database type wins', () {
     final Map<String, dynamic> remote = {
       'databaseConfig': {'type': 'mysql', 'encrypted': true},

@@ -11159,5 +11159,10 @@
   "subscriptions_hub_ai_credits_roulette": "Crédits IA et roulette",
   "ai_credits_reserved": "{credits} crédits en cours d’utilisation",
   "ai_credits_when_today": "Aujourd’hui, {time}",
-  "ai_credits_when_yesterday": "Hier, {time}"
+  "ai_credits_when_yesterday": "Hier, {time}",
+  "bot_settings_database_elsewhere_title": "Déjà configurée sur un autre appareil",
+  "bot_settings_database_elsewhere_body": "Les identifiants sont enregistrés de façon sécurisée sur votre compte et ne sont jamais affichés sur un autre appareil. Laissez les champs vides pour les conserver tels quels, ou remplissez-les pour les remplacer.",
+  "bot_settings_database_replace_title": "Remplacer la connexion enregistrée ?",
+  "bot_settings_database_replace_body": "Une connexion est déjà enregistrée pour ce bot, peut-être depuis un autre appareil. Enregistrer ces identifiants la remplace partout, et un autre appareil qui garde l'ancienne peut la renvoyer à sa prochaine synchronisation.",
+  "bot_settings_database_replace_confirm": "Remplacer"
 }

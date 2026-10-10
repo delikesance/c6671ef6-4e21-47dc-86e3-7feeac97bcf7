@@ -70,8 +70,25 @@ void keepLocalDatabaseCredentials(
   final remoteType = (remote['type'] ?? 'none').toString().trim().toLowerCase();
   if (localType == 'none') return;
   if (remoteType == 'none' || remoteType.isEmpty || remoteType == localType) {
+    // Copie locale VIDE (enregistrée sans rien saisir) alors que le Manager sait
+    // qu'une copie existe : on adopte le repère distant, qui porte l'indice
+    // `hasCredentials`, sinon cet appareil ne saurait jamais qu'ils existent.
+    if (remote['hasCredentials'] == true &&
+        remoteType == localType &&
+        !databaseConfigHasCredentials(local)) {
+      return;
+    }
     merged['databaseConfig'] = Map<String, dynamic>.from(local);
   }
+}
+
+/// Vrai si ce `databaseConfig` porte réellement des identifiants saisis ici.
+bool databaseConfigHasCredentials(Map<dynamic, dynamic>? db) {
+  if (db == null) return false;
+  for (final key in const ['uri', 'host', 'user', 'password']) {
+    if ((db[key] ?? '').toString().trim().isNotEmpty) return true;
+  }
+  return false;
 }
 
 /// `addAll(remoteConfig)` écrase aussi deux clés dont la forme distante n'est
