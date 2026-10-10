@@ -1,1 +1,33 @@
-{}
+{
+  "de": [
+    "bot_settings_database_elsewhere_title",
+    "bot_settings_database_elsewhere_body",
+    "bot_settings_database_replace_title",
+    "bot_settings_database_replace_body",
+    "bot_settings_database_replace_confirm"
+  ],
+
+  "ja": [
+    "bot_settings_database_elsewhere_title",
+    "bot_settings_database_elsewhere_body",
+    "bot_settings_database_replace_title",
+    "bot_settings_database_replace_body",
+    "bot_settings_database_replace_confirm"
+  ],
+
+  "pt": [
+    "bot_settings_database_elsewhere_title",
+    "bot_settings_database_elsewhere_body",
+    "bot_settings_database_replace_title",
+    "bot_settings_database_replace_body",
+    "bot_settings_database_replace_confirm"
+  ],
+
+  "tr": [
+    "bot_settings_database_elsewhere_title",
+    "bot_settings_database_elsewhere_body",
+    "bot_settings_database_replace_title",
+    "bot_settings_database_replace_body",
+    "bot_settings_database_replace_confirm"
+  ]
+}

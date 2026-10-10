@@ -11110,5 +11110,10 @@
   "subscriptions_hub_ai_credits_roulette": "Yapay zeka kredileri ve çark",
   "ai_credits_reserved": "{credits} kredi şu anda kullanılıyor",
   "ai_credits_when_today": "Bugün, {time}",
-  "ai_credits_when_yesterday": "Dün, {time}"
+  "ai_credits_when_yesterday": "Dün, {time}",
+  "bot_settings_database_elsewhere_title": "Başka bir cihazda zaten yapılandırılmış",
+  "bot_settings_database_elsewhere_body": "Bağlantı bilgileri hesabınızda güvenli şekilde saklanır ve başka bir cihazda asla gösterilmez. Olduğu gibi korumak için alanları boş bırakın veya değiştirmek için doldurun.",
+  "bot_settings_database_replace_title": "Kayıtlı bağlantı değiştirilsin mi?",
+  "bot_settings_database_replace_body": "Bu bot için, belki başka bir cihazdan, zaten kayıtlı bir bağlantı var. Bu bilgileri kaydetmek bağlantıyı her yerde değiştirir ve eski bağlantıyı hâlâ tutan diğer cihazlar bir sonraki eşitlemede onu yeniden gönderebilir.",
+  "bot_settings_database_replace_confirm": "Değiştir"
 }

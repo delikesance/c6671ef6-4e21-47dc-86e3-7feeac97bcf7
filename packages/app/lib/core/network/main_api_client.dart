@@ -1495,6 +1495,11 @@ class MainApiClient implements RemoteRuntimeClient {
 
     final safeConfig = _sanitizeConfigForUpload(config);
 
+    final String? expectRevision =
+        !overwriteServerChanges && await _serverHonoursFullPushRevision()
+        ? knownRevisionOf(botId)
+        : null;
+
     // Le drapeau n'est posé QUE quand l'utilisateur a répondu oui au dialogue de
     // sur-réduction. Il voyage dans les deux corps visant `/gateway/bots/sync`
     // (chemin pré-signé et repli direct) : une poussée rejouée doit être la MÊME,
@@ -1505,6 +1510,10 @@ class MainApiClient implements RemoteRuntimeClient {
       // `encrypted: true`) : le serveur le prendrait pour déjà chiffré et ne
       // rangerait jamais les identifiants. On les lui remet par ce champ dédié.
       'databaseConfig': ?_databaseCredentialsOf(config),
+      // Précondition de la poussée complète : si le Studio ou un autre appareil
+      // a écrit depuis la dernière révision vue, le serveur refuse (409) au lieu
+      // d'écraser. Seulement envoyée à un serveur qui l'annonce.
+      'expectRevision': ?expectRevision,
     };
 
     // Le document est-il DÉJÀ dans le stockage d'objets ? C'est ce qui décide si
@@ -1520,62 +1529,82 @@ class MainApiClient implements RemoteRuntimeClient {
     // serveur (~2 min).
     var uploadedToObjectStore = false;
     var runnerSynced = false;
+    String? pushedRevision;
 
     try {
-      // 1. Get presigned ticket
-      final ticket = await presignBotConfig(botId: botId);
+      try {
+        // 1. Get presigned ticket
+        final ticket = await presignBotConfig(botId: botId);
 
-      // 2. Upload config JSON to the presigned uploadUrl (zero plaintext secrets)
-      final configJsonBytes = utf8.encode(jsonEncode(safeConfig));
-      await uploadFileToPresignedUrl(
-        uploadUrl: ticket.uploadUrl,
-        fileBytes: configJsonBytes,
-        contentType: 'application/json; charset=utf-8',
-      );
-      uploadedToObjectStore = true;
-
-      // 3. Call sync endpoint with configUrl — budget de poussée, un seul essai
-      final response = await _postFirstAvailable(
-        const <String>['/gateway/bots/sync', '/bots/sync'],
-        <String, dynamic>{
-          'botId': botId,
-          'botName': botName,
-          'configUrl': ticket.configUrl,
-          ...overshrinkConsent,
-        },
-        timeout: _configPushTimeout,
-        retryOnFailure: false,
-      );
-      runnerSynced = response['runner_synced'] == true;
-    } catch (error) {
-      if (uploadedToObjectStore) {
-        // Le document est en place : cet échec vient de la synchro elle-même.
-        // Rejouer la poussée entière ne répare rien, ne fait que renvoyer la
-        // configuration sur un serveur qui la traite encore, et se heurte au
-        // verrou de synchro par bot (409 bot_sync_in_progress).
-        debugPrint(
-          '[MainApiClient] Config sync failed after a successful upload: $error. Not replaying the config.',
+        // 2. Upload config JSON to the presigned uploadUrl (zero plaintext secrets)
+        final configJsonBytes = utf8.encode(jsonEncode(safeConfig));
+        await uploadFileToPresignedUrl(
+          uploadUrl: ticket.uploadUrl,
+          fileBytes: configJsonBytes,
+          contentType: 'application/json; charset=utf-8',
         );
-        rethrow;
+        uploadedToObjectStore = true;
+
+        // 3. Call sync endpoint with configUrl — budget de poussée, un seul essai
+        final response = await _postFirstAvailable(
+          const <String>['/gateway/bots/sync', '/bots/sync'],
+          <String, dynamic>{
+            'botId': botId,
+            'botName': botName,
+            'configUrl': ticket.configUrl,
+            ...overshrinkConsent,
+          },
+          timeout: _configPushTimeout,
+          retryOnFailure: false,
+        );
+        runnerSynced = response['runner_synced'] == true;
+        pushedRevision = response['config_revision'] as String?;
+      } catch (error) {
+        if (uploadedToObjectStore) {
+          // Le document est en place : cet échec vient de la synchro elle-même.
+          // Rejouer la poussée entière ne répare rien, ne fait que renvoyer la
+          // configuration sur un serveur qui la traite encore, et se heurte au
+          // verrou de synchro par bot (409 bot_sync_in_progress).
+          debugPrint(
+            '[MainApiClient] Config sync failed after a successful upload: $error. Not replaying the config.',
+          );
+          rethrow;
+        }
+
+        debugPrint(
+          '[MainApiClient] Presigned config upload failed: $error. Falling back to legacy direct sync.',
+        );
+
+        // Fallback: legacy direct POST sync with sanitized config
+        final response = await _postFirstAvailable(
+          const <String>['/gateway/bots/sync', '/bots/sync'],
+          <String, dynamic>{
+            'botId': botId,
+            'botName': botName,
+            'config': safeConfig,
+            ...overshrinkConsent,
+          },
+          timeout: _configPushTimeout,
+          retryOnFailure: false,
+        );
+        runnerSynced = response['runner_synced'] == true;
+        pushedRevision = response['config_revision'] as String?;
       }
-
-      debugPrint(
-        '[MainApiClient] Presigned config upload failed: $error. Falling back to legacy direct sync.',
-      );
-
-      // Fallback: legacy direct POST sync with sanitized config
-      final response = await _postFirstAvailable(
-        const <String>['/gateway/bots/sync', '/bots/sync'],
-        <String, dynamic>{
-          'botId': botId,
-          'botName': botName,
-          'config': safeConfig,
-          ...overshrinkConsent,
-        },
-        timeout: _configPushTimeout,
-        retryOnFailure: false,
-      );
-      runnerSynced = response['runner_synced'] == true;
+    } on MainApiClientException catch (error) {
+      if (expectRevision != null &&
+          error.statusCode == 409 &&
+          error.code == 'bot_config_revision_conflict') {
+        // Quelqu'un a écrit entre notre lecture et notre poussée : rien n'a été
+        // remplacé côté serveur. Même question que « le serveur a avancé ».
+        final serverRevision = await _currentServerRevision(botId);
+        throw BotConfigServerAheadException(
+          botId: botId,
+          serverRevision: serverRevision ?? '',
+          knownRevision: expectRevision,
+          serverOnlyCommandIds: const <String>[],
+        );
+      }
+      rethrow;
     }
 
     _lastSyncedHashes[cacheKey] = currentHash;
@@ -1583,9 +1612,46 @@ class MainApiClient implements RemoteRuntimeClient {
     unawaited(_persistHashes(_lastSyncedHashesKey, _lastSyncedHashes));
     // La poussée a changé la révision du document : on la retient, sinon la
     // poussée suivante verrait « un autre auteur » dans notre propre écriture.
-    await _refreshKnownRevision(botId);
+    if ((pushedRevision ?? '').trim().isNotEmpty) {
+      rememberServerRevision(botId, pushedRevision);
+    } else {
+      await _refreshKnownRevision(botId);
+    }
     return runnerSynced;
   }
+
+  bool? _fullPushRevisionSupported;
+
+  /// Le serveur honore-t-il `expectRevision` sur la poussée complète ? Réponse
+  /// de la sonde de capacités ; un serveur sans sonde (404) ou une panne de la
+  /// sonde = non, la poussée part alors exactement comme avant.
+  Future<bool> _serverHonoursFullPushRevision() async {
+    final cached = _fullPushRevisionSupported;
+    if (cached != null) return cached;
+    try {
+      final caps = await fetchCapabilities();
+      final supported = caps?.fullPushRevision == true;
+      _fullPushRevisionSupported = supported;
+      return supported;
+    } catch (error) {
+      debugPrint('[MainApiClient] Capability probe skipped: $error');
+      return false;
+    }
+  }
+
+  Future<String?> _currentServerRevision(String botId) async {
+    try {
+      final revision = (await listCommandsV2(botId)).revision?.trim();
+      return (revision == null || revision.isEmpty) ? null : revision;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Dernière révision du document vue par cet appareil pour [botId] ; `null`
+  /// si aucune.
+  String? knownRevisionOf(String botId) =>
+      _knownRevisions['$_baseUrl:${botId.trim()}'];
 
   /// Retient [revision] comme la dernière vue par cet appareil pour [botId].
   /// Une révision vide ne retient rien (elle ne prouverait rien).
