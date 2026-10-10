@@ -19620,6 +19620,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Yesterday, {time}'**
   String ai_credits_when_yesterday(String time);
+
+  /// No description provided for @bot_settings_database_elsewhere_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Already configured on another device'**
+  String get bot_settings_database_elsewhere_title;
+
+  /// No description provided for @bot_settings_database_elsewhere_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection details are saved securely on your account and are never shown on another device. Leave the fields empty to keep them as they are, or fill them in to replace them.'**
+  String get bot_settings_database_elsewhere_body;
+
+  /// No description provided for @bot_settings_database_replace_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace the saved connection?'**
+  String get bot_settings_database_replace_title;
+
+  /// No description provided for @bot_settings_database_replace_body.
+  ///
+  /// In en, this message translates to:
+  /// **'A connection is already saved for this bot, possibly from another device. Saving these details replaces it everywhere, and other devices that still hold the old one may send it again on their next sync.'**
+  String get bot_settings_database_replace_body;
+
+  /// No description provided for @bot_settings_database_replace_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get bot_settings_database_replace_confirm;
 }
 
 class _AppLocalizationsDelegate
