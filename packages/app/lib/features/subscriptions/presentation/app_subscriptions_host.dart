@@ -353,12 +353,23 @@ class AppAiCreditsHost extends ui.AiCreditsHost {
     }
     final ticket = await client.createAIRewardTicket(platform);
     final id = ticket['id'] as String;
-    final completed = await showAIRewardAd(
-      adUnit: ticket['ad_unit'] as String,
-      owner: owner,
-      ticket: id,
-    );
-    if (!completed) return ui.AiRewardAdOutcome.abandoned;
+    final bool completed;
+    try {
+      completed = await showAIRewardAd(
+        adUnit: ticket['ad_unit'] as String,
+        owner: owner,
+        ticket: id,
+      );
+    } catch (_) {
+      // Pas de pub (chargement échoué, délai dépassé) : sans ça le ticket
+      // garde l'une des 3 pubs du jour pendant 15 minutes pour rien.
+      await _releaseTicket(client, id);
+      rethrow;
+    }
+    if (!completed) {
+      await _releaseTicket(client, id);
+      return ui.AiRewardAdOutcome.abandoned;
+    }
     for (var attempt = 0; attempt < 20; attempt++) {
       final state = await client.getAIRewardTicket(id);
       if ((state['spins'] as num? ?? 0) > 0) {
@@ -367,6 +378,14 @@ class AppAiCreditsHost extends ui.AiCreditsHost {
       await Future<void>.delayed(const Duration(seconds: 2));
     }
     return ui.AiRewardAdOutcome.pending;
+  }
+
+  Future<void> _releaseTicket(MainApiClient client, String id) async {
+    try {
+      await client.cancelAIRewardTicket(id);
+    } catch (_) {
+      // Best effort : le ticket expire de lui-même.
+    }
   }
 
   @override
