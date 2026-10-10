@@ -2953,6 +2953,13 @@ class MainApiClient implements RemoteRuntimeClient {
       _post('/gateway/ai/rewards/tickets', {'platform': platform});
   Future<Map<String, dynamic>> getAIRewardTicket(String id) =>
       _get('/gateway/ai/rewards/tickets/${Uri.encodeComponent(id)}');
+
+  /// Rend la pub du jour d'un ticket dont la pub n'a pas été vue. Un Manager
+  /// plus ancien (404/405) n'a pas cette route : l'appelant ignore l'erreur.
+  Future<void> cancelAIRewardTicket(String id) async {
+    await _delete('/gateway/ai/rewards/tickets/${Uri.encodeComponent(id)}');
+  }
+
   Future<Map<String, dynamic>> spinAIRoulette(String key) =>
       _post('/gateway/ai/roulette/spin', {'idempotency_key': key});
 
