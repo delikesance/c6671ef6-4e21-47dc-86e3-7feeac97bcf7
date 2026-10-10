@@ -1,3 +1,4 @@
+import 'package:bot_creator/features/copilot/logic/copilot_command.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_configuration.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_tool_result.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -100,6 +101,18 @@ void main() {
     );
     expect(result['code'], 'invalid_tool_arguments');
     expect(result['message'], contains('option name: use 1-32 lowercase'));
+  });
+
+  test('unknown BDFD functions reach the assistant with their name', () {
+    Object? caught;
+    try {
+      checkCopilotBdfd(r'$if[1==1]\n$interaction[userId]\n$endif');
+    } catch (e) {
+      caught = e;
+    }
+    final result = copilotToolFailure(caught!);
+    expect(result['code'], 'invalid_tool_arguments');
+    expect(result['message'], contains(r'Unknown function $interaction'));
   });
 
   test('command and option names accept any lowercase script', () {
