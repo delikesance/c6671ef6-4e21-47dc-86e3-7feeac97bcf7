@@ -11110,5 +11110,10 @@
   "subscriptions_hub_ai_credits_roulette": "KI-Credits und Glücksrad",
   "ai_credits_reserved": "{credits} Credits werden gerade verwendet",
   "ai_credits_when_today": "Heute, {time}",
-  "ai_credits_when_yesterday": "Gestern, {time}"
+  "ai_credits_when_yesterday": "Gestern, {time}",
+  "bot_settings_database_elsewhere_title": "Bereits auf einem anderen Gerät konfiguriert",
+  "bot_settings_database_elsewhere_body": "Die Verbindungsdaten sind sicher in Ihrem Konto gespeichert und werden auf keinem anderen Gerät angezeigt. Lassen Sie die Felder leer, um sie unverändert zu lassen, oder füllen Sie sie aus, um sie zu ersetzen.",
+  "bot_settings_database_replace_title": "Gespeicherte Verbindung ersetzen?",
+  "bot_settings_database_replace_body": "Für diesen Bot ist bereits eine Verbindung gespeichert, möglicherweise von einem anderen Gerät. Das Speichern dieser Daten ersetzt sie überall, und andere Geräte, die noch die alte Verbindung haben, senden sie bei der nächsten Synchronisierung eventuell erneut.",
+  "bot_settings_database_replace_confirm": "Ersetzen"
 }
