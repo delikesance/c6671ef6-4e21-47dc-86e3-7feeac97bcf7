@@ -31,6 +31,7 @@ class BotCapabilities {
     required this.configRevisionAware,
     required this.commandHistory,
     required this.commandHistoryLimit,
+    this.fullPushRevision = false,
   });
 
   /// Version du contrat granulaire annoncée (aujourd'hui `1`).
@@ -48,6 +49,11 @@ class BotCapabilities {
   /// Borne de rétention du journal : nombre de versions conservées par entité.
   final int commandHistoryLimit;
 
+  /// `POST /gateway/bots/sync` honore-t-il `expectRevision` ? Un serveur plus
+  /// ancien rejette les champs inconnus du corps : on ne l'envoie qu'à un
+  /// serveur qui l'annonce.
+  final bool fullPushRevision;
+
   /// Décode la sonde. Rend `null` quand la réponse n'est PAS exploitable
   /// (corps vide, `granular_api` absent) : un `200` sans version annoncée ne
   /// prouve pas qu'un contrat existe, et se rabattre sur le legacy est le seul
@@ -60,6 +66,7 @@ class BotCapabilities {
       configRevisionAware: json['config_revision_aware'] == true,
       commandHistory: json['command_history'] == true,
       commandHistoryLimit: _wireInt(json['command_history_limit']) ?? 0,
+      fullPushRevision: json['full_push_revision'] == true,
     );
   }
 
@@ -272,7 +279,8 @@ class CommandDetail {
   final String? revision;
 
   @override
-  String toString() => 'CommandDetail(\$botId/\$commandId, \${raw.length} clés)';
+  String toString() =>
+      'CommandDetail(\$botId/\$commandId, \${raw.length} clés)';
 }
 
 /// Une entrée d'historique — MÉTADONNÉES SEULEMENT
@@ -360,9 +368,7 @@ class GranularWriteResult {
     final rawCommand = json['command'];
     return GranularWriteResult(
       revision: _wireString(json['revision']),
-      command: rawCommand is Map
-          ? Map<String, dynamic>.from(rawCommand)
-          : null,
+      command: rawCommand is Map ? Map<String, dynamic>.from(rawCommand) : null,
       historyId: _wireString(json['history_id']),
       runnerSynced: json['runner_synced'] == true,
     );
